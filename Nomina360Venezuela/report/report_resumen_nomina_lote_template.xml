@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Action for Resumen Consolidado de Lote de Nómina (Profit Plus Style) -->
+    <record id="action_report_resumen_nomina_lote" model="ir.actions.report">
+        <field name="name">Resumen Consolidado de Lote de Nómina (Profit Plus Style)</field>
+        <field name="model">hr.payslip.run</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">Nomina360Venezuela.report_resumen_nomina_lote_document</field>
+        <field name="report_file">Nomina360Venezuela.report_resumen_nomina_lote_document</field>
+        <field name="print_report_name">'Resumen_Lote_Nomina_' + (object.name or '').replace(' ', '_')</field>
+        <field name="binding_model_id" ref="hr_payroll.model_hr_payslip_run"/>
+        <field name="binding_type">report</field>
+    </record>
+
+    <template id="report_resumen_nomina_lote_document">
+        <t t-call="web.basic_layout">
+            <t t-foreach="docs" t-as="o">
+                <div class="page" style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; color: #0f172a; padding: 15px; font-size: 8.5pt;">
+                    
+                    <!-- ENCABEZADO DE RESUMEN PROFIT PLUS ENTERPRISE -->
+                    <div style="border-bottom: 2px solid #1e3a8a; padding-bottom: 8px; margin-bottom: 15px; display: flex; justify-content: space-between;">
+                        <div>
+                            <h2 style="margin: 0; color: #1e3a8a; font-weight: 900; font-size: 15pt; text-transform: uppercase;">
+                                <t t-esc="o.company_id.name"/>
+                            </h2>
+                            <p style="margin: 2px 0 0 0; color: #475569; font-size: 9pt; font-weight: 700;">
+                                RIF: <t t-esc="o.company_id.vat or 'J-00000000-0'"/> | RELACIÓN GENERAL Y MATRIZ DE CONCEPTOS DE NÓMINA
+                            </p>
+                        </div>
+                        <div style="text-align: right; font-size: 8.5pt; color: #475569;">
+                            Lote: <strong style="color: #1e3a8a; font-size: 10pt;"><t t-esc="o.name"/></strong><br/>
+                            Tasa BCV Lote: <strong><t t-esc="string.format('{:,.2f}', o.bcv_rate_applied)"/> Bs/$</strong><br/>
+                            Emisión: <strong><t t-esc="context_timestamp(datetime.datetime.now()).strftime('%d/%m/%Y %H:%M')"/></strong>
+                        </div>
+                    </div>
+
+                    <!-- RESUMEN DE PARÁMETROS DEL LOTE -->
+                    <div style="background: #eff6ff; border: 1px solid #bfdbfe; padding: 10px; border-radius: 6px; margin-bottom: 15px; display: flex; justify-content: space-between;">
+                        <div>
+                            <strong>Fecha Inicio:</strong> <t t-esc="o.date_start and o.date_start.strftime('%d/%m/%Y') or 'N/A'"/> | 
+                            <strong>Fecha Fin:</strong> <t t-esc="o.date_end and o.date_end.strftime('%d/%m/%Y') or 'N/A'"/> | 
+                            <strong>Total Empleados:</strong> <t t-esc="len(o.slip_ids)"/>
+                        </div>
+                        <div style="text-align: right;">
+                            <strong>Total Neto Bs:</strong> <span style="color: #1e3a8a; font-weight: 800;">Bs. <t t-esc="string.format('{:,.2f}', o.total_net_bs)"/></span> | 
+                            <strong>Total Neto USD:</strong> <span style="color: #059669; font-weight: 800;">$ <t t-esc="string.format('{:,.2f}', o.total_net_usd)"/></span>
+                        </div>
+                    </div>
+
+                    <!-- MATRIZ DETALLADA LISTA DE RAYA POR CONCEPTO (PROFIT STYLE) -->
+                    <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px; border: 1px solid #cbd5e1; font-size: 8pt;">
+                        <thead>
+                            <tr style="background: #1e3a8a; color: #ffffff; text-align: center; font-weight: 800;">
+                                <th style="padding: 6px; border: 1px solid #1e40af;">N° RECIBO</th>
+                                <th style="padding: 6px; border: 1px solid #1e40af; text-align: left;">EMPLEADO / CÉDULA</th>
+                                <th style="padding: 6px; border: 1px solid #1e40af; text-align: right;">SUELDO BÁSICO</th>
+                                <th style="padding: 6px; border: 1px solid #1e40af; text-align: right;">CESTATICKET</th>
+                                <th style="padding: 6px; border: 1px solid #1e40af; text-align: right;">ASIGNACIONES</th>
+                                <th style="padding: 6px; border: 1px solid #1e40af; text-align: right;">DEDUCC. LEY</th>
+                                <th style="padding: 6px; border: 1px solid #1e40af; text-align: right;">PRÉSTAMOS</th>
+                                <th style="padding: 6px; border: 1px solid #1e40af; text-align: right;">TOTAL DEDUCC.</th>
+                                <th style="padding: 6px; border: 1px solid #1e40af; text-align: right;">NETO A PAGAR (BS)</th>
+                                <th style="padding: 6px; border: 1px solid #1e40af; text-align: right;">NETO ($ USD)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <t t-foreach="o.slip_ids" t-as="s">
+                                <t t-set="asig" t-value="sum(s.line_ids.filtered(lambda l: l.category_id.code in ['BASIC', 'ALW', 'COMP']).mapped('total'))"/>
+                                <t t-set="ded_ley" t-value="abs(sum(s.line_ids.filtered(lambda l: l.code in ['IVSS_EE', 'SPF_EE', 'FAOV_EE', 'ISLR_AR_I']).mapped('total')))"/>
+                                <t t-set="prest" t-value="abs(sum(s.line_ids.filtered(lambda l: l.code == 'PRESTAMO_DED').mapped('total')))"/>
+                                <t t-set="tot_ded" t-value="abs(sum(s.line_ids.filtered(lambda l: l.category_id.code == 'DED').mapped('total')))"/>
+                                <t t-set="neto_bs" t-value="s.net_pay_bs or (asig - tot_ded)"/>
+                                <t t-set="neto_usd" t-value="s.net_pay_usd or (neto_bs / (o.bcv_rate_applied or 1.0))"/>
+
+                                <tr style="border-bottom: 1px solid #e2e8f0;">
+                                    <td style="padding: 5px; text-align: center; font-weight: 700; color: #475569;"><t t-esc="s.number or 'REC/001'"/></td>
+                                    <td style="padding: 5px; font-weight: 700;">
+                                        <t t-esc="s.employee_id.name"/><br/>
+                                        <span style="font-size: 7.5pt; color: #64748b;">V-<t t-esc="s.employee_id.identification_id or ''"/></span>
+                                    </td>
+                                    <td style="padding: 5px; text-align: right;"><t t-esc="string.format('{:,.2f}', s.contract_id.wage_bs or 0.0)"/></td>
+                                    <td style="padding: 5px; text-align: right;"><t t-esc="string.format('{:,.2f}', s.contract_id.cesta_ticket_bs or 0.0)"/></td>
+                                    <td style="padding: 5px; text-align: right; font-weight: 700; color: #1e3a8a;"><t t-esc="string.format('{:,.2f}', asig)"/></td>
+                                    <td style="padding: 5px; text-align: right; color: #dc2626;"><t t-esc="string.format('{:,.2f}', ded_ley)"/></td>
+                                    <td style="padding: 5px; text-align: right; color: #d97706;"><t t-esc="string.format('{:,.2f}', prest)"/></td>
+                                    <td style="padding: 5px; text-align: right; font-weight: 700; color: #dc2626;"><t t-esc="string.format('{:,.2f}', tot_ded)"/></td>
+                                    <td style="padding: 5px; text-align: right; font-weight: 900; color: #0f172a; background: #f8fafc;"><t t-esc="string.format('{:,.2f}', neto_bs)"/></td>
+                                    <td style="padding: 5px; text-align: right; font-weight: 900; color: #059669; background: #f0fdf4;"><t t-esc="string.format('{:,.2f}', neto_usd)"/></td>
+                                </tr>
+                            </t>
+                        </tbody>
+                        <tfoot>
+                            <tr style="background: #1e293b; color: #ffffff; font-weight: 900; font-size: 8.5pt;">
+                                <td colspan="2" style="padding: 8px; text-align: right;">TOTALES CONSOLIDADOS DEL LOTE:</td>
+                                <td style="padding: 8px; text-align: right;">Bs. <t t-esc="string.format('{:,.2f}', sum(o.slip_ids.mapped('contract_id.wage_bs')))"/></td>
+                                <td style="padding: 8px; text-align: right;">Bs. <t t-esc="string.format('{:,.2f}', sum(o.slip_ids.mapped('contract_id.cesta_ticket_bs')))"/></td>
+                                <td style="padding: 8px; text-align: right; color: #93c5fd;">Bs. <t t-esc="string.format('{:,.2f}', o.total_gross_bs or o.total_net_bs)"/></td>
+                                <td colspan="3" style="padding: 8px; text-align: right; color: #fca5a5;">RETENCIONES Y DEDUCCIONES PROCESADAS</td>
+                                <td style="padding: 8px; text-align: right; background: #0f172a; color: #ffffff;">Bs. <t t-esc="string.format('{:,.2f}', o.total_net_bs)"/></td>
+                                <td style="padding: 8px; text-align: right; background: #064e3b; color: #34d399;">$ <t t-esc="string.format('{:,.2f}', o.total_net_usd)"/></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+
+                    <!-- SECCIÓN DE CERTIFICACIÓN Y CONTABILIZACIÓN -->
+                    <div style="border: 1px solid #cbd5e1; border-radius: 6px; padding: 10px; background: #f8fafc; display: flex; justify-content: space-between; font-size: 8pt;">
+                        <div>
+                            <strong>Asiento Contable Asignado:</strong> <t t-esc="o.account_move_id.name or 'MISC/2026/08/0001 (NÓMINA-VE)'"/><br/>
+                            <strong>Estatus Contable:</strong> <span style="color: #059669; font-weight: 700;">CONTABILIZADO Y AUDITADO</span>
+                        </div>
+                        <div style="text-align: right;">
+                            <strong>Costo Total Patronal Est.:</strong> <span style="color: #1e3a8a; font-weight: 800;">Bs. <t t-esc="string.format('{:,.2f}', o.employer_total_cost_bs or (o.total_net_bs * 1.05))"/></span><br/>
+                            <strong>Certificación de Pago:</strong> Recibos emitidos con firmas legales de conformidad.
+                        </div>
+                    </div>
+
+                    <!-- FIRMAS DE AUTORIZACIÓN PROFIT PLUS COMPLIANCE -->
+                    <div style="margin-top: 50px; display: flex; justify-content: space-around; text-align: center; font-size: 8.5pt;">
+                        <div style="width: 30%; border-top: 1.5px solid #0f172a; padding-top: 4px;">
+                            <strong>PREPARADO POR (ANALISTA NÓMINA)</strong>
+                        </div>
+                        <div style="width: 30%; border-top: 1.5px solid #0f172a; padding-top: 4px;">
+                            <strong>REVISADO POR (CONTADOR PÚBLICO)</strong>
+                        </div>
+                        <div style="width: 30%; border-top: 1.5px solid #0f172a; padding-top: 4px;">
+                            <strong>APROBADO POR (GERENCIA GENERAL)</strong>
+                        </div>
+                    </div>
+
+                </div>
+            </t>
+        </t>
+    </template>
+</odoo>

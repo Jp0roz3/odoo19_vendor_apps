@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Action for Constancia de Trabajo -->
+    <record id="action_report_constancia_trabajo" model="ir.actions.report">
+        <field name="name">Constancia de Trabajo (LOTTT / Profit-Gálac)</field>
+        <field name="model">hr.contract</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">Nomina360Venezuela.report_constancia_trabajo_document</field>
+        <field name="report_file">Nomina360Venezuela.report_constancia_trabajo_document</field>
+        <field name="print_report_name">'Constancia_Trabajo_' + (object.employee_id.name or '').replace(' ', '_')</field>
+        <field name="binding_model_id" ref="hr.model_hr_contract"/>
+        <field name="binding_type">report</field>
+    </record>
+
+    <template id="report_constancia_trabajo_document">
+        <t t-call="web.basic_layout">
+            <t t-foreach="docs" t-as="o">
+                <div class="page" style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; color: #1e293b; padding: 30px; font-size: 13pt; line-height: 1.8;">
+                    
+                    <!-- ENCABEZADO EMPRESA -->
+                    <div style="border-bottom: 3px solid #1e3a8a; padding-bottom: 15px; margin-bottom: 35px; display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <h2 style="margin: 0; color: #1e3a8a; font-weight: 800; font-size: 20pt; text-transform: uppercase;">
+                                <t t-esc="o.company_id.name"/>
+                            </h2>
+                            <p style="margin: 4px 0 0 0; color: #64748b; font-size: 11pt; font-weight: 600;">
+                                RIF: <t t-esc="o.company_id.vat or 'J-00000000-0'"/> | Departamento de Gestión Humana
+                            </p>
+                        </div>
+                        <div style="text-align: right; font-size: 10pt; color: #475569;">
+                            Fecha de Emisión: <br/>
+                            <strong style="font-size: 11pt; color: #0f172a;"><t t-esc="context_timestamp(datetime.datetime.now()).strftime('%d/%m/%Y')"/></strong>
+                        </div>
+                    </div>
+
+                    <!-- TÍTULO DE LA CONSTANCIA -->
+                    <div style="text-align: center; margin: 40px 0 45px 0;">
+                        <h1 style="font-size: 22pt; font-weight: 900; color: #0f172a; text-transform: uppercase; letter-spacing: 2px; margin: 0; border-bottom: 2px solid #cbd5e1; display: inline-block; padding-bottom: 5px;">
+                            CONSTANCIA DE TRABAJO
+                        </h1>
+                    </div>
+
+                    <!-- CUERPO LEGAL FORMATO COMBINADO PROFIT + GÁLAC -->
+                    <div style="text-align: justify; margin-bottom: 35px; font-size: 13pt;">
+                        Quien suscribe, la representación legal de la empresa <strong><t t-esc="o.company_id.name"/></strong>, inscrita bajo el RIF <strong><t t-esc="o.company_id.vat or 'J-00000000-0'"/></strong>, por medio de la presente hace constar que el (la) ciudadano(a):
+                    </div>
+
+                    <div style="background: #f8fafc; border-left: 5px solid #2563eb; padding: 20px; border-radius: 8px; margin-bottom: 35px; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
+                        <table style="width: 100%; border-collapse: collapse;">
+                            <tr>
+                                <td style="padding: 6px 0; width: 35%; color: #475569; font-weight: 600;">Nombres y Apellidos:</td>
+                                <td style="padding: 6px 0; font-weight: 800; color: #0f172a; font-size: 14pt;"><t t-esc="o.employee_id.name"/></td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 6px 0; color: #475569; font-weight: 600;">Cédula de Identidad:</td>
+                                <td style="padding: 6px 0; font-weight: 800; color: #0f172a;"><t t-esc="o.employee_id.identification_id or 'V-00000000'"/></td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 6px 0; color: #475569; font-weight: 600;">Fecha de Ingreso:</td>
+                                <td style="padding: 6px 0; font-weight: 700; color: #0f172a;"><t t-esc="o.date_start and o.date_start.strftime('%d/%m/%Y') or 'N/A'"/></td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 6px 0; color: #475569; font-weight: 600;">Cargo Desempeñado:</td>
+                                <td style="padding: 6px 0; font-weight: 700; color: #0f172a;"><t t-esc="o.job_id.name or 'Colaborador'"/></td>
+                            </tr>
+                        </table>
+                    </div>
+
+                    <div style="text-align: justify; margin-bottom: 35px; font-size: 13pt;">
+                        Presta sus servicios para nuestra organización devengando una remuneración mensual compuesta por los siguientes conceptos salariales:
+                    </div>
+
+                    <!-- DETALLE REMUNERACIÓN MULTIMONEDA PROFIT/GÁLAC STYLE -->
+                    <table style="width: 100%; border-collapse: collapse; margin-bottom: 40px; border: 1px solid #cbd5e1; border-radius: 8px; overflow: hidden;">
+                        <thead>
+                            <tr style="background: #1e3a8a; color: #ffffff; text-align: left; font-size: 11pt;">
+                                <th style="padding: 12px 16px;">CONCEPTO REMUNERATIVO</th>
+                                <th style="padding: 12px 16px; text-align: right;">MONTO EN $ USD</th>
+                                <th style="padding: 12px 16px; text-align: right;">MONTO EQUIVALENTE EN BS.</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr style="border-bottom: 1px solid #e2e8f0;">
+                                <td style="padding: 12px 16px; font-weight: 700;">Sueldo Básico Mensual:</td>
+                                <td style="padding: 12px 16px; text-align: right; font-weight: 700; color: #1e40af;">
+                                    $ <t t-esc="string.format('{:,.2f}', o.wage_usd or 0.0)"/>
+                                </td>
+                                <td style="padding: 12px 16px; text-align: right; font-weight: 700; color: #0f172a;">
+                                    Bs. <t t-esc="string.format('{:,.2f}', o.wage_bs or 0.0)"/>
+                                </td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid #e2e8f0; background: #f8fafc;">
+                                <td style="padding: 12px 16px; font-weight: 700;">Cestaticket Socialista (USD $40 BCV):</td>
+                                <td style="padding: 12px 16px; text-align: right; font-weight: 700; color: #1e40af;">
+                                    $ 40.00
+                                </td>
+                                <td style="padding: 12px 16px; text-align: right; font-weight: 700; color: #0f172a;">
+                                    Bs. <t t-esc="string.format('{:,.2f}', o.cesta_ticket_bs or 0.0)"/>
+                                </td>
+                            </tr>
+                            <t t-if="o.extra_bonus_usd &gt; 0">
+                                <tr style="border-bottom: 1px solid #e2e8f0;">
+                                    <td style="padding: 12px 16px; font-weight: 700;">Bono Extra-Patronal Compensatorio (Art. 105):</td>
+                                    <td style="padding: 12px 16px; text-align: right; font-weight: 700; color: #1e40af;">
+                                        $ <t t-esc="string.format('{:,.2f}', o.extra_bonus_usd or 0.0)"/>
+                                    </td>
+                                    <td style="padding: 12px 16px; text-align: right; font-weight: 700; color: #0f172a;">
+                                        Bs. <t t-esc="string.format('{:,.2f}', o.extra_bonus_bs or 0.0)"/>
+                                    </td>
+                                </tr>
+                            </t>
+                            <tr style="background: #eff6ff; font-size: 12pt;">
+                                <td style="padding: 14px 16px; font-weight: 900; color: #1e3a8a;">SALARIO INTEGRAL DIARIO ESTIMADO:</td>
+                                <td style="padding: 14px 16px; text-align: right; font-weight: 900; color: #1e40af;">
+                                    $ <t t-esc="string.format('{:,.2f}', o.daily_integral_usd or 0.0)"/> / día
+                                </td>
+                                <td style="padding: 14px 16px; text-align: right; font-weight: 900; color: #1e3a8a;">
+                                    Bs. <t t-esc="string.format('{:,.2f}', o.daily_integral_bs or 0.0)"/> / día
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div style="text-align: justify; margin-bottom: 50px; font-size: 11pt; color: #475569;">
+                        Constancia que se expide a petición de la parte interesada en la ciudad de Caracas, a los <t t-esc="context_timestamp(datetime.datetime.now()).strftime('%d')"/> días del mes de <t t-esc="context_timestamp(datetime.datetime.now()).strftime('%B')"/> del año <t t-esc="context_timestamp(datetime.datetime.now()).strftime('%Y')"/>.
+                    </div>
+
+                    <!-- FIRMAS Y SELLO PROFIT/GÁLAC COMPLIANCE -->
+                    <div style="margin-top: 80px; display: flex; justify-content: space-around; text-align: center;">
+                        <div style="width: 45%;">
+                            <div style="border-top: 2px solid #0f172a; padding-top: 8px;">
+                                <strong style="font-size: 11pt; color: #0f172a;">GERENCIA DE RECURSOS HUMANOS</strong><br/>
+                                <span style="font-size: 10pt; color: #64748b;"><t t-esc="o.company_id.name"/></span>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </t>
+        </t>
+    </template>
+</odoo>

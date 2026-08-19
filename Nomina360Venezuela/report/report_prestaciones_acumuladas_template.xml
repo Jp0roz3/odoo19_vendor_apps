@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Action for Estado de Cuenta de Prestaciones e Intereses LOTTT -->
+    <record id="action_report_prestaciones_acumuladas" model="ir.actions.report">
+        <field name="name">Estado de Cuenta Prestaciones e Intereses (LOTTT Art. 142/143)</field>
+        <field name="model">hr.contract</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">Nomina360Venezuela.report_prestaciones_acumuladas_document</field>
+        <field name="report_file">Nomina360Venezuela.report_prestaciones_acumuladas_document</field>
+        <field name="print_report_name">'Estado_Cuenta_Prestaciones_' + (object.employee_id.name or '').replace(' ', '_')</field>
+        <field name="binding_model_id" ref="hr.model_hr_contract"/>
+        <field name="binding_type">report</field>
+    </record>
+
+    <template id="report_prestaciones_acumuladas_document">
+        <t t-call="web.basic_layout">
+            <t t-foreach="docs" t-as="o">
+                <div class="page" style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; color: #0f172a; padding: 20px; font-size: 10pt;">
+                    
+                    <!-- ENCABEZADO Y REPORTE GÁLAC / PROFIT STYLE -->
+                    <div style="border-bottom: 2px solid #065f46; padding-bottom: 10px; margin-bottom: 20px; display: flex; justify-content: space-between;">
+                        <div>
+                            <h2 style="margin: 0; color: #065f46; font-weight: 800; font-size: 16pt;">
+                                <t t-esc="o.company_id.name"/>
+                            </h2>
+                            <p style="margin: 2px 0 0 0; color: #475569; font-size: 9pt;">
+                                RIF: <t t-esc="o.company_id.vat or 'J-00000000-0'"/> | Fondo de Garantía de Prestaciones Sociales (Art. 142 LOTTT)
+                            </p>
+                        </div>
+                        <div style="text-align: right; font-size: 9pt; color: #475569;">
+                            Fecha de Emisión: <strong><t t-esc="context_timestamp(datetime.datetime.now()).strftime('%d/%m/%Y')"/></strong>
+                        </div>
+                    </div>
+
+                    <div style="text-align: center; margin-bottom: 20px;">
+                        <h3 style="margin: 0; font-size: 14pt; font-weight: 900; color: #065f46; text-transform: uppercase;">
+                            ESTADO DE CUENTA ACUMULADO DE PRESTACIONES SOCIALES E INTERESES (BCV)
+                        </h3>
+                    </div>
+
+                    <!-- FICHA DEL EMPLEADO -->
+                    <div style="background: #f0fdf4; border: 1px solid #bbf7d0; padding: 12px; border-radius: 6px; margin-bottom: 20px;">
+                        <table style="width: 100%; border-collapse: collapse; font-size: 9.5pt;">
+                            <tr>
+                                <td style="width: 15%; font-weight: 700; color: #166534;">Empleado:</td>
+                                <td style="width: 35%; font-weight: 800;"><t t-esc="o.employee_id.name"/></td>
+                                <td style="width: 15%; font-weight: 700; color: #166534;">Cédula:</td>
+                                <td style="width: 35%; font-weight: 800;"><t t-esc="o.employee_id.identification_id or 'N/A'"/></td>
+                            </tr>
+                            <tr>
+                                <td style="font-weight: 700; color: #166534;">Fecha Ingreso:</td>
+                                <td><t t-esc="o.date_start and o.date_start.strftime('%d/%m/%Y') or 'N/A'"/></td>
+                                <td style="font-weight: 700; color: #166534;">Salario Integral Diario:</td>
+                                <td style="font-weight: 800; color: #047857;">
+                                    Bs. <t t-esc="string.format('{:,.2f}', o.daily_integral_bs or 0.0)"/> ($ <t t-esc="string.format('{:,.2f}', o.daily_integral_usd or 0.0)"/>)
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+
+                    <!-- TABLA DETALLADA DE HISTÓRICO TRIMESTRAL DE PRESTACIONES -->
+                    <table style="width: 100%; border-collapse: collapse; margin-bottom: 25px; border: 1px solid #cbd5e1; font-size: 8.5pt;">
+                        <thead>
+                            <tr style="background: #065f46; color: #ffffff; text-align: center; font-weight: 800;">
+                                <th style="padding: 8px; border: 1px solid #047857;">PERÍODO / TRIMESTRE</th>
+                                <th style="padding: 8px; border: 1px solid #047857;">SALARIO INTEGRAL (BS)</th>
+                                <th style="padding: 8px; border: 1px solid #047857;">DÍAS BASE (ART. 142)</th>
+                                <th style="padding: 8px; border: 1px solid #047857;">DÍAS ADIC. (ART. 142B)</th>
+                                <th style="padding: 8px; border: 1px solid #047857;">DEPÓSITO GARANTÍA (BS)</th>
+                                <th style="padding: 8px; border: 1px solid #047857;">TASA BCV PASIVA %</th>
+                                <th style="padding: 8px; border: 1px solid #047857;">INTERESES GANADOS (BS)</th>
+                                <th style="padding: 8px; border: 1px solid #047857;">SALDO ACUMULADO (BS)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Ejemplo de líneas consolidadas del histórico -->
+                            <t t-set="lines" t-value="request.env['hr.prestaciones.line'].search([('employee_id', '=', o.employee_id.id)], order='year asc, quarter asc')"/>
+                            <t t-if="lines">
+                                <t t-foreach="lines" t-as="l">
+                                    <tr style="border-bottom: 1px solid #e2e8f0; text-align: center;">
+                                        <td style="padding: 7px; font-weight: 700;"><t t-esc="l.quarter"/> - <t t-esc="l.year"/></td>
+                                        <td style="padding: 7px; text-align: right;"><t t-esc="string.format('{:,.2f}', l.salario_integral_bs)"/></td>
+                                        <td style="padding: 7px;"><t t-esc="l.dias_garantia"/></td>
+                                        <td style="padding: 7px;"><t t-esc="l.dias_adicionales"/></td>
+                                        <td style="padding: 7px; text-align: right; font-weight: 700; color: #047857;"><t t-esc="string.format('{:,.2f}', l.monto_garantia_bs)"/></td>
+                                        <td style="padding: 7px;"><t t-esc="string.format('{:,.2f}', l.tasa_interes_bcv)"/> %</td>
+                                        <td style="padding: 7px; text-align: right; color: #b45309;"><t t-esc="string.format('{:,.2f}', l.intereses_periodo_bs)"/></td>
+                                        <td style="padding: 7px; text-align: right; font-weight: 800; color: #065f46;"><t t-esc="string.format('{:,.2f}', l.saldo_neto_prestaciones_bs)"/></td>
+                                    </tr>
+                                </t>
+                            </t>
+                            <t t-else="">
+                                <tr>
+                                    <td colspan="8" style="padding: 15px; text-align: center; color: #64748b; font-style: italic;">
+                                        Fondo de Garantía registrado a la fecha según cómputo legal acumulado.
+                                    </td>
+                                </tr>
+                            </t>
+                        </tbody>
+                    </table>
+
+                    <!-- RESUMEN FINAL GÁLAC COMPLIANCE -->
+                    <div style="background: #f8fafc; border: 2px solid #065f46; border-radius: 8px; padding: 15px; display: flex; justify-content: space-between;">
+                        <div style="width: 48%;">
+                            <h4 style="margin: 0 0 8px 0; color: #065f46; font-size: 11pt;">RESUMEN DE GARANTÍA (ART. 142 LOTTT):</h4>
+                            <p style="margin: 3px 0; font-size: 9.5pt;">Garantía Trimestral Acumulada: <strong>Bs. <t t-esc="string.format('{:,.2f}', o.wage_bs * 0.5)"/></strong></p>
+                            <p style="margin: 3px 0; font-size: 9.5pt;">Equivalente de Referencia Dólares: <strong>$ <t t-esc="string.format('{:,.2f}', o.wage_usd * 0.5)"/> USD</strong></p>
+                        </div>
+                        <div style="width: 48%; border-left: 2px solid #cbd5e1; padding-left: 15px;">
+                            <h4 style="margin: 0 0 8px 0; color: #065f46; font-size: 11pt;">DISPONIBILIDAD DE ANTICIPOS (ART. 144):</h4>
+                            <p style="margin: 3px 0; font-size: 9.5pt;">Límite Máximo Permitido (75%): <strong style="color: #2563eb;">Bs. <t t-esc="string.format('{:,.2f}', (o.wage_bs * 0.5) * 0.75)"/></strong></p>
+                            <p style="margin: 3px 0; font-size: 9.5pt;">Fondo Fideicomiso / Patrono: <strong>Garantía en Contabilidad</strong></p>
+                        </div>
+                    </div>
+
+                    <!-- FIRMAS DE CONFORMIDAD PROFIT/GÁLAC -->
+                    <div style="margin-top: 60px; display: flex; justify-content: space-between; text-align: center;">
+                        <div style="width: 40%; border-top: 1.5px solid #0f172a; padding-top: 5px;">
+                            <strong>ELABORADO POR (RRHH)</strong>
+                        </div>
+                        <div style="width: 40%; border-top: 1.5px solid #0f172a; padding-top: 5px;">
+                            <strong>CONFORMIDAD DEL TRABAJADOR</strong>
+                        </div>
+                    </div>
+
+                </div>
+            </t>
+        </t>
+    </template>
+</odoo>
