@@ -31,6 +31,12 @@ class HrPayrollAISession(models.Model):
 
     history_html = fields.Html(string="Consolidado de Conversación", compute='_compute_history_html', sanitize=False)
     message_count = fields.Integer(string="Cantidad de Mensajes", compute='_compute_history_html')
+    bcv_rate_display = fields.Float(string="Tasa BCV", compute='_compute_bcv_display', digits=(12, 4))
+
+    @api.depends('company_id')
+    def _compute_bcv_display(self):
+        for rec in self:
+            rec.bcv_rate_display = rec.company_id.get_bcv_rate() or 757.74
 
     @api.depends('message_ids', 'message_ids.content_html')
     def _compute_history_html(self):
@@ -38,10 +44,10 @@ class HrPayrollAISession(models.Model):
             rec.message_count = len(rec.message_ids)
             if not rec.message_ids:
                 rec.history_html = """
-                <div style="background: #0F172A; border-radius: 16px; padding: 24px; color: #94A3B8; text-align: center; font-family: -apple-system, sans-serif; border: 1px dashed #334155;">
-                    <div style="font-size: 32px; margin-bottom: 8px;">🤖</div>
-                    <h3 style="color: #FFFFFF; margin: 0 0 4px 0; font-size: 16px;">Sesión de IA Iniciada</h3>
-                    <p style="margin: 0; font-size: 13px;">Escribe una pregunta o selecciona uno de los accesos rápidos a continuación para comenzar.</p>
+                <div class="card p-4 text-center border-dashed my-3">
+                    <div class="display-6 text-primary mb-2">🤖</div>
+                    <h5 class="fw-bold mb-1">Sesión Inteligente Lista</h5>
+                    <p class="text-muted mb-0 small">Escribe una pregunta o haz clic en uno de los accesos rápidos a continuación para comenzar.</p>
                 </div>
                 """
             else:
@@ -128,19 +134,22 @@ class HrPayrollAISession(models.Model):
             max_75 = round(fondo_bs * 0.75, 2)
 
             return f"""
-            <strong>Expediente de {emp.name} (CI {emp.identification_id or 'N/A'}):</strong><br/>
-            • <strong>Cargo:</strong> {emp.job_title or 'No asignado'}<br/>
-            • <strong>Sueldo Pactado:</strong> ${wage_usd:,.2f} USD ({wage_bs:,.2f} Bs a Tasa BCV {rate:.4f})<br/>
-            • <strong>Fondo Prestaciones (Art. 142 LOTTT):</strong> {fondo_bs:,.2f} Bs (${fondo_usd:,.2f} USD)<br/>
-            • <strong>Disponible Anticipo 75% (Art. 144 LOTTT):</strong> {max_75:,.2f} Bs<br/>
-            • <strong>Cestaticket Ley:</strong> ${cesta_usd:.2f} USD ({cesta_bs:,.2f} Bs/mes)
+            <div class="mb-2"><strong class="text-primary">Expediente de {emp.name}</strong> <span class="badge bg-secondary">CI {emp.identification_id or 'N/A'}</span></div>
+            <ul class="list-unstyled mb-0">
+                <li>• <strong>Cargo:</strong> {emp.job_title or 'No asignado'}</li>
+                <li>• <strong>Sueldo Pactado:</strong> ${wage_usd:,.2f} USD <span class="text-muted">({wage_bs:,.2f} Bs a BCV {rate:.4f})</span></li>
+                <li>• <strong>Fondo Prestaciones (Art. 142 LOTTT):</strong> <strong class="text-success">{fondo_bs:,.2f} Bs</strong> (${fondo_usd:,.2f} USD)</li>
+                <li>• <strong>Disponible Anticipo 75% (Art. 144 LOTTT):</strong> <strong class="text-warning">{max_75:,.2f} Bs</strong></li>
+                <li>• <strong>Cestaticket Ley:</strong> ${cesta_usd:.2f} USD ({cesta_bs:,.2f} Bs/mes)</li>
+            </ul>
             """
         elif any(k in q for k in ['bcv', 'tasa', 'dolar', 'dólar']):
-            return f"La Tasa Oficial BCV activa en la compañía es de <strong>{rate:.4f} Bs/USD</strong>. El Cestaticket equivalente a $40 USD se ubica en <strong>{cesta_bs:,.2f} Bs/mes</strong>."
+            return f"La Tasa Oficial BCV activa es de <strong class='text-primary'>{rate:.4f} Bs/USD</strong>. Cestaticket ($40 USD): <strong class='text-success'>{cesta_bs:,.2f} Bs/mes</strong>."
         elif any(k in q for k in ['prestacion', 'prestaciones', '142', '144']):
-            return f"Según el Art. 142 de la LOTTT, la empresa acredita 15 días trimestrales de salario integral como garantía. El trabajador tiene derecho a solicitar un anticipo de hasta el 75% para vivienda, salud o educación (Art. 144 LOTTT)."
+            return f"Según el <strong>Art. 142 de la LOTTT</strong>, la empresa acredita 15 días trimestrales de salario integral como garantía. El trabajador tiene derecho a solicitar un anticipo de hasta el 75% para vivienda, salud o educación (<strong>Art. 144 LOTTT</strong>)."
         else:
             return f"Consulta procesada: <em>'{query}'</em>. El sistema mantiene control de la LOTTT, Tasa BCV ({rate:.4f} Bs/USD), Cestaticket (${cesta_usd} USD) y retenciones SENIAT 9%."
+
 
     # Acciones Rápidas (Prompt Chips)
     def action_quick_prestaciones(self):
@@ -175,7 +184,7 @@ class HrPayrollAIMessage(models.Model):
     ], string="Rol", required=True, default='user')
 
     content = fields.Text(string="Contenido Plano", required=True)
-    content_html = fields.Html(string="Renderizado HTML Glassmorphic", compute='_compute_content_html', store=True, sanitize=False)
+    content_html = fields.Html(string="Renderizado Nativo Odoo UI", compute='_compute_content_html', store=True, sanitize=False)
     date = fields.Datetime(string="Fecha / Hora", default=fields.Datetime.now, required=True)
     is_simulation = fields.Boolean(string="Es Simulación", default=False)
 
@@ -184,30 +193,37 @@ class HrPayrollAIMessage(models.Model):
         for rec in self:
             sim_badge = ""
             if rec.is_simulation:
-                sim_badge = "<span style='background:#F59E0B; color:#000; font-size:10px; padding:2px 6px; border-radius:10px; font-weight:bold; margin-left:8px;'>SIMULACIÓN</span>"
+                sim_badge = '<span class="badge text-bg-warning ms-2">SIMULACIÓN</span>'
 
             if rec.role == 'user':
                 html = f"""
-                <div style="display: flex; justify-content: flex-end; margin-bottom: 14px;">
-                    <div style="background: linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%); color: #FFFFFF; padding: 14px 18px; border-radius: 16px 16px 2px 16px; max-width: 80%; font-family: -apple-system, sans-serif; font-size: 13px; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);">
-                        <div style="font-size: 11px; color: #93C5FD; font-weight: 700; margin-bottom: 4px;">TÚ {sim_badge}</div>
-                        <div>{rec.content}</div>
+                <div class="d-flex justify-content-end mb-3">
+                    <div class="card bg-primary text-white border-0 shadow-sm" style="max-width: 80%; border-radius: 16px 16px 2px 16px;">
+                        <div class="card-body p-3">
+                            <div class="d-flex justify-content-between align-items-center mb-1 small opacity-75">
+                                <span class="fw-bold">TÚ</span>
+                                {sim_badge}
+                            </div>
+                            <div class="small">{rec.content}</div>
+                        </div>
                     </div>
                 </div>
                 """
             else:
                 html = f"""
-                <div style="display: flex; justify-content: flex-start; margin-bottom: 14px;">
-                    <div style="background: #0F172A; border: 1px solid #1E293B; color: #F8FAFC; padding: 16px 20px; border-radius: 16px 16px 16px 2px; max-width: 85%; font-family: -apple-system, sans-serif; font-size: 13px; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.4);">
-                        <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #334155; padding-bottom: 8px; margin-bottom: 10px;">
-                            <div style="display: flex; align-items: center; gap: 8px;">
-                                <span style="font-size: 16px;">🤖</span>
-                                <strong style="color: #60A5FA; font-size: 12px;">Nubelco AI SuperBrain</strong>
+                <div class="d-flex justify-content-start mb-3">
+                    <div class="card border shadow-sm w-100" style="border-radius: 16px 16px 16px 2px;">
+                        <div class="card-header bg-body-tertiary d-flex justify-content-between align-items-center py-2 px-3">
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="fs-5">🤖</span>
+                                <strong class="text-primary small">Nubelco AI SuperBrain</strong>
                                 {sim_badge}
                             </div>
-                            <span style="color: #64748B; font-size: 10px;">{rec.date.strftime('%H:%M') if rec.date else ''}</span>
+                            <small class="text-muted">{rec.date.strftime('%H:%M') if rec.date else ''}</small>
                         </div>
-                        <div style="line-height: 1.7; color: #CBD5E1;">{rec.content}</div>
+                        <div class="card-body p-3 small text-body">
+                            {rec.content}
+                        </div>
                     </div>
                 </div>
                 """
