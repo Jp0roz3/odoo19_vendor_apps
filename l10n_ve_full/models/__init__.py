@@ -1,0 +1,20 @@
+# -*- coding: utf-8 -*-
+# Orden de importación respeta dependencias entre modelos:
+# 1. Modelos independientes (sin FK entre sí)
+# 2. Modelos que extienden ORM nativo de Odoo
+# 3. Modelos de documentos (dependen de partner, company, tax)
+# 4. Modelos de retención (dependen de account.move)
+# 5. Libros fiscales (dependen de todo lo anterior)
+
+from . import territory          # estados, municipios, parroquias (sin deps)
+from . import exchange_rate      # tasa de cambio histórica BCV (sin deps)
+from . import ut_history         # Unidad Tributaria histórica (depende de company)
+from . import res_company        # extiende res.company (depende de territory, exchange_rate)
+from . import res_partner        # extiende res.partner (depende de territory)
+from . import account_tax        # extiende account.tax (localización venezolana)
+from . import account_move       # extiende account.move (campos BS/USD, retenciones)
+from . import account_payment    # extiende account.payment (dual currency)
+from . import withholding_iva    # retención de IVA (depende de account.move)
+from . import withholding_islr   # retención de ISLR (depende de account.move, ut_history)
+from . import withholding_municipal  # retención municipal (depende de territory, account.move)
+from . import fiscal_book        # libros fiscales (depende de todo lo anterior)
