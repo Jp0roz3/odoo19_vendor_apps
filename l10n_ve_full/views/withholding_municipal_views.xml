@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- ================================================================
-         Venezuela360: Vistas — Retención Municipal (IAE)
-    ================================================================ -->
+    <!-- Venezuela360: Retención Municipal — Odoo 19 -->
     <record id="view_account_wh_municipal_list" model="ir.ui.view">
         <field name="name">account.wh.municipal.list</field>
         <field name="model">account.wh.municipal</field>
@@ -20,7 +18,7 @@
                        widget="monetary" options="{'currency_field': 'currency_bs_id'}"/>
                 <field name="amount_usd" string="Retenido (USD)"/>
                 <field name="state" widget="badge"/>
-                <field name="currency_bs_id" invisible="1"/>
+                <field name="currency_bs_id" column_invisible="1"/>
             </list>
         </field>
     </record>
@@ -32,13 +30,11 @@
             <form string="Comprobante Retención Municipal">
                 <header>
                     <button name="action_confirm" string="Confirmar" type="object"
-                            class="btn-primary"
-                            attrs="{'invisible': [('state', '!=', 'draft')]}"/>
+                            class="btn-primary" invisible="state != 'draft'"/>
                     <button name="action_post" string="Contabilizar" type="object"
-                            class="btn-primary"
-                            attrs="{'invisible': [('state', '!=', 'confirmed')]}"/>
+                            class="btn-primary" invisible="state != 'confirmed'"/>
                     <button name="action_cancel" string="Cancelar" type="object"
-                            attrs="{'invisible': [('state', 'in', ['draft','cancel'])]}"/>
+                            invisible="state in ('draft','cancel')"/>
                     <field name="state" widget="statusbar"
                            statusbar_visible="draft,confirmed,posted"/>
                 </header>
@@ -48,22 +44,22 @@
                     </div>
                     <group>
                         <group string="General">
-                            <field name="move_id"   attrs="{'readonly': [('state', '!=', 'draft')]}"/>
+                            <field name="move_id"    readonly="state != 'draft'"/>
                             <field name="partner_id" readonly="1"/>
-                            <field name="date"       attrs="{'readonly': [('state', '!=', 'draft')]}"/>
+                            <field name="date"       readonly="state != 'draft'"/>
                         </group>
                         <group string="Municipio y Actividad">
-                            <field name="municipality_id" attrs="{'readonly': [('state', '!=', 'draft')]}"/>
+                            <field name="municipality_id" readonly="state != 'draft'"/>
                             <field name="state_ve_id" readonly="1"/>
                             <field name="economic_activity"/>
                             <field name="rate_pct" string="Alícuota IAE (%)"
-                                   attrs="{'readonly': [('state', '!=', 'draft')]}"/>
+                                   readonly="state != 'draft'"/>
                         </group>
                     </group>
                     <group string="Cálculo">
                         <field name="taxable_amount_bs" readonly="1"
                                widget="monetary" options="{'currency_field': 'currency_bs_id'}"/>
-                        <field name="amount_bs" readonly="1" class="fw-bold text-success"
+                        <field name="amount_bs" readonly="1"
                                widget="monetary" options="{'currency_field': 'currency_bs_id'}"/>
                         <field name="amount_usd" readonly="1"/>
                         <field name="rate" readonly="1" string="Tasa BCV (Bs/USD)"/>
@@ -73,11 +69,7 @@
                     </group>
                     <field name="currency_bs_id" invisible="1"/>
                 </sheet>
-                <div class="oe_chatter">
-                    <field name="message_follower_ids"/>
-                    <field name="activity_ids"/>
-                    <field name="message_ids"/>
-                </div>
+                <chatter/>
             </form>
         </field>
     </record>

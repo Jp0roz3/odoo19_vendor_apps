@@ -43,29 +43,29 @@
                     <button name="action_generate_lines"
                             string="Generar / Actualizar Líneas"
                             type="object" class="btn-primary"
-                            attrs="{'invisible': [('state', '!=', 'draft')]}"/>
+                            invisible="state != 'draft'"/>
                     <button name="action_close_book"
                             string="Cerrar Libro"
                             type="object"
-                            attrs="{'invisible': [('state', '!=', 'draft')]}"/>
+                            invisible="state != 'draft'"/>
                     <button name="action_cancel"
                             string="Anular"
                             type="object"
-                            attrs="{'invisible': [('state', 'in', ['cancel'])]}"/>
+                            invisible="state == 'cancel'"/>
                     <field name="state" widget="statusbar"
                            statusbar_visible="draft,done"/>
                 </header>
                 <sheet>
                     <div class="oe_title">
                         <label for="name"/>
-                        <h1><field name="name" attrs="{'readonly': [('state', '!=', 'draft')]}"/></h1>
+                        <h1><field name="name" readonly="state != 'draft'"/></h1>
                         <h2><field name="display_name" readonly="1"/></h2>
                     </div>
                     <group>
                         <group string="Período">
-                            <field name="book_type" attrs="{'readonly': [('state', '!=', 'draft')]}"/>
-                            <field name="date_from" attrs="{'readonly': [('state', '!=', 'draft')]}"/>
-                            <field name="date_to"   attrs="{'readonly': [('state', '!=', 'draft')]}"/>
+                            <field name="book_type" readonly="state != 'draft'"/>
+                            <field name="date_from" readonly="state != 'draft'"/>
+                            <field name="date_to"   readonly="state != 'draft'"/>
                             <field name="company_id" groups="base.group_multi_company"/>
                         </group>
                         <group string="Totales del Período">

@@ -2,6 +2,7 @@
 <odoo>
     <!-- ================================================================
          Venezuela360: Vistas — Retención de IVA (account.wh.iva)
+         Sintaxis Odoo 19: <list>, invisible="expr" (sin attrs)
     ================================================================ -->
 
     <!-- Lista -->
@@ -27,12 +28,12 @@
                        decoration-success="state == 'posted'"
                        decoration-warning="state == 'confirmed'"
                        decoration-danger="state == 'cancel'"/>
-                <field name="currency_bs_id" invisible="1"/>
+                <field name="currency_bs_id" column_invisible="1"/>
             </list>
         </field>
     </record>
 
-    <!-- Formulario -->
+    <!-- Formulario — Odoo 19: invisible="expr" directo, sin attrs -->
     <record id="view_account_wh_iva_form" model="ir.ui.view">
         <field name="name">account.wh.iva.form</field>
         <field name="model">account.wh.iva</field>
@@ -41,16 +42,16 @@
                 <header>
                     <button name="action_confirm" string="Confirmar"
                             type="object" class="btn-primary"
-                            attrs="{'invisible': [('state', '!=', 'draft')]}"/>
+                            invisible="state != 'draft'"/>
                     <button name="action_post" string="Contabilizar"
                             type="object" class="btn-primary"
-                            attrs="{'invisible': [('state', '!=', 'confirmed')]}"/>
+                            invisible="state != 'confirmed'"/>
                     <button name="action_cancel" string="Cancelar"
                             type="object"
-                            attrs="{'invisible': [('state', 'in', ['draft', 'cancel'])]}"/>
+                            invisible="state in ('draft', 'cancel')"/>
                     <button name="action_reset_to_draft" string="Restablecer a Borrador"
                             type="object"
-                            attrs="{'invisible': [('state', '!=', 'cancel')]}"/>
+                            invisible="state != 'cancel'"/>
                     <field name="state" widget="statusbar"
                            statusbar_visible="draft,confirmed,posted"/>
                 </header>
@@ -62,10 +63,9 @@
                         <group string="Información General">
                             <field name="wh_type"/>
                             <field name="move_id"
-                                   attrs="{'readonly': [('state', '!=', 'draft')]}"/>
+                                   readonly="state != 'draft'"/>
                             <field name="partner_id" readonly="1"/>
-                            <field name="date"
-                                   attrs="{'readonly': [('state', '!=', 'draft')]}"/>
+                            <field name="date" readonly="state != 'draft'"/>
                             <field name="invoice_date" readonly="1"/>
                         </group>
                         <group string="Tasa BCV">
@@ -84,8 +84,8 @@
                         </group>
                         <group>
                             <field name="wh_rate" string="% Retención sobre IVA"
-                                   attrs="{'readonly': [('state', '!=', 'draft')]}"/>
-                            <field name="amount_bs" readonly="1" class="fw-bold text-success"
+                                   readonly="state != 'draft'"/>
+                            <field name="amount_bs" readonly="1"
                                    widget="monetary" options="{'currency_field': 'currency_bs_id'}"/>
                             <field name="amount_usd" readonly="1"/>
                         </group>
@@ -95,11 +95,7 @@
                     </group>
                     <field name="currency_bs_id" invisible="1"/>
                 </sheet>
-                <div class="oe_chatter">
-                    <field name="message_follower_ids"/>
-                    <field name="activity_ids"/>
-                    <field name="message_ids"/>
-                </div>
+                <chatter/>
             </form>
         </field>
     </record>

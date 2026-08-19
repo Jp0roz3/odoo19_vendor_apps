@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'Venezuela360: Localización Completa',
-    'version': '17.0.1.0.0',
+    'version': '19.0.1.0.0',
     'category': 'Accounting/Localizations',
     'summary': (
         'Localización fiscal, contable y tributaria completa para Venezuela: '

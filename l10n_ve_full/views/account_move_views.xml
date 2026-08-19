@@ -18,7 +18,7 @@
                         type="object"
                         class="oe_stat_button"
                         icon="fa-percent"
-                        attrs="{'invisible': [('l10n_ve_localization', '=', False)]}">
+                        invisible="not l10n_ve_localization">
                     <div class="o_field_widget o_stat_info">
                         <span class="o_stat_value">
                             <field name="l10n_ve_wh_iva_count"/>
@@ -30,7 +30,7 @@
                         type="object"
                         class="oe_stat_button"
                         icon="fa-file-text-o"
-                        attrs="{'invisible': [('l10n_ve_localization', '=', False)]}">
+                        invisible="not l10n_ve_localization">
                     <div class="o_field_widget o_stat_info">
                         <span class="o_stat_value">
                             <field name="l10n_ve_wh_islr_count"/>
@@ -42,7 +42,7 @@
                         type="object"
                         class="oe_stat_button"
                         icon="fa-building-o"
-                        attrs="{'invisible': [('l10n_ve_localization', '=', False)]}">
+                        invisible="not l10n_ve_localization">
                     <div class="o_field_widget o_stat_info">
                         <span class="o_stat_value">
                             <field name="l10n_ve_wh_municipal_count"/>
@@ -55,11 +55,11 @@
             <!-- Pestaña Venezuela360 dentro del notebook -->
             <notebook position="inside">
                 <page string="Venezuela360" name="l10n_ve"
-                      attrs="{'invisible': [('l10n_ve_localization', '=', False)]}">
+                      invisible="not l10n_ve_localization">
                     <group>
                         <group string="Tasa BCV y Moneda Dual">
                             <field name="l10n_ve_exchange_rate_id"
-                                   attrs="{'readonly': [('state', '=', 'posted')]}"/>
+                                   readonly="state == 'posted'"/>
                             <field name="l10n_ve_rate"  readonly="1" string="Tasa Bs/USD"/>
                             <field name="l10n_ve_rate_date" readonly="1"/>
                             <field name="l10n_ve_rate_source" readonly="1"/>
@@ -95,9 +95,9 @@
                     </group>
                     <group string="Documentación Fiscal">
                         <field name="l10n_ve_fiscal_number"
-                               attrs="{'readonly': [('state', '=', 'posted')]}"/>
+                               readonly="state == 'posted'"/>
                         <field name="l10n_ve_control_number"
-                               attrs="{'readonly': [('state', '=', 'posted')]}"/>
+                               readonly="state == 'posted'"/>
                     </group>
                     <!-- Campo invisible helper -->
                     <field name="l10n_ve_localization" invisible="1"/>

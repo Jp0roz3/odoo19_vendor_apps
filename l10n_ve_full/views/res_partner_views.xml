@@ -11,7 +11,7 @@
         <field name="arch" type="xml">
             <notebook position="inside">
                 <page string="Datos Fiscales Venezuela" name="l10n_ve_fiscal"
-                      attrs="{'invisible': [('country_id.code', '!=', 'VE')]}">
+                      invisible="country_id.code != 'VE'">
                     <group>
                         <group string="Identificación SENIAT">
                             <field name="l10n_ve_rif" placeholder="J-12345678-9"/>

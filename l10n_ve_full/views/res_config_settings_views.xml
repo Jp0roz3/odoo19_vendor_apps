@@ -1,112 +1,163 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <!--
-         Venezuela360: Configuración de la Compañía — Extensión Settings Odoo 17
-         Hereda de account.res_config_settings_view_form con xpath correcto para Odoo 17.
+         Venezuela360: Configuración en Settings — Odoo 19
+         Usa el nuevo formato <app><block><setting> propio de Odoo 17+/19.
+         Hereda de base.res_config_settings_view_form (raíz correcta).
     -->
     <record id="view_res_config_settings_l10n_ve" model="ir.ui.view">
         <field name="name">res.config.settings.l10n_ve</field>
         <field name="model">res.config.settings</field>
         <field name="inherit_id" ref="account.res_config_settings_view_form"/>
         <field name="arch" type="xml">
-            <!-- En Odoo 17, la estructura de settings usa divs con clases.
-                 Insertamos nuestro bloque al final del form, antes del cierre. -->
-            <xpath expr="//div[hasclass('app_settings_block')]" position="after">
-                <div class="app_settings_block" id="l10n_ve_settings"
-                     data-string="Venezuela360"
-                     data-key="l10n_ve_full">
+            <xpath expr="//app[@name='account']" position="after">
 
-                    <h2>Venezuela360 — Localización Fiscal Venezuela</h2>
+                <app data-string="Venezuela360"
+                     string="Venezuela360"
+                     name="l10n_ve_full"
+                     groups="account.group_account_manager">
 
-                    <div class="row mt16 o_settings_container">
-                        <div class="col-xs-12 col-md-6 o_setting_box">
-                            <div class="o_setting_left_pane">
-                                <field name="l10n_ve_active"/>
-                            </div>
-                            <div class="o_setting_right_pane">
-                                <label for="l10n_ve_active"
-                                       string="Activar Localización Venezuela360"/>
-                                <div class="text-muted">
-                                    Habilita RIF, retenciones IVA/ISLR/Municipal,
-                                    libros fiscales y doble moneda BS/USD.
+                    <!-- ── ACTIVACIÓN ─────────────────────────────────── -->
+                    <block title="Localización Fiscal Venezuela" name="l10n_ve_main_block">
+
+                        <setting string="Activar Venezuela360"
+                                 help="Habilita RIF, retenciones IVA/ISLR/Municipal, libros fiscales y doble moneda BS/USD.">
+                            <field name="l10n_ve_active"/>
+                        </setting>
+
+                        <setting string="Contabilidad Dual BS/USD"
+                                 help="Muestra montos en Bs y USD en todos los documentos fiscales."
+                                 invisible="not l10n_ve_active">
+                            <field name="l10n_ve_dual_currency"/>
+                        </setting>
+
+                    </block>
+
+                    <!-- ── IDENTIFICACIÓN FISCAL ─────────────────────── -->
+                    <block title="Identificación Fiscal" name="l10n_ve_fiscal_id_block"
+                           invisible="not l10n_ve_active">
+
+                        <setting string="RIF de la Compañía"
+                                 help="Registro de Información Fiscal (ej: J-12345678-9).">
+                            <div class="content-group">
+                                <div class="row mt16">
+                                    <label for="l10n_ve_rif" string="RIF" class="col-lg-3 o_light_label"/>
+                                    <field name="l10n_ve_rif" placeholder="J-12345678-9"/>
+                                </div>
+                                <div class="row">
+                                    <label for="l10n_ve_contributor_type" string="Tipo de Contribuyente" class="col-lg-3 o_light_label"/>
+                                    <field name="l10n_ve_contributor_type"/>
                                 </div>
                             </div>
-                        </div>
-                        <div class="col-xs-12 col-md-6 o_setting_box"
-                             attrs="{'invisible': [('l10n_ve_active', '=', False)]}">
-                            <div class="o_setting_left_pane">
-                                <field name="l10n_ve_dual_currency"/>
-                            </div>
-                            <div class="o_setting_right_pane">
-                                <label for="l10n_ve_dual_currency"
-                                       string="Contabilidad Dual BS/USD"/>
-                                <div class="text-muted">
-                                    Muestra montos en Bs y USD en todos los documentos.
+                        </setting>
+
+                        <setting string="Calidad de Agente"
+                                 help="Define si la compañía retiene IVA y/o ISLR a sus proveedores.">
+                            <div class="content-group">
+                                <div class="row mt16">
+                                    <label for="l10n_ve_retention_agent" string="Agente Retención IVA" class="col-lg-3 o_light_label"/>
+                                    <field name="l10n_ve_retention_agent"/>
+                                </div>
+                                <div class="row">
+                                    <label for="l10n_ve_retention_islr_agent" string="Agente Retención ISLR" class="col-lg-3 o_light_label"/>
+                                    <field name="l10n_ve_retention_islr_agent"/>
                                 </div>
                             </div>
-                        </div>
-                    </div>
+                        </setting>
 
-                    <div class="row mt16 o_settings_container"
-                         attrs="{'invisible': [('l10n_ve_active', '=', False)]}">
-                        <div class="col-xs-12 col-md-6 o_setting_box">
-                            <div class="o_setting_right_pane">
-                                <label string="Identificación Fiscal"/>
-                                <field name="l10n_ve_rif" placeholder="J-12345678-9"/>
-                                <field name="l10n_ve_contributor_type"/>
-                                <div class="mt4"/>
-                                <label string="Agentes de Retención"/>
-                                <field name="l10n_ve_retention_agent"
-                                       string="Agente de Retención IVA"/>
-                                <field name="l10n_ve_retention_islr_agent"
-                                       string="Agente de Retención ISLR"/>
-                                <div class="mt4"/>
-                                <label string="Fuente Tasa BCV"/>
-                                <field name="l10n_ve_rate_source"/>
-                            </div>
-                        </div>
-                        <div class="col-xs-12 col-md-6 o_setting_box">
-                            <div class="o_setting_right_pane">
-                                <label string="Tasas IVA Configuradas"/>
-                                <field name="l10n_ve_iva_rate" string="IVA General (%)"/>
-                                <field name="l10n_ve_iva_reduced_rate" string="IVA Reducida (%)"/>
-                                <field name="l10n_ve_wh_iva_rate_general"
-                                       string="Ret. IVA Ordinario (%)"/>
-                                <field name="l10n_ve_wh_iva_rate_special"
-                                       string="Ret. IVA Especial (%)"/>
-                            </div>
-                        </div>
-                    </div>
+                    </block>
 
-                    <div class="row mt16 o_settings_container"
-                         attrs="{'invisible': [('l10n_ve_active', '=', False)]}">
-                        <div class="col-xs-12 col-md-6 o_setting_box">
-                            <div class="o_setting_right_pane">
-                                <label string="Diarios Contables"/>
-                                <field name="l10n_ve_wh_iva_journal_id"
-                                       string="Diario Ret. IVA"/>
-                                <field name="l10n_ve_wh_islr_journal_id"
-                                       string="Diario Ret. ISLR"/>
-                                <field name="l10n_ve_wh_municipal_journal_id"
-                                       string="Diario Ret. Municipal"/>
-                            </div>
-                        </div>
-                        <div class="col-xs-12 col-md-6 o_setting_box">
-                            <div class="o_setting_right_pane">
-                                <label string="Cuentas Contables de Retención"/>
-                                <field name="l10n_ve_wh_iva_account_id"
-                                       string="IVA Retenido (emitido)"/>
-                                <field name="l10n_ve_wh_iva_received_account_id"
-                                       string="IVA Retenido (recibido)"/>
-                                <field name="l10n_ve_wh_islr_account_id"
-                                       string="ISLR Retenido"/>
-                                <field name="l10n_ve_wh_municipal_account_id"
-                                       string="Ret. Municipal"/>
-                            </div>
-                        </div>
-                    </div>
+                    <!-- ── TASAS IVA ──────────────────────────────────── -->
+                    <block title="Tasas IVA" name="l10n_ve_iva_block"
+                           invisible="not l10n_ve_active">
 
-                </div>
+                        <setting string="Alícuotas IVA"
+                                 help="Configure las tasas de IVA aplicables en Venezuela.">
+                            <div class="content-group">
+                                <div class="row mt16">
+                                    <label for="l10n_ve_iva_rate" string="IVA General (%)" class="col-lg-3 o_light_label"/>
+                                    <field name="l10n_ve_iva_rate"/>
+                                </div>
+                                <div class="row">
+                                    <label for="l10n_ve_iva_reduced_rate" string="IVA Reducida (%)" class="col-lg-3 o_light_label"/>
+                                    <field name="l10n_ve_iva_reduced_rate"/>
+                                </div>
+                                <div class="row">
+                                    <label for="l10n_ve_wh_iva_rate_general" string="Ret. IVA Ordinario (%)" class="col-lg-3 o_light_label"/>
+                                    <field name="l10n_ve_wh_iva_rate_general"/>
+                                </div>
+                                <div class="row">
+                                    <label for="l10n_ve_wh_iva_rate_special" string="Ret. IVA Especial (%)" class="col-lg-3 o_light_label"/>
+                                    <field name="l10n_ve_wh_iva_rate_special"/>
+                                </div>
+                            </div>
+                        </setting>
+
+                    </block>
+
+                    <!-- ── DIARIOS Y CUENTAS ──────────────────────────── -->
+                    <block title="Diarios Contables de Retención" name="l10n_ve_journals_block"
+                           invisible="not l10n_ve_active">
+
+                        <setting string="Diarios de Retención"
+                                 help="Asigne los diarios contables para registrar los asientos de retención.">
+                            <div class="content-group">
+                                <div class="row mt16">
+                                    <label for="l10n_ve_wh_iva_journal_id" string="Diario Ret. IVA" class="col-lg-3 o_light_label"/>
+                                    <field name="l10n_ve_wh_iva_journal_id"
+                                           domain="[('type','=','general')]"/>
+                                </div>
+                                <div class="row">
+                                    <label for="l10n_ve_wh_islr_journal_id" string="Diario Ret. ISLR" class="col-lg-3 o_light_label"/>
+                                    <field name="l10n_ve_wh_islr_journal_id"
+                                           domain="[('type','=','general')]"/>
+                                </div>
+                                <div class="row">
+                                    <label for="l10n_ve_wh_municipal_journal_id" string="Diario Ret. Municipal" class="col-lg-3 o_light_label"/>
+                                    <field name="l10n_ve_wh_municipal_journal_id"
+                                           domain="[('type','=','general')]"/>
+                                </div>
+                            </div>
+                        </setting>
+
+                        <setting string="Cuentas Contables de Retención"
+                                 help="Cuentas donde se registran las retenciones emitidas y recibidas.">
+                            <div class="content-group">
+                                <div class="row mt16">
+                                    <label for="l10n_ve_wh_iva_account_id" string="IVA Retenido (emitido)" class="col-lg-3 o_light_label"/>
+                                    <field name="l10n_ve_wh_iva_account_id"
+                                           domain="[('deprecated','=',False)]"/>
+                                </div>
+                                <div class="row">
+                                    <label for="l10n_ve_wh_iva_received_account_id" string="IVA Retenido (recibido)" class="col-lg-3 o_light_label"/>
+                                    <field name="l10n_ve_wh_iva_received_account_id"
+                                           domain="[('deprecated','=',False)]"/>
+                                </div>
+                                <div class="row">
+                                    <label for="l10n_ve_wh_islr_account_id" string="ISLR Retenido" class="col-lg-3 o_light_label"/>
+                                    <field name="l10n_ve_wh_islr_account_id"
+                                           domain="[('deprecated','=',False)]"/>
+                                </div>
+                                <div class="row">
+                                    <label for="l10n_ve_wh_municipal_account_id" string="Ret. Municipal" class="col-lg-3 o_light_label"/>
+                                    <field name="l10n_ve_wh_municipal_account_id"
+                                           domain="[('deprecated','=',False)]"/>
+                                </div>
+                            </div>
+                        </setting>
+
+                    </block>
+
+                    <!-- ── TASA BCV ───────────────────────────────────── -->
+                    <block title="Fuente de Tasa BCV" name="l10n_ve_rate_block"
+                           invisible="not l10n_ve_active">
+                        <setting string="Fuente de Tasa de Cambio"
+                                 help="Defina cómo se obtiene la tasa oficial BCV para los documentos.">
+                            <field name="l10n_ve_rate_source" class="mt16"/>
+                        </setting>
+                    </block>
+
+                </app>
             </xpath>
         </field>
     </record>
