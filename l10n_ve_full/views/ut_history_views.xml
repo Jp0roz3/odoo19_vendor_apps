@@ -12,8 +12,7 @@
                 <field name="name"/>
                 <field name="date_from"/>
                 <field name="date_to"/>
-                <field name="value_bs" string="Valor Bs" widget="monetary"
-                       options="{'currency_field': 'currency_bs_id'}"/>
+                <field name="value_bs" string="Valor Bs" digits="[18,2]"/>
                 <field name="value_usd" string="Equiv. USD" digits="[12,4]"/>
                 <field name="gaceta_oficial"/>
                 <field name="company_id" groups="base.group_multi_company"/>
@@ -35,8 +34,7 @@
                         <group string="Vigencia y Valor">
                             <field name="date_from" string="Vigente desde"/>
                             <field name="date_to"   string="Vigente hasta (vacío = indefinido)"/>
-                            <field name="value_bs"  string="Valor en Bs" widget="monetary"
-                                   options="{'currency_field': 'currency_bs_id'}"/>
+                            <field name="value_bs"  string="Valor en Bs" digits="[18,2]"/>
                             <field name="currency_bs_id"/>
                             <field name="value_usd" readonly="1"/>
                         </group>

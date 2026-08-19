@@ -50,10 +50,10 @@ class AccountUtHistory(models.Model):
         string='Vigente hasta',
         help='Fecha de fin de vigencia. Vacío = vigente indefinidamente hasta nueva publicación.',
     )
-    value_bs = fields.Monetary(
+    value_bs = fields.Float(
         string='Valor UT (Bs)',
         required=True,
-        currency_field='currency_bs_id',
+        digits=(18, 2),
         help='Valor de la Unidad Tributaria en Bolívares según Gaceta Oficial.',
     )
     value_usd = fields.Float(
@@ -69,7 +69,6 @@ class AccountUtHistory(models.Model):
         default=lambda self: self.env['res.currency'].search(
             [('name', 'in', ['VES', 'VEF', 'VEB'])], limit=1
         ),
-        required=True,
     )
     exchange_rate_id = fields.Many2one(
         comodel_name='l10n_ve.exchange.rate',

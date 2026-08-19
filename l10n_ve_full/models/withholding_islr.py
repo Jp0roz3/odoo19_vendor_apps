@@ -321,6 +321,20 @@ class AccountWhIslr(models.Model):
         if not account_wh:
             raise UserError(_('Configure la "Cuenta ISLR Retenido" en la compañía.'))
 
+        # Obtener la cuenta de mayor de la factura origen (CxP / CxC del partner)
+        # para la línea de débito (reducir lo que le debemos al proveedor)
+        invoice_payable_lines = self.move_id.line_ids.filtered(
+            lambda l: l.account_id.account_type in (
+                'liability_payable', 'asset_receivable'
+            )
+        )
+        if not invoice_payable_lines:
+            raise UserError(_(
+                'La factura no tiene línea de cuentas por pagar/cobrar. '
+                'Verifique que la factura esté correctamente configurada.'
+            ))
+        payable_account = invoice_payable_lines[0].account_id
+
         move_vals = {
             'move_type': 'entry',
             'date': self.date,
@@ -328,16 +342,18 @@ class AccountWhIslr(models.Model):
             'ref': f'Ret. ISLR {self.name} — {self.concept_id.name}',
             'company_id': self.company_id.id,
             'line_ids': [
+                # DÉBITO: Reduce la cuenta por pagar al proveedor
                 (0, 0, {
-                    'account_id': account_wh.id,
-                    'name': f'ISLR Retenido — {self.name} — {self.partner_id.name}',
+                    'account_id': payable_account.id,
+                    'name': f'ISLR Ret. — {self.name} — {self.partner_id.name}',
                     'debit': self.amount_bs,
                     'credit': 0.0,
                     'partner_id': self.partner_id.id,
                 }),
+                # CRÉDITO: Registra ISLR por pagar al SENIAT
                 (0, 0, {
                     'account_id': account_wh.id,
-                    'name': f'ISLR por Pagar — {self.name}',
+                    'name': f'ISLR Por Pagar SENIAT — {self.name}',
                     'debit': 0.0,
                     'credit': self.amount_bs,
                     'partner_id': self.partner_id.id,

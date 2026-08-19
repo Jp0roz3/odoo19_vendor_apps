@@ -301,7 +301,7 @@ class AccountMove(models.Model):
     # ------------------------------------------------------------------
     # Override: al confirmar la factura, asignar tasa BCV si no está puesta
     # ------------------------------------------------------------------
-    def action_post(self):
+    def action_post(self, **kwargs):
         for move in self:
             if move.company_id.l10n_ve_active and not move.l10n_ve_exchange_rate_id:
                 doc_date = move.invoice_date or move.date
@@ -313,10 +313,11 @@ class AccountMove(models.Model):
                         move.l10n_ve_exchange_rate_id = rate_rec.id
                     else:
                         _logger.warning(
-                            'Venezuela360: No se encontró tasa BCV para fecha %s en compañía %s.',
+                            'Venezuela360: No se encontró tasa BCV para fecha %s '
+                            'en compañía %s. Asigne la tasa manualmente.',
                             doc_date, move.company_id.name
                         )
-        return super().action_post()
+        return super().action_post(**kwargs)
 
     # ------------------------------------------------------------------
     # Acciones de botones stat

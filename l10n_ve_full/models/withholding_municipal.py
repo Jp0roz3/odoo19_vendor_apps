@@ -184,6 +184,20 @@ class AccountWhMunicipal(models.Model):
         account_wh = self.company_id.l10n_ve_wh_municipal_account_id
         if not account_wh:
             raise UserError(_('Configure la "Cuenta Ret. Municipal" en la compañía.'))
+
+        # Débito: Cuenta por Pagar del proveedor en la factura origen
+        invoice_payable_lines = self.move_id.line_ids.filtered(
+            lambda l: l.account_id.account_type in (
+                'liability_payable', 'asset_receivable'
+            )
+        )
+        if not invoice_payable_lines:
+            raise UserError(_(
+                'La factura no tiene línea de cuentas por pagar/cobrar. '
+                'Verifique que la factura esté correctamente configurada.'
+            ))
+        payable_account = invoice_payable_lines[0].account_id
+
         move_vals = {
             'move_type': 'entry',
             'date': self.date,
@@ -191,13 +205,15 @@ class AccountWhMunicipal(models.Model):
             'ref': f'Ret. Municipal {self.name} — Municipio {self.municipality_id.name}',
             'company_id': self.company_id.id,
             'line_ids': [
+                # DÉBITO: Reduce la CxP al proveedor
                 (0, 0, {
-                    'account_id': account_wh.id,
-                    'name': f'IAE Retenido — {self.name}',
+                    'account_id': payable_account.id,
+                    'name': f'IAE Ret. — {self.name} — {self.partner_id.name}',
                     'debit': self.amount_bs,
                     'credit': 0.0,
                     'partner_id': self.partner_id.id,
                 }),
+                # CRÉDITO: Registra IAE por pagar al Municipio
                 (0, 0, {
                     'account_id': account_wh.id,
                     'name': f'IAE Por Pagar — {self.municipality_id.name}',
