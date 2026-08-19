@@ -13,9 +13,10 @@ class HrPayrollAIService(models.AbstractModel):
     _description = 'Servicio Integrado de IA Multi-Proveedor con Modo Simulación y Fallback (Nubelco AI)'
 
     @api.model
-    def process_chat_query(self, query_text, employee_id=False, company_id=False):
+    def process_chat_query(self, query_text, employee_id=False, company_id=False, session_id=False):
         """
         Procesa una consulta de usuario sobre la nómina / LOTTT.
+        - Soporta memoria multi-turno si se provee session_id.
         - Si ai_provider == 'heuristic_fallback', cae al motor local.
         - Si ai_simulation_mode == True, agrega trazabilidad explicativa sin alterar producción.
         - Si ocurre cualquier falla de API o timeout, retorna None (fallback seguro).
@@ -39,6 +40,17 @@ class HrPayrollAIService(models.AbstractModel):
         # Sanitizar entrada del usuario
         clean_query = (query_text or '').strip()[:1000]
 
+        # Memoria Conversacional Multi-turno
+        session_memory = ""
+        if session_id:
+            past_msgs = self.env['hr.payroll.ai.message'].search([('session_id', '=', session_id)], order='date desc', limit=6)
+            if past_msgs:
+                memory_lines = []
+                for m in reversed(past_msgs):
+                    role_name = "Usuario" if m.role == 'user' else "Asistente AI"
+                    memory_lines.append(f"{role_name}: {m.content[:250]}")
+                session_memory = "Memoria Conversacional Anterior (Multi-turno):\n" + "\n".join(memory_lines)
+
         # Contexto de herramientas de solo lectura si están activadas
         tools_summary = ""
         if company.ai_tools_enabled:
@@ -61,6 +73,7 @@ class HrPayrollAIService(models.AbstractModel):
             f"{sim_header}"
             "Eres Nubelco AI SuperBrain, un Asistente Experto en Recursos Humanos y Nómina Venezolana bajo la LOTTT.\n"
             f"Parámetros Oficiales: Tasa BCV={rate:.4f} Bs/USD, Cestaticket=${cesta_usd:.2f} USD ({cesta_bs:.2f} Bs/mes), Ley Pensiones SENIAT=9%.\n"
+            f"{session_memory}\n"
             f"{tools_summary}\n"
             f"{rag_context}\n"
             "Reglas Estrictas:\n"

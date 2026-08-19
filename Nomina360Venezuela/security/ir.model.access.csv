@@ -30,4 +30,6 @@ access_arc_seniat_email_wizard_user,arc.seniat.email.wizard.user,model_arc_senia
 access_hr_payroll_migration_wizard_user,hr.payroll.migration.wizard.user,model_hr_payroll_migration_wizard,base.group_user,1,1,1,1
 access_hr_payslip_todoticket_user,hr.payslip.todoticket.user,model_hr_payslip_todoticket,base.group_user,1,1,1,1
 access_hr_payslip_todoticket_line_user,hr.payslip.todoticket.line.user,model_hr_payslip_todoticket_line,base.group_user,1,1,1,1
+access_hr_payroll_ai_session_user,hr.payroll.ai.session.user,model_hr_payroll_ai_session,base.group_user,1,1,1,1
+access_hr_payroll_ai_message_user,hr.payroll.ai.message.user,model_hr_payroll_ai_message,base.group_user,1,1,1,1
 

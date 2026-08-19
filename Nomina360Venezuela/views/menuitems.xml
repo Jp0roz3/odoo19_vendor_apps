@@ -18,6 +18,12 @@
               action="action_hr_payroll_ai_chat"
               sequence="2"/>
 
+    <menuitem id="menu_hr_payroll_ai_session"
+              name="💬 Historial &amp; Sesiones de IA"
+              parent="menu_nomina_venezuela_root"
+              action="action_hr_payroll_ai_session"
+              sequence="3"/>
+
     <menuitem id="menu_hr_contract_ve"
               name="Contratos de Trabajo"
               parent="menu_nomina_venezuela_root"

@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- 1. Vistas de Lista y Formulario para Sesiones de IA (hr.payroll.ai.session) -->
+    <record id="view_hr_payroll_ai_session_tree" model="ir.ui.view">
+        <field name="name">hr.payroll.ai.session.tree</field>
+        <field name="model">hr.payroll.ai.session</field>
+        <field name="arch" type="xml">
+            <list string="Historial de Conversaciones de IA Laboral">
+                <field name="create_date" string="Fecha Inicio"/>
+                <field name="name"/>
+                <field name="user_id"/>
+                <field name="employee_id"/>
+                <field name="ai_provider"/>
+                <field name="message_count"/>
+                <field name="write_date" string="Última Actividad"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_hr_payroll_ai_session_form" model="ir.ui.view">
+        <field name="name">hr.payroll.ai.session.form</field>
+        <field name="model">hr.payroll.ai.session</field>
+        <field name="arch" type="xml">
+            <form string="Sesión de IA Laboral - Nubelco AI SuperBrain">
+                <header>
+                    <button name="action_send_message" string="⚡ Enviar Mensaje" type="object" class="btn-primary" style="font-weight: bold; background: linear-gradient(135deg, #6366F1 0%, #3B82F6 100%); border: none; padding: 6px 18px; border-radius: 8px;"/>
+                </header>
+                <sheet>
+                    <div style="background: linear-gradient(135deg, #1E1B4B 0%, #0F172A 100%); padding: 18px 22px; border-radius: 12px; margin-bottom: 20px; color: #FFFFFF; border: 1px solid #312E81;">
+                        <div style="display: flex; align-items: center; justify-content: space-between;">
+                            <div>
+                                <h2 style="margin: 0; font-size: 20px; font-weight: 800; color: #FFFFFF;">💬 Sesión Inteligente — Nubelco AI Neural Interface</h2>
+                                <p style="margin: 4px 0 0 0; color: #A5B4FC; font-size: 13px;">Conversación multi-turno con memoria persistente sobre salarios, prestaciones, retenciones SENIAT y la LOTTT.</p>
+                            </div>
+                            <div style="background: rgba(99, 102, 241, 0.2); border: 1px solid #6366F1; padding: 6px 14px; border-radius: 20px; color: #C7D2FE; font-size: 11px; font-weight: 700; text-transform: uppercase;">
+                                Multi-turn Neural Session
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="oe_title">
+                        <label for="name" string="Título de la Conversación"/>
+                        <h1><field name="name" placeholder="Ej: Consulta Salarial y Prestaciones María Benítez"/></h1>
+                    </div>
+
+                    <group string="Configuración de la Sesión">
+                        <group>
+                            <field name="employee_id" placeholder="Seleccione un empleado para contexto directo..."/>
+                            <field name="user_id" readonly="1"/>
+                        </group>
+                        <group>
+                            <field name="ai_provider"/>
+                            <field name="is_simulation_mode"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                        </group>
+                    </group>
+
+                    <!-- Botones de Acción Rápida (Prompt Chips de 1-clic) -->
+                    <div style="background: #1E293B; border-radius: 12px; padding: 14px 18px; margin-bottom: 20px; border: 1px solid #334155;">
+                        <span style="color: #94A3B8; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 10px;">⚡ Accesos Rápidos de 1-Clic (Prompt Chips)</span>
+                        <div style="display: flex; flex-wrap: wrap; gap: 10px;">
+                            <button name="action_quick_prestaciones" string="💰 Prestaciones Art. 142" type="object" class="btn btn-outline-info btn-sm" style="border-radius: 20px; font-weight: 600; font-size: 12px;"/>
+                            <button name="action_quick_anticipo" string="🏥 Anticipo 75% Art. 144" type="object" class="btn btn-outline-warning btn-sm" style="border-radius: 20px; font-weight: 600; font-size: 12px;"/>
+                            <button name="action_quick_cestaticket" string="🍽️ Cestaticket $40 BCV" type="object" class="btn btn-outline-success btn-sm" style="border-radius: 20px; font-weight: 600; font-size: 12px;"/>
+                            <button name="action_quick_seniat" string="🏛️ Ley Pensiones 9% SENIAT" type="object" class="btn btn-outline-primary btn-sm" style="border-radius: 20px; font-weight: 600; font-size: 12px;"/>
+                        </div>
+                    </div>
+
+                    <group string="Escribe tu consulta">
+                        <field name="input_text" placeholder="Escribe aquí tu duda sobre la nómina, contrato, prestaciones sociales o la LOTTT y haz clic en 'Enviar Mensaje'..." rows="2" nolabel="1"/>
+                    </group>
+
+                    <notebook>
+                        <page string="💬 Historial de Conversación (Memoria Multi-turno)" name="history">
+                            <field name="history_html" widget="html" readonly="1"/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="activity_ids"/>
+                    <field name="message_ids"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_hr_payroll_ai_session" model="ir.actions.act_window">
+        <field name="name">💬 Historial &amp; Sesiones de IA</field>
+        <field name="res_model">hr.payroll.ai.session</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                ¡Crea tu primera Sesión de Inteligencia Artificial Laboral!
+            </p>
+            <p>
+                Consulta salarios, prestaciones sociales, anticipos de la LOTTT y retenciones del SENIAT manteniendo el historial completo de conversación.
+            </p>
+        </field>
+    </record>
+</odoo>

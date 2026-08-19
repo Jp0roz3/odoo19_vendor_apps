@@ -63,6 +63,7 @@ Soporte Comercial e Implementación: JeanPerozo / Nubelco (https://www.nubelco.c
         'views/hr_innovations_views.xml',
         'views/hr_payslip_todoticket_views.xml',
         'views/res_config_settings_views.xml',
+        'views/hr_payroll_ai_history_views.xml',
         'views/menuitems.xml',
     ],
     'demo': [],
