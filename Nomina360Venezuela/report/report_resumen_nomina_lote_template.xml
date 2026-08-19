@@ -8,7 +8,6 @@
         <field name="report_name">Nomina360Venezuela.report_resumen_nomina_lote_document</field>
         <field name="report_file">Nomina360Venezuela.report_resumen_nomina_lote_document</field>
         <field name="print_report_name">'Resumen_Lote_Nomina_' + (object.name or '').replace(' ', '_')</field>
-        <field name="binding_model_id" ref="hr_payroll.model_hr_payslip_run"/>
         <field name="binding_type">report</field>
     </record>
 

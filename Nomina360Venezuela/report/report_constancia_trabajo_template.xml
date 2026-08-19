@@ -8,7 +8,6 @@
         <field name="report_name">Nomina360Venezuela.report_constancia_trabajo_document</field>
         <field name="report_file">Nomina360Venezuela.report_constancia_trabajo_document</field>
         <field name="print_report_name">'Constancia_Trabajo_' + (object.employee_id.name or '').replace(' ', '_')</field>
-        <field name="binding_model_id" ref="hr.model_hr_contract"/>
         <field name="binding_type">report</field>
     </record>
 
