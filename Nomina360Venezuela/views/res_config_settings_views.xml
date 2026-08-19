@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="res_config_settings_view_form_ve" model="ir.ui.view">
+        <field name="name">res.config.settings.form.ve</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="base.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//form" position="inside">
+                <app data-string="Nómina Venezuela 360" string="Nómina Venezuela 360" name="Nomina360Venezuela">
+                    <block title="Parámetros Legales de Venezuela (LOTTT)">
+                        <setting string="Sincronización Tasa BCV" help="Sincronizar automáticamente la tasa oficial del Banco Central de Venezuela.">
+                            <field name="bcv_rate_api_enabled"/>
+                            <div invisible="not bcv_rate_api_enabled">
+                                <field name="current_bcv_rate"/>
+                            </div>
+                        </setting>
+                        <setting string="Nivel de Riesgo IVSS Patronal" help="Nivel de riesgo asignado por el IVSS (9%, 10% o 11%).">
+                            <field name="ivss_risk_level"/>
+                        </setting>
+                        <setting string="Cesta Ticket Socialista (USD)" help="Monto decretado en dólares ($40.00).">
+                            <field name="cesta_ticket_usd"/>
+                        </setting>
+                        <setting string="Salario Mínimo Nacional (Bs)" help="Salario Mínimo para topes IVSS/SPF.">
+                            <field name="salario_minimo_nacional"/>
+                        </setting>
+                        <setting string="Ley de Protección de Pensiones (%)" help="Porcentaje de aporte patronal para SENIAT (Mayo 2024).">
+                            <field name="ley_pensiones_rate"/>
+                        </setting>
+                        <setting string="Banco Predeterminado" help="Banco predeterminado para disquetes masivos.">
+                            <field name="bank_code_default"/>
+                        </setting>
+                    </block>
+                </app>
+            </xpath>
+        </field>
+    </record>
+</odoo>

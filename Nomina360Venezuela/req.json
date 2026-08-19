@@ -1,0 +1,1 @@
+{"jsonrpc": "2.0", "method": "call", "params": {"service": "db", "method": "list", "args": []}, "id": 1}

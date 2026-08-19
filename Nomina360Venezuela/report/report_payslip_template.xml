@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Action Report Definition for Odoo 19 -->
+    <record id="action_report_payslip_ve" model="ir.actions.report">
+        <field name="name">Recibo de Pago (PDF)</field>
+        <field name="model">hr.payslip</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">Nomina360Venezuela.report_payslip_ve_template</field>
+        <field name="report_file">Nomina360Venezuela.report_payslip_ve_template</field>
+        <field name="print_report_name">'Recibo_Nomina_%s_%s' % (object.employee_id.name, object.date_to)</field>
+        <field name="binding_model_id" ref="model_hr_payslip"/>
+        <field name="binding_type">report</field>
+    </record>
+
+    <!-- QWeb PDF Payslip Report Template (Profit Plus Style) -->
+    <template id="report_payslip_ve_template">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="web.basic_layout">
+                    <div class="page" style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 11px; color: #1E293B; margin: 0; padding: 10px;">
+                        
+                        <!-- Loop for 2 copies per page: ORIGINAL TRABAJADOR & COPIA EMPRESA -->
+                        <t t-foreach="['ORIGINAL - TRABAJADOR', 'COPIA - PATRONO']" t-as="copia_tipo">
+                            
+                            <div style="border: 2px solid #1E293B; border-radius: 6px; padding: 12px; margin-bottom: 20px; background-color: #FFFFFF;">
+                                <!-- Header -->
+                                <table style="width: 100%; border-bottom: 2px solid #6C1D45; margin-bottom: 8px; padding-bottom: 6px;">
+                                    <tr>
+                                        <td style="width: 60%; vertical-align: top;">
+                                            <h4 style="margin: 0; color: #6C1D45; font-weight: bold; font-size: 15px;" t-field="o.company_id.name"/>
+                                            <span style="font-size: 10px; color: #64748B;">RIF: <t t-esc="o.company_id.vat or 'J-00000000-0'"/></span><br/>
+                                            <span style="font-size: 10px; color: #64748B;" t-field="o.company_id.street"/>
+                                        </td>
+                                        <td style="width: 40%; text-align: right; vertical-align: top;">
+                                            <h4 style="margin: 0; color: #1E293B; font-weight: bold; font-size: 14px;">RECIBO DE PAGO DE NÓMINA</h4>
+                                            <span style="font-size: 10px; font-weight: bold; color: #047857;" t-esc="copia_tipo"/> | 
+                                            <span style="font-size: 10px; color: #475569;">Nº Recibo: <t t-esc="o.id"/></span><br/>
+                                            <span style="font-size: 10px; color: #64748B;">Período: <strong t-field="o.date_from"/> al <strong t-field="o.date_to"/></span>
+                                        </td>
+                                    </tr>
+                                </table>
+
+                                <!-- Employee Details Table -->
+                                <table style="width: 100%; border-collapse: collapse; margin-bottom: 10px; background-color: #F8FAFC; border: 1px solid #E2E8F0;">
+                                    <tr>
+                                        <td style="padding: 4px 8px; border: 1px solid #E2E8F0; width: 35%;">
+                                            <strong>Empleado:</strong> <span t-field="o.employee_id.name"/>
+                                        </td>
+                                        <td style="padding: 4px 8px; border: 1px solid #E2E8F0; width: 25%;">
+                                            <strong>Cédula:</strong> <span t-field="o.employee_id.identification_id"/>
+                                        </td>
+                                        <td style="padding: 4px 8px; border: 1px solid #E2E8F0; width: 20%;">
+                                            <strong>Fecha Ingreso:</strong> <span t-field="o.contract_id.date_start"/>
+                                        </td>
+                                        <td style="padding: 4px 8px; border: 1px solid #E2E8F0; width: 20%;">
+                                            <strong>Tasa BCV:</strong> <span t-field="o.tasa_bcv"/> Bs/$
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 4px 8px; border: 1px solid #E2E8F0;">
+                                            <strong>Cargo:</strong> <span t-esc="o.employee_id.job_title or 'Empleado'"/>
+                                        </td>
+                                        <td style="padding: 4px 8px; border: 1px solid #E2E8F0;">
+                                            <strong>Sueldo Base ($ USD):</strong> $<span t-field="o.contract_id.wage_usd"/>
+                                        </td>
+                                        <td style="padding: 4px 8px; border: 1px solid #E2E8F0;" colspan="2">
+                                            <strong>Sueldo Base (Bs):</strong> <span t-field="o.contract_id.wage_bs"/> Bs
+                                        </td>
+                                    </tr>
+                                </table>
+
+                                <!-- Side-by-Side 2-Column Concept Table -->
+                                <table style="width: 100%; border-collapse: collapse; margin-bottom: 8px;">
+                                    <thead>
+                                        <tr style="background-color: #6C1D45; color: #FFFFFF; font-size: 10px; font-weight: bold; text-align: center;">
+                                            <th style="padding: 5px; border: 1px solid #6C1D45; width: 50%;">ASIGNACIONES / BENEFICIOS</th>
+                                            <th style="padding: 5px; border: 1px solid #6C1D45; width: 50%;">DEDUCCIONES LEGALES</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <!-- ASIGNACIONES COLUMN -->
+                                            <td style="vertical-align: top; border: 1px solid #CBD5E1; padding: 0;">
+                                                <table style="width: 100%; border-collapse: collapse; font-size: 10px;">
+                                                    <tr t-foreach="o.line_ids.filtered(lambda l: l.category_id.code in ('BASIC', 'ALW'))" t-as="asig" style="border-bottom: 1px solid #F1F5F9;">
+                                                        <td style="padding: 3px 6px; width: 60%;"><span t-field="asig.name"/></td>
+                                                        <td style="padding: 3px 6px; width: 40%; text-align: right; font-weight: bold;">
+                                                            <span t-field="asig.total"/> Bs<br/>
+                                                            <span style="font-size: 9px; color: #64748B;">($ <t t-esc="round(asig.total / (o.tasa_bcv or 1.0), 2)"/>)</span>
+                                                        </td>
+                                                    </tr>
+                                                </table>
+                                            </td>
+
+                                            <!-- DEDUCCIONES COLUMN -->
+                                            <td style="vertical-align: top; border: 1px solid #CBD5E1; padding: 0;">
+                                                <table style="width: 100%; border-collapse: collapse; font-size: 10px;">
+                                                    <tr t-foreach="o.line_ids.filtered(lambda l: l.category_id.code == 'DED')" t-as="ded" style="border-bottom: 1px solid #F1F5F9;">
+                                                        <td style="padding: 3px 6px; width: 60%;"><span t-field="ded.name"/></td>
+                                                        <td style="padding: 3px 6px; width: 40%; text-align: right; font-weight: bold; color: #DC2626;">
+                                                            <span t-field="ded.total"/> Bs<br/>
+                                                            <span style="font-size: 9px; color: #64748B;">($ <t t-esc="round(ded.total / (o.tasa_bcv or 1.0), 2)"/>)</span>
+                                                        </td>
+                                                    </tr>
+                                                </table>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+
+                                <!-- Totals Summary Banner -->
+                                <table style="width: 100%; border-collapse: collapse; background-color: #F1F5F9; border: 1px solid #CBD5E1; margin-bottom: 10px;">
+                                    <tr>
+                                        <td style="padding: 6px; width: 33%; text-align: center; border-right: 1px solid #CBD5E1;">
+                                            <span style="font-size: 9px; color: #475569;">TOTAL ASIGNACIONES:</span><br/>
+                                            <strong style="font-size: 11px; color: #047857;"><span t-field="o.total_bs"/> Bs ($<span t-field="o.total_usd"/>)</strong>
+                                        </td>
+                                        <td style="padding: 6px; width: 33%; text-align: center; border-right: 1px solid #CBD5E1;">
+                                            <span style="font-size: 9px; color: #475569;">TOTAL DEDUCCIONES:</span><br/>
+                                            <strong style="font-size: 11px; color: #DC2626;">
+                                                <t t-esc="round(sum(o.line_ids.filtered(lambda l: l.category_id.code == 'DED').mapped('total')), 2)"/> Bs 
+                                                ($<t t-esc="round(sum(o.line_ids.filtered(lambda l: l.category_id.code == 'DED').mapped('total')) / (o.tasa_bcv or 1.0), 2)"/>)
+                                            </strong>
+                                        </td>
+                                        <td style="padding: 6px; width: 34%; text-align: center; background-color: #047857; color: #FFFFFF;">
+                                            <span style="font-size: 10px;">NETO A COBRAR:</span><br/>
+                                            <strong style="font-size: 13px;"><span t-field="o.net_wage_bs"/> Bs</strong><br/>
+                                            <span style="font-size: 10px;">(Ref: $<span t-field="o.net_wage_usd"/> USD)</span>
+                                        </td>
+                                    </tr>
+                                </table>
+
+                                <!-- Conformity Legal Declaration & Signatures -->
+                                <p style="font-size: 8px; color: #64748B; text-align: justify; margin-bottom: 12px;">
+                                    Recibí conforme de la empresa <strong><t t-esc="o.company_id.name"/></strong> la cantidad neta en Bolívares indicada en este recibo por concepto de pago de mis haberes laborales correspondientes al período señalado, declarando estar al día en todas mis acreencias de acuerdo a la Ley Orgánica del Trabajo, los Trabajadores y las Trabajadoras (LOTTT).
+                                </p>
+
+                                <table style="width: 100%; margin-top: 15px; text-align: center;">
+                                    <tr>
+                                        <td style="width: 45%; border-top: 1px solid #475569; padding-top: 4px;">
+                                            <strong>FIRMA DEL PATRONO / EMPRESA</strong><br/>
+                                            <span style="font-size: 8px; color: #64748B;">Sello y Firma Autorizada</span>
+                                        </td>
+                                        <td style="width: 10%;"></td>
+                                        <td style="width: 45%; border-top: 1px solid #475569; padding-top: 4px;">
+                                            <strong>FIRMA DEL TRABAJADOR</strong><br/>
+                                            <span style="font-size: 8px; color: #64748B;">C.I.: <t t-esc="o.employee_id.identification_id"/></span>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+
+                            <!-- Cut line between copies if not last -->
+                            <t t-if="copia_tipo == 'ORIGINAL - TRABAJADOR'">
+                                <div style="border-top: 1px dashed #94A3B8; margin: 15px 0; text-align: center; color: #94A3B8; font-size: 8px;">
+                                    ✂ - - - - - - - - - - - - - - - - - CORTE AQUÍ (COMPROBANTE PATRONO) - - - - - - - - - - - - - - - - - ✂
+                                </div>
+                            </t>
+                        </t>
+
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+</odoo>

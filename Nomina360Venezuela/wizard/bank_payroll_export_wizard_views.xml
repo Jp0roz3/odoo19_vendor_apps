@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Bank Export Wizard Form -->
+    <record id="view_bank_payroll_export_wizard_form" model="ir.ui.view">
+        <field name="name">bank.payroll.export.wizard.form</field>
+        <field name="model">bank.payroll.export.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Exportar Disquete Bancario de Pagos Masivos">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="payslip_run_id" readonly="1"/>
+                            <field name="bank_id"/>
+                        </group>
+                        <group>
+                            <field name="currency_id"/>
+                            <field name="payment_date"/>
+                        </group>
+                    </group>
+                    <group string="Archivo Bancario Generado" invisible="not file_data">
+                        <field name="file_name" invisible="1"/>
+                        <field name="file_data" filename="file_name"/>
+                    </group>
+                </sheet>
+                <footer>
+                    <button name="action_generate_bank_file" string="Generar Archivo de Pago" type="object" class="oe_highlight"/>
+                    <button string="Cancelar" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- Action for Bank Wizard -->
+    <record id="action_bank_payroll_export_wizard" model="ir.actions.act_window">
+        <field name="name">Disquetes Bancarios</field>
+        <field name="res_model">bank.payroll.export.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+    <!-- TIUNA / FAOV Wizard Form -->
+    <record id="view_tiuna_faov_export_wizard_form" model="ir.ui.view">
+        <field name="name">tiuna.faov.export.wizard.form</field>
+        <field name="model">tiuna.faov.export.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Exportar Archivos TIUNA (IVSS) / FAOV (BANAVIH)">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="export_type"/>
+                        </group>
+                        <group>
+                            <field name="date_from"/>
+                            <field name="date_to"/>
+                        </group>
+                    </group>
+                    <group string="Archivo Oficial Generado" invisible="not file_data">
+                        <field name="file_name" invisible="1"/>
+                        <field name="file_data" filename="file_name"/>
+                    </group>
+                </sheet>
+                <footer>
+                    <button name="action_export" string="Generar Archivo Oficial" type="object" class="oe_highlight"/>
+                    <button string="Cancelar" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- Action for TIUNA / FAOV Wizard -->
+    <record id="action_tiuna_faov_export_wizard" model="ir.actions.act_window">
+        <field name="name">Archivos Oficiales TIUNA / FAOV</field>
+        <field name="res_model">tiuna.faov.export.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+</odoo>

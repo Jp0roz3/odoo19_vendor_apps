@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- List View -->
+    <record id="view_hr_liquidacion_tree" model="ir.ui.view">
+        <field name="name">hr.liquidacion.tree</field>
+        <field name="model">hr.liquidacion</field>
+        <field name="arch" type="xml">
+            <list string="Liquidaciones de Finiquito (LOTTT)">
+                <field name="name"/>
+                <field name="employee_id"/>
+                <field name="date_start"/>
+                <field name="date_end"/>
+                <field name="cause"/>
+                <field name="monto_prestaciones_final_bs"/>
+                <field name="monto_indemnizacion_art92_bs"/>
+                <field name="total_liquidacion_bs"/>
+                <field name="total_liquidacion_usd"/>
+                <field name="state"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Form View -->
+    <record id="view_hr_liquidacion_form" model="ir.ui.view">
+        <field name="name">hr.liquidacion.form</field>
+        <field name="model">hr.liquidacion</field>
+        <field name="arch" type="xml">
+            <form string="Liquidación de Finiquito">
+                <header>
+                    <button name="action_calculate" string="Calcular Liquidación" type="object" invisible="state != 'draft'" class="oe_highlight"/>
+                    <button name="action_approve" string="Aprobar y Finalizar Contrato" type="object" invisible="state != 'calculated'" class="oe_highlight"/>
+                    <field name="state" widget="statusbar"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="name"/></h1>
+                    </div>
+                    <group string="Datos del Trabajador y Egreso">
+                        <group>
+                            <field name="employee_id"/>
+                            <field name="contract_id"/>
+                            <field name="cause"/>
+                        </group>
+                        <group>
+                            <field name="date_start"/>
+                            <field name="date_end"/>
+                            <field name="antiguedad_years"/>
+                            <field name="antiguedad_months"/>
+                            <field name="tasa_bcv"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Regla del Mayor (Art. 142 LOTTT)" name="regla_mayor">
+                            <group string="Comparativo Garantía vs Retroactivo">
+                                <group string="Opción A: Garantía Acumulada">
+                                    <field name="monto_garantia_acumulada_bs"/>
+                                </group>
+                                <group string="Opción B: Retroactivo (30 días/año)">
+                                    <field name="monto_retroactivo_art142c_bs"/>
+                                </group>
+                            </group>
+                            <group string="Resultado de Prestaciones a Pagar">
+                                <field name="monto_prestaciones_final_bs" class="oe_subtotal_footer_separator"/>
+                            </group>
+                        </page>
+                        <page string="Indemnizaciones por Despido (Art. 92 / Art. 80)" name="indemnizaciones">
+                            <group>
+                                <field name="aplica_doble_indemnizacion"/>
+                                <field name="monto_indemnizacion_art92_bs" invisible="not aplica_doble_indemnizacion"/>
+                                <field name="monto_preaviso_art80_bs" invisible="not aplica_doble_indemnizacion"/>
+                            </group>
+                        </page>
+                        <page string="Pendientes y Totales" name="totales">
+                            <group>
+                                <group string="Conceptos Pendientes">
+                                    <field name="vacaciones_pendientes_bs"/>
+                                    <field name="bono_vacacional_pendiente_bs"/>
+                                    <field name="utilidades_fraccionadas_bs"/>
+                                </group>
+                                <group string="Totales Finales Liquidación">
+                                    <field name="total_liquidacion_bs" class="oe_subtotal_footer_separator"/>
+                                    <field name="total_liquidacion_usd" class="oe_subtotal_footer_separator"/>
+                                </group>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="activity_ids"/>
+                    <field name="message_ids"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <!-- Action -->
+    <record id="action_hr_liquidacion" model="ir.actions.act_window">
+        <field name="name">Liquidaciones y Finiquitos (LOTTT)</field>
+        <field name="res_model">hr.liquidacion</field>
+        <field name="view_mode">list,form</field>
+    </record>
+</odoo>

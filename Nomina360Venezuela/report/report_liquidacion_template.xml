@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="report_liquidacion_ve_template">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="web.external_layout">
+                    <div class="page" style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;">
+                        <h2 class="text-center" style="color: #6C1D45; font-weight: bold;">FINIQUITO Y LIQUIDACIÓN DE PRESTACIONES SOCIALES</h2>
+                        <h5 class="text-center text-muted">(Ley Orgánica del Trabajo, los Trabajadores y las Trabajadoras - LOTTT)</h5>
+                        <hr/>
+
+                        <table class="table table-sm table-bordered">
+                            <tr>
+                                <td><strong>Trabajador:</strong> <span t-field="o.employee_id.name"/></td>
+                                <td><strong>Cédula:</strong> <span t-field="o.employee_id.identification_id"/></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Fecha de Ingreso:</strong> <span t-field="o.date_start"/></td>
+                                <td><strong>Fecha de Egreso:</strong> <span t-field="o.date_end"/></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Tiempo de Servicio:</strong> <span t-field="o.antiguedad_years"/> años, <span t-field="o.antiguedad_months"/> meses</td>
+                                <td><strong>Causa de Terminación:</strong> <span t-field="o.cause"/></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Salario Integral Diario:</strong> <span t-field="o.salario_integral_diario_bs"/> Bs</td>
+                                <td><strong>Tasa BCV Liquidación:</strong> <span t-field="o.tasa_bcv"/> Bs/USD</td>
+                            </tr>
+                        </table>
+
+                        <h4 class="mt-4" style="color: #1E293B;">1. Aplicación Regla del Mayor (Art. 142 LOTTT)</h4>
+                        <table class="table table-sm table-bordered">
+                            <tr>
+                                <td><strong>Opción A (Garantía Trimestral + Intereses Acumulados):</strong></td>
+                                <td class="text-right"><span t-field="o.monto_garantia_acumulada_bs"/> Bs</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Opción B (Retroactivo 30 Días/Año Art. 142c):</strong></td>
+                                <td class="text-right"><span t-field="o.monto_retroactivo_art142c_bs"/> Bs</td>
+                            </tr>
+                            <tr style="background-color: #E2E8F0; font-weight: bold;">
+                                <td><strong>Monto Acreditado de Prestaciones (Mayor de A ó B):</strong></td>
+                                <td class="text-right"><span t-field="o.monto_prestaciones_final_bs"/> Bs</td>
+                            </tr>
+                        </table>
+
+                        <t t-if="o.aplica_doble_indemnizacion">
+                            <h4 class="mt-4" style="color: #991B1B;">2. Indemnizaciones por Despido Injustificado (Art. 92 / Art. 80)</h4>
+                            <table class="table table-sm table-bordered">
+                                <tr>
+                                    <td>Doble Indemnización por Despido Injustificado (Art. 92):</td>
+                                    <td class="text-right"><span t-field="o.monto_indemnizacion_art92_bs"/> Bs</td>
+                                </tr>
+                                <tr>
+                                    <td>Indemnización Sustitutiva de Preaviso (Art. 80):</td>
+                                    <td class="text-right"><span t-field="o.monto_preaviso_art80_bs"/> Bs</td>
+                                </tr>
+                            </table>
+                        </t>
+
+                        <h4 class="mt-4" style="color: #1E293B;">3. Totales de Liquidación</h4>
+                        <div class="row">
+                            <div class="col-6">
+                                <div class="card p-3 bg-light">
+                                    <h5>TOTAL LIQUIDACIÓN (Bs)</h5>
+                                    <h3 style="color: #047857;"><span t-field="o.total_liquidacion_bs"/> Bs</h3>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="card p-3 bg-light">
+                                    <h5>TOTAL LIQUIDACIÓN ($ USD)</h5>
+                                    <h3 style="color: #047857;">$ <span t-field="o.total_liquidacion_usd"/></h3>
+                                </div>
+                            </div>
+                        </div>
+
+                        <p class="mt-4" style="font-size: 11px; text-align: justify;">
+                            El trabajador declara haber recibido a su entera satisfacción el monto total indicado en esta planilla por concepto de liquidación de prestaciones sociales e indemnizaciones conforme a la LOTTT, no quedando saldo alguno pendiente de reclamar por motivo de la relación laboral finalizada.
+                        </p>
+
+                        <br/><br/>
+                        <div class="row text-center mt-5">
+                            <div class="col-6">
+                                ____________________________________<br/>
+                                <strong>Por la Empresa / Patrono</strong>
+                            </div>
+                            <div class="col-6">
+                                ____________________________________<br/>
+                                <strong>El Trabajador (Firma y Huella)</strong>
+                            </div>
+                        </div>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+</odoo>

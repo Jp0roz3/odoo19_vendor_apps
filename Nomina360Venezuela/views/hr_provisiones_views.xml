@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_hr_payroll_provision_form" model="ir.ui.view">
+        <field name="name">hr.payroll.provision.form</field>
+        <field name="model">hr.payroll.provision</field>
+        <field name="arch" type="xml">
+            <form string="Provisión Contable Mensual de Nómina">
+                <header>
+                    <button name="action_compute_sheet" string="🔄 Recalcular Provisión" type="object" class="btn-secondary" invisible="state == 'posted'"/>
+                    <button name="action_generate_accounting_move" string="⚙️ Generar Asiento Contable de Provisión" type="object" class="btn-primary" invisible="state == 'posted'"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,posted"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="name"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="year"/>
+                            <field name="month"/>
+                            <field name="utilidades_days_convention"/>
+                        </group>
+                        <group>
+                            <field name="tasa_bcv"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                            <field name="move_id"/>
+                        </group>
+                    </group>
+                    <group string="Resumen Consolidado de Provisiones">
+                        <group>
+                            <field name="total_provision_utilidades_bs"/>
+                            <field name="total_provision_vacaciones_bs"/>
+                        </group>
+                        <group>
+                            <field name="total_provision_prestaciones_bs"/>
+                            <field name="total_provision_intereses_bs"/>
+                        </group>
+                    </group>
+                    <div class="alert alert-info" role="alert">
+                        <strong>TOTAL MES PROVISIONADO: </strong>
+                        <field name="total_provision_mes_bs"/> Bs | 
+                        <strong>Equivalente: </strong>
+                        <field name="total_provision_mes_usd"/> $ USD
+                    </div>
+                    <notebook>
+                        <page string="Detalle de Provisiones por Empleado">
+                            <field name="line_ids" readonly="state == 'posted'">
+                                <list>
+                                    <field name="employee_id"/>
+                                    <field name="analytic_account_id"/>
+                                    <field name="wage_bs"/>
+                                    <field name="salario_integral_bs"/>
+                                    <field name="provision_utilidades_bs"/>
+                                    <field name="provision_vacaciones_bs"/>
+                                    <field name="provision_prestaciones_bs"/>
+                                    <field name="provision_intereses_bs"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_hr_payroll_provision_list" model="ir.ui.view">
+        <field name="name">hr.payroll.provision.list</field>
+        <field name="model">hr.payroll.provision</field>
+        <field name="arch" type="xml">
+            <list string="Provisiones Contables Mensuales">
+                <field name="name"/>
+                <field name="year"/>
+                <field name="month"/>
+                <field name="utilidades_days_convention"/>
+                <field name="total_provision_mes_bs"/>
+                <field name="total_provision_mes_usd"/>
+                <field name="state" widget="badge"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="action_hr_payroll_provision" model="ir.actions.act_window">
+        <field name="name">Provisiones Contables Mensuales</field>
+        <field name="res_model">hr.payroll.provision</field>
+        <field name="view_mode">list,form</field>
+    </record>
+</odoo>

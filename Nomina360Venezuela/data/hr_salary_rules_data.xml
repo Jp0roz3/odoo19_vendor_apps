@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <!-- Categories -->
+        <record id="BASIC_CAT" model="hr.salary.rule.category">
+            <field name="name">Sueldo Básico</field>
+            <field name="code">BASIC</field>
+        </record>
+        <record id="ALW_CAT" model="hr.salary.rule.category">
+            <field name="name">Asignaciones / Bonos</field>
+            <field name="code">ALW</field>
+        </record>
+        <record id="DED_CAT" model="hr.salary.rule.category">
+            <field name="name">Deducciones de Ley</field>
+            <field name="code">DED</field>
+        </record>
+        <record id="PAT_CAT" model="hr.salary.rule.category">
+            <field name="name">Aportes Patronales de Ley</field>
+            <field name="code">PAT</field>
+        </record>
+        <record id="NET_CAT" model="hr.salary.rule.category">
+            <field name="name">Salario Neto</field>
+            <field name="code">NET</field>
+        </record>
+
+        <!-- Rule: BASIC -->
+        <record id="rule_basic_ve" model="hr.salary.rule">
+            <field name="name">Sueldo Básico</field>
+            <field name="code">BASIC</field>
+            <field name="category_id" ref="BASIC_CAT"/>
+            <field name="structure_id" ref="structure_ve_ordinaria"/>
+            <field name="sequence" eval="10"/>
+            <field name="condition_select">none</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute">
+result = contract.wage_bs / 2.0 if contract.wage_bs else 0.0
+            </field>
+        </record>
+
+        <!-- Rule: Cesta Ticket Socialista -->
+        <record id="rule_cesta_ticket_ve" model="hr.salary.rule">
+            <field name="name">Cesta Ticket Socialista ($40 BCV)</field>
+            <field name="code">CT_SOCIALISTA</field>
+            <field name="category_id" ref="ALW_CAT"/>
+            <field name="structure_id" ref="structure_ve_ordinaria"/>
+            <field name="sequence" eval="20"/>
+            <field name="condition_select">none</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute">
+result = (contract.cesta_ticket_bs / 2.0) if contract.cesta_ticket_bs else 0.0
+            </field>
+        </record>
+
+        <!-- Rule: IVSS Empleado (4%) -->
+        <record id="rule_ivss_emp_ve" model="hr.salary.rule">
+            <field name="name">IVSS Seguro Social (Empleado 4%)</field>
+            <field name="code">IVSS_EMP</field>
+            <field name="category_id" ref="DED_CAT"/>
+            <field name="structure_id" ref="structure_ve_ordinaria"/>
+            <field name="sequence" eval="100"/>
+            <field name="condition_select">none</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute">
+min_wage = payslip.company_id.salario_minimo_nacional or 130.0
+tope = min_wage * 5.0
+salario_base = min(contract.wage_bs, tope)
+lunes = payslip.lunes_del_mes or 2
+result = -1 * ((salario_base * 12.0 / 52.0) * 0.04 * lunes)
+            </field>
+        </record>
+
+        <!-- Rule: SPF Empleado (0.5%) -->
+        <record id="rule_spf_emp_ve" model="hr.salary.rule">
+            <field name="name">Paro Forzoso SPF (Empleado 0.5%)</field>
+            <field name="code">SPF_EMP</field>
+            <field name="category_id" ref="DED_CAT"/>
+            <field name="structure_id" ref="structure_ve_ordinaria"/>
+            <field name="sequence" eval="110"/>
+            <field name="condition_select">none</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute">
+min_wage = payslip.company_id.salario_minimo_nacional or 130.0
+tope = min_wage * 5.0
+salario_base = min(contract.wage_bs, tope)
+lunes = payslip.lunes_del_mes or 2
+result = -1 * ((salario_base * 12.0 / 52.0) * 0.005 * lunes)
+            </field>
+        </record>
+
+        <!-- Rule: FAOV Empleado (1%) -->
+        <record id="rule_faov_emp_ve" model="hr.salary.rule">
+            <field name="name">FAOV Ahorro Habitacional (Empleado 1%)</field>
+            <field name="code">FAOV_EMP</field>
+            <field name="category_id" ref="DED_CAT"/>
+            <field name="structure_id" ref="structure_ve_ordinaria"/>
+            <field name="sequence" eval="120"/>
+            <field name="condition_select">none</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute">
+result = -1 * ((contract.wage_bs / 2.0) * 0.01)
+            </field>
+        </record>
+
+        <!-- Rule: ISLR Retención AR-I -->
+        <record id="rule_islr_ari_ve" model="hr.salary.rule">
+            <field name="name">Retención ISLR (AR-I)</field>
+            <field name="code">ISLR_AR_I</field>
+            <field name="category_id" ref="DED_CAT"/>
+            <field name="structure_id" ref="structure_ve_ordinaria"/>
+            <field name="sequence" eval="130"/>
+            <field name="condition_select">python</field>
+            <field name="condition_python">
+result = contract.islr_ari_rate > 0
+            </field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute">
+result = -1 * ((contract.wage_bs / 2.0) * (contract.islr_ari_rate / 100.0))
+            </field>
+        </record>
+
+        <!-- Rule: IVSS Patrono (Riesgo) -->
+        <record id="rule_ivss_pat_ve" model="hr.salary.rule">
+            <field name="name">IVSS Seguro Social (Patrono)</field>
+            <field name="code">IVSS_PAT</field>
+            <field name="category_id" ref="PAT_CAT"/>
+            <field name="structure_id" ref="structure_ve_ordinaria"/>
+            <field name="sequence" eval="200"/>
+            <field name="condition_select">none</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute">
+min_wage = payslip.company_id.salario_minimo_nacional or 130.0
+tope = min_wage * 5.0
+salario_base = min(contract.wage_bs, tope)
+lunes = payslip.lunes_del_mes or 2
+risk_rate = 0.10
+if payslip.company_id.ivss_risk_level == 'minimo':
+    risk_rate = 0.09
+elif payslip.company_id.ivss_risk_level == 'maximo':
+    risk_rate = 0.11
+result = (salario_base * 12.0 / 52.0) * risk_rate * lunes
+            </field>
+        </record>
+
+        <!-- Rule: FAOV Patrono (2%) -->
+        <record id="rule_faov_pat_ve" model="hr.salary.rule">
+            <field name="name">FAOV Ahorro Habitacional (Patrono 2%)</field>
+            <field name="code">FAOV_PAT</field>
+            <field name="category_id" ref="PAT_CAT"/>
+            <field name="structure_id" ref="structure_ve_ordinaria"/>
+            <field name="sequence" eval="210"/>
+            <field name="condition_select">none</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute">
+result = (contract.wage_bs / 2.0) * 0.02
+            </field>
+        </record>
+
+        <!-- Rule: Ley de Protección de Pensiones 9% Patrono (Mayo 2024 SENIAT) -->
+        <record id="rule_lpp_pat_ve" model="hr.salary.rule">
+            <field name="name">Ley Protección Pensiones (Patrono 9% SENIAT Mayo 2024)</field>
+            <field name="code">LPP_PAT</field>
+            <field name="category_id" ref="PAT_CAT"/>
+            <field name="structure_id" ref="structure_ve_ordinaria"/>
+            <field name="sequence" eval="220"/>
+            <field name="condition_select">none</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute">
+rate = payslip.company_id.ley_pensiones_rate or 9.0
+total_remuneracion = (contract.wage_bs / 2.0) + (contract.cesta_ticket_bs / 2.0)
+result = total_remuneracion * (rate / 100.0)
+            </field>
+        </record>
+
+        <!-- Rule: NET -->
+        <record id="rule_net_ve" model="hr.salary.rule">
+            <field name="name">Salario Neto a Pagar</field>
+            <field name="code">NET</field>
+            <field name="category_id" ref="NET_CAT"/>
+            <field name="structure_id" ref="structure_ve_ordinaria"/>
+            <field name="sequence" eval="300"/>
+            <field name="condition_select">none</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute">
+result = categories.BASIC + categories.ALW + categories.DED
+            </field>
+        </record>
+    </data>
+</odoo>

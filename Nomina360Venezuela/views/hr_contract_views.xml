@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Standalone hr.contract List View -->
+    <record id="view_hr_contract_tree_ve" model="ir.ui.view">
+        <field name="name">hr.contract.tree.ve</field>
+        <field name="model">hr.contract</field>
+        <field name="arch" type="xml">
+            <list string="Contratos de Trabajo">
+                <field name="name"/>
+                <field name="employee_id"/>
+                <field name="date_start"/>
+                <field name="wage_currency_type"/>
+                <field name="wage_usd"/>
+                <field name="wage_bs"/>
+                <field name="bono_extra_patronal_usd" string="Bono Extra ($ USD)"/>
+                <field name="salario_integral_bs"/>
+                <field name="state"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Standalone hr.contract Form View -->
+    <record id="view_hr_contract_form_ve" model="ir.ui.view">
+        <field name="name">hr.contract.form.ve</field>
+        <field name="model">hr.contract</field>
+        <field name="arch" type="xml">
+            <form string="Contrato de Trabajo">
+                <header>
+                    <button name="action_print_contract" string="📄 Imprimir Contrato LOTTT" type="object" class="oe_highlight"/>
+                    <field name="state" widget="statusbar"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="name"/></h1>
+                    </div>
+                    <group string="Información General">
+                        <group>
+                            <field name="employee_id"/>
+                            <field name="company_id"/>
+                        </group>
+                        <group>
+                            <field name="date_start"/>
+                            <field name="date_end"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Nómina Venezuela (Doble Moneda y LOTTT)" name="nomina_venezuela">
+                            <group string="Fijación Salarial Multimoneda (Bs / USD)">
+                                <group>
+                                    <field name="wage_currency_type"/>
+                                    <field name="wage_usd"/>
+                                    <field name="wage_bs"/>
+                                    <field name="cesta_ticket_usd"/>
+                                    <field name="cesta_ticket_bs"/>
+                                </group>
+                                <group string="Salario Integral y Parámetros LOTTT">
+                                    <field name="salario_integral_bs"/>
+                                    <field name="salario_integral_usd"/>
+                                    <field name="days_utilidades"/>
+                                    <field name="days_bono_vacacional"/>
+                                    <field name="antiguedad_years"/>
+                                    <field name="antiguedad_months"/>
+                                </group>
+                            </group>
+                            <group string="Bonificación Extra-Patronal Compensatoria No Prestacional (Art. 105 LOTTT)">
+                                <group>
+                                    <field name="bono_extra_patronal_usd"/>
+                                    <field name="bono_extra_patronal_bs"/>
+                                </group>
+                                <group>
+                                    <field name="es_no_prestacional"/>
+                                </group>
+                            </group>
+                            <group string="Retenciones Especiales y Beneficios Social">
+                                <group>
+                                    <field name="islr_ari_rate"/>
+                                </group>
+                                <group>
+                                    <field name="has_guarderia"/>
+                                    <field name="num_hijos_guarderia" invisible="not has_guarderia"/>
+                                </group>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="activity_ids"/>
+                    <field name="message_ids"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <!-- Action -->
+    <record id="action_hr_contract_ve" model="ir.actions.act_window">
+        <field name="name">Contratos de Trabajo</field>
+        <field name="res_model">hr.contract</field>
+        <field name="view_mode">list,form</field>
+    </record>
+</odoo>

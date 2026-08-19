@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Top level Menu items for Nomina360Venezuela -->
+    <menuitem id="menu_nomina_venezuela_root"
+              name="Nómina Venezuela 360"
+              parent="hr.menu_hr_root"
+              sequence="20"/>
+
+    <menuitem id="menu_hr_payroll_dashboard_bi"
+              name="📊 Tablero BI Gerencial 360"
+              parent="menu_nomina_venezuela_root"
+              action="action_hr_payroll_dashboard_bi"
+              sequence="1"/>
+
+    <menuitem id="menu_hr_payroll_ai_chat"
+              name="🤖 Chat Directo Nubelco AI (LOTTT)"
+              parent="menu_nomina_venezuela_root"
+              action="action_hr_payroll_ai_chat"
+              sequence="2"/>
+
+    <menuitem id="menu_hr_contract_ve"
+              name="Contratos de Trabajo"
+              parent="menu_nomina_venezuela_root"
+              action="action_hr_contract_ve"
+              sequence="3"/>
+
+    <menuitem id="menu_hr_payslip_run_ve"
+              name="Lotes y Períodos"
+              parent="menu_nomina_venezuela_root"
+              action="action_hr_payslip_run_ve"
+              sequence="5"/>
+
+    <menuitem id="menu_hr_payslip_ve"
+              name="Recibos de Nómina"
+              parent="menu_nomina_venezuela_root"
+              action="action_hr_payslip_ve"
+              sequence="8"/>
+
+    <menuitem id="menu_hr_prestaciones"
+              name="Prestaciones Sociales (LOTTT)"
+              parent="menu_nomina_venezuela_root"
+              action="action_hr_prestaciones_line"
+              sequence="10"/>
+
+    <menuitem id="menu_hr_prestaciones_anticipo"
+              name="Anticipos de Prestaciones (Art. 144)"
+              parent="menu_nomina_venezuela_root"
+              action="action_hr_prestaciones_anticipo"
+              sequence="12"/>
+
+    <menuitem id="menu_hr_loan_ve"
+              name="💵 Préstamos y Adelantos"
+              parent="menu_nomina_venezuela_root"
+              action="action_hr_loan_ve"
+              sequence="15"/>
+
+    <menuitem id="menu_hr_liquidacion"
+              name="Liquidaciones y Finiquitos"
+              parent="menu_nomina_venezuela_root"
+              action="action_hr_liquidacion"
+              sequence="20"/>
+
+    <menuitem id="menu_bank_payroll_export"
+              name="Disquetes Bancarios Masivos"
+              parent="menu_nomina_venezuela_root"
+              action="action_bank_payroll_export_wizard"
+              sequence="30"/>
+
+    <menuitem id="menu_hr_payslip_todoticket"
+              name="💳 Abonos TXT TodoTicket Cestaticket"
+              parent="menu_nomina_venezuela_root"
+              action="action_hr_payslip_todoticket"
+              sequence="32"/>
+
+    <menuitem id="menu_hr_payroll_bank_approval"
+              name="🏦 Validación Financiera Bancaria"
+              parent="menu_nomina_venezuela_root"
+              action="action_hr_payroll_bank_approval"
+              sequence="35"/>
+
+    <menuitem id="menu_tiuna_faov_export"
+              name="Portales Oficiales (TIUNA / FAOV)"
+              parent="menu_nomina_venezuela_root"
+              action="action_tiuna_faov_export_wizard"
+              sequence="40"/>
+
+    <menuitem id="menu_hr_payroll_novelties_wizard"
+              name="⚡ Carga Masiva de Variaciones"
+              parent="menu_nomina_venezuela_root"
+              action="action_hr_payroll_novelties_wizard"
+              sequence="6"/>
+
+    <menuitem id="menu_hr_payroll_provision"
+              name="📊 Provisiones Contables Mensuales"
+              parent="menu_nomina_venezuela_root"
+              action="action_hr_payroll_provision"
+              sequence="11"/>
+
+    <menuitem id="menu_legal_reports_wizard"
+              name="🏛️ Entregables Legales (SENIAT/IVSS/MINTRA/INCES)"
+              parent="menu_nomina_venezuela_root"
+              action="action_legal_reports_wizard"
+              sequence="41"/>
+
+    <menuitem id="menu_arc_seniat_email_wizard"
+              name="📧 Certificados AR-C y Envío Masivo"
+              parent="menu_nomina_venezuela_root"
+              action="action_arc_seniat_email_wizard"
+              sequence="42"/>
+
+    <menuitem id="menu_hr_payroll_migration_wizard"
+              name="📦 Migración de Datos y Acumulados"
+              parent="menu_nomina_venezuela_root"
+              action="action_hr_payroll_migration_wizard"
+              sequence="60"/>
+
+    <menuitem id="menu_hr_payroll_ai_assistant"
+              name="📋 Registro de Consultas IA Laboral"
+              parent="menu_nomina_venezuela_root"
+              action="action_hr_payroll_ai_assistant"
+              sequence="70"/>
+</odoo>

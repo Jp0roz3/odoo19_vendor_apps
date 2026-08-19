@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Payslip Run List View matching Screenshot 3 -->
+    <record id="view_hr_payslip_run_tree_ve" model="ir.ui.view">
+        <field name="name">hr.payslip.run.tree.ve</field>
+        <field name="model">hr.payslip.run</field>
+        <field name="arch" type="xml">
+            <list string="Periodos de Nómina">
+                <field name="name"/>
+                <field name="date_start"/>
+                <field name="date_end"/>
+                <field name="costo_empleador_bs" string="Costo del Empleador"/>
+                <field name="total_bs" string="Total Bs"/>
+                <field name="total_usd" string="Total (USD)"/>
+                <field name="tasa_bcv" string="Tasa BCV"/>
+                <field name="move_id" string="Asiento Contable"/>
+                <field name="state" string="Estado"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Payslip Run Form View -->
+    <record id="view_hr_payslip_run_form_ve" model="ir.ui.view">
+        <field name="name">hr.payslip.run.form.ve</field>
+        <field name="model">hr.payslip.run</field>
+        <field name="arch" type="xml">
+            <form string="Lote de Nómina">
+                <header>
+                    <button name="%(action_bank_payroll_export_wizard)d" string="Exportar Disquete Bancario" type="action" class="oe_highlight"/>
+                    <button name="action_close" string="Aprobar, Cerrar y Generar Asiento Contable" type="object" invisible="state not in ('draft', 'verify')" class="oe_highlight"/>
+                    <button name="action_open_journal_entry" string="📄 Ver Asiento Contable" type="object" invisible="not move_id" class="btn-secondary"/>
+                    <button name="action_paid" string="Marcar como Pagado" type="object" invisible="state != 'close'" class="oe_highlight"/>
+                    <field name="state" widget="statusbar"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="name"/></h1>
+                    </div>
+                    <group>
+                        <group string="Datos del Período">
+                            <field name="date_start"/>
+                            <field name="date_end"/>
+                            <field name="company_id"/>
+                            <field name="move_id"/>
+                        </group>
+                        <group string="Consolidado Financiero &amp; Tasa BCV">
+                            <field name="tasa_bcv"/>
+                            <field name="total_bs"/>
+                            <field name="total_usd"/>
+                            <field name="costo_empleador_bs"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Recibos Incluidos en el Lote" name="slips">
+                            <field name="slip_ids"/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="activity_ids"/>
+                    <field name="message_ids"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <!-- Action -->
+    <record id="action_hr_payslip_run_ve" model="ir.actions.act_window">
+        <field name="name">Lotes y Períodos de Nómina</field>
+        <field name="res_model">hr.payslip.run</field>
+        <field name="view_mode">list,form</field>
+    </record>
+</odoo>

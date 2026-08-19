@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Action Report Definition for Contrato de Trabajo LOTTT (Odoo 19) -->
+    <record id="action_report_hr_contract_ve" model="ir.actions.report">
+        <field name="name">Contrato de Trabajo LOTTT (PDF)</field>
+        <field name="model">hr.contract</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">Nomina360Venezuela.report_contract_ve_template</field>
+        <field name="report_file">Nomina360Venezuela.report_contract_ve_template</field>
+        <field name="print_report_name">'Contrato_Trabajo_%s' % (object.employee_id.name)</field>
+        <field name="binding_model_id" ref="model_hr_contract"/>
+        <field name="binding_type">report</field>
+    </record>
+
+    <!-- QWeb PDF Contract Report Template (Legal Standard Venezuela LOTTT) -->
+    <template id="report_contract_ve_template">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="web.basic_layout">
+                    <div class="page" style="font-family: 'Times New Roman', Times, serif; font-size: 13px; line-height: 1.6; color: #000000; text-align: justify; padding: 25px;">
+                        
+                        <!-- Document Header -->
+                        <div style="text-align: center; margin-bottom: 25px; border-bottom: 2px solid #0F172A; padding-bottom: 12px;">
+                            <h2 style="font-weight: bold; text-transform: uppercase; margin: 0; font-size: 18px; color: #0F172A;">CONTRATO INDIVIDUAL DE TRABAJO A TIEMPO INDETERMINADO</h2>
+                            <span style="font-size: 11px; font-weight: bold; color: #475569;">(De conformidad con los Artículos 58 y 59 de la Ley Orgánica del Trabajo, los Trabajadores y las Trabajadoras - LOTTT)</span>
+                        </div>
+
+                        <!-- Identification Clause -->
+                        <p style="margin-bottom: 14px;">
+                            Entre la sociedad mercantil <strong><t t-esc="o.company_id.name"/></strong>, inscrita formalmente por ante el Registro Mercantil, identificada con el RIF N° <strong><t t-esc="o.company_id.vat or 'J-00000000-0'"/></strong>, domiciliada en <t t-esc="o.company_id.street or 'República Bolivariana de Venezuela'"/>, representada en este acto por su representante legal autorizada, quien en lo sucesivo y para todos los efectos legales de este contrato se denominará <strong>EL PATRONO</strong>, por una parte; y por la otra, el ciudadano(a) <strong><t t-esc="o.employee_id.name"/></strong>, de nacionalidad venezolana, titular de la Cédula de Identidad N° <strong><t t-esc="o.employee_id.identification_id or 'V-00.000.000'"/></strong>, domiciliado(a) en la República Bolivariana de Venezuela, quien en lo sucesivo se denominará <strong>EL TRABAJADOR</strong>; se ha convenido en celebrar el presente Contrato Individual de Trabajo sujeto a las estipulaciones siguientes:
+                        </p>
+
+                        <!-- Clauses -->
+                        <p style="margin-bottom: 14px;">
+                            <strong>PRIMERA (DEL OBJETO Y CARGO):</strong> EL TRABAJADOR se compromete a prestar sus servicios personales y subordinados al PATRONO desempeñando el cargo de <strong><t t-esc="o.employee_id.job_title or 'Analista de Operaciones'"/></strong>, obligándose a cumplir con eficiencia las funciones asignadas y aquellas inherentes a la naturaleza de su puesto de trabajo, de conformidad con la Ley Orgánica del Trabajo, los Trabajadores y las Trabajadoras (LOTTT).
+                        </p>
+
+                        <p style="margin-bottom: 14px;">
+                            <strong>SEGUNDA (INICIO Y DURACIÓN DE LA RELACIÓN LABORAL):</strong> La relación de trabajo iniciará formalmente a partir del día <strong><span t-field="o.date_start"/></strong>. El presente contrato se celebra a tiempo indeterminado de estricta conformidad con lo dispuesto en el Artículo 61 de la LOTTT.
+                        </p>
+
+                        <p style="margin-bottom: 14px;">
+                            <strong>TERCERA (JORNADA DE TRABAJO):</strong> La jornada ordinaria de trabajo será de cuarenta (40) horas semanales, cumpliendo con los límites establecidos en el Artículo 173 de la LOTTT, distribuidas en cinco (5) días de labor con derecho a dos (2) días continuos de descanso semanal remunerado.
+                        </p>
+
+                        <p style="margin-bottom: 14px;">
+                            <strong>CUARTA (FIJACIÓN SALARIAL MULTIMONEDA Y CLÁUSULA DE CONVERTIBILIDAD BCV):</strong> 
+                            Se estipula de común acuerdo entre las partes un salario básico mensual de <strong>USD $<span t-field="o.wage_usd"/> DÓLARES DE LOS ESTADOS UNIDOS DE AMÉRICA</strong> (o su equivalente en Bolívares de <strong><span t-field="o.wage_bs"/> Bs</strong>). 
+                            De conformidad con la jurisprudencia pacífica y reiterada de la Sala de Casación Social del Tribunal Supremo de Justicia (TSJ) y el Artículo 128 de la Ley del Banco Central de Venezuela, la obligación de pago pactada en moneda extranjera se extinguirá mediante la cancelación efectiva de su equivalente en Bolívares calculados a la <strong>Tasa Oficial del Banco Central de Venezuela (BCV)</strong> vigente para la fecha efectiva de pago de cada quincena.
+                        </p>
+
+                        <p style="margin-bottom: 14px;">
+                            <strong>QUINTA (CESTACICKET SOCIALISTA INDEXADO):</strong> EL PATRONO pagará mensualmente a EL TRABAJADOR el beneficio social de Cestaticket Socialista por un valor indexado equivalente a <strong>USD $<span t-field="o.cesta_ticket_usd"/> DÓLARES</strong> mensuales (actualmente <strong><span t-field="o.cesta_ticket_bs"/> Bs</strong>), pagaderos en Bolívares a la Tasa BCV oficial, de conformidad con la Ley del Cestaticket Socialista y decretos vigentes. Queda expresamente establecido que este beneficio no posee carácter salarial (Art. 105 LOTTT).
+                        </p>
+
+                        <p style="margin-bottom: 14px;">
+                            <strong>SEXTA (PRESTACIONES SOCIALES Y GARANTÍA LEGAL):</strong> EL PATRONO acreditará trimestralmente quince (15) días de salario integral a la cuenta de depósito de garantía de prestaciones sociales de EL TRABAJADOR de conformidad con el Artículo 142 de la LOTTT. Asimismo, EL TRABAJADOR tendrá derecho a solicitar anticipos de hasta el setenta y cinco por ciento (75%) del saldo acumulado para fines de vivienda, salud o educación conforme al Artículo 144 de la LOTTT.
+                        </p>
+
+                        <p style="margin-bottom: 14px;">
+                            <strong>SÉPTIMA (DOMICILIO Y JURISDICCIÓN):</strong> Para todos los efectos legales derivados de la ejecución e interpretación de este contrato, las partes eligen como domicilio especial e irrevocable la ciudad donde se prestan efectivamente los servicios laborales, sometiéndose a la jurisdicción de los Tribunales del Trabajo competentes.
+                        </p>
+
+                        <p style="margin-top: 25px; margin-bottom: 30px;">
+                            Se hacen dos (2) ejemplares de un mismo tenor y a un solo efecto en la República Bolivariana de Venezuela, a los <strong><span t-field="o.date_start"/></strong>.
+                        </p>
+
+                        <!-- Signature Section -->
+                        <table style="width: 100%; margin-top: 50px; text-align: center; font-size: 11px;">
+                            <tr>
+                                <td style="width: 45%; border-top: 1.5px solid #000000; padding-top: 8px;">
+                                    <strong>POR EL PATRONO</strong><br/>
+                                    <strong><t t-esc="o.company_id.name"/></strong><br/>
+                                    <span style="font-size: 10px; color: #475569;">RIF N° <t t-esc="o.company_id.vat or 'J-00000000-0'"/></span>
+                                </td>
+                                <td style="width: 10%;"></td>
+                                <td style="width: 45%; border-top: 1.5px solid #000000; padding-top: 8px;">
+                                    <strong>POR EL TRABAJADOR</strong><br/>
+                                    <strong><t t-esc="o.employee_id.name"/></strong><br/>
+                                    <span style="font-size: 10px; color: #475569;">C.I. N° <t t-esc="o.employee_id.identification_id"/></span>
+                                </td>
+                            </tr>
+                        </table>
+
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+</odoo>

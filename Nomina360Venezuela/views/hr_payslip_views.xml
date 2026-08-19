@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Payslip Search View (Nombre, Cédula, Mes, Estado, Agrupación) -->
+    <record id="view_hr_payslip_search_ve" model="ir.ui.view">
+        <field name="name">hr.payslip.search.ve</field>
+        <field name="model">hr.payslip</field>
+        <field name="arch" type="xml">
+            <search string="Buscar Recibos de Nómina">
+                <!-- Búsqueda Directa por Número, Nombre de Empleado o Cédula -->
+                <field name="name"/>
+                <field name="number"/>
+                <field name="employee_id"/>
+                <field name="payslip_run_id"/>
+
+                <!-- Filtros Rápidos -->
+                <filter string="Hecho / Aprobado" name="done" domain="[('state', '=', 'done')]"/>
+                <filter string="En Verificación / Borrador" name="draft" domain="[('state', 'in', ('draft', 'verify'))]"/>
+
+                <!-- Opciones de Agrupación Dinámica -->
+                <group name="groupby">
+                    <filter string="Empleado" name="group_by_employee" context="{'group_by': 'employee_id'}"/>
+                    <filter string="Lote de Nómina" name="group_by_run" context="{'group_by': 'payslip_run_id'}"/>
+                    <filter string="Estado del Recibo" name="group_by_state" context="{'group_by': 'state'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Payslip List View -->
+    <record id="view_hr_payslip_tree_ve" model="ir.ui.view">
+        <field name="name">hr.payslip.tree.ve</field>
+        <field name="model">hr.payslip</field>
+        <field name="arch" type="xml">
+            <list string="Recibos de Nómina Venezuela">
+                <field name="number"/>
+                <field name="employee_id"/>
+                <field name="date_from"/>
+                <field name="date_to"/>
+                <field name="tasa_bcv"/>
+                <field name="total_bs"/>
+                <field name="total_usd"/>
+                <field name="net_wage_bs"/>
+                <field name="net_wage_usd"/>
+                <field name="state"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Payslip Form View -->
+    <record id="view_hr_payslip_form_ve" model="ir.ui.view">
+        <field name="name">hr.payslip.form.ve</field>
+        <field name="model">hr.payslip</field>
+        <field name="arch" type="xml">
+            <form string="Recibo de Nómina">
+                <header>
+                    <button name="compute_sheet" string="Calcular Nómina" type="object" invisible="state != 'draft'" class="oe_highlight"/>
+                    <button name="action_payslip_done" string="Confirmar y Aprobar Recibo" type="object" invisible="state != 'verify'" class="oe_highlight"/>
+                    <button name="action_print_payslip" string="Imprimir Recibo" type="object" invisible="state == 'draft'" class="btn-primary"/>
+                    <field name="state" widget="statusbar"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="name"/></h1>
+                    </div>
+                    <group string="Información del Empleado y Período">
+                        <group>
+                            <field name="employee_id"/>
+                            <field name="contract_id"/>
+                            <field name="company_id"/>
+                        </group>
+                        <group>
+                            <field name="date_from"/>
+                            <field name="date_to"/>
+                            <field name="tasa_bcv"/>
+                            <field name="lunes_del_mes"/>
+                            <field name="is_out_of_cycle"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Desglose de Conceptos Salariales (LOTTT)" name="lines">
+                            <field name="line_ids">
+                                <list string="Líneas Salariales" editable="bottom">
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="code"/>
+                                    <field name="name"/>
+                                    <field name="category_id"/>
+                                    <field name="total"/>
+                                </list>
+                            </field>
+                            <group class="oe_subtotal_footer oe_right">
+                                <field name="total_bs" string="Total Asignaciones (Bs)"/>
+                                <field name="net_wage_bs" class="oe_subtotal_footer_separator" string="NETO A COBRAR (Bs)"/>
+                                <field name="net_wage_usd" class="oe_subtotal_footer_separator" string="NETO REFERENCIAL ($ USD)"/>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="activity_ids"/>
+                    <field name="message_ids"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <!-- Action -->
+    <record id="action_hr_payslip_ve" model="ir.actions.act_window">
+        <field name="name">Recibos de Nómina Venezuela</field>
+        <field name="res_model">hr.payslip</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_hr_payslip_search_ve"/>
+    </record>
+</odoo>

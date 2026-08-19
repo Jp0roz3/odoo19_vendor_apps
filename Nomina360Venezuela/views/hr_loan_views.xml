@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Loan List View -->
+    <record id="view_hr_loan_tree_ve" model="ir.ui.view">
+        <field name="name">hr.loan.tree.ve</field>
+        <field name="model">hr.loan</field>
+        <field name="arch" type="xml">
+            <list string="Préstamos y Adelantos de Nómina">
+                <field name="name"/>
+                <field name="date"/>
+                <field name="employee_id"/>
+                <field name="monto_solicitado_usd" string="Monto ($ USD)"/>
+                <field name="monto_solicitado_bs" string="Monto (Bs)"/>
+                <field name="tasa_bcv" string="Tasa BCV"/>
+                <field name="numero_cuotas" string="Cuotas"/>
+                <field name="monto_cuota_bs" string="Cuota (Bs)"/>
+                <field name="total_pagado_bs" string="Pagado (Bs)"/>
+                <field name="saldo_pendiente_bs" string="Saldo Pendiente (Bs)"/>
+                <field name="state" string="Estado"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Loan Form View -->
+    <record id="view_hr_loan_form_ve" model="ir.ui.view">
+        <field name="name">hr.loan.form.ve</field>
+        <field name="model">hr.loan</field>
+        <field name="arch" type="xml">
+            <form string="Préstamo o Adelanto de Nómina">
+                <header>
+                    <button name="action_approve" string="⚡ Aprobar Préstamo" type="object" invisible="state != 'draft'" class="oe_highlight"/>
+                    <button name="action_print_loan_receipt" string="📄 Imprimir Comprobante PDF" type="object" invisible="state == 'draft'" class="btn-secondary"/>
+                    <button name="action_cancel" string="Rechazar / Cancelar" type="object" invisible="state in ('paid', 'cancel')"/>
+                    <button name="action_draft" string="Volver a Borrador" type="object" invisible="state != 'cancel'"/>
+                    <field name="state" widget="statusbar"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="name"/></h1>
+                    </div>
+                    <group>
+                        <group string="Datos del Empleado &amp; Solicitud">
+                            <field name="employee_id"/>
+                            <field name="contract_id"/>
+                            <field name="date"/>
+                            <field name="company_id"/>
+                        </group>
+                        <group string="Monto Multimoneda &amp; Cuotas">
+                            <field name="tasa_bcv"/>
+                            <field name="monto_solicitado_usd"/>
+                            <field name="monto_solicitado_bs"/>
+                            <field name="numero_cuotas"/>
+                            <field name="monto_cuota_usd"/>
+                            <field name="monto_cuota_bs"/>
+                        </group>
+                    </group>
+                    <group string="Resumen de Pagos y Saldo">
+                        <group>
+                            <field name="total_pagado_bs"/>
+                        </group>
+                        <group>
+                            <field name="saldo_pendiente_bs"/>
+                            <field name="saldo_pendiente_usd"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Tabla de Amortización / Cuotas Quincenales" name="amortization">
+                            <field name="line_ids">
+                                <list edit="0" create="0" delete="0">
+                                    <field name="numero_cuota"/>
+                                    <field name="name"/>
+                                    <field name="monto_usd"/>
+                                    <field name="monto_bs"/>
+                                    <field name="pagado"/>
+                                    <field name="fecha_pago"/>
+                                    <field name="payslip_id"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Motivo / Observaciones" name="notes">
+                            <field name="motivo" placeholder="Escriba la justificación del préstamo o adelanto prestacional..."/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="activity_ids"/>
+                    <field name="message_ids"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <!-- Action -->
+    <record id="action_hr_loan_ve" model="ir.actions.act_window">
+        <field name="name">Préstamos y Adelantos de Nómina</field>
+        <field name="res_model">hr.loan</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                ¡Cree y gestione préstamos a empleados con fijación dual USD/Bs!
+            </p>
+        </field>
+    </record>
+</odoo>

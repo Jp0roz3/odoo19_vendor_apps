@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Nomina 360 Venezuela - Odoo 19 Enterprise</title>
+    <style>
+        .n360-container {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            color: #0f172a;
+            background-color: #f8fafc;
+            padding: 24px;
+            max-width: 1240px;
+            margin: 0 auto;
+        }
+
+        /* HERO HEADER */
+        .n360-hero {
+            background: linear-gradient(135deg, #0b1329 0%, #1e1b4b 50%, #0f172a 100%);
+            border-radius: 20px;
+            padding: 50px 40px;
+            color: #ffffff;
+            box-shadow: 0 20px 40px -15px rgba(15, 23, 42, 0.5);
+            margin-bottom: 40px;
+            position: relative;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .n360-badge {
+            display: inline-block;
+            background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+            color: #ffffff;
+            font-weight: 800;
+            font-size: 12px;
+            letter-spacing: 1.5px;
+            padding: 6px 16px;
+            border-radius: 50px;
+            text-transform: uppercase;
+            margin-bottom: 18px;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+        }
+
+        .n360-hero h1 {
+            font-size: 42px;
+            font-weight: 900;
+            line-height: 1.15;
+            margin: 0 0 16px 0;
+            background: linear-gradient(90deg, #ffffff, #93c5fd, #c084fc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .n360-hero p {
+            font-size: 18px;
+            color: #cbd5e1;
+            max-width: 900px;
+            line-height: 1.6;
+            margin-bottom: 30px;
+        }
+
+        .n360-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .n360-tag {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            backdrop-filter: blur(8px);
+            padding: 8px 18px;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #f1f5f9;
+        }
+
+        /* SECTION TITLES */
+        .n360-section-header {
+            text-align: center;
+            margin: 55px 0 35px 0;
+        }
+
+        .n360-section-header h2 {
+            font-size: 32px;
+            font-weight: 800;
+            color: #0f172a;
+            margin: 0 0 10px 0;
+            letter-spacing: -0.5px;
+        }
+
+        .n360-section-header p {
+            font-size: 16px;
+            color: #64748b;
+            margin: 0;
+        }
+
+        /* FEATURE SHOWCASE CARDS (WITH SCREENSHOTS) */
+        .n360-feature-box {
+            background: #ffffff;
+            border-radius: 18px;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.04);
+            padding: 35px;
+            margin-bottom: 45px;
+            transition: all 0.3s ease;
+        }
+
+        .n360-feature-box:hover {
+            box-shadow: 0 20px 35px -10px rgba(59, 130, 246, 0.12);
+            border-color: #bfdbfe;
+        }
+
+        .n360-feature-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .n360-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            flex-shrink: 0;
+        }
+
+        .n360-bg-indigo { background: #e0e7ff; color: #4338ca; }
+        .n360-bg-cyan { background: #cff4fc; color: #055160; }
+        .n360-bg-emerald { background: #d1fae5; color: #065f46; }
+        .n360-bg-amber { background: #fef3c7; color: #92400e; }
+        .n360-bg-purple { background: #f3e8ff; color: #6b21a8; }
+        .n360-bg-rose { background: #ffe4e6; color: #9f1239; }
+        .n360-bg-blue { background: #dbeafe; color: #1e40af; }
+        .n360-bg-slate { background: #f1f5f9; color: #334155; }
+
+        .n360-feature-header h3 {
+            font-size: 24px;
+            font-weight: 800;
+            color: #1e293b;
+            margin: 0;
+        }
+
+        .n360-feature-desc {
+            font-size: 15px;
+            color: #475569;
+            line-height: 1.6;
+            margin-bottom: 25px;
+        }
+
+        /* SCREENSHOT DISPLAY FRAME */
+        .n360-screenshot-frame {
+            border-radius: 14px;
+            overflow: hidden;
+            border: 2px solid #cbd5e1;
+            box-shadow: 0 12px 30px -8px rgba(15, 23, 42, 0.15);
+            background: #ffffff;
+            position: relative;
+        }
+
+        .n360-screenshot-frame img {
+            width: 100%;
+            height: auto;
+            display: block;
+            border-radius: 12px;
+        }
+
+        /* COMPARISON TABLE */
+        .n360-table-box {
+            background: #ffffff;
+            border-radius: 18px;
+            padding: 35px;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.04);
+            margin-bottom: 45px;
+            overflow-x: auto;
+        }
+
+        .n360-table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+
+        .n360-table th, .n360-table td {
+            padding: 16px 20px;
+            border-bottom: 1px solid #f1f5f9;
+            font-size: 14px;
+        }
+
+        .n360-table th {
+            background: #f8fafc;
+            font-weight: 800;
+            color: #0f172a;
+            font-size: 15px;
+        }
+
+        .n360-check { color: #16a34a; font-weight: 800; }
+        .n360-cross { color: #dc2626; font-weight: bold; }
+
+        /* FOOTER BANNER */
+        .n360-footer {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            border-radius: 20px;
+            padding: 45px;
+            color: #ffffff;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .n360-footer h3 {
+            font-size: 28px;
+            font-weight: 900;
+            margin: 0 0 12px 0;
+            background: linear-gradient(90deg, #ffffff, #60a5fa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .n360-footer p {
+            font-size: 16px;
+            color: #94a3b8;
+            margin: 0 0 28px 0;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .n360-btn {
+            display: inline-block;
+            background: linear-gradient(90deg, #2563eb, #3b82f6);
+            color: #ffffff;
+            font-weight: 800;
+            font-size: 15px;
+            padding: 14px 36px;
+            border-radius: 12px;
+            text-decoration: none;
+            box-shadow: 0 10px 20px -5px rgba(37, 99, 235, 0.4);
+            transition: all 0.2s ease;
+        }
+
+        .n360-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 25px -5px rgba(37, 99, 235, 0.6);
+        }
+    </style>
+</head>
+<body>
+    <div class="n360-container">
+        
+        <!-- HERO BANNER -->
+        <div class="n360-hero">
+            <span class="n360-badge">ODOO 19 ENTERPRISE & COMMUNITY</span>
+            <h1>Nómina 360 Venezuela</h1>
+            <p>La solución definitiva de Nómina Laboral, Legal y Multimoneda (Bs. y $ USD) para Venezuela. Diseñada desde cero para cumplir con la LOTTT, leyes parafiscales (IVSS, FAOV, INCES, Ley de Protección de Pensiones 2024), emisión de Cestaticket TodoTicket TXT y Disquetes Bancarios Masivos.</p>
+            
+            <div class="n360-tags">
+                <span class="n360-tag">📄 Contrato LOTTT (Fijación USD/Bs y Art. 105)</span>
+                <span class="n360-tag">💳 Cestaticket TodoTicket TXT (41 Caracteres)</span>
+                <span class="n360-tag">🏦 Disquetes Bancarios Masivos (7 Bancos)</span>
+                <span class="n360-tag">🤝 Liquidaciones y Finiquitos LOTTT</span>
+                <span class="n360-tag">📅 Lotes de Nómina con Asiento Contable</span>
+                <span class="n360-tag">📈 Prestaciones Sociales LOTTT (Art. 142/143)</span>
+            </div>
+        </div>
+
+        <!-- SECCIÓN DE PRESENTACIÓN VISUAL DE CARACTERÍSTICAS DE IMPACTO -->
+        <div class="n360-section-header">
+            <h2>Galería Completa de Módulos y Comprobantes (17 Vistas)</h2>
+            <p>Demostración gráfica de las vistas y flujos operativos reales en Odoo 19</p>
+        </div>
+
+        <!-- SHOWCASE 1: CONTRATO VENEZOLANO FIJACIÓN SALARIAL -->
+        <div class="n360-feature-box">
+            <div class="n360-feature-header">
+                <div class="n360-icon n360-bg-indigo">📄</div>
+                <div>
+                    <h3>1. Contrato de Trabajo Venezolano - Fijación Salarial Multimoneda (Bs. / USD)</h3>
+                </div>
+            </div>
+            <div class="n360-feature-desc">
+                Configuración del contrato de trabajo del empleado con fijación salarial en Dólares (`$1.200,00 USD`), conversión automática a Bolívares (`909.288,00 Bs`) a la tasa BCV oficial y cálculo automatizado del Salario Integral Diario (`34.266,69 Bs`). Incluye el botón para imprimir el comprobante oficial del Contrato LOTTT.
+            </div>
+            <div class="n360-screenshot-frame">
+                <img src="/Nomina360Venezuela/static/description/img_contrato_fijacion_salarial.png" alt="Contrato de Trabajo Venezolano Fijación Salarial">
+            </div>
+        </div>
+
+        <!-- SHOWCASE 2: CONTRATO VENEZOLANO ART 105 LOTTT -->
+        <div class="n360-feature-box">
+            <div class="n360-feature-header">
+                <div class="n360-icon n360-bg-purple">🎁</div>
+                <div>
+                    <h3>2. Bonificación Extra-Patronal Compensatoria No Prestacional (Art. 105 LOTTT)</h3>
+                </div>
+            </div>
+            <div class="n360-feature-desc">
+                Gestión de bonos compensatorios extra-patronales en USD y Bs (`$250,00 USD / 189.435,00 Bs`) excluidos expresamente de la base salarial de la LOTTT, IVSS y FAOV conforme al Artículo 105 de la Ley Orgánica del Trabajo. Incluye retenciones de ISLR (AR-I) y beneficio de guardería (Art. 343).
+            </div>
+            <div class="n360-screenshot-frame">
+                <img src="/Nomina360Venezuela/static/description/img_contrato_bonos_art105.png" alt="Bonificación Extra Patronal Art 105 LOTTT">
+            </div>
+        </div>
+
+        <!-- SHOWCASE 3: TODOTICKET FORMULARIO -->
+        <div class="n360-feature-box">
+            <div class="n360-feature-header">
+                <div class="n360-icon n360-bg-blue">💳</div>
+                <div>
+                    <h3>3. Formulario y Exportación TXT Cestaticket TodoTicket (Trama 41 Caracteres)</h3>
+                </div>
+            </div>
+            <div class="n360-feature-desc">
+                Vista de control de abonos Cestaticket TodoTicket con secuencia automática (`TODOTICKET/2026/00004`), asociación de lotes quincenales, cálculo en Bolívares (`465.245,61 Bs`) y equivalente de referencia en Dólares (`$601,63 USD`). Genera de forma nativa en un clic el archivo plano oficial listo para subir a la plataforma TodoTicket.
+            </div>
+            <div class="n360-screenshot-frame">
+                <img src="/Nomina360Venezuela/static/description/img_todoticket_form.png" alt="Formulario Cestaticket TodoTicket TXT">
+            </div>
+        </div>
+
+        <!-- SHOWCASE 4: DISQUETES BANCARIOS WIZARD -->
+        <div class="n360-feature-box">
+            <div class="n360-feature-header">
+                <div class="n360-icon n360-bg-emerald">🏦</div>
+                <div>
+                    <h3>4. Asistente de Exportación de Disquetes Bancarios Masivos (7 Bancos Nacionales)</h3>
+                </div>
+            </div>
+            <div class="n360-feature-desc">
+                Asistente modal para la exportación masiva de pago de nómina con formatos de trama fija y CSV ajustados a la banca venezolana: Banesco (TXT 156 bytes), BBVA Provincial (TXT 120 bytes), BanCaribe (Asfalpro), Banco de Venezuela (BDV TXT 120 bytes), Banco Mercantil (CSV/TXT), Banco Nacional de Crédito (BNC TXT) y Bancamiga.
+            </div>
+            <div class="n360-screenshot-frame">
+                <img src="/Nomina360Venezuela/static/description/img_disquetes_bancarios.png" alt="Disquetes Bancarios Masivos Venezuela">
+            </div>
+        </div>
+
+        <!-- SHOWCASE 5: LIQUIDACIONES Y FINIQUITOS -->
+        <div class="n360-feature-box">
+            <div class="n360-feature-header">
+                <div class="n360-icon n360-bg-rose">🤝</div>
+                <div>
+                    <h3>5. Módulo de Liquidaciones y Finiquitos de Contrato (Renuncia / Despido LOTTT)</h3>
+                </div>
+            </div>
+            <div class="n360-feature-desc">
+                Cálculo transparente de finiquitos por terminación de la relación laboral (Renuncia Voluntaria Art. 80 o Despido Injustificado Art. 92). Computa automáticamente la antigüedad en años y meses fraccionados (3 años, 7 meses), la Tasa BCV al egreso (`757,74 Bs/$`), la Regla del Mayor (Art. 142) e indemnizaciones con barra de estado (Borrador ➔ Calculado ➔ Aprobado y Pagado).
+            </div>
+            <div class="n360-screenshot-frame">
+                <img src="/Nomina360Venezuela/static/description/img_liquidacion_finiquito.png" alt="Liquidaciones y Finiquitos LOTTT">
+            </div>
+        </div>
+
+        <!-- SHOWCASE 6: LOTES Y PERÍODOS DE NÓMINA -->
+        <div class="n360-feature-box">
+            <div class="n360-feature-header">
+                <div class="n360-icon n360-bg-cyan">📅</div>
+                <div>
+                    <h3>6. Lotes y Períodos de Nómina (Consolidado Financiero y Asiento Contable)</h3>
+                </div>
+            </div>
+            <div class="n360-feature-desc">
+                Gestión de lotes quincenales, mensuales o especiales. Muestra en tiempo real la Tasa BCV aplicada del lote (`757,74 Bs/$`), el Total Neto a pagar en Bolívares (`465.245,61 Bs`), el equivalente neto en Dólares (`$613,99 USD`) y el Costo Total para el Empleador (`469.798,80 Bs`). Genera el asiento contable `MISC/2026/08/0001` de forma inmediata.
+            </div>
+            <div class="n360-screenshot-frame">
+                <img src="/Nomina360Venezuela/static/description/img_lotes_periodos.png" alt="Lotes y Períodos de Nómina Quincenal">
+            </div>
+        </div>
+
+        <!-- SHOWCASE 7: PRESTACIONES SOCIALES LOTTT (ART 142/143) -->
+        <div class="n360-feature-box">
+            <div class="n360-feature-header">
+                <div class="n360-icon n360-bg-emerald">📈</div>
+                <div>
+                    <h3>7. Garantía de Prestaciones Sociales e Intereses (Art. 142 y 143 LOTTT)</h3>
+                </div>
+            </div>
+            <div class="n360-feature-desc">
+                Cálculo automatizado del Salario Integral Diario en Bs y $ USD (`34.266,69 Bs / $45,22 USD`). Acumulación de 15 días de garantía trimestral más 2 días adicionales por año de servicio (Art. 142b). Aplica la Tasa de Interés Pasiva oficial del BCV (31,50%) para calcular los intereses del período y el Saldo Neto Acumulado (`628.408,26 Bs / $829,32 USD`).
+            </div>
+            <div class="n360-screenshot-frame">
+                <img src="/Nomina360Venezuela/static/description/img_prestaciones_lottt.png" alt="Prestaciones Sociales e Intereses LOTTT">
+            </div>
+        </div>
+
+        <!-- SHOWCASE 8: PROVISIONES CONTABLES MENSUALES -->
+        <div class="n360-feature-box">
+            <div class="n360-feature-header">
+                <div class="n360-icon n360-bg-purple">🏦</div>
+                <div>
+                    <h3>8. Provisiones Contables Mensuales (Utilidades, Vacaciones, Prestaciones e Intereses)</h3>
+                </div>
+            </div>
+            <div class="n360-feature-desc">
+                Cálculo automático y contabilización mensual de pasivos laborales. Desglosa la provisión de utilidades (60 días convención), provisión de vacaciones y bono vacacional, provisión de prestaciones sociales e intereses. **Total Mes Provisionado**: `413.256,15 Bs` (`$545,38 USD`).
+            </div>
+            <div class="n360-screenshot-frame">
+                <img src="/Nomina360Venezuela/static/description/img_provisiones_contables.png" alt="Provisiones Contables Mensuales">
+            </div>
+        </div>
+
+        <!-- SHOWCASE 9: ANTICIPOS DE PRESTACIONES (ART 144) -->
+        <div class="n360-feature-box">
+            <div class="n360-feature-header">
+                <div class="n360-icon n360-bg-amber">📜</div>
+                <div>
+                    <h3>9. Anticipos de Prestaciones Sociales (Art. 144 LOTTT con Límite del 75%)</h3>
+                </div>
+            </div>
+            <div class="n360-feature-desc">
+                Control estricto de solicitudes de anticipos sobre el fondo de prestaciones acumulado. Valida automáticamente el **Máximo Legal Permitido del 75%** conforme al Art. 144a de la LOTTT. Solicitud de `100.000,00 Bs` (`$132,01 USD`) con flujo de aprobación por RRHH.
+            </div>
+            <div class="n360-screenshot-frame">
+                <img src="/Nomina360Venezuela/static/description/img_anticipos_art144.png" alt="Anticipos de Prestaciones Art 144 LOTTT">
+            </div>
+        </div>
+
+        <!-- SHOWCASE 10: CARGA MASIVA DE VARIACIONES DESDE CSV / EXCEL -->
+        <div class="n360-feature-box">
+            <div class="n360-feature-header">
+                <div class="n360-icon n360-bg-cyan">⚡</div>
+                <div>
+                    <h3>10. Asistente de Carga Masiva de Variaciones (CSV / Excel)</h3>
+                </div>
+            </div>
+            <div class="n360-feature-desc">
+                Modal de carga rápida para procesar masivamente horas extras, bonos de desempeño, ausencias, faltas, comisiones y novedades de nómina desde un archivo Excel o CSV hacia el lote de nómina destino con un solo clic.
+            </div>
+            <div class="n360-screenshot-frame">
+                <img src="/Nomina360Venezuela/static/description/img_carga_variaciones.png" alt="Asistente Carga Masiva de Variaciones">
+            </div>
+        </div>
+
+        <!-- SHOWCASE 11: RECIBO DE PAGO PDF DUAL -->
+        <div class="n360-feature-box">
+            <div class="n360-feature-header">
+                <div class="n360-icon n360-bg-rose">📑</div>
+                <div>
+                    <h3>11. Recibo de Pago Oficial PDF Dual (Original Trabajador y Copia Patrono)</h3>
+                </div>
+            </div>
+            <div class="n360-feature-desc">
+                Impresión automática de 2 talones por hoja (Original Trabajador / Copia Patrono). Incluye Sueldo Base en USD ($1.200,00) y su equivalente en Bolívares (909.288,00 Bs) a la Tasa BCV del día (757,74 Bs/$). Desglose detallado de Asignaciones, Deducciones de Ley, cuotas de préstamos y Neto a cobrar (`465.245,61 Bs` / `$613,99 USD`).
+            </div>
+            <div class="n360-screenshot-frame">
+                <img src="/Nomina360Venezuela/static/description/img_recibo_pago_pdf.png" alt="Recibo de Pago PDF Dual Oficial de Nómina">
+            </div>
+        </div>
+
+        <!-- SHOWCASE 12: PRÉSTAMOS Y ADELANTOS MULTICUOTA -->
+        <div class="n360-feature-box">
+            <div class="n360-feature-header">
+                <div class="n360-icon n360-bg-emerald">💰</div>
+                <div>
+                    <h3>12. Módulo de Préstamos y Adelantos de Nómina (Multi-cuota USD / Bs)</h3>
+                </div>
+            </div>
+            <div class="n360-feature-desc">
+                Gestión integral de préstamos en Dólares ($ USD) y Bolívares con cálculo automático del número de cuotas y valor por período ($200.00 USD en 2 cuotas de $100.00 USD / 75.754,06 Bs) y descuento automático en nómina.
+            </div>
+            <div class="n360-screenshot-frame">
+                <img src="/Nomina360Venezuela/static/description/img_prestamos_adelantos.png" alt="Módulo de Préstamos y Adelantos de Nómina">
+            </div>
+        </div>
+
+        <!-- SHOWCASE 13: TABLERO BI GERENCIAL DARK MODE -->
+        <div class="n360-feature-box">
+            <div class="n360-feature-header">
+                <div class="n360-icon n360-bg-indigo">📊</div>
+                <div>
+                    <h3>13. Tablero BI Gerencial 360 (Executive Dashboard Live)</h3>
+                </div>
+            </div>
+            <div class="n360-feature-desc">
+                Consolidado gerencial con analítica avanzada en tiempo real. Controla Masa Salarial Neta, Fondo de Prestaciones Sociales acumulado, retención 9% SENIAT Ley de Pensiones y Cestaticket Socialista indexado ($40.00 USD).
+            </div>
+            <div class="n360-screenshot-frame">
+                <img src="/Nomina360Venezuela/static/description/img_tablero_bi_dark.png" alt="Tablero BI Gerencial 360 Dark Mode">
+            </div>
+        </div>
+
+        <!-- SHOWCASE 14: CHAT DIRECTO NUBELCO AI (LOTTT) -->
+        <div class="n360-feature-box">
+            <div class="n360-feature-header">
+                <div class="n360-icon n360-bg-purple">🤖</div>
+                <div>
+                    <h3>14. Chat Directo Nubelco AI (Inteligencia Artificial LOTTT)</h3>
+                </div>
+            </div>
+            <div class="n360-feature-desc">
+                Asistente inteligente neuronal integrado en Odoo 19. Consulta en lenguaje natural sueldos, acumulados de prestaciones, reglas salariales, normativas de la LOTTT y cálculos legales de tus empleados al instante.
+            </div>
+            <div class="n360-screenshot-frame">
+                <img src="/Nomina360Venezuela/static/description/img_chat_nubelco_ai.png" alt="Chat Directo Nubelco AI LOTTT">
+            </div>
+        </div>
+
+        <!-- SHOWCASE 15: PARÁMETROS LEGALES VENEZUELA -->
+        <div class="n360-feature-box">
+            <div class="n360-feature-header">
+                <div class="n360-icon n360-bg-amber">🏛️</div>
+                <div>
+                    <h3>15. Parámetros Legales de Venezuela (LOTTT / BCV / SENIAT)</h3>
+                </div>
+            </div>
+            <div class="n360-feature-desc">
+                Panel centralizado en Ajustes de Odoo para configurar la sincronización de la Tasa BCV, Nivel de Riesgo IVSS Patronal (9%, 10% o 11%), Cesta Ticket Socialista (USD $40.00), Salario Mínimo Nacional (Bs. 130.00) y Ley de Pensiones (9.00%).
+            </div>
+            <div class="n360-screenshot-frame">
+                <img src="/Nomina360Venezuela/static/description/img_ajustes_legales.png" alt="Parámetros Legales LOTTT Odoo 19">
+            </div>
+        </div>
+
+        <!-- SHOWCASE 16: MENÚ INTEGRAL NÓMINA VENEZUELA 360 -->
+        <div class="n360-feature-box">
+            <div class="n360-feature-header">
+                <div class="n360-icon n360-bg-slate">📋</div>
+                <div>
+                    <h3>16. Menú Completo de Operaciones y Módulos</h3>
+                </div>
+            </div>
+            <div class="n360-feature-desc">
+                Acceso organizado y rápido a todos los submódulos de nómina: Tablero BI, Chat IA, Contratos, Lotes, Carga Masiva, Recibos, Prestaciones Sociales, Provisiones, Anticipos (Art. 144), Préstamos, Liquidaciones, Disquetes Bancarios, Abonos TXT TodoTicket y Portales Oficiales (TIUNA / FAOV).
+            </div>
+            <div class="n360-screenshot-frame">
+                <img src="/Nomina360Venezuela/static/description/img_menu_nomina360.png" alt="Menú Nómina Venezuela 360">
+            </div>
+        </div>
+
+        <!-- SHOWCASE 17: KPIS NUMÉRICOS DE RESUMEN -->
+        <div class="n360-feature-box">
+            <div class="n360-feature-header">
+                <div class="n360-icon n360-bg-cyan">📈</div>
+                <div>
+                    <h3>17. KPIs Numéricos de Resumen Ejecutivo</h3>
+                </div>
+            </div>
+            <div class="n360-feature-desc">
+                Reporte gerencial instantáneo de costos acumulados del mes en Bolívares y Dólares, promedio salarial por trabajador y totales consolidados para auditorías rápidas.
+            </div>
+            <div class="n360-screenshot-frame">
+                <img src="/Nomina360Venezuela/static/description/img_tablero_kpis.png" alt="KPIs Numéricos de Resumen">
+            </div>
+        </div>
+
+        <!-- MATRIZ COMPARATIVA -->
+        <div class="n360-section-header">
+            <h2>Cuadro Comparativo Tecnológico</h2>
+            <p>Nómina 360 Odoo 19 vs Sistemas Tradicionales de Venezuela</p>
+        </div>
+
+        <div class="n360-table-box">
+            <table class="n360-table">
+                <thead>
+                    <tr>
+                        <th>Módulo / Funcionalidad</th>
+                        <th>Nómina 360 Venezuela (Odoo 19)</th>
+                        <th>Profit Plus / Gálac</th>
+                        <th>Hojas de Excel</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Contrato LOTTT & Bonos Art. 105 No Prestacionales</strong></td>
+                        <td class="n360-check">✔ Configuración Flexible USD/Bs</td>
+                        <td class="n360-cross">✖ No contempla Art. 105</td>
+                        <td class="n360-cross">✖ Manual</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Liquidaciones y Finiquitos LOTTT (Despido / Renuncia)</strong></td>
+                        <td class="n360-check">✔ Cálculo Automático Completo</td>
+                        <td class="n360-cross">✖ Módulo rígido</td>
+                        <td class="n360-cross">✖ Propenso a errores</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Disquetes Bancarios (7 Bancos Nacionales)</strong></td>
+                        <td class="n360-check">✔ Banesco, BDV, Mercantil, BNC, etc.</td>
+                        <td class="n360-cross">✖ Limitado</td>
+                        <td class="n360-cross">✖ No disponible</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Recibo PDF Dual (Trabajador y Patrono con BCV)</strong></td>
+                        <td class="n360-check">✔ Formato Oficial Impreso</td>
+                        <td class="n360-cross">✖ Formato básico Monomonedas</td>
+                        <td class="n360-cross">✖ Manual / Propenso a fallo</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Garantía de Prestaciones (Art. 142/143 LOTTT)</strong></td>
+                        <td class="n360-check">✔ Automatizado en 1 Click</td>
+                        <td class="n360-cross">✖ Proceso manual complejo</td>
+                        <td class="n360-cross">✖ Fórmulas frágiles</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Anticipos de Prestaciones (Art. 144 - 75% Máximo)</strong></td>
+                        <td class="n360-check">✔ Validación Legal Automática</td>
+                        <td class="n360-cross">✖ Sin control de límite</td>
+                        <td class="n360-cross">✖ Sin validación</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Provisiones Contables Mensuales (Utilidades/Vacaciones)</strong></td>
+                        <td class="n360-check">✔ Generación de Asiento Live</td>
+                        <td class="n360-cross">✖ Módulo separado / Aislado</td>
+                        <td class="n360-cross">✖ Carga manual</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Préstamos & Adelantos Multi-cuota en USD/Bs</strong></td>
+                        <td class="n360-check">✔ Amortización Automática</td>
+                        <td class="n360-cross">✖ Requiere configuración manual</td>
+                        <td class="n360-cross">✖ Control en tablas</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Tablero BI Gerencial & Analítica Live</strong></td>
+                        <td class="n360-check">✔ Incluido (Dark Mode)</td>
+                        <td class="n360-cross">✖ No disponible</td>
+                        <td class="n360-cross">✖ No disponible</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- FOOTER & CONTACTO COMERCIAL -->
+        <div class="n360-footer">
+            <h3>¿Deseas Implementar Nómina 360 en tu Empresa?</h3>
+            <p>Desarrollado y respaldado por JeanPerozo / Nubelco. Ofrecemos consultoría, soporte técnico personalizado, migración de datos desde sistemas legacy e implementación garantizada.</p>
+            <a href="https://www.nubelco.com" target="_blank" class="n360-btn">Contactar a Nubelco.com</a>
+        </div>
+
+    </div>
+</body>
+</html>

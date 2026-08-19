@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_hr_payroll_migration_wizard_form" model="ir.ui.view">
+        <field name="name">hr.payroll.migration.wizard.form</field>
+        <field name="model">hr.payroll.migration.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Migración de Datos Maestros y Acumulados de Nómina">
+                <group>
+                    <group string="Compañía Destino">
+                        <field name="company_id" groups="base.group_multi_company"/>
+                    </group>
+                    <group string="Resultados de la Migración">
+                        <field name="imported_employees_count"/>
+                        <field name="imported_prestaciones_count"/>
+                    </group>
+                </group>
+                <notebook>
+                    <page string="1. Archivo Empleados y Contratos">
+                        <group>
+                            <field name="csv_file_employees" filename="file_name_emp"/>
+                            <field name="file_name_emp" invisible="1"/>
+                        </group>
+                        <p class="text-muted">
+                            Estructura CSV esperada (Separador ';'):<br/>
+                            <code>Cedula;Nombre;Email;Cargo;FechaIngreso;SalarioUSD;SalarioBs;Frecuencia</code>
+                        </p>
+                    </page>
+                    <page string="2. Archivo Acumulados de Prestaciones">
+                        <group>
+                            <field name="csv_file_prestaciones" filename="file_name_prest"/>
+                            <field name="file_name_prest" invisible="1"/>
+                        </group>
+                        <p class="text-muted">
+                            Estructura CSV esperada (Separador ';'):<br/>
+                            <code>Cedula;Año;Trimestre;SalarioIntegralBs;DiasGarantia;DiasAdicionales;AcumuladoGarantiaBs;InteresesBs</code>
+                        </p>
+                    </page>
+                </notebook>
+                <footer>
+                    <button name="action_import_data" string="🚀 Ejecutar Migración de Datos" type="object" class="btn-primary"/>
+                    <button string="Cerrar" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_hr_payroll_migration_wizard" model="ir.actions.act_window">
+        <field name="name">Migración de Datos y Acumulados</field>
+        <field name="res_model">hr.payroll.migration.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+</odoo>

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_legal_reports_wizard_form" model="ir.ui.view">
+        <field name="name">legal.reports.wizard.form</field>
+        <field name="model">legal.reports.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Entregables Legales y Gubernamentales (IVSS, SENIAT, MINTRA, INCES)">
+                <group>
+                    <group>
+                        <field name="report_type"/>
+                        <field name="company_id" groups="base.group_multi_company"/>
+                    </group>
+                    <group>
+                        <field name="date_from"/>
+                        <field name="date_to"/>
+                        <field name="employee_id" invisible="report_type != 'ivss_14100'"/>
+                    </group>
+                </group>
+                <group invisible="not file_data">
+                    <field name="file_name" invisible="1"/>
+                    <field name="file_data" filename="file_name"/>
+                </group>
+                <footer>
+                    <button name="action_generate_report" string="⚙️ Generar Entregable Legal" type="object" class="btn-primary"/>
+                    <button string="Cerrar" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_legal_reports_wizard" model="ir.actions.act_window">
+        <field name="name">Entregables Legales y Gubernamentales</field>
+        <field name="res_model">legal.reports.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+</odoo>

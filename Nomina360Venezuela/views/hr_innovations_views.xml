@@ -1,0 +1,287 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- 1. Anticipos de Prestaciones Sociales (Art. 144 LOTTT) -->
+    <record id="view_hr_prestaciones_anticipo_tree" model="ir.ui.view">
+        <field name="name">hr.prestaciones.anticipo.tree</field>
+        <field name="model">hr.prestaciones.anticipo</field>
+        <field name="arch" type="xml">
+            <list string="Solicitudes de Anticipos de Prestaciones">
+                <field name="name"/>
+                <field name="employee_id"/>
+                <field name="date_request"/>
+                <field name="motivo"/>
+                <field name="fondo_acumulado_bs"/>
+                <field name="max_anticipo_bs"/>
+                <field name="monto_solicitado_bs"/>
+                <field name="monto_solicitado_usd"/>
+                <field name="state"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_hr_prestaciones_anticipo_form" model="ir.ui.view">
+        <field name="name">hr.prestaciones.anticipo.form</field>
+        <field name="model">hr.prestaciones.anticipo</field>
+        <field name="arch" type="xml">
+            <form string="Solicitud de Anticipo (Art. 144 LOTTT)">
+                <header>
+                    <button name="action_approve" string="Aprobar Anticipo" type="object" invisible="state != 'draft'" class="oe_highlight"/>
+                    <button name="action_paid" string="Registrar Pago / Descuento" type="object" invisible="state != 'approved'" class="oe_highlight"/>
+                    <button name="action_refuse" string="Rechazar" type="object" invisible="state != 'draft'"/>
+                    <field name="state" widget="statusbar"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="name"/></h1>
+                    </div>
+                    <group string="Datos del Empleado y Solicitud">
+                        <group>
+                            <field name="employee_id"/>
+                            <field name="contract_id"/>
+                            <field name="date_request"/>
+                            <field name="motivo"/>
+                        </group>
+                        <group>
+                            <field name="tasa_bcv"/>
+                            <field name="fondo_acumulado_bs"/>
+                            <field name="max_anticipo_bs"/>
+                            <field name="monto_solicitado_bs"/>
+                            <field name="monto_solicitado_usd"/>
+                        </group>
+                    </group>
+                    <group string="Detalles de la Justificación Legal">
+                        <field name="observaciones" placeholder="Indique detalles de los comprobantes médicos, contrato de vivienda o estudios..."/>
+                    </group>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="activity_ids"/>
+                    <field name="message_ids"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_hr_prestaciones_anticipo" model="ir.actions.act_window">
+        <field name="name">Anticipos de Prestaciones (Art. 144)</field>
+        <field name="res_model">hr.prestaciones.anticipo</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+
+    <!-- 2. Portal de Aprobación Financiera de Disquetes Bancarios -->
+    <record id="view_hr_payroll_bank_approval_tree" model="ir.ui.view">
+        <field name="name">hr.payroll.bank.approval.tree</field>
+        <field name="model">hr.payroll.bank.approval</field>
+        <field name="arch" type="xml">
+            <list string="Aprobaciones Financieras de Pagos Bancarios">
+                <field name="name"/>
+                <field name="payslip_run_id"/>
+                <field name="bank_id"/>
+                <field name="cant_empleados"/>
+                <field name="tasa_bcv"/>
+                <field name="total_transferir_bs"/>
+                <field name="total_transferir_usd"/>
+                <field name="state"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_hr_payroll_bank_approval_form" model="ir.ui.view">
+        <field name="name">hr.payroll.bank.approval.form</field>
+        <field name="model">hr.payroll.bank.approval</field>
+        <field name="arch" type="xml">
+            <form string="Portal de Validación Financiera Bancaria">
+                <header>
+                    <button name="action_validate_finance" string="Validar por Tesorería" type="object" invisible="state != 'pending'" class="oe_highlight"/>
+                    <button name="action_approve_finance" string="Aprobar para Pago Bancario" type="object" invisible="state != 'validated'" class="oe_highlight"/>
+                    <button name="action_mark_sent" string="Marcar como Enviado al Banco" type="object" invisible="state != 'approved'"/>
+                    <field name="state" widget="statusbar"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="name"/></h1>
+                    </div>
+                    <group string="Resumen de Transferencia Bancaria">
+                        <group>
+                            <field name="payslip_run_id"/>
+                            <field name="bank_id"/>
+                            <field name="cant_empleados"/>
+                        </group>
+                        <group>
+                            <field name="tasa_bcv"/>
+                            <field name="total_transferir_bs"/>
+                            <field name="total_transferir_usd"/>
+                        </group>
+                    </group>
+                    <group string="Firma de Validación Financiera">
+                        <group>
+                            <field name="approved_by_id"/>
+                            <field name="date_approval"/>
+                        </group>
+                    </group>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="activity_ids"/>
+                    <field name="message_ids"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_hr_payroll_bank_approval" model="ir.actions.act_window">
+        <field name="name">Validación de Pagos Bancarios</field>
+        <field name="res_model">hr.payroll.bank.approval</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+
+    <!-- 3. Tablero de Control BI Gerencial 360 (Visual High-Tech Charts Card) -->
+    <record id="view_hr_payroll_dashboard_bi_form" model="ir.ui.view">
+        <field name="name">hr.payroll.dashboard.bi.form</field>
+        <field name="model">hr.payroll.dashboard.bi</field>
+        <field name="arch" type="xml">
+            <form string="Tablero de Control BI Gerencial - Nubelco 360">
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="name"/></h1>
+                    </div>
+                    <notebook>
+                        <page string="📊 Tablero BI Interactivo &amp; Gráficas Digitales" name="dashboard_visual">
+                            <field name="dashboard_html" widget="html" readonly="1"/>
+                        </page>
+                        <page string="KPIs Numéricos de Resumen" name="kpi_numbers">
+                            <group string="Resumen General de Costos">
+                                <group>
+                                    <field name="total_empleados_activos"/>
+                                    <field name="total_costo_mes_bs"/>
+                                    <field name="total_costo_mes_usd"/>
+                                </group>
+                                <group>
+                                    <field name="promedio_salario_usd"/>
+                                    <field name="total_prestaciones_acumuladas_bs"/>
+                                    <field name="total_ley_pensiones_seniat_bs"/>
+                                </group>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_hr_payroll_dashboard_bi" model="ir.actions.act_window">
+        <field name="name">Tablero BI Gerencial 360</field>
+        <field name="res_model">hr.payroll.dashboard.bi</field>
+        <field name="view_mode">form</field>
+    </record>
+
+
+    <!-- 4. Asistente Virtual de IA Laboral (Nubelco AI) -->
+    <record id="view_hr_payroll_ai_assistant_tree" model="ir.ui.view">
+        <field name="name">hr.payroll.ai.assistant.tree</field>
+        <field name="model">hr.payroll.ai.assistant</field>
+        <field name="arch" type="xml">
+            <list string="Consultas de IA Laboral LOTTT">
+                <field name="name"/>
+                <field name="employee_id"/>
+                <field name="categoria"/>
+                <field name="pregunta"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_hr_payroll_ai_assistant_form" model="ir.ui.view">
+        <field name="name">hr.payroll.ai.assistant.form</field>
+        <field name="model">hr.payroll.ai.assistant</field>
+        <field name="arch" type="xml">
+            <form string="Asistente de IA Laboral (Nubelco AI)">
+                <header>
+                    <button name="action_consult_ai" string="Generar Explicación con IA" type="object" class="oe_highlight"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="name"/></h1>
+                    </div>
+                    <group string="Consulta del Empleado">
+                        <group>
+                            <field name="employee_id"/>
+                            <field name="categoria"/>
+                        </group>
+                        <group>
+                            <field name="pregunta" placeholder="Escriba aquí la duda del empleado sobre su salario o la LOTTT..."/>
+                        </group>
+                    </group>
+                    <group string="Explicación Generada por Nubelco AI (Respuesta Formal LOTTT)">
+                        <field name="respuesta_ia" placeholder="Haga clic en 'Generar Explicación con IA' para obtener la fundamentación legal." readonly="1"/>
+                    </group>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="activity_ids"/>
+                    <field name="message_ids"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_hr_payroll_ai_assistant" model="ir.actions.act_window">
+        <field name="name">Asistente de IA Laboral LOTTT</field>
+        <field name="res_model">hr.payroll.ai.assistant</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+
+    <!-- 5. CHAT DIRECTO INTERACTIVO NUBELCO AI (GLASSMORPHIC UI) -->
+    <record id="view_hr_payroll_ai_chat_form" model="ir.ui.view">
+        <field name="name">hr.payroll.ai.chat.form</field>
+        <field name="model">hr.payroll.ai.chat</field>
+        <field name="arch" type="xml">
+            <form string="Chat Directo - Nubelco AI Neural Interface">
+                <header>
+                    <button name="action_send_chat" string="⚡ Enviar Consulta a Nubelco AI" type="object" class="btn-primary" style="font-weight: bold; padding: 8px 20px; font-size: 14px; border-radius: 8px; background: linear-gradient(135deg, #6366F1 0%, #3B82F6 100%); border: none;"/>
+                </header>
+                <sheet>
+                    <div style="background: linear-gradient(135deg, #1E1B4B 0%, #0F172A 100%); padding: 18px 22px; border-radius: 12px; margin-bottom: 20px; color: #FFFFFF; border: 1px solid #312E81;">
+                        <div style="display: flex; align-items: center; justify-content: space-between;">
+                            <div>
+                                <h2 style="margin: 0; font-size: 20px; font-weight: 800; color: #FFFFFF;">🤖 Chat Directo — Nubelco AI Neural Interface</h2>
+                                <p style="margin: 4px 0 0 0; color: #A5B4FC; font-size: 13px;">Escriba en lenguaje natural sobre salarios, empleados, prestaciones sociales o leyes contables en Venezuela.</p>
+                            </div>
+                            <div style="background: rgba(99, 102, 241, 0.2); border: 1px solid #6366F1; padding: 6px 14px; border-radius: 20px; color: #C7D2FE; font-size: 11px; font-weight: 700; text-transform: uppercase;">
+                                Live Neural Engine
+                            </div>
+                        </div>
+                    </div>
+
+                    <group string="Filtro o Selección Directa">
+                        <group>
+                            <field name="employee_id" placeholder="Seleccione un empleado o menciónelo en el texto..."/>
+                        </group>
+                        <group>
+                            <field name="company_id"/>
+                        </group>
+                    </group>
+
+                    <group string="Pregunta o Consulta Directa (Lenguaje Natural)">
+                        <field name="pregunta_chat" placeholder="Ejemplo: ¿Cuánto gana María Alejandra Benítez y cuál es su saldo de prestaciones acumuladas?" rows="3"/>
+                    </group>
+
+                    <notebook>
+                        <page string="⚡ Respuesta Inteligente (Nubelco AI SuperBrain)" name="response">
+                            <field name="respuesta_html" widget="html" readonly="1"/>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_hr_payroll_ai_chat" model="ir.actions.act_window">
+        <field name="name">🤖 Chat Directo Nubelco AI (LOTTT)</field>
+        <field name="res_model">hr.payroll.ai.chat</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+</odoo>

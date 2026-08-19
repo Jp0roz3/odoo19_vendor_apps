@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- List View -->
+    <record id="view_hr_prestaciones_line_tree" model="ir.ui.view">
+        <field name="name">hr.prestaciones.line.tree</field>
+        <field name="model">hr.prestaciones.line</field>
+        <field name="arch" type="xml">
+            <list string="Acumulado de Prestaciones Sociales (LOTTT)">
+                <field name="employee_id"/>
+                <field name="year"/>
+                <field name="quarter"/>
+                <field name="salario_integral_bs"/>
+                <field name="dias_garantia"/>
+                <field name="dias_adicionales"/>
+                <field name="monto_garantia_trimestre_bs"/>
+                <field name="tasa_interes_bcv"/>
+                <field name="intereses_mes_bs"/>
+                <field name="anticipos_prestaciones_bs"/>
+                <field name="saldo_neto_bs"/>
+                <field name="saldo_neto_usd"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Form View -->
+    <record id="view_hr_prestaciones_line_form" model="ir.ui.view">
+        <field name="name">hr.prestaciones.line.form</field>
+        <field name="model">hr.prestaciones.line</field>
+        <field name="arch" type="xml">
+            <form string="Registro de Prestaciones Sociales">
+                <sheet>
+                    <group string="Datos Generales del Empleado">
+                        <group>
+                            <field name="employee_id"/>
+                            <field name="contract_id"/>
+                            <field name="company_id"/>
+                        </group>
+                        <group>
+                            <field name="year"/>
+                            <field name="quarter"/>
+                            <field name="tasa_bcv"/>
+                        </group>
+                    </group>
+                    <group string="Salario Integral y Días de Garantía (Art. 142 LOTTT)">
+                        <group>
+                            <field name="salario_integral_bs"/>
+                            <field name="salario_integral_usd"/>
+                        </group>
+                        <group>
+                            <field name="dias_garantia"/>
+                            <field name="dias_adicionales"/>
+                            <field name="monto_garantia_trimestre_bs"/>
+                        </group>
+                    </group>
+                    <group string="Intereses BCV y Saldo Neto (Art. 143 LOTTT)">
+                        <group>
+                            <field name="tasa_interes_bcv"/>
+                            <field name="intereses_mes_bs"/>
+                            <field name="intereses_acumulados_bs"/>
+                        </group>
+                        <group>
+                            <field name="anticipos_prestaciones_bs"/>
+                            <field name="saldo_neto_bs" class="oe_subtotal_footer_separator"/>
+                            <field name="saldo_neto_usd" class="oe_subtotal_footer_separator"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Action -->
+    <record id="action_hr_prestaciones_line" model="ir.actions.act_window">
+        <field name="name">Prestaciones Sociales (LOTTT)</field>
+        <field name="res_model">hr.prestaciones.line</field>
+        <field name="view_mode">list,form</field>
+    </record>
+</odoo>

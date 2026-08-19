@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="action_report_loan_receipt" model="ir.actions.report">
+        <field name="name">Comprobante de Préstamo y Adelanto</field>
+        <field name="model">hr.loan</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">Nomina360Venezuela.report_loan_receipt</field>
+        <field name="report_file">Nomina360Venezuela.report_loan_receipt</field>
+        <field name="binding_model_id" ref="model_hr_loan"/>
+        <field name="binding_type">report</field>
+    </record>
+
+    <template id="report_loan_receipt">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="web.external_layout">
+                    <div class="page" style="font-family: 'Helvetica', 'Arial', sans-serif; font-size: 13px; color: #1a202c; padding: 20px;">
+                        
+                        <!-- Header Banner -->
+                        <div style="background-color: #0f172a; color: #ffffff; padding: 15px 20px; border-radius: 6px; margin-bottom: 20px;">
+                            <table style="width: 100%; color: #ffffff;">
+                                <tr>
+                                    <td style="width: 60%;">
+                                        <h2 style="margin: 0; font-size: 20px; font-weight: bold; text-transform: uppercase;">
+                                            COMPROBANTE DE PRÉSTAMO Y ADELANTO PRESTACIONAL
+                                        </h2>
+                                        <p style="margin: 5px 0 0 0; font-size: 12px; color: #94a3b8;">
+                                            Documento Formal de Autorización de Descuento de Nómina
+                                        </p>
+                                    </td>
+                                    <td style="width: 40%; text-align: right;">
+                                        <span style="font-size: 16px; font-weight: bold; background: #2563eb; padding: 5px 12px; border-radius: 4px; display: inline-block;">
+                                            <t t-esc="o.name"/>
+                                        </span>
+                                        <p style="margin: 5px 0 0 0; font-size: 11px;">
+                                            Fecha de Solicitud: <span t-esc="o.date"/>
+                                        </p>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+
+                        <!-- Info Tables -->
+                        <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+                            <tr>
+                                <td style="width: 50%; vertical-align: top; padding-right: 10px;">
+                                    <div style="border: 1px solid #cbd5e1; border-radius: 6px; padding: 12px;">
+                                        <h4 style="margin: 0 0 10px 0; color: #0f172a; border-bottom: 2px solid #2563eb; padding-bottom: 4px;">
+                                            👤 DATOS DEL TRABAJADOR
+                                        </h4>
+                                        <p style="margin: 3px 0;"><strong>Nombre Completo:</strong> <span t-esc="o.employee_id.name"/></p>
+                                        <p style="margin: 3px 0;"><strong>Cédula de Identidad:</strong> <span t-esc="o.employee_id.identification_id or 'V-00000000'"/></p>
+                                        <p style="margin: 3px 0;"><strong>Cargo:</strong> <span t-esc="o.employee_id.job_title or 'Analista'"/></p>
+                                        <p style="margin: 3px 0;"><strong>Compañía:</strong> <span t-esc="o.company_id.name"/></p>
+                                    </div>
+                                </td>
+                                <td style="width: 50%; vertical-align: top; padding-left: 10px;">
+                                    <div style="border: 1px solid #cbd5e1; border-radius: 6px; padding: 12px; background: #f8fafc;">
+                                        <h4 style="margin: 0 0 10px 0; color: #0f172a; border-bottom: 2px solid #16a34a; padding-bottom: 4px;">
+                                            💵 CONDICIONES DE OPERACIÓN Y TASA BCV
+                                        </h4>
+                                        <p style="margin: 3px 0;"><strong>Monto Otorgado USD:</strong> $<span t-esc="'%.2f' % o.monto_solicitado_usd"/> USD</p>
+                                        <p style="margin: 3px 0;"><strong>Tasa Oficial BCV:</strong> <span t-esc="'%.4f' % o.tasa_bcv"/> Bs/USD</p>
+                                        <p style="margin: 3px 0;"><strong>Monto Total Bolívares:</strong> <span t-esc="'%.2f' % o.monto_solicitado_bs"/> Bs</p>
+                                        <p style="margin: 3px 0;"><strong>Plan de Pagos:</strong> <span t-esc="o.numero_cuotas"/> Quincena(s) de <span t-esc="'%.2f' % o.monto_cuota_bs"/> Bs ($<span t-esc="'%.2f' % o.monto_cuota_usd"/> USD)</p>
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+
+                        <!-- Amortization Table -->
+                        <h4 style="margin: 15px 0 8px 0; color: #0f172a;">
+                            📋 CRONOGRAMA DE AMORTIZACIÓN Y DESCUENTOS QUINCENALES
+                        </h4>
+                        <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 12px;">
+                            <thead>
+                                <tr style="background-color: #1e293b; color: #ffffff;">
+                                    <th style="padding: 8px; border: 1px solid #334155; text-align: center;">N° Cuota</th>
+                                    <th style="padding: 8px; border: 1px solid #334155; text-align: left;">Descripción del Descuento</th>
+                                    <th style="padding: 8px; border: 1px solid #334155; text-align: right;">Cuota ($ USD)</th>
+                                    <th style="padding: 8px; border: 1px solid #334155; text-align: right;">Cuota (Bs)</th>
+                                    <th style="padding: 8px; border: 1px solid #334155; text-align: center;">Estatus de Pago</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-foreach="o.line_ids" t-as="line">
+                                    <tr style="border-bottom: 1px solid #e2e8f0;">
+                                        <td style="padding: 6px; text-align: center;"><span t-esc="line.numero_cuota"/></td>
+                                        <td style="padding: 6px;"><span t-esc="line.name"/></td>
+                                        <td style="padding: 6px; text-align: right;">$<span t-esc="'%.2f' % line.monto_usd"/> USD</td>
+                                        <td style="padding: 6px; text-align: right;"><span t-esc="'%.2f' % line.monto_bs"/> Bs</td>
+                                        <td style="padding: 6px; text-align: center;">
+                                            <span t-if="line.pagado" style="color: #16a34a; font-weight: bold;">✔ DESCONTADO</span>
+                                            <span t-else="" style="color: #d97706; font-weight: bold;">⏳ PENDIENTE</span>
+                                        </td>
+                                    </tr>
+                                </t>
+                            </tbody>
+                        </table>
+
+                        <!-- Authorization Text -->
+                        <div style="background-color: #f1f5f9; padding: 12px; border-left: 4px solid #2563eb; font-size: 11px; margin-bottom: 30px;">
+                            <strong>DECLARACIÓN DE AUTORIZACIÓN DE DESCUENTO:</strong><br/>
+                            Yo, <strong t-esc="o.employee_id.name"/>, titular de la Cédula de Identidad <strong t-esc="o.employee_id.identification_id or 'V-00000000'"/>, declaro haber recibido de la empresa el monto arriba indicado y autorizo expresamente el descuento quincenal por nómina de las cuotas acordadas hasta la cancelación total de la deuda.
+                        </div>
+
+                        <!-- Signatures -->
+                        <table style="width: 100%; margin-top: 40px; text-align: center;">
+                            <tr>
+                                <td style="width: 50%; padding: 0 20px;">
+                                    <div style="border-top: 1px solid #000000; padding-top: 5px;">
+                                        <strong>EL TRABAJADOR / SOLICITANTE</strong><br/>
+                                        C.I.: <span t-esc="o.employee_id.identification_id or 'V-00000000'"/>
+                                    </div>
+                                </td>
+                                <td style="width: 50%; padding: 0 20px;">
+                                    <div style="border-top: 1px solid #000000; padding-top: 5px;">
+                                        <strong>POR LA EMPRESA / GESTIÓN HUMANA</strong><br/>
+                                        Firma y Sello Aprobatorio
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+</odoo>
