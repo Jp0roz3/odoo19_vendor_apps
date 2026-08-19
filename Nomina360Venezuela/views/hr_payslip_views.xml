@@ -55,7 +55,8 @@
                 <header>
                     <button name="compute_sheet" string="Calcular Nómina" type="object" invisible="state != 'draft'" class="oe_highlight"/>
                     <button name="action_payslip_done" string="Confirmar y Aprobar Recibo" type="object" invisible="state != 'verify'" class="oe_highlight"/>
-                    <button name="action_print_payslip" string="Imprimir Recibo" type="object" invisible="state == 'draft'" class="btn-primary"/>
+                    <button name="action_print_payslip" string="Imprimir Recibo" type="object" class="btn-primary"/>
+                    <button name="%(Nomina360Venezuela.action_report_payslip_ve)d" string="🖨️ Imprimir Recibo PDF Dual" type="action" class="btn-secondary"/>
                     <field name="state" widget="statusbar"/>
                 </header>
                 <sheet>

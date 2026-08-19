@@ -29,7 +29,7 @@
             <form string="Préstamo o Adelanto de Nómina">
                 <header>
                     <button name="action_approve" string="⚡ Aprobar Préstamo" type="object" invisible="state != 'draft'" class="oe_highlight"/>
-                    <button name="action_print_loan_receipt" string="📄 Imprimir Comprobante PDF" type="object" invisible="state == 'draft'" class="btn-secondary"/>
+                    <button name="%(Nomina360Venezuela.action_report_loan_receipt)d" string="📄 Imprimir Comprobante PDF" type="action" class="btn-secondary"/>
                     <button name="action_cancel" string="Rechazar / Cancelar" type="object" invisible="state in ('paid', 'cancel')"/>
                     <button name="action_draft" string="Volver a Borrador" type="object" invisible="state != 'cancel'"/>
                     <field name="state" widget="statusbar"/>
