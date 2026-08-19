@@ -28,7 +28,7 @@
                         </div>
                         <div style="text-align: right; font-size: 8.5pt; color: #475569;">
                             Lote: <strong style="color: #1e3a8a; font-size: 10pt;"><t t-esc="o.name"/></strong><br/>
-                            Tasa BCV Lote: <strong><t t-esc="string.format('{:,.2f}', o.bcv_rate_applied)"/> Bs/$</strong><br/>
+                            Tasa BCV Lote: <strong><t t-esc="'{:,.2f}'.format(o.tasa_bcv or 1.0)"/> Bs/$</strong><br/>
                             Emisión: <strong><t t-esc="context_timestamp(datetime.datetime.now()).strftime('%d/%m/%Y %H:%M')"/></strong>
                         </div>
                     </div>
@@ -41,8 +41,8 @@
                             <strong>Total Empleados:</strong> <t t-esc="len(o.slip_ids)"/>
                         </div>
                         <div style="text-align: right;">
-                            <strong>Total Neto Bs:</strong> <span style="color: #1e3a8a; font-weight: 800;">Bs. <t t-esc="string.format('{:,.2f}', o.total_net_bs)"/></span> | 
-                            <strong>Total Neto USD:</strong> <span style="color: #059669; font-weight: 800;">$ <t t-esc="string.format('{:,.2f}', o.total_net_usd)"/></span>
+                            <strong>Total Neto Bs:</strong> <span style="color: #1e3a8a; font-weight: 800;">Bs. <t t-esc="'{:,.2f}'.format(o.total_bs or 0.0)"/></span> | 
+                            <strong>Total Neto USD:</strong> <span style="color: #059669; font-weight: 800;">$ <t t-esc="'{:,.2f}'.format(o.total_usd or 0.0)"/></span>
                         </div>
                     </div>
 
@@ -68,8 +68,8 @@
                                 <t t-set="ded_ley" t-value="abs(sum(s.line_ids.filtered(lambda l: l.code in ['IVSS_EE', 'SPF_EE', 'FAOV_EE', 'ISLR_AR_I']).mapped('total')))"/>
                                 <t t-set="prest" t-value="abs(sum(s.line_ids.filtered(lambda l: l.code == 'PRESTAMO_DED').mapped('total')))"/>
                                 <t t-set="tot_ded" t-value="abs(sum(s.line_ids.filtered(lambda l: l.category_id.code == 'DED').mapped('total')))"/>
-                                <t t-set="neto_bs" t-value="s.net_pay_bs or (asig - tot_ded)"/>
-                                <t t-set="neto_usd" t-value="s.net_pay_usd or (neto_bs / (o.bcv_rate_applied or 1.0))"/>
+                                <t t-set="neto_bs" t-value="s.net_wage_bs or (asig - tot_ded)"/>
+                                <t t-set="neto_usd" t-value="s.net_wage_usd or (neto_bs / (o.tasa_bcv or 1.0))"/>
 
                                 <tr style="border-bottom: 1px solid #e2e8f0;">
                                     <td style="padding: 5px; text-align: center; font-weight: 700; color: #475569;"><t t-esc="s.number or 'REC/001'"/></td>
@@ -77,26 +77,26 @@
                                         <t t-esc="s.employee_id.name"/><br/>
                                         <span style="font-size: 7.5pt; color: #64748b;">V-<t t-esc="s.employee_id.identification_id or ''"/></span>
                                     </td>
-                                    <td style="padding: 5px; text-align: right;"><t t-esc="string.format('{:,.2f}', s.contract_id.wage_bs or 0.0)"/></td>
-                                    <td style="padding: 5px; text-align: right;"><t t-esc="string.format('{:,.2f}', s.contract_id.cesta_ticket_bs or 0.0)"/></td>
-                                    <td style="padding: 5px; text-align: right; font-weight: 700; color: #1e3a8a;"><t t-esc="string.format('{:,.2f}', asig)"/></td>
-                                    <td style="padding: 5px; text-align: right; color: #dc2626;"><t t-esc="string.format('{:,.2f}', ded_ley)"/></td>
-                                    <td style="padding: 5px; text-align: right; color: #d97706;"><t t-esc="string.format('{:,.2f}', prest)"/></td>
-                                    <td style="padding: 5px; text-align: right; font-weight: 700; color: #dc2626;"><t t-esc="string.format('{:,.2f}', tot_ded)"/></td>
-                                    <td style="padding: 5px; text-align: right; font-weight: 900; color: #0f172a; background: #f8fafc;"><t t-esc="string.format('{:,.2f}', neto_bs)"/></td>
-                                    <td style="padding: 5px; text-align: right; font-weight: 900; color: #059669; background: #f0fdf4;"><t t-esc="string.format('{:,.2f}', neto_usd)"/></td>
+                                    <td style="padding: 5px; text-align: right;"><t t-esc="'{:,.2f}'.format(s.contract_id and s.contract_id.wage_bs or 0.0)"/></td>
+                                    <td style="padding: 5px; text-align: right;"><t t-esc="'{:,.2f}'.format(s.contract_id and s.contract_id.cesta_ticket_bs or 0.0)"/></td>
+                                    <td style="padding: 5px; text-align: right; font-weight: 700; color: #1e3a8a;"><t t-esc="'{:,.2f}'.format(asig)"/></td>
+                                    <td style="padding: 5px; text-align: right; color: #dc2626;"><t t-esc="'{:,.2f}'.format(ded_ley)"/></td>
+                                    <td style="padding: 5px; text-align: right; color: #d97706;"><t t-esc="'{:,.2f}'.format(prest)"/></td>
+                                    <td style="padding: 5px; text-align: right; font-weight: 700; color: #dc2626;"><t t-esc="'{:,.2f}'.format(tot_ded)"/></td>
+                                    <td style="padding: 5px; text-align: right; font-weight: 900; color: #0f172a; background: #f8fafc;"><t t-esc="'{:,.2f}'.format(neto_bs)"/></td>
+                                    <td style="padding: 5px; text-align: right; font-weight: 900; color: #059669; background: #f0fdf4;"><t t-esc="'{:,.2f}'.format(neto_usd)"/></td>
                                 </tr>
                             </t>
                         </tbody>
                         <tfoot>
                             <tr style="background: #1e293b; color: #ffffff; font-weight: 900; font-size: 8.5pt;">
                                 <td colspan="2" style="padding: 8px; text-align: right;">TOTALES CONSOLIDADOS DEL LOTE:</td>
-                                <td style="padding: 8px; text-align: right;">Bs. <t t-esc="string.format('{:,.2f}', sum(o.slip_ids.mapped('contract_id.wage_bs')))"/></td>
-                                <td style="padding: 8px; text-align: right;">Bs. <t t-esc="string.format('{:,.2f}', sum(o.slip_ids.mapped('contract_id.cesta_ticket_bs')))"/></td>
-                                <td style="padding: 8px; text-align: right; color: #93c5fd;">Bs. <t t-esc="string.format('{:,.2f}', o.total_gross_bs or o.total_net_bs)"/></td>
+                                <td style="padding: 8px; text-align: right;">Bs. <t t-esc="'{:,.2f}'.format(sum(o.slip_ids.mapped('contract_id.wage_bs')))"/></td>
+                                <td style="padding: 8px; text-align: right;">Bs. <t t-esc="'{:,.2f}'.format(sum(o.slip_ids.mapped('contract_id.cesta_ticket_bs')))"/></td>
+                                <td style="padding: 8px; text-align: right; color: #93c5fd;">Bs. <t t-esc="'{:,.2f}'.format(o.total_bs or 0.0)"/></td>
                                 <td colspan="3" style="padding: 8px; text-align: right; color: #fca5a5;">RETENCIONES Y DEDUCCIONES PROCESADAS</td>
-                                <td style="padding: 8px; text-align: right; background: #0f172a; color: #ffffff;">Bs. <t t-esc="string.format('{:,.2f}', o.total_net_bs)"/></td>
-                                <td style="padding: 8px; text-align: right; background: #064e3b; color: #34d399;">$ <t t-esc="string.format('{:,.2f}', o.total_net_usd)"/></td>
+                                <td style="padding: 8px; text-align: right; background: #0f172a; color: #ffffff;">Bs. <t t-esc="'{:,.2f}'.format(o.total_bs or 0.0)"/></td>
+                                <td style="padding: 8px; text-align: right; background: #064e3b; color: #34d399;">$ <t t-esc="'{:,.2f}'.format(o.total_usd or 0.0)"/></td>
                             </tr>
                         </tfoot>
                     </table>
@@ -104,11 +104,11 @@
                     <!-- SECCIÓN DE CERTIFICACIÓN Y CONTABILIZACIÓN -->
                     <div style="border: 1px solid #cbd5e1; border-radius: 6px; padding: 10px; background: #f8fafc; display: flex; justify-content: space-between; font-size: 8pt;">
                         <div>
-                            <strong>Asiento Contable Asignado:</strong> <t t-esc="o.account_move_id.name or 'MISC/2026/08/0001 (NÓMINA-VE)'"/><br/>
+                            <strong>Asiento Contable Asignado:</strong> <t t-esc="o.move_id and o.move_id.name or 'MISC/2026/08/0001 (NÓMINA-VE)'"/><br/>
                             <strong>Estatus Contable:</strong> <span style="color: #059669; font-weight: 700;">CONTABILIZADO Y AUDITADO</span>
                         </div>
                         <div style="text-align: right;">
-                            <strong>Costo Total Patronal Est.:</strong> <span style="color: #1e3a8a; font-weight: 800;">Bs. <t t-esc="string.format('{:,.2f}', o.employer_total_cost_bs or (o.total_net_bs * 1.05))"/></span><br/>
+                            <strong>Costo Total Patronal Est.:</strong> <span style="color: #1e3a8a; font-weight: 800;">Bs. <t t-esc="'{:,.2f}'.format(o.costo_empleador_bs or (o.total_bs * 1.05))"/></span><br/>
                             <strong>Certificación de Pago:</strong> Recibos emitidos con firmas legales de conformidad.
                         </div>
                     </div>
