@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8"/>
+    <title>Venezuela360: Localización Completa</title>
+    <style>
+        body { font-family: 'Segoe UI', Arial, sans-serif; max-width: 900px; margin: 0 auto; color: #333; }
+        h1 { color: #1a3a6c; border-bottom: 3px solid #CF0A2C; padding-bottom: 8px; }
+        h2 { color: #1a3a6c; margin-top: 28px; }
+        .badge { display: inline-block; background: #1a3a6c; color: white; border-radius: 4px; padding: 2px 10px; font-size: 12px; margin: 2px; }
+        .badge.red { background: #CF0A2C; }
+        .badge.gold { background: #F4C430; color: #333; }
+        .feature-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 20px 0; }
+        .feature-card { background: #f8f9fa; border-left: 4px solid #1a3a6c; padding: 12px 16px; border-radius: 4px; }
+        .feature-card h3 { margin: 0 0 6px 0; color: #1a3a6c; font-size: 15px; }
+        .feature-card p { margin: 0; font-size: 13px; color: #555; }
+        table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 13px; }
+        th { background: #1a3a6c; color: white; padding: 8px 12px; text-align: left; }
+        td { padding: 7px 12px; border-bottom: 1px solid #eee; }
+        tr:nth-child(even) td { background: #f8f9fa; }
+        .alert { background: #fff3cd; border: 1px solid #ffc107; border-radius: 4px; padding: 10px 16px; margin: 16px 0; }
+    </style>
+</head>
+<body>
+<section class="oe_container">
+    <div class="oe_row oe_spaced">
+
+        <h1>🇻🇪 Venezuela360: Localización Completa</h1>
+        <p><strong>La localización venezolana más completa para Odoo 19.</strong>
+        Desarrollada con estándares de producción, lista para empresas venezolanas reales.</p>
+
+        <div>
+            <span class="badge">Odoo 19</span>
+            <span class="badge red">Retención IVA</span>
+            <span class="badge red">Retención ISLR</span>
+            <span class="badge">Retención Municipal</span>
+            <span class="badge gold">Doble Moneda BS/USD</span>
+            <span class="badge">Libros Fiscales</span>
+            <span class="badge">Territorialidad VE</span>
+            <span class="badge">Unidad Tributaria</span>
+        </div>
+
+        <h2>Funcionalidades Principales</h2>
+        <div class="feature-grid">
+            <div class="feature-card">
+                <h3>💱 Tasa BCV Histórica</h3>
+                <p>Registro diario con trazabilidad completa. Visible en todos los documentos con equivalencia automática BS/USD.</p>
+            </div>
+            <div class="feature-card">
+                <h3>🧾 Retención de IVA</h3>
+                <p>Cálculo automático al 75% y 100% según Providencia SNAT/2005/0056. Comprobante PDF numerado y asiento automático.</p>
+            </div>
+            <div class="feature-card">
+                <h3>📊 Retención ISLR</h3>
+                <p>Por concepto/tabla SENIAT. Métodos: porcentaje directo, sustraendo y tabla UT. Comprobante PDF oficial.</p>
+            </div>
+            <div class="feature-card">
+                <h3>🏛️ Retención Municipal IAE</h3>
+                <p>Por actividad económica y municipio. Alícuotas configurables. Comprobante PDF por municipio.</p>
+            </div>
+            <div class="feature-card">
+                <h3>📚 Libros Fiscales</h3>
+                <p>Libro de Compras y Ventas con exportación PDF. Totales automáticos en BS y USD por período.</p>
+            </div>
+            <div class="feature-card">
+                <h3>📐 Unidad Tributaria Histórica</h3>
+                <p>Histórico desde 2014 con valores reales de Gaceta Oficial. Cálculo automático en ISLR.</p>
+            </div>
+            <div class="feature-card">
+                <h3>🗺️ Territorialidad Venezolana</h3>
+                <p>24 estados, municipios con alícuotas IAE y parroquias. Vinculados a contactos y documentos.</p>
+            </div>
+            <div class="feature-card">
+                <h3>⚙️ Multi-Compañía</h3>
+                <p>Configuración independiente por empresa. Grupos de usuarios venezolanos separados del sistema base.</p>
+            </div>
+        </div>
+
+        <h2>Modelos Fiscales Incluidos</h2>
+        <table>
+            <tr><th>Modelo Odoo</th><th>Descripción</th></tr>
+            <tr><td>l10n_ve.exchange.rate</td><td>Tasa de cambio BCV histórica</td></tr>
+            <tr><td>account.ut.history</td><td>Unidad Tributaria (UT) histórica</td></tr>
+            <tr><td>account.wh.iva</td><td>Comprobante de Retención IVA</td></tr>
+            <tr><td>account.wh.islr</td><td>Comprobante de Retención ISLR</td></tr>
+            <tr><td>account.wh.islr.concept</td><td>Catálogo de conceptos ISLR SENIAT</td></tr>
+            <tr><td>account.wh.municipal</td><td>Comprobante de Retención Municipal (IAE)</td></tr>
+            <tr><td>account.fiscal.book</td><td>Libro Fiscal de Compras y Ventas</td></tr>
+            <tr><td>l10n_ve.state</td><td>Estados venezolanos (24)</td></tr>
+            <tr><td>l10n_ve.municipality</td><td>Municipios venezolanos con alícuotas</td></tr>
+            <tr><td>l10n_ve.parish</td><td>Parroquias venezolanas</td></tr>
+        </table>
+
+        <h2>Compatibilidad</h2>
+        <table>
+            <tr><th>Componente</th><th>Versión</th></tr>
+            <tr><td>Odoo</td><td>19.0 Community &amp; Enterprise</td></tr>
+            <tr><td>Python</td><td>3.12+</td></tr>
+            <tr><td>PostgreSQL</td><td>15+</td></tr>
+            <tr><td>Licencia</td><td>LGPL-3</td></tr>
+        </table>
+
+        <div class="alert">
+            <strong>⚠️ Nota:</strong> Este módulo complementa el <code>l10n_ve</code> oficial de Odoo (plan contable venezolano).
+            NO es necesario desinstalar <code>l10n_ve</code> — ambos coexisten sin conflicto.
+        </div>
+
+        <h2>Soporte y Documentación</h2>
+        <p>
+            Desarrollado por <strong>JeanPerozo / Nubelco</strong><br/>
+            🌐 <a href="https://www.nubelco.com">www.nubelco.com</a><br/>
+            📧 soporte@nubelco.com
+        </p>
+
+    </div>
+</section>
+</body>
+</html>
