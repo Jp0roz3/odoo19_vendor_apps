@@ -1,0 +1,47 @@
+<odoo>
+    <record id="action_unauthorized_access_log" model="ir.actions.act_window">
+        <field name="name">Unauthorized Access Logs</field>
+        <field name="res_model">unauthorized.access.log</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="oe_view_nocontent_create">
+                No unauthorized access logs found.
+            </p>
+        </field>
+    </record>
+
+
+
+    <record id="view_unauthorized_access_log_tree" model="ir.ui.view">
+        <field name="name">unauthorized.access.log.tree</field>
+        <field name="model">unauthorized.access.log</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="user_id"/>
+                <field name="ip_address"/>
+                <field name="attempt_date"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_unauthorized_access_log_form" model="ir.ui.view">
+        <field name="name">unauthorized.access.log.form</field>
+        <field name="model">unauthorized.access.log</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <field name="user_id"/>
+                        <field name="ip_address"/>
+                        <field name="attempt_date"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+</odoo>
+
+
+
+
