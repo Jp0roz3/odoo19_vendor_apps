@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- ================================================================
+         Venezuela360: Reglas de Registro Multi-Compañía
+         Cada empresa solo ve su propia data fiscal.
+    ================================================================ -->
+
+    <!-- Tasas BCV: solo ve su compañía -->
+    <record id="rule_exchange_rate_company" model="ir.rule">
+        <field name="name">Tasa BCV: Solo propia compañía</field>
+        <field name="model_id" ref="model_l10n_ve_exchange_rate"/>
+        <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+        <field name="groups" eval="[(4, ref('group_l10n_ve_user'))]"/>
+    </record>
+
+    <!-- UT histórica: solo ve su compañía -->
+    <record id="rule_ut_history_company" model="ir.rule">
+        <field name="name">UT Histórica: Solo propia compañía</field>
+        <field name="model_id" ref="model_account_ut_history"/>
+        <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+        <field name="groups" eval="[(4, ref('group_l10n_ve_user'))]"/>
+    </record>
+
+    <!-- Retenciones IVA: solo ve su compañía -->
+    <record id="rule_wh_iva_company" model="ir.rule">
+        <field name="name">Ret. IVA: Solo propia compañía</field>
+        <field name="model_id" ref="model_account_wh_iva"/>
+        <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+        <field name="groups" eval="[(4, ref('group_l10n_ve_user'))]"/>
+    </record>
+
+    <!-- Retenciones ISLR: solo ve su compañía -->
+    <record id="rule_wh_islr_company" model="ir.rule">
+        <field name="name">Ret. ISLR: Solo propia compañía</field>
+        <field name="model_id" ref="model_account_wh_islr"/>
+        <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+        <field name="groups" eval="[(4, ref('group_l10n_ve_user'))]"/>
+    </record>
+
+    <!-- Retenciones Municipales: solo ve su compañía -->
+    <record id="rule_wh_municipal_company" model="ir.rule">
+        <field name="name">Ret. Municipal: Solo propia compañía</field>
+        <field name="model_id" ref="model_account_wh_municipal"/>
+        <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+        <field name="groups" eval="[(4, ref('group_l10n_ve_user'))]"/>
+    </record>
+
+    <!-- Libros Fiscales: solo ve su compañía -->
+    <record id="rule_fiscal_book_company" model="ir.rule">
+        <field name="name">Libro Fiscal: Solo propia compañía</field>
+        <field name="model_id" ref="model_account_fiscal_book"/>
+        <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+        <field name="groups" eval="[(4, ref('group_l10n_ve_user'))]"/>
+    </record>
+</odoo>

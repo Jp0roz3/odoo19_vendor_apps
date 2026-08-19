@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_fiscal_book_wizard_form" model="ir.ui.view">
+        <field name="name">account.fiscal.book.wizard.form</field>
+        <field name="model">account.fiscal.book.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Generar Libro Fiscal">
+                <group>
+                    <field name="book_type"/>
+                    <field name="date_from"/>
+                    <field name="date_to"/>
+                    <field name="company_id" groups="base.group_multi_company"/>
+                    <field name="check_existing"/>
+                </group>
+                <footer>
+                    <button name="action_generate_book" string="Generar Libro"
+                            type="object" class="btn-primary"/>
+                    <button string="Cancelar" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+    <record id="action_fiscal_book_wizard" model="ir.actions.act_window">
+        <field name="name">Generar Libro Fiscal</field>
+        <field name="res_model">account.fiscal.book.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+</odoo>

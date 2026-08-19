@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- ================================================================
+         Venezuela360: Reporte PDF — Comprobante de Retención IVA
+    ================================================================ -->
+    <record id="report_wh_iva_action" model="ir.actions.report">
+        <field name="name">Comprobante Retención IVA</field>
+        <field name="model">account.wh.iva</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">l10n_ve_full.report_wh_iva_document</field>
+        <field name="report_file">l10n_ve_full.report_wh_iva_document</field>
+        <field name="print_report_name">'Ret_IVA_' + object.name.replace('/', '_')</field>
+        <field name="binding_model_id" ref="model_account_wh_iva"/>
+        <field name="binding_type">report</field>
+    </record>
+
+    <template id="report_wh_iva_document">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="web.external_layout">
+                    <div class="page">
+                        <!-- Encabezado -->
+                        <div class="row mb-4">
+                            <div class="col-12 text-center">
+                                <h2 class="l10n-ve-report-title">
+                                    COMPROBANTE DE RETENCIÓN DE I.V.A.
+                                </h2>
+                                <p class="text-muted">
+                                    Según Providencia Administrativa SNAT/2005/0056
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Datos del comprobante -->
+                        <div class="row mb-3">
+                            <div class="col-6">
+                                <strong>N° Comprobante:</strong>
+                                <span t-field="o.name"/>
+                            </div>
+                            <div class="col-6 text-end">
+                                <strong>Fecha:</strong>
+                                <span t-field="o.date" t-options='{"format": "dd/MM/yyyy"}'/>
+                            </div>
+                        </div>
+
+                        <!-- Agente de retención -->
+                        <div class="row mb-2 border p-2 bg-light">
+                            <div class="col-12">
+                                <strong>AGENTE DE RETENCIÓN:</strong>
+                                <span t-field="o.company_id.name"/> —
+                                RIF: <span t-field="o.company_id.l10n_ve_rif"/>
+                            </div>
+                        </div>
+
+                        <!-- Proveedor -->
+                        <div class="row mb-2 border p-2">
+                            <div class="col-6">
+                                <strong>PROVEEDOR / CLIENTE:</strong><br/>
+                                <span t-field="o.partner_id.name"/><br/>
+                                RIF: <span t-field="o.partner_id.l10n_ve_rif"/>
+                            </div>
+                            <div class="col-6">
+                                <strong>Tipo Contribuyente:</strong>
+                                <span t-field="o.partner_id.l10n_ve_contributor_type"/>
+                            </div>
+                        </div>
+
+                        <!-- Factura origen -->
+                        <div class="row mb-2">
+                            <div class="col-6">
+                                <strong>Factura N°:</strong>
+                                <span t-field="o.move_id.name"/>
+                            </div>
+                            <div class="col-6">
+                                <strong>Fecha Factura:</strong>
+                                <span t-field="o.invoice_date" t-options='{"format": "dd/MM/yyyy"}'/>
+                            </div>
+                        </div>
+
+                        <!-- Tasa BCV -->
+                        <div class="row mb-2">
+                            <div class="col-6">
+                                <strong>Tasa BCV:</strong>
+                                <span t-field="o.rate" t-options='{"decimal_precision": "6"}'/> Bs/USD
+                            </div>
+                            <div class="col-6">
+                                <strong>Fecha Tasa:</strong>
+                                <span t-field="o.exchange_rate_id.date"
+                                      t-options='{"format": "dd/MM/yyyy"}'/>
+                            </div>
+                        </div>
+
+                        <!-- Tabla de cálculo -->
+                        <table class="table table-bordered mt-3">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>Concepto</th>
+                                    <th class="text-end">Monto (Bs)</th>
+                                    <th class="text-end">Monto (USD)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Base Imponible</td>
+                                    <td class="text-end">
+                                        <span t-field="o.invoice_amount_untaxed_bs"
+                                              t-options='{"widget": "monetary", "display_currency": o.currency_bs_id}'/>
+                                    </td>
+                                    <td class="text-end">
+                                        <span t-esc="'$ {:,.4f}'.format(o.invoice_amount_tax_bs / o.rate if o.rate else 0)"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>I.V.A. Facturado (16%)</td>
+                                    <td class="text-end">
+                                        <span t-field="o.invoice_amount_tax_bs"
+                                              t-options='{"widget": "monetary", "display_currency": o.currency_bs_id}'/>
+                                    </td>
+                                    <td class="text-end">
+                                        <span t-esc="'$ {:,.4f}'.format(o.amount_usd / o.wh_rate * 100 if o.wh_rate else 0)"/>
+                                    </td>
+                                </tr>
+                                <tr class="table-warning">
+                                    <td><strong>I.V.A. Retenido (<span t-esc="o.wh_rate"/>%)</strong></td>
+                                    <td class="text-end">
+                                        <strong>
+                                        <span t-field="o.amount_bs"
+                                              t-options='{"widget": "monetary", "display_currency": o.currency_bs_id}'/>
+                                        </strong>
+                                    </td>
+                                    <td class="text-end">
+                                        <strong>
+                                        <span t-esc="'$ {:,.4f}'.format(o.amount_usd)"/>
+                                        </strong>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <!-- Firmas -->
+                        <div class="row mt-5">
+                            <div class="col-6 text-center border-top pt-2">
+                                <p>Firma Agente de Retención</p>
+                                <p><strong><span t-field="o.company_id.name"/></strong></p>
+                            </div>
+                            <div class="col-6 text-center border-top pt-2">
+                                <p>Firma y Sello del Proveedor</p>
+                                <p><strong><span t-field="o.partner_id.name"/></strong></p>
+                            </div>
+                        </div>
+
+                        <!-- Pie legal -->
+                        <div class="row mt-3">
+                            <div class="col-12 text-center text-muted" style="font-size:9px">
+                                <p>
+                                    Documento generado por Venezuela360 — Módulo de Localización
+                                    Fiscal para Odoo 19 | JeanPerozo / Nubelco
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+</odoo>

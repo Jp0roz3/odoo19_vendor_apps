@@ -1,0 +1,38 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+# ── Territorialidad ──────────────────────────────────────────────────────────
+access_l10n_ve_state_user,l10n_ve.state user,model_l10n_ve_state,l10n_ve_full.group_l10n_ve_user,1,0,0,0
+access_l10n_ve_state_admin,l10n_ve.state admin,model_l10n_ve_state,l10n_ve_full.group_l10n_ve_admin,1,1,1,1
+access_l10n_ve_municipality_user,l10n_ve.municipality user,model_l10n_ve_municipality,l10n_ve_full.group_l10n_ve_user,1,0,0,0
+access_l10n_ve_municipality_admin,l10n_ve.municipality admin,model_l10n_ve_municipality,l10n_ve_full.group_l10n_ve_admin,1,1,1,1
+access_l10n_ve_parish_user,l10n_ve.parish user,model_l10n_ve_parish,l10n_ve_full.group_l10n_ve_user,1,0,0,0
+access_l10n_ve_parish_admin,l10n_ve.parish admin,model_l10n_ve_parish,l10n_ve_full.group_l10n_ve_admin,1,1,1,1
+# ── Tasa de Cambio BCV ───────────────────────────────────────────────────────
+access_l10n_ve_exchange_rate_user,l10n_ve.exchange.rate user,model_l10n_ve_exchange_rate,l10n_ve_full.group_l10n_ve_user,1,0,0,0
+access_l10n_ve_exchange_rate_manager,l10n_ve.exchange.rate manager,model_l10n_ve_exchange_rate,l10n_ve_full.group_l10n_ve_manager,1,1,1,0
+access_l10n_ve_exchange_rate_admin,l10n_ve.exchange.rate admin,model_l10n_ve_exchange_rate,l10n_ve_full.group_l10n_ve_admin,1,1,1,1
+# ── Unidad Tributaria ────────────────────────────────────────────────────────
+access_account_ut_history_user,account.ut.history user,model_account_ut_history,l10n_ve_full.group_l10n_ve_user,1,0,0,0
+access_account_ut_history_manager,account.ut.history manager,model_account_ut_history,l10n_ve_full.group_l10n_ve_manager,1,1,1,0
+access_account_ut_history_admin,account.ut.history admin,model_account_ut_history,l10n_ve_full.group_l10n_ve_admin,1,1,1,1
+# ── Retención IVA ────────────────────────────────────────────────────────────
+access_account_wh_iva_user,account.wh.iva user,model_account_wh_iva,l10n_ve_full.group_l10n_ve_user,1,0,0,0
+access_account_wh_iva_manager,account.wh.iva manager,model_account_wh_iva,l10n_ve_full.group_l10n_ve_manager,1,1,1,0
+access_account_wh_iva_admin,account.wh.iva admin,model_account_wh_iva,l10n_ve_full.group_l10n_ve_admin,1,1,1,1
+# ── Retención ISLR — Concepto ────────────────────────────────────────────────
+access_account_wh_islr_concept_user,account.wh.islr.concept user,model_account_wh_islr_concept,l10n_ve_full.group_l10n_ve_user,1,0,0,0
+access_account_wh_islr_concept_admin,account.wh.islr.concept admin,model_account_wh_islr_concept,l10n_ve_full.group_l10n_ve_admin,1,1,1,1
+# ── Retención ISLR ───────────────────────────────────────────────────────────
+access_account_wh_islr_user,account.wh.islr user,model_account_wh_islr,l10n_ve_full.group_l10n_ve_user,1,0,0,0
+access_account_wh_islr_manager,account.wh.islr manager,model_account_wh_islr,l10n_ve_full.group_l10n_ve_manager,1,1,1,0
+access_account_wh_islr_admin,account.wh.islr admin,model_account_wh_islr,l10n_ve_full.group_l10n_ve_admin,1,1,1,1
+# ── Retención Municipal ──────────────────────────────────────────────────────
+access_account_wh_municipal_user,account.wh.municipal user,model_account_wh_municipal,l10n_ve_full.group_l10n_ve_user,1,0,0,0
+access_account_wh_municipal_manager,account.wh.municipal manager,model_account_wh_municipal,l10n_ve_full.group_l10n_ve_manager,1,1,1,0
+access_account_wh_municipal_admin,account.wh.municipal admin,model_account_wh_municipal,l10n_ve_full.group_l10n_ve_admin,1,1,1,1
+# ── Libros Fiscales ──────────────────────────────────────────────────────────
+access_account_fiscal_book_user,account.fiscal.book user,model_account_fiscal_book,l10n_ve_full.group_l10n_ve_user,1,0,0,0
+access_account_fiscal_book_manager,account.fiscal.book manager,model_account_fiscal_book,l10n_ve_full.group_l10n_ve_manager,1,1,1,0
+access_account_fiscal_book_admin,account.fiscal.book admin,model_account_fiscal_book,l10n_ve_full.group_l10n_ve_admin,1,1,1,1
+access_account_fiscal_book_line_user,account.fiscal.book.line user,model_account_fiscal_book_line,l10n_ve_full.group_l10n_ve_user,1,0,0,0
+access_account_fiscal_book_line_manager,account.fiscal.book.line manager,model_account_fiscal_book_line,l10n_ve_full.group_l10n_ve_manager,1,1,1,0
+access_account_fiscal_book_line_admin,account.fiscal.book.line admin,model_account_fiscal_book_line,l10n_ve_full.group_l10n_ve_admin,1,1,1,1

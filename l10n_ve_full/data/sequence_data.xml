@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <!-- ================================================================
+         Venezuela360: Secuencias de numeración
+         noupdate="1" → no se sobreescriben al actualizar el módulo
+    ================================================================ -->
+
+    <!-- Comprobante de Retención IVA -->
+    <record id="seq_wh_iva" model="ir.sequence">
+        <field name="name">Comprobante Retención IVA</field>
+        <field name="code">account.wh.iva</field>
+        <field name="prefix">RET-IVA/%(year)s/</field>
+        <field name="padding">5</field>
+        <field name="number_increment">1</field>
+        <field name="use_date_range">True</field>
+        <field name="company_id" eval="False"/>
+    </record>
+
+    <!-- Comprobante de Retención ISLR -->
+    <record id="seq_wh_islr" model="ir.sequence">
+        <field name="name">Comprobante Retención ISLR</field>
+        <field name="code">account.wh.islr</field>
+        <field name="prefix">RET-ISLR/%(year)s/</field>
+        <field name="padding">5</field>
+        <field name="number_increment">1</field>
+        <field name="use_date_range">True</field>
+        <field name="company_id" eval="False"/>
+    </record>
+
+    <!-- Comprobante de Retención Municipal (IAE) -->
+    <record id="seq_wh_municipal" model="ir.sequence">
+        <field name="name">Comprobante Retención Municipal (IAE)</field>
+        <field name="code">account.wh.municipal</field>
+        <field name="prefix">RET-MUN/%(year)s/</field>
+        <field name="padding">5</field>
+        <field name="number_increment">1</field>
+        <field name="use_date_range">True</field>
+        <field name="company_id" eval="False"/>
+    </record>
+
+    <!-- Libro Fiscal de Compras -->
+    <record id="seq_fiscal_book_purchase" model="ir.sequence">
+        <field name="name">Libro Fiscal de Compras</field>
+        <field name="code">account.fiscal.book.purchase</field>
+        <field name="prefix">LIB-COMPRAS/%(year)s/</field>
+        <field name="padding">4</field>
+        <field name="number_increment">1</field>
+        <field name="use_date_range">True</field>
+        <field name="company_id" eval="False"/>
+    </record>
+
+    <!-- Libro Fiscal de Ventas -->
+    <record id="seq_fiscal_book_sale" model="ir.sequence">
+        <field name="name">Libro Fiscal de Ventas</field>
+        <field name="code">account.fiscal.book.sale</field>
+        <field name="prefix">LIB-VENTAS/%(year)s/</field>
+        <field name="padding">4</field>
+        <field name="number_increment">1</field>
+        <field name="use_date_range">True</field>
+        <field name="company_id" eval="False"/>
+    </record>
+</odoo>

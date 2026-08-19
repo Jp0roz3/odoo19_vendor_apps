@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- ================================================================
+         Venezuela360: Estructura de Menús
+         Menú raíz: Contabilidad > Venezuela360
+    ================================================================ -->
+
+    <!-- ── MENÚ RAÍZ ─────────────────────────────────────────────── -->
+    <menuitem id="menu_l10n_ve_root"
+              name="Venezuela360"
+              parent="account.menu_finance"
+              sequence="99"
+              groups="l10n_ve_full.group_l10n_ve_user"/>
+
+    <!-- ── TASAS Y UT ─────────────────────────────────────────────── -->
+    <menuitem id="menu_l10n_ve_rates"
+              name="Tasas y Valores Fiscales"
+              parent="menu_l10n_ve_root"
+              sequence="10"/>
+
+    <menuitem id="menu_l10n_ve_exchange_rate"
+              name="Tasas de Cambio BCV"
+              parent="menu_l10n_ve_rates"
+              action="action_l10n_ve_exchange_rate"
+              sequence="10"
+              groups="l10n_ve_full.group_l10n_ve_user"/>
+
+    <menuitem id="menu_account_ut_history"
+              name="Unidad Tributaria Histórica"
+              parent="menu_l10n_ve_rates"
+              action="action_account_ut_history"
+              sequence="20"
+              groups="l10n_ve_full.group_l10n_ve_user"/>
+
+    <!-- ── RETENCIONES ────────────────────────────────────────────── -->
+    <menuitem id="menu_l10n_ve_retenciones"
+              name="Retenciones"
+              parent="menu_l10n_ve_root"
+              sequence="20"/>
+
+    <menuitem id="menu_account_wh_iva"
+              name="Retenciones IVA"
+              parent="menu_l10n_ve_retenciones"
+              action="action_account_wh_iva"
+              sequence="10"
+              groups="l10n_ve_full.group_l10n_ve_user"/>
+
+    <menuitem id="menu_account_wh_islr"
+              name="Retenciones ISLR"
+              parent="menu_l10n_ve_retenciones"
+              action="action_account_wh_islr"
+              sequence="20"
+              groups="l10n_ve_full.group_l10n_ve_user"/>
+
+    <menuitem id="menu_account_wh_municipal"
+              name="Retenciones Municipales (IAE)"
+              parent="menu_l10n_ve_retenciones"
+              action="action_account_wh_municipal"
+              sequence="30"
+              groups="l10n_ve_full.group_l10n_ve_user"/>
+
+    <!-- ── LIBROS FISCALES ────────────────────────────────────────── -->
+    <menuitem id="menu_l10n_ve_libros"
+              name="Libros Fiscales"
+              parent="menu_l10n_ve_root"
+              sequence="30"/>
+
+    <menuitem id="menu_fiscal_book_all"
+              name="Todos los Libros"
+              parent="menu_l10n_ve_libros"
+              action="action_account_fiscal_book"
+              sequence="10"
+              groups="l10n_ve_full.group_l10n_ve_user"/>
+
+    <menuitem id="menu_fiscal_book_purchase"
+              name="Libro de Compras"
+              parent="menu_l10n_ve_libros"
+              action="action_fiscal_book_purchase"
+              sequence="20"
+              groups="l10n_ve_full.group_l10n_ve_user"/>
+
+    <menuitem id="menu_fiscal_book_sale"
+              name="Libro de Ventas"
+              parent="menu_l10n_ve_libros"
+              action="action_fiscal_book_sale"
+              sequence="30"
+              groups="l10n_ve_full.group_l10n_ve_user"/>
+
+    <!-- ── CONFIGURACIÓN / ADMINISTRACIÓN ────────────────────────── -->
+    <menuitem id="menu_l10n_ve_config"
+              name="Configuración VE"
+              parent="menu_l10n_ve_root"
+              sequence="90"
+              groups="l10n_ve_full.group_l10n_ve_admin"/>
+
+    <menuitem id="menu_l10n_ve_states"
+              name="Estados de Venezuela"
+              parent="menu_l10n_ve_config"
+              action="action_l10n_ve_state"
+              sequence="10"
+              groups="l10n_ve_full.group_l10n_ve_admin"/>
+
+    <menuitem id="menu_l10n_ve_municipalities"
+              name="Municipios"
+              parent="menu_l10n_ve_config"
+              action="action_l10n_ve_municipality"
+              sequence="20"
+              groups="l10n_ve_full.group_l10n_ve_admin"/>
+
+    <menuitem id="menu_l10n_ve_parishes"
+              name="Parroquias"
+              parent="menu_l10n_ve_config"
+              action="action_l10n_ve_parish"
+              sequence="30"
+              groups="l10n_ve_full.group_l10n_ve_admin"/>
+
+    <menuitem id="menu_account_wh_islr_concept"
+              name="Conceptos ISLR"
+              parent="menu_l10n_ve_config"
+              action="action_account_wh_islr_concept"
+              sequence="40"
+              groups="l10n_ve_full.group_l10n_ve_admin"/>
+</odoo>

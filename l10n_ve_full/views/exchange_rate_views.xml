@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- ================================================================
+         Venezuela360: Vistas — Tasa de Cambio BCV
+    ================================================================ -->
+
+    <!-- Lista -->
+    <record id="view_l10n_ve_exchange_rate_list" model="ir.ui.view">
+        <field name="name">l10n_ve.exchange.rate.list</field>
+        <field name="model">l10n_ve.exchange.rate</field>
+        <field name="arch" type="xml">
+            <list string="Tasas BCV" decoration-info="source == 'manual'"
+                  decoration-success="source == 'bcv'"
+                  default_order="date desc">
+                <field name="date"/>
+                <field name="rate" string="Bs/USD" digits="[18,6]"/>
+                <field name="rate_usd_to_bs" string="1 USD = X Bs" digits="[18,4]"/>
+                <field name="source"/>
+                <field name="currency_from_id"/>
+                <field name="currency_to_id"/>
+                <field name="company_id" groups="base.group_multi_company"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Formulario -->
+    <record id="view_l10n_ve_exchange_rate_form" model="ir.ui.view">
+        <field name="name">l10n_ve.exchange.rate.form</field>
+        <field name="model">l10n_ve.exchange.rate</field>
+        <field name="arch" type="xml">
+            <form string="Tasa de Cambio BCV">
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="display_name" readonly="1"/></h1>
+                    </div>
+                    <group>
+                        <group string="Datos de la Tasa">
+                            <field name="date"/>
+                            <field name="rate" string="Tasa (Bs por 1 USD)"/>
+                            <field name="source"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                        </group>
+                        <group string="Monedas">
+                            <field name="currency_from_id"/>
+                            <field name="currency_to_id"/>
+                            <field name="rate_usd_to_bs" readonly="1" string="Bs por 1 USD"/>
+                            <field name="rate_bs_to_usd" readonly="1" string="USD por 1 Bs"/>
+                        </group>
+                    </group>
+                    <group string="Observaciones">
+                        <field name="notes" nolabel="1" colspan="2"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Búsqueda -->
+    <record id="view_l10n_ve_exchange_rate_search" model="ir.ui.view">
+        <field name="name">l10n_ve.exchange.rate.search</field>
+        <field name="model">l10n_ve.exchange.rate</field>
+        <field name="arch" type="xml">
+            <search string="Buscar Tasa BCV">
+                <field name="date"/>
+                <field name="rate"/>
+                <filter name="filter_bcv"    string="BCV Oficial"    domain="[('source','=','bcv')]"/>
+                <filter name="filter_manual" string="Manual"         domain="[('source','=','manual')]"/>
+                <separator/>
+                <filter name="filter_active" string="Activos" domain="[('active','=',True)]"/>
+                <group expand="0" string="Agrupar Por">
+                    <filter name="group_source"  string="Fuente"   context="{'group_by':'source'}"/>
+                    <filter name="group_company" string="Compañía" context="{'group_by':'company_id'}"/>
+                    <filter name="group_date"    string="Fecha"    context="{'group_by':'date:month'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Acción -->
+    <record id="action_l10n_ve_exchange_rate" model="ir.actions.act_window">
+        <field name="name">Tasas de Cambio BCV</field>
+        <field name="res_model">l10n_ve.exchange.rate</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_l10n_ve_exchange_rate_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Registra la primera tasa de cambio BCV
+            </p>
+            <p>
+                Ingresa aquí el histórico diario de tasas BCV (Bs/USD).
+                El sistema la usará automáticamente al confirmar facturas.
+            </p>
+        </field>
+    </record>
+</odoo>

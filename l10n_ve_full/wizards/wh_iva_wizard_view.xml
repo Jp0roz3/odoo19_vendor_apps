@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_wh_iva_wizard_form" model="ir.ui.view">
+        <field name="name">account.wh.iva.wizard.form</field>
+        <field name="model">account.wh.iva.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Crear Retención IVA">
+                <group>
+                    <field name="move_id"/>
+                    <field name="partner_id" readonly="1"/>
+                    <field name="wh_type"/>
+                    <field name="wh_rate" string="% Retención sobre IVA"/>
+                    <field name="date"/>
+                </group>
+                <footer>
+                    <button name="action_create_wh_iva" string="Crear Retención"
+                            type="object" class="btn-primary"/>
+                    <button string="Cancelar" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+    <record id="action_wh_iva_wizard" model="ir.actions.act_window">
+        <field name="name">Crear Retención IVA</field>
+        <field name="res_model">account.wh.iva.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+    <!-- Vista wizard ISLR -->
+    <record id="view_wh_islr_wizard_form" model="ir.ui.view">
+        <field name="name">account.wh.islr.wizard.form</field>
+        <field name="model">account.wh.islr.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Crear Retención ISLR">
+                <group>
+                    <field name="move_id"/>
+                    <field name="partner_id" readonly="1"/>
+                    <field name="concept_id"/>
+                    <field name="date"/>
+                </group>
+                <footer>
+                    <button name="action_create_wh_islr" string="Crear Retención ISLR"
+                            type="object" class="btn-primary"/>
+                    <button string="Cancelar" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+    <record id="action_wh_islr_wizard" model="ir.actions.act_window">
+        <field name="name">Crear Retención ISLR</field>
+        <field name="res_model">account.wh.islr.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+    <!-- Vista wizard Municipal -->
+    <record id="view_wh_municipal_wizard_form" model="ir.ui.view">
+        <field name="name">account.wh.municipal.wizard.form</field>
+        <field name="model">account.wh.municipal.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Crear Retención Municipal">
+                <group>
+                    <field name="move_id"/>
+                    <field name="partner_id" readonly="1"/>
+                    <field name="municipality_id"/>
+                    <field name="rate_pct" string="Alícuota IAE (%)"/>
+                    <field name="economic_activity"/>
+                    <field name="date"/>
+                </group>
+                <footer>
+                    <button name="action_create_wh_municipal" string="Crear Retención"
+                            type="object" class="btn-primary"/>
+                    <button string="Cancelar" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+    <record id="action_wh_municipal_wizard" model="ir.actions.act_window">
+        <field name="name">Crear Retención Municipal</field>
+        <field name="res_model">account.wh.municipal.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+</odoo>

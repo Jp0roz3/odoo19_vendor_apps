@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- ================================================================
+         Venezuela360: Reporte PDF — Comprobante Retención ISLR
+    ================================================================ -->
+    <record id="report_wh_islr_action" model="ir.actions.report">
+        <field name="name">Comprobante Retención ISLR</field>
+        <field name="model">account.wh.islr</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">l10n_ve_full.report_wh_islr_document</field>
+        <field name="report_file">l10n_ve_full.report_wh_islr_document</field>
+        <field name="print_report_name">'Ret_ISLR_' + object.name.replace('/', '_')</field>
+        <field name="binding_model_id" ref="model_account_wh_islr"/>
+        <field name="binding_type">report</field>
+    </record>
+
+    <template id="report_wh_islr_document">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="web.external_layout">
+                    <div class="page">
+                        <div class="row mb-4">
+                            <div class="col-12 text-center">
+                                <h2 class="l10n-ve-report-title">
+                                    COMPROBANTE DE RETENCIÓN DE I.S.L.R.
+                                </h2>
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-6">
+                                <strong>N° Comprobante:</strong>
+                                <span t-field="o.name"/>
+                            </div>
+                            <div class="col-6 text-end">
+                                <strong>Fecha:</strong>
+                                <span t-field="o.date" t-options='{"format": "dd/MM/yyyy"}'/>
+                            </div>
+                        </div>
+                        <div class="row mb-2 border p-2 bg-light">
+                            <div class="col-12">
+                                <strong>AGENTE DE RETENCIÓN:</strong>
+                                <span t-field="o.company_id.name"/> —
+                                RIF: <span t-field="o.company_id.l10n_ve_rif"/>
+                            </div>
+                        </div>
+                        <div class="row mb-2 border p-2">
+                            <div class="col-6">
+                                <strong>BENEFICIARIO:</strong><br/>
+                                <span t-field="o.partner_id.name"/><br/>
+                                RIF: <span t-field="o.partner_id.l10n_ve_rif"/>
+                            </div>
+                            <div class="col-6">
+                                <strong>Concepto ISLR:</strong><br/>
+                                <span t-field="o.concept_id.code"/> —
+                                <span t-field="o.concept_id.name"/><br/>
+                                <strong>Método:</strong>
+                                <span t-field="o.calculation_method"/>
+                            </div>
+                        </div>
+                        <div class="row mb-2">
+                            <div class="col-4">
+                                <strong>UT Vigente:</strong>
+                                <span t-field="o.ut_value"/> Bs
+                            </div>
+                            <div class="col-4">
+                                <strong>Tasa BCV:</strong>
+                                <span t-field="o.rate"/> Bs/USD
+                            </div>
+                            <div class="col-4">
+                                <strong>Factura:</strong>
+                                <span t-field="o.move_id.name"/>
+                            </div>
+                        </div>
+                        <table class="table table-bordered mt-3">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>Concepto</th>
+                                    <th class="text-end">Bs</th>
+                                    <th class="text-end">UT</th>
+                                    <th class="text-end">USD</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Base Gravable</td>
+                                    <td class="text-end">
+                                        <span t-field="o.taxable_amount_bs"
+                                              t-options='{"widget": "monetary", "display_currency": o.currency_bs_id}'/>
+                                    </td>
+                                    <td class="text-end">
+                                        <span t-esc="'{:,.4f}'.format(o.taxable_amount_ut)"/>
+                                    </td>
+                                    <td class="text-end">
+                                        <span t-esc="'$ {:,.4f}'.format(o.taxable_amount_usd)"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Tasa ISLR</td>
+                                    <td class="text-end" colspan="3">
+                                        <span t-esc="'{:.4f}%'.format(o.wh_rate)"/>
+                                        <t t-if="o.subtract"> — Sustraendo: <span t-esc="'{:,.2f}'.format(o.subtract)"/> Bs</t>
+                                    </td>
+                                </tr>
+                                <tr class="table-warning">
+                                    <td><strong>I.S.L.R. Retenido</strong></td>
+                                    <td class="text-end">
+                                        <strong>
+                                        <span t-field="o.amount_bs"
+                                              t-options='{"widget": "monetary", "display_currency": o.currency_bs_id}'/>
+                                        </strong>
+                                    </td>
+                                    <td class="text-end">
+                                        <strong><span t-esc="'{:,.4f}'.format(o.amount_ut)"/> UT</strong>
+                                    </td>
+                                    <td class="text-end">
+                                        <strong><span t-esc="'$ {:,.4f}'.format(o.amount_usd)"/></strong>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <div class="row mt-5">
+                            <div class="col-6 text-center border-top pt-2">
+                                <p>Firma Agente de Retención</p>
+                                <p><strong><span t-field="o.company_id.name"/></strong></p>
+                            </div>
+                            <div class="col-6 text-center border-top pt-2">
+                                <p>Firma Beneficiario</p>
+                                <p><strong><span t-field="o.partner_id.name"/></strong></p>
+                            </div>
+                        </div>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+</odoo>

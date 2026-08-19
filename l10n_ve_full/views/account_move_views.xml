@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- ================================================================
+         Venezuela360: Extensión de Factura (account.move)
+         Añade pestaña "Venezuela360" en facturas con dual BS/USD,
+         tasa BCV, UT, campos fiscales y stat buttons de retenciones.
+    ================================================================ -->
+
+    <!-- Stat Buttons en el encabezado de la factura -->
+    <record id="view_move_form_l10n_ve_buttons" model="ir.ui.view">
+        <field name="name">account.move.form.l10n_ve.buttons</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="account.view_move_form"/>
+        <field name="arch" type="xml">
+            <!-- Botones stat en la barra de estado -->
+            <div name="button_box" position="inside">
+                <button name="action_view_wh_iva"
+                        type="object"
+                        class="oe_stat_button"
+                        icon="fa-percent"
+                        attrs="{'invisible': [('l10n_ve_localization', '=', False)]}">
+                    <div class="o_field_widget o_stat_info">
+                        <span class="o_stat_value">
+                            <field name="l10n_ve_wh_iva_count"/>
+                        </span>
+                        <span class="o_stat_text">Ret. IVA</span>
+                    </div>
+                </button>
+                <button name="action_view_wh_islr"
+                        type="object"
+                        class="oe_stat_button"
+                        icon="fa-file-text-o"
+                        attrs="{'invisible': [('l10n_ve_localization', '=', False)]}">
+                    <div class="o_field_widget o_stat_info">
+                        <span class="o_stat_value">
+                            <field name="l10n_ve_wh_islr_count"/>
+                        </span>
+                        <span class="o_stat_text">Ret. ISLR</span>
+                    </div>
+                </button>
+                <button name="action_view_wh_municipal"
+                        type="object"
+                        class="oe_stat_button"
+                        icon="fa-building-o"
+                        attrs="{'invisible': [('l10n_ve_localization', '=', False)]}">
+                    <div class="o_field_widget o_stat_info">
+                        <span class="o_stat_value">
+                            <field name="l10n_ve_wh_municipal_count"/>
+                        </span>
+                        <span class="o_stat_text">Ret. Mun.</span>
+                    </div>
+                </button>
+            </div>
+
+            <!-- Pestaña Venezuela360 dentro del notebook -->
+            <notebook position="inside">
+                <page string="Venezuela360" name="l10n_ve"
+                      attrs="{'invisible': [('l10n_ve_localization', '=', False)]}">
+                    <group>
+                        <group string="Tasa BCV y Moneda Dual">
+                            <field name="l10n_ve_exchange_rate_id"
+                                   attrs="{'readonly': [('state', '=', 'posted')]}"/>
+                            <field name="l10n_ve_rate"  readonly="1" string="Tasa Bs/USD"/>
+                            <field name="l10n_ve_rate_date" readonly="1"/>
+                            <field name="l10n_ve_rate_source" readonly="1"/>
+                        </group>
+                        <group string="Unidad Tributaria">
+                            <field name="l10n_ve_ut_id"    readonly="1"/>
+                            <field name="l10n_ve_ut_value" readonly="1" string="Valor UT (Bs)"/>
+                        </group>
+                    </group>
+                    <group string="Montos en Bolívares (Bs)">
+                        <group>
+                            <field name="l10n_ve_amount_untaxed_bs" readonly="1"
+                                   widget="monetary" options="{'currency_field': 'l10n_ve_currency_bs_id'}"/>
+                            <field name="l10n_ve_amount_tax_bs" readonly="1"
+                                   widget="monetary" options="{'currency_field': 'l10n_ve_currency_bs_id'}"/>
+                            <field name="l10n_ve_amount_total_bs" readonly="1"
+                                   widget="monetary" options="{'currency_field': 'l10n_ve_currency_bs_id'}"/>
+                        </group>
+                        <group string="Retenciones aplicadas (Bs)">
+                            <field name="l10n_ve_wh_iva_total_bs" readonly="1"
+                                   widget="monetary" options="{'currency_field': 'l10n_ve_currency_bs_id'}"/>
+                            <field name="l10n_ve_wh_islr_total_bs" readonly="1"
+                                   widget="monetary" options="{'currency_field': 'l10n_ve_currency_bs_id'}"/>
+                            <field name="l10n_ve_wh_municipal_total_bs" readonly="1"
+                                   widget="monetary" options="{'currency_field': 'l10n_ve_currency_bs_id'}"/>
+                        </group>
+                    </group>
+                    <group string="Montos en USD">
+                        <field name="l10n_ve_amount_untaxed_usd" readonly="1"/>
+                        <field name="l10n_ve_amount_tax_usd"     readonly="1"/>
+                        <field name="l10n_ve_amount_total_usd"   readonly="1"/>
+                        <field name="l10n_ve_wh_iva_total_usd"   readonly="1"/>
+                    </group>
+                    <group string="Documentación Fiscal">
+                        <field name="l10n_ve_fiscal_number"
+                               attrs="{'readonly': [('state', '=', 'posted')]}"/>
+                        <field name="l10n_ve_control_number"
+                               attrs="{'readonly': [('state', '=', 'posted')]}"/>
+                    </group>
+                    <!-- Campo invisible helper -->
+                    <field name="l10n_ve_localization" invisible="1"/>
+                    <field name="l10n_ve_currency_bs_id" invisible="1"/>
+                </page>
+            </notebook>
+        </field>
+    </record>
+</odoo>

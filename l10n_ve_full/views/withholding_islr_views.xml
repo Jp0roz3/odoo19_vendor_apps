@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- ================================================================
+         Venezuela360: Vistas — Retención ISLR
+    ================================================================ -->
+
+    <!-- Conceptos ISLR: lista editable -->
+    <record id="view_account_wh_islr_concept_list" model="ir.ui.view">
+        <field name="name">account.wh.islr.concept.list</field>
+        <field name="model">account.wh.islr.concept</field>
+        <field name="arch" type="xml">
+            <list string="Conceptos ISLR — SENIAT" editable="bottom">
+                <field name="code"/>
+                <field name="name"/>
+                <field name="wh_rate" string="Tasa (%)"/>
+                <field name="subtract" string="Sustraendo (Bs)"/>
+                <field name="calculation_method"/>
+                <field name="applicable_to"/>
+            </list>
+        </field>
+    </record>
+    <record id="action_account_wh_islr_concept" model="ir.actions.act_window">
+        <field name="name">Conceptos ISLR</field>
+        <field name="res_model">account.wh.islr.concept</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <!-- ISLR: Lista comprobantes -->
+    <record id="view_account_wh_islr_list" model="ir.ui.view">
+        <field name="name">account.wh.islr.list</field>
+        <field name="model">account.wh.islr</field>
+        <field name="arch" type="xml">
+            <list string="Retenciones ISLR"
+                  decoration-success="state == 'posted'"
+                  decoration-warning="state == 'confirmed'"
+                  decoration-muted="state == 'cancel'">
+                <field name="name"/>
+                <field name="date"/>
+                <field name="partner_id"/>
+                <field name="concept_id" string="Concepto"/>
+                <field name="wh_rate" string="Tasa (%)"/>
+                <field name="taxable_amount_bs" string="Base Gravable (Bs)"
+                       widget="monetary" options="{'currency_field': 'currency_bs_id'}"/>
+                <field name="amount_bs" string="Retenido (Bs)"
+                       widget="monetary" options="{'currency_field': 'currency_bs_id'}"/>
+                <field name="amount_ut" string="Retenido (UT)"/>
+                <field name="state" widget="badge"/>
+                <field name="currency_bs_id" invisible="1"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- ISLR: Formulario comprobante -->
+    <record id="view_account_wh_islr_form" model="ir.ui.view">
+        <field name="name">account.wh.islr.form</field>
+        <field name="model">account.wh.islr</field>
+        <field name="arch" type="xml">
+            <form string="Comprobante Retención ISLR">
+                <header>
+                    <button name="action_confirm" string="Confirmar" type="object"
+                            class="btn-primary"
+                            attrs="{'invisible': [('state', '!=', 'draft')]}"/>
+                    <button name="action_post" string="Contabilizar" type="object"
+                            class="btn-primary"
+                            attrs="{'invisible': [('state', '!=', 'confirmed')]}"/>
+                    <button name="action_cancel" string="Cancelar" type="object"
+                            attrs="{'invisible': [('state', 'in', ['draft', 'cancel'])]}"/>
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="draft,confirmed,posted"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="name" readonly="1"/></h1>
+                    </div>
+                    <group>
+                        <group string="General">
+                            <field name="move_id"
+                                   attrs="{'readonly': [('state', '!=', 'draft')]}"/>
+                            <field name="partner_id" readonly="1"/>
+                            <field name="date"
+                                   attrs="{'readonly': [('state', '!=', 'draft')]}"/>
+                        </group>
+                        <group string="Concepto y Método">
+                            <field name="concept_id"
+                                   attrs="{'readonly': [('state', '!=', 'draft')]}"/>
+                            <field name="calculation_method" readonly="1"/>
+                            <field name="wh_rate"   readonly="1"/>
+                            <field name="subtract"  readonly="1"/>
+                        </group>
+                    </group>
+                    <group string="Cálculo">
+                        <group string="Bases">
+                            <field name="taxable_amount_bs" readonly="1"
+                                   widget="monetary" options="{'currency_field': 'currency_bs_id'}"/>
+                            <field name="taxable_amount_usd" readonly="1"/>
+                            <field name="taxable_amount_ut"  readonly="1"/>
+                        </group>
+                        <group string="Resultado">
+                            <field name="amount_bs" readonly="1" class="fw-bold text-success"
+                                   widget="monetary" options="{'currency_field': 'currency_bs_id'}"/>
+                            <field name="amount_usd" readonly="1"/>
+                            <field name="amount_ut"  readonly="1"/>
+                        </group>
+                    </group>
+                    <group string="UT y Tasa BCV">
+                        <field name="ut_id"    readonly="1"/>
+                        <field name="ut_value" readonly="1"/>
+                        <field name="rate"     readonly="1" string="Tasa BCV (Bs/USD)"/>
+                    </group>
+                    <group string="Asiento Contable">
+                        <field name="journal_entry_id" readonly="1"/>
+                    </group>
+                    <field name="currency_bs_id" invisible="1"/>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="activity_ids"/>
+                    <field name="message_ids"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_account_wh_islr" model="ir.actions.act_window">
+        <field name="name">Retenciones ISLR</field>
+        <field name="res_model">account.wh.islr</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Crea el primer comprobante de retención ISLR
+            </p>
+        </field>
+    </record>
+</odoo>

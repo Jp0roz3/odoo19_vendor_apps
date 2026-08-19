@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- ================================================================
+         Venezuela360: Vistas — Territorialidad (Estados/Municipios/Parroquias)
+    ================================================================ -->
+
+    <!-- ── ESTADOS ─────────────────────────────────────── -->
+    <record id="view_l10n_ve_state_list" model="ir.ui.view">
+        <field name="name">l10n_ve.state.list</field>
+        <field name="model">l10n_ve.state</field>
+        <field name="arch" type="xml">
+            <list string="Estados de Venezuela">
+                <field name="code"/>
+                <field name="name"/>
+                <field name="municipality_count" string="Municipios"/>
+            </list>
+        </field>
+    </record>
+    <record id="view_l10n_ve_state_form" model="ir.ui.view">
+        <field name="name">l10n_ve.state.form</field>
+        <field name="model">l10n_ve.state</field>
+        <field name="arch" type="xml">
+            <form string="Estado">
+                <sheet>
+                    <group>
+                        <field name="code"/>
+                        <field name="name"/>
+                    </group>
+                    <notebook>
+                        <page string="Municipios" name="municipalities">
+                            <field name="municipality_ids">
+                                <list editable="bottom">
+                                    <field name="code"/>
+                                    <field name="name"/>
+                                    <field name="wh_municipal_rate" string="Alícuota IAE (%)"/>
+                                    <field name="parish_count" string="Parroquias"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+    <record id="action_l10n_ve_state" model="ir.actions.act_window">
+        <field name="name">Estados de Venezuela</field>
+        <field name="res_model">l10n_ve.state</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <!-- ── MUNICIPIOS ──────────────────────────────────── -->
+    <record id="view_l10n_ve_municipality_list" model="ir.ui.view">
+        <field name="name">l10n_ve.municipality.list</field>
+        <field name="model">l10n_ve.municipality</field>
+        <field name="arch" type="xml">
+            <list string="Municipios">
+                <field name="state_id"/>
+                <field name="code"/>
+                <field name="name"/>
+                <field name="wh_municipal_rate" string="Alícuota IAE (%)"/>
+                <field name="parish_count" string="Parroquias"/>
+            </list>
+        </field>
+    </record>
+    <record id="view_l10n_ve_municipality_form" model="ir.ui.view">
+        <field name="name">l10n_ve.municipality.form</field>
+        <field name="model">l10n_ve.municipality</field>
+        <field name="arch" type="xml">
+            <form string="Municipio">
+                <sheet>
+                    <group>
+                        <field name="state_id"/>
+                        <field name="code"/>
+                        <field name="name"/>
+                        <field name="wh_municipal_rate" string="Alícuota Ret. Municipal (%)"/>
+                    </group>
+                    <notebook>
+                        <page string="Parroquias" name="parishes">
+                            <field name="parish_ids">
+                                <list editable="bottom">
+                                    <field name="code"/>
+                                    <field name="name"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+    <record id="action_l10n_ve_municipality" model="ir.actions.act_window">
+        <field name="name">Municipios</field>
+        <field name="res_model">l10n_ve.municipality</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <!-- ── PARROQUIAS ──────────────────────────────────── -->
+    <record id="view_l10n_ve_parish_list" model="ir.ui.view">
+        <field name="name">l10n_ve.parish.list</field>
+        <field name="model">l10n_ve.parish</field>
+        <field name="arch" type="xml">
+            <list string="Parroquias">
+                <field name="state_id"/>
+                <field name="municipality_id"/>
+                <field name="code"/>
+                <field name="name"/>
+            </list>
+        </field>
+    </record>
+    <record id="action_l10n_ve_parish" model="ir.actions.act_window">
+        <field name="name">Parroquias</field>
+        <field name="res_model">l10n_ve.parish</field>
+        <field name="view_mode">list,form</field>
+    </record>
+</odoo>

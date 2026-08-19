@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <!-- ================================================================
+         Venezuela360: Territorialidad — 24 Estados + Dependencias
+         Fuente: División Político-Territorial de Venezuela (INE/SENIAT)
+         noupdate="1" → el usuario puede modificar sin que se sobreescriban
+    ================================================================ -->
+
+    <!-- ── ESTADOS ──────────────────────────────────────────────────── -->
+    <record id="ve_state_amazonas"      model="l10n_ve.state"><field name="name">Amazonas</field><field name="code">VE-Z</field></record>
+    <record id="ve_state_anzoategui"    model="l10n_ve.state"><field name="name">Anzoátegui</field><field name="code">VE-B</field></record>
+    <record id="ve_state_apure"         model="l10n_ve.state"><field name="name">Apure</field><field name="code">VE-C</field></record>
+    <record id="ve_state_aragua"        model="l10n_ve.state"><field name="name">Aragua</field><field name="code">VE-D</field></record>
+    <record id="ve_state_barinas"       model="l10n_ve.state"><field name="name">Barinas</field><field name="code">VE-E</field></record>
+    <record id="ve_state_bolivar"       model="l10n_ve.state"><field name="name">Bolívar</field><field name="code">VE-F</field></record>
+    <record id="ve_state_carabobo"      model="l10n_ve.state"><field name="name">Carabobo</field><field name="code">VE-G</field></record>
+    <record id="ve_state_cojedes"       model="l10n_ve.state"><field name="name">Cojedes</field><field name="code">VE-H</field></record>
+    <record id="ve_state_delta_amacuro" model="l10n_ve.state"><field name="name">Delta Amacuro</field><field name="code">VE-Y</field></record>
+    <record id="ve_state_distrito_capital" model="l10n_ve.state"><field name="name">Distrito Capital</field><field name="code">VE-A</field></record>
+    <record id="ve_state_falcon"        model="l10n_ve.state"><field name="name">Falcón</field><field name="code">VE-I</field></record>
+    <record id="ve_state_guarico"       model="l10n_ve.state"><field name="name">Guárico</field><field name="code">VE-J</field></record>
+    <record id="ve_state_lara"          model="l10n_ve.state"><field name="name">Lara</field><field name="code">VE-K</field></record>
+    <record id="ve_state_merida"        model="l10n_ve.state"><field name="name">Mérida</field><field name="code">VE-L</field></record>
+    <record id="ve_state_miranda"       model="l10n_ve.state"><field name="name">Miranda</field><field name="code">VE-M</field></record>
+    <record id="ve_state_monagas"       model="l10n_ve.state"><field name="name">Monagas</field><field name="code">VE-N</field></record>
+    <record id="ve_state_nueva_esparta" model="l10n_ve.state"><field name="name">Nueva Esparta</field><field name="code">VE-O</field></record>
+    <record id="ve_state_portuguesa"    model="l10n_ve.state"><field name="name">Portuguesa</field><field name="code">VE-P</field></record>
+    <record id="ve_state_sucre"         model="l10n_ve.state"><field name="name">Sucre</field><field name="code">VE-R</field></record>
+    <record id="ve_state_tachira"       model="l10n_ve.state"><field name="name">Táchira</field><field name="code">VE-S</field></record>
+    <record id="ve_state_trujillo"      model="l10n_ve.state"><field name="name">Trujillo</field><field name="code">VE-T</field></record>
+    <record id="ve_state_vargas"        model="l10n_ve.state"><field name="name">La Guaira (Vargas)</field><field name="code">VE-X</field></record>
+    <record id="ve_state_yaracuy"       model="l10n_ve.state"><field name="name">Yaracuy</field><field name="code">VE-U</field></record>
+    <record id="ve_state_zulia"         model="l10n_ve.state"><field name="name">Zulia</field><field name="code">VE-V</field></record>
+
+    <!-- ── MUNICIPIOS PRINCIPALES (Capitales de Estado) ─────────────── -->
+    <!-- Distrito Capital -->
+    <record id="ve_mun_libertador"  model="l10n_ve.municipality">
+        <field name="name">Libertador</field><field name="code">DC-LIB</field>
+        <field name="state_id" ref="ve_state_distrito_capital"/>
+        <field name="wh_municipal_rate">0.0500</field>
+    </record>
+
+    <!-- Miranda -->
+    <record id="ve_mun_sucre_miranda" model="l10n_ve.municipality">
+        <field name="name">Sucre</field><field name="code">MI-SUC</field>
+        <field name="state_id" ref="ve_state_miranda"/>
+        <field name="wh_municipal_rate">0.0300</field>
+    </record>
+    <record id="ve_mun_baruta" model="l10n_ve.municipality">
+        <field name="name">Baruta</field><field name="code">MI-BAR</field>
+        <field name="state_id" ref="ve_state_miranda"/>
+        <field name="wh_municipal_rate">0.0300</field>
+    </record>
+    <record id="ve_mun_chacao" model="l10n_ve.municipality">
+        <field name="name">Chacao</field><field name="code">MI-CHA</field>
+        <field name="state_id" ref="ve_state_miranda"/>
+        <field name="wh_municipal_rate">0.0500</field>
+    </record>
+    <record id="ve_mun_el_hatillo" model="l10n_ve.municipality">
+        <field name="name">El Hatillo</field><field name="code">MI-HAT</field>
+        <field name="state_id" ref="ve_state_miranda"/>
+        <field name="wh_municipal_rate">0.0200</field>
+    </record>
+
+    <!-- Carabobo -->
+    <record id="ve_mun_valencia" model="l10n_ve.municipality">
+        <field name="name">Valencia</field><field name="code">CA-VAL</field>
+        <field name="state_id" ref="ve_state_carabobo"/>
+        <field name="wh_municipal_rate">0.0450</field>
+    </record>
+
+    <!-- Aragua -->
+    <record id="ve_mun_girardot" model="l10n_ve.municipality">
+        <field name="name">Girardot (Maracay)</field><field name="code">AR-GIR</field>
+        <field name="state_id" ref="ve_state_aragua"/>
+        <field name="wh_municipal_rate">0.0350</field>
+    </record>
+
+    <!-- Zulia -->
+    <record id="ve_mun_maracaibo" model="l10n_ve.municipality">
+        <field name="name">Maracaibo</field><field name="code">ZU-MAR</field>
+        <field name="state_id" ref="ve_state_zulia"/>
+        <field name="wh_municipal_rate">0.0400</field>
+    </record>
+
+    <!-- Lara -->
+    <record id="ve_mun_iribarren" model="l10n_ve.municipality">
+        <field name="name">Iribarren (Barquisimeto)</field><field name="code">LA-IRI</field>
+        <field name="state_id" ref="ve_state_lara"/>
+        <field name="wh_municipal_rate">0.0300</field>
+    </record>
+
+    <!-- Anzoátegui -->
+    <record id="ve_mun_simón_bolivar_anzoategui" model="l10n_ve.municipality">
+        <field name="name">Simón Bolívar (Barcelona)</field><field name="code">AN-SIM</field>
+        <field name="state_id" ref="ve_state_anzoategui"/>
+        <field name="wh_municipal_rate">0.0250</field>
+    </record>
+
+    <!-- Bolívar -->
+    <record id="ve_mun_heres" model="l10n_ve.municipality">
+        <field name="name">Heres (Ciudad Bolívar)</field><field name="code">BO-HER</field>
+        <field name="state_id" ref="ve_state_bolivar"/>
+        <field name="wh_municipal_rate">0.0200</field>
+    </record>
+
+    <!-- Mérida -->
+    <record id="ve_mun_libertador_merida" model="l10n_ve.municipality">
+        <field name="name">Libertador (Mérida)</field><field name="code">ME-LIB</field>
+        <field name="state_id" ref="ve_state_merida"/>
+        <field name="wh_municipal_rate">0.0200</field>
+    </record>
+
+    <!-- Táchira -->
+    <record id="ve_mun_san_cristobal" model="l10n_ve.municipality">
+        <field name="name">San Cristóbal</field><field name="code">TA-SAN</field>
+        <field name="state_id" ref="ve_state_tachira"/>
+        <field name="wh_municipal_rate">0.0250</field>
+    </record>
+
+    <!-- ── PARROQUIAS PRINCIPALES (Capital en Libertador / DC) ───────── -->
+    <record id="ve_par_23_enero" model="l10n_ve.parish">
+        <field name="name">23 de Enero</field>
+        <field name="municipality_id" ref="ve_mun_libertador"/>
+    </record>
+    <record id="ve_par_altagracia" model="l10n_ve.parish">
+        <field name="name">Altagracia</field>
+        <field name="municipality_id" ref="ve_mun_libertador"/>
+    </record>
+    <record id="ve_par_catedral" model="l10n_ve.parish">
+        <field name="name">Catedral</field>
+        <field name="municipality_id" ref="ve_mun_libertador"/>
+    </record>
+    <record id="ve_par_candelaria" model="l10n_ve.parish">
+        <field name="name">Candelaria</field>
+        <field name="municipality_id" ref="ve_mun_libertador"/>
+    </record>
+    <record id="ve_par_el_recreo" model="l10n_ve.parish">
+        <field name="name">El Recreo</field>
+        <field name="municipality_id" ref="ve_mun_libertador"/>
+    </record>
+    <record id="ve_par_san_bernardino" model="l10n_ve.parish">
+        <field name="name">San Bernardino</field>
+        <field name="municipality_id" ref="ve_mun_libertador"/>
+    </record>
+    <record id="ve_par_san_pedro" model="l10n_ve.parish">
+        <field name="name">San Pedro</field>
+        <field name="municipality_id" ref="ve_mun_libertador"/>
+    </record>
+    <record id="ve_par_macarao" model="l10n_ve.parish">
+        <field name="name">Macarao</field>
+        <field name="municipality_id" ref="ve_mun_libertador"/>
+    </record>
+    <!-- Parroquias Chacao -->
+    <record id="ve_par_chacao" model="l10n_ve.parish">
+        <field name="name">Chacao</field>
+        <field name="municipality_id" ref="ve_mun_chacao"/>
+    </record>
+    <!-- Parroquias Baruta -->
+    <record id="ve_par_baruta" model="l10n_ve.parish">
+        <field name="name">Baruta</field>
+        <field name="municipality_id" ref="ve_mun_baruta"/>
+    </record>
+    <record id="ve_par_las_minas" model="l10n_ve.parish">
+        <field name="name">Las Minas de Baruta</field>
+        <field name="municipality_id" ref="ve_mun_baruta"/>
+    </record>
+    <record id="ve_par_nuestra_señora_del_rosario" model="l10n_ve.parish">
+        <field name="name">Nuestra Señora del Rosario</field>
+        <field name="municipality_id" ref="ve_mun_baruta"/>
+    </record>
+</odoo>

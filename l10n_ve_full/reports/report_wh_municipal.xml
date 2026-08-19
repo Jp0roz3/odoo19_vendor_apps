@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="report_wh_municipal_action" model="ir.actions.report">
+        <field name="name">Comprobante Retención Municipal</field>
+        <field name="model">account.wh.municipal</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">l10n_ve_full.report_wh_municipal_document</field>
+        <field name="report_file">l10n_ve_full.report_wh_municipal_document</field>
+        <field name="print_report_name">'Ret_Mun_' + object.name.replace('/', '_')</field>
+        <field name="binding_model_id" ref="model_account_wh_municipal"/>
+        <field name="binding_type">report</field>
+    </record>
+    <template id="report_wh_municipal_document">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="web.external_layout">
+                    <div class="page">
+                        <div class="text-center mb-4">
+                            <h2>COMPROBANTE DE RETENCIÓN MUNICIPAL (I.A.E.)</h2>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-6"><strong>N°:</strong> <span t-field="o.name"/></div>
+                            <div class="col-6 text-end"><strong>Fecha:</strong> <span t-field="o.date" t-options='{"format": "dd/MM/yyyy"}'/></div>
+                        </div>
+                        <div class="row mb-2 border p-2 bg-light">
+                            <strong>Agente de Retención:</strong>
+                            <span t-field="o.company_id.name"/> — RIF: <span t-field="o.company_id.l10n_ve_rif"/>
+                        </div>
+                        <div class="row mb-2 border p-2">
+                            <div class="col-6">
+                                <strong>Proveedor/Cliente:</strong><br/>
+                                <span t-field="o.partner_id.name"/><br/>
+                                RIF: <span t-field="o.partner_id.l10n_ve_rif"/>
+                            </div>
+                            <div class="col-6">
+                                <strong>Municipio:</strong> <span t-field="o.municipality_id.name"/><br/>
+                                <strong>Estado:</strong> <span t-field="o.state_ve_id.name"/><br/>
+                                <strong>Actividad:</strong> <span t-field="o.economic_activity"/>
+                            </div>
+                        </div>
+                        <table class="table table-bordered mt-3">
+                            <thead class="table-dark">
+                                <tr><th>Concepto</th><th class="text-end">Bs</th><th class="text-end">USD</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Base Gravable</td>
+                                    <td class="text-end"><span t-field="o.taxable_amount_bs" t-options='{"widget": "monetary", "display_currency": o.currency_bs_id}'/></td>
+                                    <td class="text-end"><span t-esc="'$ {:,.4f}'.format(o.taxable_amount_bs / o.rate if o.rate else 0)"/></td>
+                                </tr>
+                                <tr class="table-warning">
+                                    <td><strong>I.A.E. Retenido (<span t-esc="o.rate_pct"/>%)</strong></td>
+                                    <td class="text-end"><strong><span t-field="o.amount_bs" t-options='{"widget": "monetary", "display_currency": o.currency_bs_id}'/></strong></td>
+                                    <td class="text-end"><strong><span t-esc="'$ {:,.4f}'.format(o.amount_usd)"/></strong></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <div class="row mt-5">
+                            <div class="col-6 text-center border-top pt-2">Firma Agente — <span t-field="o.company_id.name"/></div>
+                            <div class="col-6 text-center border-top pt-2">Firma Proveedor — <span t-field="o.partner_id.name"/></div>
+                        </div>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+
+    <!-- ── LIBRO FISCAL ─────────────────────────────────────────────── -->
+    <record id="report_fiscal_book_action" model="ir.actions.report">
+        <field name="name">Libro Fiscal (Compras/Ventas)</field>
+        <field name="model">account.fiscal.book</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">l10n_ve_full.report_fiscal_book_document</field>
+        <field name="report_file">l10n_ve_full.report_fiscal_book_document</field>
+        <field name="print_report_name">'Libro_' + object.book_type.capitalize() + '_' + str(object.date_from)</field>
+        <field name="binding_model_id" ref="model_account_fiscal_book"/>
+        <field name="binding_type">report</field>
+    </record>
+    <template id="report_fiscal_book_document">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="web.external_layout">
+                    <div class="page">
+                        <div class="text-center mb-3">
+                            <h2>LIBRO DE <span t-esc="'COMPRAS' if o.book_type == 'purchase' else 'VENTAS'"/></h2>
+                            <p>
+                                <span t-field="o.company_id.name"/> — RIF: <span t-field="o.company_id.l10n_ve_rif"/>
+                            </p>
+                            <p>Período: <span t-field="o.date_from" t-options='{"format": "dd/MM/yyyy"}'/> al <span t-field="o.date_to" t-options='{"format": "dd/MM/yyyy"}'/></p>
+                        </div>
+                        <table class="table table-bordered table-sm" style="font-size:9px">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>Fecha</th>
+                                    <th>RIF</th>
+                                    <th>Proveedor/Cliente</th>
+                                    <th>N° Fiscal</th>
+                                    <th>Tasa BCV</th>
+                                    <th class="text-end">Base (Bs)</th>
+                                    <th class="text-end">IVA (Bs)</th>
+                                    <th class="text-end">Ret.IVA (Bs)</th>
+                                    <th class="text-end">Total (Bs)</th>
+                                    <th class="text-end">Total (USD)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-foreach="o.line_ids" t-as="line">
+                                    <tr>
+                                        <td><span t-field="line.date" t-options='{"format": "dd/MM/yy"}'/></td>
+                                        <td><span t-field="line.rif"/></td>
+                                        <td><span t-field="line.partner_id.name"/></td>
+                                        <td><span t-field="line.fiscal_number"/></td>
+                                        <td><span t-esc="'{:,.4f}'.format(line.rate)"/></td>
+                                        <td class="text-end"><span t-esc="'{:,.2f}'.format(line.base_bs)"/></td>
+                                        <td class="text-end"><span t-esc="'{:,.2f}'.format(line.iva_bs)"/></td>
+                                        <td class="text-end"><span t-esc="'{:,.2f}'.format(line.wh_iva_bs)"/></td>
+                                        <td class="text-end"><span t-esc="'{:,.2f}'.format(line.total_bs)"/></td>
+                                        <td class="text-end"><span t-esc="'$ {:,.4f}'.format(line.total_usd)"/></td>
+                                    </tr>
+                                </t>
+                            </tbody>
+                            <tfoot class="table-secondary fw-bold">
+                                <tr>
+                                    <td colspan="5">TOTALES (<span t-esc="o.line_count"/> documentos)</td>
+                                    <td class="text-end"><span t-esc="'{:,.2f}'.format(o.total_base_bs)"/></td>
+                                    <td class="text-end"><span t-esc="'{:,.2f}'.format(o.total_iva_bs)"/></td>
+                                    <td class="text-end"><span t-esc="'{:,.2f}'.format(o.total_wh_iva_bs)"/></td>
+                                    <td class="text-end"><span t-esc="'{:,.2f}'.format(o.total_amount_bs)"/></td>
+                                    <td class="text-end"><span t-esc="'$ {:,.4f}'.format(o.total_amount_usd)"/></td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                        <div class="text-center mt-3 text-muted" style="font-size:8px">
+                            Generado por Venezuela360 — Odoo 19 | JeanPerozo / Nubelco
+                        </div>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+</odoo>

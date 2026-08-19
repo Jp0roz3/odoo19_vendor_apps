@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <!-- ================================================================
+         Venezuela360: Histórico de Unidad Tributaria
+         Fuente: Providencias Administrativas SENIAT (Gaceta Oficial)
+         noupdate="1" → Protegido de actualizaciones del módulo
+    ================================================================ -->
+
+    <!-- UT 2014: Bs. 127,00 — GO 40.359 del 19/02/2014 -->
+    <record id="ut_2014" model="account.ut.history">
+        <field name="name">UT 2014 — Bs. 127,00 (GO 40.359)</field>
+        <field name="date_from">2014-02-19</field>
+        <field name="date_to">2015-02-11</field>
+        <field name="value_bs">127.00</field>
+        <field name="gaceta_oficial">40.359</field>
+        <field name="providencia">SNAT/2014/0007</field>
+        <field name="notes">Providencia Administrativa SNAT/2014/0007 de fecha 19/02/2014.</field>
+    </record>
+
+    <!-- UT 2015: Bs. 150,00 — GO 40.359 del 12/02/2015 -->
+    <record id="ut_2015" model="account.ut.history">
+        <field name="name">UT 2015 — Bs. 150,00 (GO 40.608)</field>
+        <field name="date_from">2015-02-12</field>
+        <field name="date_to">2016-02-16</field>
+        <field name="value_bs">150.00</field>
+        <field name="gaceta_oficial">40.608</field>
+        <field name="providencia">SNAT/2015/0009</field>
+    </record>
+
+    <!-- UT 2016: Bs. 177,00 — GO 40.846 del 17/02/2016 -->
+    <record id="ut_2016" model="account.ut.history">
+        <field name="name">UT 2016 — Bs. 177,00 (GO 40.846)</field>
+        <field name="date_from">2016-02-17</field>
+        <field name="date_to">2017-03-09</field>
+        <field name="value_bs">177.00</field>
+        <field name="gaceta_oficial">40.846</field>
+        <field name="providencia">SNAT/2016/0005</field>
+    </record>
+
+    <!-- UT 2017: Bs. 300,00 — GO 41.121 del 10/03/2017 -->
+    <record id="ut_2017" model="account.ut.history">
+        <field name="name">UT 2017 — Bs. 300,00 (GO 41.121)</field>
+        <field name="date_from">2017-03-10</field>
+        <field name="date_to">2018-02-21</field>
+        <field name="value_bs">300.00</field>
+        <field name="gaceta_oficial">41.121</field>
+        <field name="providencia">SNAT/2017/0009</field>
+    </record>
+
+    <!-- UT 2018: Bs. 500,00 — GO 41.347 del 22/02/2018 -->
+    <record id="ut_2018" model="account.ut.history">
+        <field name="name">UT 2018 — Bs. 500,00 (GO 41.347)</field>
+        <field name="date_from">2018-02-22</field>
+        <field name="date_to">2019-06-13</field>
+        <field name="value_bs">500.00</field>
+        <field name="gaceta_oficial">41.347</field>
+        <field name="providencia">SNAT/2018/0017</field>
+    </record>
+
+    <!-- UT 2019: Bs.S 50,00 — GO 41.650 del 14/06/2019 (reconversión) -->
+    <record id="ut_2019" model="account.ut.history">
+        <field name="name">UT 2019 — Bs.S 50,00 (GO 41.650)</field>
+        <field name="date_from">2019-06-14</field>
+        <field name="date_to">2020-01-31</field>
+        <field name="value_bs">50.00</field>
+        <field name="gaceta_oficial">41.650</field>
+        <field name="providencia">SNAT/2019/0064</field>
+        <field name="notes">Post-reconversión monetaria de agosto 2018. Expresado en Bolívares Soberanos (Bs.S).</field>
+    </record>
+
+    <!-- UT 2020: Bs.S 1.500,00 — GO 41.816 del 03/02/2020 -->
+    <record id="ut_2020" model="account.ut.history">
+        <field name="name">UT 2020 — Bs.S 1.500,00 (GO 41.816)</field>
+        <field name="date_from">2020-02-03</field>
+        <field name="date_to">2021-04-04</field>
+        <field name="value_bs">1500.00</field>
+        <field name="gaceta_oficial">41.816</field>
+        <field name="providencia">SNAT/2020/0005</field>
+    </record>
+
+    <!-- UT 2021: Bs.S 20.000,00 — GO 42.082 del 05/04/2021 -->
+    <record id="ut_2021" model="account.ut.history">
+        <field name="name">UT 2021 — Bs.S 20.000,00 (GO 42.082)</field>
+        <field name="date_from">2021-04-05</field>
+        <field name="date_to">2022-04-26</field>
+        <field name="value_bs">20000.00</field>
+        <field name="gaceta_oficial">42.082</field>
+        <field name="providencia">SNAT/2021/0013</field>
+    </record>
+
+    <!-- UT 2022: Bs. 40,00 — GO 42.340 del 27/04/2022 (reconversión digital 2021) -->
+    <record id="ut_2022" model="account.ut.history">
+        <field name="name">UT 2022 — Bs. 40,00 (GO 42.340)</field>
+        <field name="date_from">2022-04-27</field>
+        <field name="date_to">2023-03-06</field>
+        <field name="value_bs">40.00</field>
+        <field name="gaceta_oficial">42.340</field>
+        <field name="providencia">SNAT/2022/000032</field>
+        <field name="notes">Expresado en Bolívares Digitales (Bs.D) tras reconversión del 01/10/2021.</field>
+    </record>
+
+    <!-- UT 2023: Bs. 320,00 — GO 42.589 del 07/03/2023 -->
+    <record id="ut_2023" model="account.ut.history">
+        <field name="name">UT 2023 — Bs. 320,00 (GO 42.589)</field>
+        <field name="date_from">2023-03-07</field>
+        <field name="date_to">2024-03-25</field>
+        <field name="value_bs">320.00</field>
+        <field name="gaceta_oficial">42.589</field>
+        <field name="providencia">SNAT/2023/000012</field>
+    </record>
+
+    <!-- UT 2024: Bs. 9.000,00 — GO 42.888 del 26/03/2024 -->
+    <record id="ut_2024" model="account.ut.history">
+        <field name="name">UT 2024 — Bs. 9.000,00 (GO 42.888)</field>
+        <field name="date_from">2024-03-26</field>
+        <field name="value_bs">9000.00</field>
+        <field name="gaceta_oficial">42.888</field>
+        <field name="providencia">SNAT/2024/000010</field>
+        <field name="notes">UT vigente a la fecha de publicación del módulo. date_to vacío = vigente indefinidamente hasta nueva publicación.</field>
+    </record>
+</odoo>

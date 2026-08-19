@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- ================================================================
+         Venezuela360: Vistas — Retención de IVA (account.wh.iva)
+    ================================================================ -->
+
+    <!-- Lista -->
+    <record id="view_account_wh_iva_list" model="ir.ui.view">
+        <field name="name">account.wh.iva.list</field>
+        <field name="model">account.wh.iva</field>
+        <field name="arch" type="xml">
+            <list string="Retenciones IVA"
+                  decoration-info="state == 'draft'"
+                  decoration-success="state == 'posted'"
+                  decoration-warning="state == 'confirmed'"
+                  decoration-muted="state == 'cancel'">
+                <field name="name"/>
+                <field name="date"/>
+                <field name="partner_id"/>
+                <field name="move_id" string="Factura"/>
+                <field name="wh_rate" string="% Ret."/>
+                <field name="amount_bs" string="Retenido (Bs)"
+                       widget="monetary" options="{'currency_field': 'currency_bs_id'}"/>
+                <field name="amount_usd" string="Retenido (USD)"/>
+                <field name="state" widget="badge"
+                       decoration-info="state == 'draft'"
+                       decoration-success="state == 'posted'"
+                       decoration-warning="state == 'confirmed'"
+                       decoration-danger="state == 'cancel'"/>
+                <field name="currency_bs_id" invisible="1"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Formulario -->
+    <record id="view_account_wh_iva_form" model="ir.ui.view">
+        <field name="name">account.wh.iva.form</field>
+        <field name="model">account.wh.iva</field>
+        <field name="arch" type="xml">
+            <form string="Comprobante de Retención IVA">
+                <header>
+                    <button name="action_confirm" string="Confirmar"
+                            type="object" class="btn-primary"
+                            attrs="{'invisible': [('state', '!=', 'draft')]}"/>
+                    <button name="action_post" string="Contabilizar"
+                            type="object" class="btn-primary"
+                            attrs="{'invisible': [('state', '!=', 'confirmed')]}"/>
+                    <button name="action_cancel" string="Cancelar"
+                            type="object"
+                            attrs="{'invisible': [('state', 'in', ['draft', 'cancel'])]}"/>
+                    <button name="action_reset_to_draft" string="Restablecer a Borrador"
+                            type="object"
+                            attrs="{'invisible': [('state', '!=', 'cancel')]}"/>
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="draft,confirmed,posted"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="name" readonly="1"/></h1>
+                    </div>
+                    <group>
+                        <group string="Información General">
+                            <field name="wh_type"/>
+                            <field name="move_id"
+                                   attrs="{'readonly': [('state', '!=', 'draft')]}"/>
+                            <field name="partner_id" readonly="1"/>
+                            <field name="date"
+                                   attrs="{'readonly': [('state', '!=', 'draft')]}"/>
+                            <field name="invoice_date" readonly="1"/>
+                        </group>
+                        <group string="Tasa BCV">
+                            <field name="exchange_rate_id" readonly="1"/>
+                            <field name="rate" readonly="1" string="Tasa Bs/USD"/>
+                        </group>
+                    </group>
+                    <group string="Cálculo de Retención">
+                        <group>
+                            <field name="invoice_amount_untaxed_bs" readonly="1"
+                                   widget="monetary" options="{'currency_field': 'currency_bs_id'}"/>
+                            <field name="invoice_amount_tax_bs" readonly="1"
+                                   widget="monetary" options="{'currency_field': 'currency_bs_id'}"/>
+                            <field name="invoice_amount_total_bs" readonly="1"
+                                   widget="monetary" options="{'currency_field': 'currency_bs_id'}"/>
+                        </group>
+                        <group>
+                            <field name="wh_rate" string="% Retención sobre IVA"
+                                   attrs="{'readonly': [('state', '!=', 'draft')]}"/>
+                            <field name="amount_bs" readonly="1" class="fw-bold text-success"
+                                   widget="monetary" options="{'currency_field': 'currency_bs_id'}"/>
+                            <field name="amount_usd" readonly="1"/>
+                        </group>
+                    </group>
+                    <group string="Asiento Contable">
+                        <field name="journal_entry_id" readonly="1"/>
+                    </group>
+                    <field name="currency_bs_id" invisible="1"/>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="activity_ids"/>
+                    <field name="message_ids"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <!-- Búsqueda -->
+    <record id="view_account_wh_iva_search" model="ir.ui.view">
+        <field name="name">account.wh.iva.search</field>
+        <field name="model">account.wh.iva</field>
+        <field name="arch" type="xml">
+            <search string="Buscar Retención IVA">
+                <field name="name"/>
+                <field name="partner_id"/>
+                <field name="move_id"/>
+                <filter name="draft"     string="Borrador"      domain="[('state','=','draft')]"/>
+                <filter name="confirmed" string="Confirmado"    domain="[('state','=','confirmed')]"/>
+                <filter name="posted"    string="Contabilizado" domain="[('state','=','posted')]"/>
+                <filter name="cancel"    string="Cancelado"     domain="[('state','=','cancel')]"/>
+                <separator/>
+                <filter name="supplier"  string="A Proveedores" domain="[('wh_type','=','supplier')]"/>
+                <filter name="customer"  string="A Clientes"    domain="[('wh_type','=','customer')]"/>
+                <group expand="0" string="Agrupar Por">
+                    <filter name="group_partner"  string="Proveedor/Cliente" context="{'group_by':'partner_id'}"/>
+                    <filter name="group_date"     string="Fecha"             context="{'group_by':'date:month'}"/>
+                    <filter name="group_state"    string="Estado"            context="{'group_by':'state'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Acción -->
+    <record id="action_account_wh_iva" model="ir.actions.act_window">
+        <field name="name">Retenciones de IVA</field>
+        <field name="res_model">account.wh.iva</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_account_wh_iva_search"/>
+        <field name="context">{'default_wh_type': 'supplier'}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Crea el primer comprobante de retención de IVA
+            </p>
+            <p>Vincula la retención a una factura de proveedor o cliente.</p>
+        </field>
+    </record>
+</odoo>

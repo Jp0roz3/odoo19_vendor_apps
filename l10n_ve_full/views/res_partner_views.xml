@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- ================================================================
+         Venezuela360: Extensión de Vista de Contacto (res.partner)
+         Añade pestaña "Datos Fiscales Venezuela"
+    ================================================================ -->
+    <record id="view_partner_form_l10n_ve" model="ir.ui.view">
+        <field name="name">res.partner.form.l10n_ve</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="arch" type="xml">
+            <notebook position="inside">
+                <page string="Datos Fiscales Venezuela" name="l10n_ve_fiscal"
+                      attrs="{'invisible': [('country_id.code', '!=', 'VE')]}">
+                    <group>
+                        <group string="Identificación SENIAT">
+                            <field name="l10n_ve_rif" placeholder="J-12345678-9"/>
+                            <field name="l10n_ve_rif_type" readonly="1"/>
+                            <field name="l10n_ve_rif_clean" readonly="1"/>
+                            <field name="l10n_ve_seniat_registry"/>
+                        </group>
+                        <group string="Clasificación Tributaria">
+                            <field name="l10n_ve_contributor_type"/>
+                            <field name="l10n_ve_retention_agent_iva"/>
+                            <field name="l10n_ve_retention_agent_islr"/>
+                            <field name="l10n_ve_islr_concept_id"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group string="Territorialidad Venezuela">
+                            <field name="l10n_ve_state_id"/>
+                            <field name="l10n_ve_municipality_id"/>
+                            <field name="l10n_ve_parish_id"/>
+                        </group>
+                        <group string="Retención Municipal">
+                            <field name="l10n_ve_municipal_activity"/>
+                            <field name="l10n_ve_municipal_rate" string="Alícuota IAE (%)"/>
+                        </group>
+                    </group>
+                </page>
+            </notebook>
+        </field>
+    </record>
+</odoo>
