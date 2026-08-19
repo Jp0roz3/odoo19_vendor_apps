@@ -1,0 +1,476 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<templates id="template" xml:space="preserve">
+
+<!-- ═══════════════════════════════════════════════════════════════════════
+     1. PRODUCT CARD — Precio secundario sobre imagen
+═══════════════════════════════════════════════════════════════════════ -->
+<t t-name="ProductCard" t-inherit="point_of_sale.ProductCard" t-inherit-mode="extension">
+    <!-- Custom Dual Currency Price Block - Injected into product-content -->
+    <xpath expr="//div[hasclass('product-content')]" position="inside">
+        <t t-if="env.services.pos.config.show_dual_currency">
+            <div class="dc-custom-price-block">
+                <!-- USD Price (Primary) -->
+                <div class="dc-price-primary">
+                    <t t-if="env.services.pos.config.show_currency_position == 'before'">
+                        <t t-esc="env.services.pos.config.show_currency_symbol"/>
+                    </t>
+                    <t t-esc="env.utils.formatCurrency(this.price_other_currency, false)"/>
+                    <t t-if="env.services.pos.config.show_currency_position == 'after'">
+                        <t t-esc="env.services.pos.config.show_currency_symbol"/>
+                    </t>
+                </div>
+                <!-- Bs Price (Secondary) -->
+                <div class="dc-price-secondary">
+                    <t t-esc="env.utils.formatCurrency(this.price_main_currency, false)"/>
+                    <span class="dc-currency-name" t-esc="env.services.pos.currency.name"/>
+                </div>
+            </div>
+        </t>
+    </xpath>
+</t>
+
+<!-- ═══════════════════════════════════════════════════════════════════════
+     2. NAVBAR — Barra de Tasa del Día en el header
+═══════════════════════════════════════════════════════════════════════ -->
+<t t-name="point_of_sale.Navbar" t-inherit="point_of_sale.Navbar" t-inherit-mode="extension">
+    <xpath expr="//div[hasclass('status-buttons')]/Dropdown" position="before">
+        <div t-if="env.services.pos.config.show_dual_currency" class="dc-rate-bar d-flex align-items-center h-100" t-on-click="syncRate" style="cursor: pointer;" title="Clic para actualizar tasa del backend">
+            <span class="dc-rate-text px-2" style="font-size: 0.95rem; font-weight: bold; color: #000;" t-esc="this.getRateLabel()"/>
+        </div>
+        
+        <!-- Botón de Sincronizar Productos -->
+        <div class="btn btn-light rounded-0 d-flex align-items-center justify-content-center h-100 mx-2" t-on-click="syncProducts" style="cursor: pointer; background-color: #e9ecef;" title="Sincronizar Precios de Productos">
+            <i class="fa fa-refresh fa-lg" style="color: #0d6efd;"></i>
+            <span class="d-none d-md-inline ms-2 fw-bolder">Sync Productos</span>
+        </div>
+
+        <!-- Botón de Opciones Fiscales -->
+        <div t-if="env.services.pos.config.fiscal_printer_active" class="btn btn-light rounded-0 d-flex align-items-center justify-content-center h-100 mx-2" t-on-click="onFiscalPrinterButtonClick" style="cursor: pointer;" title="Configurar Impresora">
+            <i class="fa fa-print fa-lg" t-att-style="(env.services.fiscal_printer and env.services.fiscal_printer.state and env.services.fiscal_printer.state.isConnected) ? 'color: #28a745;' : 'color: #dc2626;'"></i>
+            <span class="d-none d-md-inline ms-2 fw-bolder">Fiscal</span>
+        </div>
+        <!-- Botón Desconectar -->
+        <div t-if="env.services.pos.config.fiscal_printer_active and env.services.fiscal_printer and env.services.fiscal_printer.state and env.services.fiscal_printer.state.isConnected" class="btn rounded-0 d-flex align-items-center justify-content-center h-100" t-on-click="() => env.services.fiscal_printer.disconnect()" style="cursor: pointer; background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb;" title="Desconectar Impresora">
+            <i class="fa fa-unlink fa-lg"></i>
+        </div>
+    </xpath>
+</t>
+
+<!-- ═══════════════════════════════════════════════════════════════════════
+     3. ORDER DISPLAY — Totales duales Bs / USD
+═══════════════════════════════════════════════════════════════════════ -->
+<t t-name="mai_pos_dual_currency.OrderDisplay" t-inherit="point_of_sale.OrderDisplay" t-inherit-mode="extension">
+    <xpath expr="//div[hasclass('order-summary')]" position="replace">
+        <div t-if="props.mode !== 'receipt'" class="order-summary d-flex flex-column gap-1 p-2 border-bottom fw-bolder lh-sm">
+            <div class="dc-totals-wrapper">
+
+                <!-- Columna moneda principal -->
+                <div class="dc-col dc-col-main">
+                    <div class="dc-row dc-subtotal-row">
+                        <span class="dc-label">SubTotal:</span>
+                        <span class="dc-value" t-esc="getSubtotal()"/>
+                    </div>
+                    <div class="dc-row dc-tax-row">
+                        <span class="dc-label">Impuestos:</span>
+                        <span class="dc-value" t-esc="getTax()"/>
+                    </div>
+                    <div class="dc-row dc-total-row">
+                        <span class="dc-badge">Total:</span>
+                        <span class="dc-value dc-total-value" t-esc="getTotal()"/>
+                    </div>
+                </div>
+
+                <!-- Separador vertical -->
+                <div class="dc-separator" t-if="env.services.pos.config.show_dual_currency"/>
+
+                <!-- Columna moneda secundaria -->
+                <div class="dc-col dc-col-secondary" t-if="env.services.pos.config.show_dual_currency">
+                    <div class="dc-row dc-subtotal-row">
+                        <span class="dc-label">SubTotal:</span>
+                        <span class="dc-value dc-secondary" t-esc="getSubtotal_currency_text()"/>
+                    </div>
+                    <div class="dc-row dc-tax-row">
+                        <span class="dc-label">Impuestos:</span>
+                        <span class="dc-value dc-secondary" t-esc="getTaxes_currency_text()"/>
+                    </div>
+                    <div class="dc-row dc-total-row">
+                        <span class="dc-badge dc-badge-secondary">Total:</span>
+                        <span class="dc-value dc-total-value dc-secondary" t-esc="getTotal_currency_text()"/>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- ── Contadores de artículos y cantidad total ── -->
+            <div class="d-flex border-top mt-1 pt-1 text-center align-items-center" style="font-size: 0.8rem;">
+                <div class="flex-fill border-end border-2 py-1">
+                    <div style="color: #888; font-size: 0.72rem;">Total Artículos</div>
+                    <div class="fw-bolder" t-esc="order.itemCount"/>
+                </div>
+                <div class="flex-fill py-1">
+                    <div style="color: #888; font-size: 0.72rem;">Cantidad Total</div>
+                    <div class="fw-bolder" t-esc="order.totalQuantity"/>
+                </div>
+            </div>
+
+        </div>
+    </xpath>
+</t>
+
+<!-- ═══════════════════════════════════════════════════════════════════════
+     4. PAYMENT LINES — Monto dual en líneas de pago
+═══════════════════════════════════════════════════════════════════════ -->
+<t t-name="PaymentScreenPaymentLines" t-inherit="point_of_sale.PaymentScreenPaymentLines" t-inherit-mode="extension">
+    <xpath expr="//div[hasclass('payment-amount')]" position="before">
+        <div t-if="env.services.pos.config.show_dual_currency" class="dc-payment-secondary me-3">
+            <t t-set="total_user_amount" t-value="line.get_dual_amount ? line.get_dual_amount(env.services.pos) : 0"/>
+            <span class="dc-payment-sep" style="margin-right: 4px;">/</span>
+            <span class="dc-payment-usd" style="font-size: 0.8em; color: #888;">
+                <t t-if="env.services.pos.config.show_currency_position == 'before'">
+                    <t t-esc="env.services.pos.config.show_currency_symbol"/>
+                </t>
+                <t t-esc="env.utils.formatCurrency(total_user_amount, false)"/>
+                <t t-if="env.services.pos.config.show_currency_position == 'after'">
+                    <t t-esc="env.services.pos.config.show_currency_symbol"/>
+                </t>
+            </span>
+        </div>
+    </xpath>
+</t>
+
+<!-- ═══════════════════════════════════════════════════════════════════════
+     5. PAYMENT SCREEN STATUS — Total/Remaining/Change en doble moneda
+═══════════════════════════════════════════════════════════════════════ -->
+<t t-name="PaymentScreenStatus" t-inherit="point_of_sale.PaymentScreenStatus" t-inherit-mode="extension">
+    <xpath expr="//div[hasclass('payment-status-amount')]/span[hasclass('amount')]" position="after">
+        <t t-if="env.services.pos.config.show_dual_currency">
+            <div class="dc-status-secondary fw-bolder" style="font-size: 0.65em; margin-left: 10px; align-self: flex-end; padding-bottom: 5px;">
+                <span class="dc-status-sep">/</span>
+                <t t-if="env.services.pos.config.show_currency_position == 'before'">
+                    <t t-esc="env.services.pos.config.show_currency_symbol"/>
+                </t>
+                <t t-esc="env.utils.formatCurrency(isRemaining ? totaldue_other_currency : change_other_currency, false)"/>
+                <t t-if="env.services.pos.config.show_currency_position == 'after'">
+                    <t t-esc="env.services.pos.config.show_currency_symbol"/>
+                </t>
+            </div>
+        </t>
+    </xpath>
+
+    <xpath expr="//div[hasclass('payment-status-container')]" position="after">
+        <!-- CAJA VERDE RESUMEN IGTF -->
+        <t t-if="hasIgtf || (props.order and props.order.manual_igtf_base !== null)">
+            <div class="igtf-status-container" style="background-color: #d4edda; border: 1px solid #28a745; border-radius: 4px; padding: 12px; margin-top: 15px; margin-bottom: 15px;">
+                <!-- BOTON BASE MANUAL -->
+                <div class="d-flex justify-content-end mb-2">
+                    <button class="btn btn-sm btn-outline-success" t-on-click="setManualIgtfBase" style="font-size: 0.85em; background: #fff; color: #155724; border-color: #28a745; box-shadow: 0 1px 2px rgba(0,0,0,0.05); transition: all 0.2s; cursor: pointer;">
+                        <i class="fa fa-edit me-1"></i> <t t-if="props.order and props.order.manual_igtf_base !== null">Cambiar Base Manual</t><t t-else="">Fijar Base IGTF</t>
+                    </button>
+                    <button t-if="props.order and props.order.manual_igtf_base !== null" class="btn btn-sm btn-outline-danger ms-1" t-on-click="clearManualIgtfBase" style="font-size: 0.85em; background: #fff; cursor: pointer;">
+                        <i class="fa fa-times"></i>
+                    </button>
+                </div>
+                <div class="d-flex justify-content-between" style="border-bottom: 1px solid #c3e6cb; padding-bottom: 8px; margin-bottom: 8px;">
+                    <span style="color: #155724; font-size: 1.1em; font-weight: bold;">Total Factura (con IGTF)</span>
+                    <span style="color: #155724; font-weight: bold; font-size: 1.2em;">
+                        <t t-esc="env.utils.formatCurrency(totalWithIgtf, false)"/> <t t-esc="mainSymbol"/> / <t t-esc="env.utils.formatCurrency(totalWithIgtfSec, false)"/> <t t-esc="secSymbol"/>
+                    </span>
+                </div>
+                <div class="d-flex justify-content-between" style="border-bottom: 1px dashed #c3e6cb; padding-bottom: 4px; margin-bottom: 8px;">
+                    <span style="color: #155724; font-size: 0.95em;">Base Imponible IGTF</span>
+                    <span style="color: #155724; font-size: 1em;">
+                        <t t-esc="env.utils.formatCurrency(igtfBaseReal, false)"/> <t t-esc="mainSymbol"/> / <t t-esc="env.utils.formatCurrency(igtfBaseRealSec, false)"/> <t t-esc="secSymbol"/>
+                    </span>
+                </div>
+                <div class="d-flex justify-content-between align-items-center">
+                    <div class="d-flex flex-column">
+                        <span style="color: #155724; font-size: 1.1em;">Cambio <span style="font-weight: bold;"><t t-esc="env.utils.formatCurrency(changeWithIgtfSec, false)"/> <t t-esc="secSymbol"/></span></span>
+                        <span style="color: #dc2626; font-weight: bold; font-size: 0.9em; margin-top: 4px; text-align: center;">
+                            <t t-esc="env.utils.formatCurrency(changeWithIgtfMain, false)"/> <t t-esc="mainSymbol"/>
+                        </span>
+                    </div>
+                    <div class="d-flex flex-column">
+                        <span style="color: #155724; font-size: 1.1em;">IGTF</span>
+                        <span style="color: #155724; font-size: 1.1em;">Impuesto <span style="font-weight: bold;"><t t-esc="env.utils.formatCurrency(igtfAmount, false)"/> <t t-esc="mainSymbol"/> / <t t-esc="env.utils.formatCurrency(igtfAmountSec, false)"/> <t t-esc="secSymbol"/></span></span>
+                    </div>
+                </div>
+            </div>
+        </t>
+
+        <t t-if="env.services.pos.config.show_dual_currency &amp;&amp; changePrimaryTotal > 0">
+            <div style="margin-top: 15px; border-top: 1px dashed #ced4da; padding-top: 10px; font-family: sans-serif; font-size: 13px;">
+                <div style="font-weight: bold; color: #495057; margin-bottom: 8px;">
+                    Calculador de Vuelto Mixto
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 5px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 4px 6px; border: 1px solid #ced4da; border-radius: 4px; background: #ffffff;">
+                        <label style="color: #6c757d; margin: 0; font-weight: normal;">Vuelto <t t-esc="mainSymbol"/></label>
+                        <div style="display: flex; align-items: center;">
+                            <span style="color: #495057; font-weight: bold; margin-right: 4px;"><t t-esc="mainSymbol"/></span>
+                            <input type="number" min="0" step="0.01" class="dc-change-main-input" placeholder="0.00" t-att-value="changeCalc.primaryInputStr" t-on-input="onPrimaryChangeInput" style="width: 70px; text-align: right; border: none; font-size: 13px; font-weight: bold; color: #212529; outline: none; background: transparent; padding: 0;"/>
+                        </div>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 4px 6px; border: 1px solid #ced4da; border-radius: 4px; background: #ffffff;">
+                        <div style="display: flex; align-items: center; gap: 4px;">
+                            <label style="color: #6c757d; margin: 0; font-weight: normal;">Vuelto</label>
+                            <select t-on-change="onChangeSecMethod" t-att-value="changeCalc.secMethodId" style="border: 1px solid #ced4da; border-radius: 3px; font-size: 12px; padding: 2px 4px; color: #495057; outline: none; max-width: 120px;">
+                                <t t-foreach="bsPaymentMethods" t-as="pm" t-key="pm.id">
+                                    <option t-att-value="pm.id"><t t-esc="pm.name"/></option>
+                                </t>
+                            </select>
+                        </div>
+                        <div style="display: flex; align-items: center;">
+                            <span style="color: #495057; font-weight: bold; margin-right: 4px;"><t t-esc="secSymbol"/></span>
+                            <input type="number" min="0" step="0.01" class="dc-change-bs-input" placeholder="0.00" t-att-value="changeCalc.secInputStr" t-on-input="onSecChangeInput" style="width: 70px; text-align: right; border: none; font-size: 13px; font-weight: bold; color: #212529; outline: none; background: transparent; padding: 0;"/>
+                        </div>
+                    </div>
+                </div>
+
+                <div t-if="(primaryToGive > 0 || secToGive > 0) &amp;&amp; primaryChangeRemaining > 0" style="margin-top: 6px; font-size: 12px; color: #856404; background: #fff3cd; border: 1px solid #ffeeba; padding: 4px 8px; border-radius: 4px; text-align: center;">
+                    Falta: <t t-esc="mainSymbol"/> <t t-esc="env.utils.formatCurrency(primaryChangeRemaining, undefined, { noSymbol: true })"/>
+                    <span style="color: #b58900; margin-left: 4px; font-weight: 600;">(≈ <t t-esc="secSymbol"/> <t t-esc="env.utils.formatCurrency(secChangeRemaining, undefined, { noSymbol: true })"/>)</span>
+                </div>
+                <div t-if="changeOverflowSec > 0" style="margin-top: 6px; font-size: 12px; color: #721c24; background: #f8d7da; border: 1px solid #f5c6cb; padding: 4px 8px; border-radius: 4px; text-align: center;">
+                    Exceso: <t t-esc="secSymbol"/> <t t-esc="env.utils.formatCurrency(changeOverflowSec, false)"/>
+                </div>
+                <div t-if="isChangeSplitExact" style="margin-top: 6px; font-size: 12px; color: #155724; background: #d4edda; border: 1px solid #c3e6cb; padding: 4px 8px; border-radius: 4px; text-align: center;">
+                    Vuelto cuadrado
+                </div>
+            </div>
+        </t>
+    </xpath>
+</t>
+
+<!-- ═══════════════════════════════════════════════════════════════════════
+     5.5 ORDER RECEIPT — Nota de tasa (deshabilitada intencionalmente)
+     No se muestra la tasa en el ticket por decisión del usuario.
+═══════════════════════════════════════════════════════════════════════ -->
+
+<!-- ═══════════════════════════════════════════════════════════════════════
+     6. OPENING CONTROL POPUP — Efectivo inicial USD + Bs.F con equivalencias
+═══════════════════════════════════════════════════════════════════════ -->
+<t t-name="OpeningControlPopup" t-inherit="point_of_sale.OpeningControlPopup" t-inherit-mode="extension">
+    <!-- Inject the Bs→USD equivalence hint right after the native USD field -->
+    <xpath expr="//div[hasclass('opening-cash-section')]" position="after">
+        <t t-if="dualState.isDualEnabled">
+            <!-- Tasa del día -->
+            <div class="dc-opening-rate-bar">
+                <span class="dc-rate-icon">💱</span>
+                <span t-esc="dualState.rateLabel"/>
+            </div>
+
+            <!-- Hint for the native USD field: shows Bs equivalent -->
+            <div class="dc-equiv-hint" t-if="usdToBsEquiv">
+                <span class="dc-equiv-arrow">↳</span>
+                <span class="dc-equiv-text" t-esc="usdToBsEquiv"/>
+            </div>
+
+            <!-- Hint for the Bs.F field: shows USD equivalent -->
+            <div class="dc-equiv-hint" t-if="bsToUsdEquiv">
+                <span class="dc-equiv-arrow">↱</span>
+                <span class="dc-equiv-text" t-esc="bsToUsdEquiv"/>
+            </div>
+
+            <!-- Custom field: Pago Movil (Bs.F) -->
+            <div class="dc-opening-field" style="margin-top: 15px;">
+                <label class="dc-opening-label">
+                    Saldo Inicial Pago Móvil (Bs.F)
+                </label>
+                <div class="dc-input-wrapper dc-input-bs">
+                    <span class="dc-input-prefix dc-input-prefix-bs">Bs.F</span>
+                    <input
+                        type="number"
+                        min="0"
+                        step="0.01"
+                        class="dc-opening-input dc-bs-input"
+                        placeholder="0.00"
+                        t-att-value="dualState.openingPmBs"
+                        t-on-input="onPmInput"
+                    />
+                </div>
+            </div>
+
+            <!-- Custom field: Bs.F -->
+            <div class="dc-opening-field">
+                <label class="dc-opening-label">
+                    Efectivo Inicial Bs.F
+                </label>
+                <div class="dc-input-wrapper dc-input-bs">
+                    <span class="dc-input-prefix dc-input-prefix-bs">Bs.F</span>
+                    <input
+                        type="number"
+                        min="0"
+                        step="0.01"
+                        class="dc-opening-input dc-bs-input"
+                        placeholder="0.00"
+                        t-att-value="dualState.openingCashBs"
+                        t-on-input="onBsInput"
+                    />
+                </div>
+                <!-- Hint: shows USD equivalent of Bs entered -->
+                <div class="dc-equiv-hint" t-if="bsToUsdEquiv">
+                    <span class="dc-equiv-arrow">↳</span>
+                    <span class="dc-equiv-text" t-esc="bsToUsdEquiv"/>
+                </div>
+            </div>
+
+            <!-- Resumen dual total -->
+            <div class="dc-opening-summary" t-if="dualOpeningSummary">
+                <span class="dc-summary-icon">📊</span>
+                <span class="dc-summary-text" t-esc="dualOpeningSummary"/>
+            </div>
+        </t>
+    </xpath>
+</t>
+
+<!-- ═══════════════════════════════════════════════════════════════════════
+     7. NAVBAR — Menú desplegable para Efectivo Bs.F In/Out (Odoo 19)
+     In Odoo 19, the burger menu uses DropdownItem components, not li elements.
+     We inject the Bs.F cash move button AFTER the native "Cash In/Out" DropdownItem.
+═══════════════════════════════════════════════════════════════════════ -->
+<t t-name="point_of_sale.Navbar.DualCurrency.CashMove" t-inherit="point_of_sale.Navbar" t-inherit-mode="extension">
+    <xpath expr="//DropdownItem[contains(., 'Cash In/Out')]" position="replace">
+        <DropdownItem t-if="showCashMoveButton and this.pos.cashier._role != 'minimal'" onSelected="() => this.pos.cashMove()">
+            <t t-esc="'💲 Entrada/Salida (' + (env.services.pos.currency ? env.services.pos.currency.name : 'Principal') + ')'"/>
+        </DropdownItem>
+        <DropdownItem t-if="showCashMoveButton and env.services.pos.config.show_dual_currency" onSelected="() => this.onUsdCashMoveButtonClick()">
+            <t t-esc="'💵 Entrada/Salida (' + (env.services.pos.config.show_currency_symbol || 'Secundaria') + ')'"/>
+        </DropdownItem>
+    </xpath>
+</t>
+
+<!-- ??"??"??"??"??"??"??"??"??"??"??"??"??"??"??"??"??"??"??"??"??"??"??"??"??"??"??"??"??"??"??"??"??"??"??"??"??"??"??"??"??"??"??"??"??"??"??"??"??"??"??"??"??"??"??"??"??"??"??"??"??"??"??"??"??"??"??"??"??"??"??"?
+     8. ORDERLINE ?" Dual currency price
+?"??"??"??"??"??"??"??"??"??"??"??"??"??"??"??"??"??"??"??"??"??"??"??"??"??"??"??"??"??"??"??"??"??"??"??"??"??"??"??"??"??"??"??"??"??"??"??"??"??"??"??"??"??"??"??"??"??"??"??"??"??"??"??"??"??"??"??"??"??"??"? -->
+<t t-name="Orderline" t-inherit="point_of_sale.Orderline" t-inherit-mode="extension">
+    <xpath expr="//div[hasclass('product-price')]" position="replace">
+        <div class="product-price d-inline-block text-end price fw-bolder">
+            <t t-if="env.services.pos.config.show_dual_currency">
+                <span class="dc-orderline-price me-1" style="font-size: 0.85em; color: #0d6efd;">
+                    <t t-if="env.services.pos.config.show_currency_position == 'before'">
+                        <t t-esc="env.services.pos.config.show_currency_symbol"/>
+                    </t>
+                    <t t-esc="env.utils.formatCurrency(getDualPriceTotal(vals.price), false)"/>
+                    <t t-if="env.services.pos.config.show_currency_position == 'after'">
+                        <t t-esc="env.services.pos.config.show_currency_symbol"/>
+                    </t>
+                </span>
+                <span style="color: #999; margin-right: 4px;">/</span>
+            </t>
+            <t t-out="vals.price"/>
+        </div>
+
+    </xpath>
+</t>
+
+<!-- RECIBO INTERNO (NO FISCAL) - CUMPLIMIENTO SENIAT -->
+<t t-name="mai_pos_dual_currency.OrderReceipt" t-inherit="point_of_sale.OrderReceipt" t-inherit-mode="extension">
+    <xpath expr="//ReceiptHeader" position="replace">
+        <!-- 1. ADVERTENCIA LEGAL -->
+        <div class="pos-receipt-center-align" style="font-weight: bold; font-size: 1.1em; border-bottom: 1px dashed black; padding-bottom: 5px; margin-bottom: 10px; text-align: center; word-wrap: break-word;">
+            NOTA DE ENTREGA<br/>
+            <span style="color: #dc2626; font-size: 1.05em;">SIN DERECHO A CRÉDITO FISCAL</span><br/>
+            <span style="font-size: 0.85em; font-weight: normal;">(NO VÁLIDO COMO FACTURA)</span>
+        </div>
+
+        <!-- 2. DATOS DE LA EMPRESA (Formato Fiscal) -->
+        <div class="pos-receipt-center-align" style="font-family: monospace; font-size: 0.95em; margin-bottom: 15px; text-align: center; line-height: 1.2; word-wrap: break-word;">
+            <div t-if="order.company.vat">RIF <t t-esc="order.company.vat"/></div>
+            <div t-if="order.company.name"><t t-esc="order.company.name.toUpperCase()"/></div>
+            <div t-if="order.company.street"><t t-esc="order.company.street.toUpperCase()"/></div>
+            <div t-if="order.company.city">
+                <t t-esc="order.company.city.toUpperCase()"/> 
+            </div>
+            <div t-if="order.company.zip">ZONA POSTAL <t t-esc="order.company.zip"/></div>
+        </div>
+
+        <!-- 3. DATOS DEL CLIENTE (Formato Fiscal) -->
+        <div style="font-family: monospace; font-size: 0.95em; margin-bottom: 10px; text-align: left; line-height: 1.2; word-wrap: break-word;">
+            <div>RIF/C.I.: <t t-esc="order.partner_id ? order.partner_id.vat : '000000000'"/></div>
+            <div>RAZON SOCIAL: <t t-esc="order.partner_id ? order.partner_id.name.toUpperCase() : 'CLIENTE CONTADO'"/></div>
+            <div t-if="order.partner_id and order.partner_id.city"><t t-esc="order.partner_id.city.toUpperCase()"/></div>
+            <div>CAJA: <t t-esc="order.config.name"/></div>
+            <div>CAJERO: <t t-esc="order.getCashierName() ? order.getCashierName().toUpperCase() : 'ADMIN'"/></div>
+            
+            <div>Cantidad de LÍNEAS: <t t-esc="order.lines ? order.lines.length : 0"/></div>
+        </div>
+
+        <!-- 4. DATOS DE LA NOTA -->
+        <div class="pos-receipt-center-align" style="font-family: monospace; font-size: 0.95em; margin-bottom: 10px; text-align: center;">
+            <div>NOTA DE ENTREGA</div>
+        </div>
+        
+        <div style="font-family: monospace; font-size: 0.95em; display: flex; justify-content: space-between; border-bottom: 1px dashed black; padding-bottom: 5px; margin-bottom: 10px; line-height: 1.2; word-wrap: break-word;">
+            <div t-if="order.date_order">
+                FECHA/HORA: <br/>
+                <t t-out="order.formatDateOrTime('date_order')"/>
+            </div>
+            <div style="text-align: right; max-width: 50%;">
+                <t t-esc="order.pos_reference || order.name"/>
+            </div>
+        </div>
+    </xpath>
+</t>
+
+<!-- TARJETA DE PRODUCTO: MOSTRAR STOCK -->
+<t t-name="mai_pos_dual_currency.ProductCard" t-inherit="point_of_sale.ProductCard" t-inherit-mode="extension">
+    <xpath expr="//div[hasclass('product-content')]" position="inside">
+        <t t-if="props.product and props.product.is_storable">
+            <div class="d-flex align-items-center mt-auto pt-1"
+                 t-attf-style="font-size: 0.75rem; font-weight: 700; color: {{ (qtyDisplay || 0) &lt;= 0 ? '#dc3545' : '#198754' }};">
+                <i class="fa fa-cubes me-1" style="font-size: 0.7rem;"/>
+                Stock: <t t-esc="qtyDisplay"/>
+            </div>
+        </t>
+    </xpath>
+</t>
+
+
+<!-- ═══════════════════════════════════════════════════════════════════════
+     9. ORDER RECEIPT — Totales Duales (Fase 3: Ticket Virtual)
+═══════════════════════════════════════════════════════════════════════ -->
+<t t-name="mai_pos_dual_currency.OrderReceipt.DualTotals" t-inherit="point_of_sale.OrderReceipt" t-inherit-mode="extension">
+    <xpath expr="//div[hasclass('pos-receipt-amount') and hasclass('receipt-total')]" position="before">
+        <t t-if="order.config.show_dual_currency">
+             <div class="pos-receipt-amount" style="font-size: 80%; border-bottom: 1px dashed #ccc; margin-bottom: 5px; padding-bottom: 5px;">
+                 <span class="pos-receipt-right-align">Tasa: <t t-esc="order.config.show_currency_rate"/> <t t-esc="order.config.show_currency_symbol"/>/Bs.</span>
+             </div>
+        </t>
+    </xpath>
+
+    <xpath expr="//div[hasclass('pos-receipt-amount') and hasclass('receipt-total')]" position="after">
+        <t t-if="order.config.show_dual_currency">
+            <div class="pos-receipt-amount receipt-total-dual" style="font-size: 85%; color: #555;">
+                <span class="label-total-dual">Total (<t t-esc="order.config.show_currency_symbol"/>)</span>
+                <span class="pos-receipt-right-align font-monospace">
+                    <t t-esc="env.utils.formatCurrency((order.priceIncl || 0) * order.config.show_currency_rate, false)"/>
+                </span>
+            </div>
+            
+            <!-- Vuelto en Divisa Secundaria -->
+            <div t-if="order.change > 0" class="pos-receipt-amount receipt-change-dual" style="font-size: 85%; color: #555;">
+                <span class="label-change-dual">Vuelto (<t t-esc="order.config.show_currency_symbol"/>)</span>
+                <span class="pos-receipt-right-align font-monospace">
+                    <t t-esc="env.utils.formatCurrency((order.change || 0) * order.config.show_currency_rate, false)"/>
+                </span>
+            </div>
+        </t>
+    </xpath>
+</t>
+
+<!-- ═══════════════════════════════════════════════════════════════════════
+     10. RECEIPT SCREEN — Ocultar ticket y forzar maquina fiscal
+═══════════════════════════════════════════════════════════════════════ -->
+<t t-name="mai_pos_dual_currency.ReceiptScreen" t-inherit="point_of_sale.ReceiptScreen" t-inherit-mode="extension">
+    <!-- Ocultar la previsualización del ticket si la impresora fiscal está activa -->
+    <xpath expr="//div[hasclass('pos-receipt-container')]" position="attributes">
+        <attribute name="t-att-style">env.services.pos.config.fiscal_printer_active ? 'display: none !important;' : ''</attribute>
+    </xpath>
+    
+    <!-- Ocultar opciones de recibo (Imprimir, Email, etc) si la impresora fiscal está activa -->
+    <xpath expr="//div[hasclass('receipt-options')]" position="attributes">
+        <attribute name="t-att-style">env.services.pos.config.fiscal_printer_active ? 'display: none !important;' : ''</attribute>
+    </xpath>
+</t>
+
+</templates>

@@ -1,0 +1,381 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+	<data>
+
+		<record id="pos_payment_method_view_form_inherit" model="ir.ui.view">
+			<field name="name">pos.payment.method.form.inherit</field>
+			<field name="model">pos.payment.method</field>
+			<field name="inherit_id" ref="point_of_sale.pos_payment_method_view_form"/>
+			<field name="arch" type="xml">
+				<field name="journal_id" position="after">
+					<field name="pago_usd" widget="boolean_toggle"/>
+					<field name="is_igtf" widget="boolean_toggle"/>
+				</field>
+			</field>
+		</record>
+
+		<record id="pos_order_view_inherit_form" model="ir.ui.view">
+			<field name="name">pos.order.inherit.form.view</field>
+			<field name="model">pos.order</field>
+			<field name="inherit_id" ref="point_of_sale.view_pos_pos_form"/>
+			<field name="arch" type="xml">
+				<xpath expr="//field[@name='payment_ids']/list/field[@name='amount']" position="after">
+					<field name="usd_amt"/>
+				</xpath>
+			</field>
+		</record>
+
+		<!-- Mostrar en la lista de órdenes del POS -->
+		<record id="pos_order_view_inherit_tree" model="ir.ui.view">
+			<field name="name">pos.order.inherit.tree.view</field>
+			<field name="model">pos.order</field>
+			<field name="inherit_id" ref="point_of_sale.view_pos_order_tree"/>
+			<field name="arch" type="xml">
+				<field name="state" position="before">
+					<field name="is_fiscal_printed" widget="boolean_toggle" readonly="1" optional="show"/>
+					<field name="fiscal_invoice_number" optional="show"/>
+					<field name="credit_note_number" optional="show" string="Nota de Crédito"/>
+				</field>
+			</field>
+		</record>
+
+		<!-- Filtros de búsqueda para órdenes fiscales y no fiscales -->
+		<record id="pos_order_view_inherit_search" model="ir.ui.view">
+			<field name="name">pos.order.inherit.search.view</field>
+			<field name="model">pos.order</field>
+			<field name="inherit_id" ref="point_of_sale.view_pos_order_filter"/>
+			<field name="arch" type="xml">
+				<xpath expr="//filter[@name='invoiced']" position="after">
+					<separator/>
+					<filter string="Ventas Fiscales" name="fiscal_printed" domain="[('is_fiscal_printed', '=', True)]"/>
+					<filter string="Ventas No Fiscales" name="non_fiscal_printed" domain="[('is_fiscal_printed', '=', False)]"/>
+				</xpath>
+			</field>
+		</record>
+
+		<!-- Libro de Ventas: Mostrar Facturas Fiscales en el backend (account.move) -->
+		<record id="account_move_view_inherit_tree_fiscal" model="ir.ui.view">
+			<field name="name">account.move.inherit.tree.fiscal.view</field>
+			<field name="model">account.move</field>
+			<field name="inherit_id" ref="account.view_invoice_tree"/>
+			<field name="arch" type="xml">
+				<field name="name" position="after">
+					<field name="fiscal_invoice_number" optional="show" string="Nro. Fiscal"/>
+					<field name="credit_note_number" optional="show" string="Nro. N/C Fiscal"/>
+					<field name="fiscal_machine_serial" optional="show" string="Serial HKA"/>
+				</field>
+			</field>
+		</record>
+
+
+		 <record id="res_config_settings_view_form" model="ir.ui.view">
+            <field name="name">res.config.settings.view.form.inherit</field>
+            <field name="model">res.config.settings</field>
+            <field name="inherit_id" ref="point_of_sale.res_config_settings_view_form"/>
+            <field name="arch" type="xml">
+				<xpath expr="//setting[@id='is_order_shared']" position="after">
+					<setting>
+                        <field name="show_dual_currency"/>
+                        <div class="content-group mt16" invisible="not show_dual_currency">
+                            <div>
+                                <label for="mai_license_key" string="Clave de Activación POS Dual"/>
+                                <field name="mai_license_key" password="True"/>
+                            </div>
+                        	<field name="show_currency"   />
+                        	<field name="show_currency_rate" digits="[12,12]"/>
+                        </div>
+                    </setting>
+                    <setting>
+                        <field name="fiscal_printer_active"/>
+                        <div class="content-group mt16" invisible="not fiscal_printer_active">
+                            <div class="text-muted">
+                                Comunicación con impresora fiscal (Motor Dual: Servidor Proxy HTTP Remoto/Local o WebSerial API).
+                            </div>
+                            <div class="mt8">
+                                <label for="fiscal_printer_driver" string="Driver de Impresora"/>
+                                <field name="fiscal_printer_driver"/>
+                            </div>
+                            <div class="mt8">
+                                <label for="fiscal_printer_proxy_host" string="Host Servidor Fiscal (Proxy)"/>
+                                <field name="fiscal_printer_proxy_host" placeholder="http://localhost:5000 o https://fiscal.tu-empresa.com"/>
+                            </div>
+                            <div class="mt8">
+                                <label for="fiscal_printer_com_port" string="Puerto COM Impresora"/>
+                                <field name="fiscal_printer_com_port" placeholder="COM4"/>
+                            </div>
+                        </div>
+                    </setting>
+                    <setting string="Impuestos Venezuela">
+                        <div class="content-group mt16">
+                            <div class="mt8">
+                                <label for="igtf_percentage" string="Porcentaje IGTF (%)"/>
+                                <field name="igtf_percentage"/>
+                            </div>
+                            <div class="mt8">
+                                <label for="igtf_product_id" string="Producto para IGTF"/>
+                                <div class="d-flex align-items-center">
+                                    <field name="igtf_product_id"/>
+                                    <button name="action_create_igtf_product" type="object" string="Autoconfigurar" class="btn btn-secondary ms-2" icon="fa-magic" help="Crea y configura el producto IGTF sorteando las validaciones de las localizaciones contables automáticamente."/>
+                                </div>
+                            </div>
+                            <div class="mt8" invisible="not fiscal_printer_active">
+                                <field name="igtf_machine_native_calc"/>
+                                <label for="igtf_machine_native_calc" string="La impresora calcula IGTF nativamente (Firmware V8+)"/>
+                            </div>
+                        </div>
+                    </setting>
+				</xpath>
+			</field>
+		</record>
+
+        <!-- Dual Currency: pos.session form (Opening/Closing fields) -->
+        <record id="view_pos_session_form_dual_currency" model="ir.ui.view">
+            <field name="name">pos.session.form.dual.currency</field>
+            <field name="model">pos.session</field>
+            <field name="inherit_id" ref="point_of_sale.view_pos_session_form"/>
+            <field name="arch" type="xml">
+                <field name="cash_register_balance_start" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </field>
+                <field name="cash_register_balance_start" position="after">
+                    <field name="dual_balance_start" />
+                    <field name="opening_cash_bs"  string="Apertura Bs.F"  digits="[16,2]"/>
+                    <field name="opening_cash_usd" string="Apertura USD $"  digits="[16,2]"/>
+                    <field name="opening_pm_bs" string="Apertura Pago Móvil (Bs.F)" digits="[16,2]"/>
+                </field>
+                
+                <field name="cash_register_balance_end_real" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </field>
+                <field name="cash_register_balance_end_real" position="after">
+                    <field name="dual_balance_end" />
+                    <field name="closing_cash_bs" string="Cierre Bs.F" digits="[16,2]"/>
+                    <field name="closing_cash_usd" string="Cierre USD $" digits="[16,2]"/>
+                    <field name="closing_pm_bs" string="Cierre Pago Móvil (Bs.F)" digits="[16,2]"/>
+                    <separator string="── IGTF de Sesión ──"/>
+                    <field name="igtf_total_bs" string="Total IGTF Bs.F" digits="[16,2]" readonly="1"
+                           decoration-danger="igtf_total_bs &gt; 0"/>
+                    <field name="igtf_total_usd" string="Total IGTF USD $" digits="[16,2]" readonly="1"
+                           decoration-danger="igtf_total_usd &gt; 0"/>
+                </field>
+            </field>
+        </record>
+
+        <!-- ═══════════════════════════════════════════════════════════════════
+             VISTA PAGOS (pos.payment) — DOBLE MONEDA
+             Muestra: Fecha | Método de pago | Orden | Cajero | Bs.F | Tasa | $ USD
+             ═══════════════════════════════════════════════════════════════════ -->
+        <record id="view_pos_payment_tree_dual_currency" model="ir.ui.view">
+            <field name="name">pos.payment.tree.dual.currency</field>
+            <field name="model">pos.payment</field>
+            <field name="inherit_id" ref="point_of_sale.view_pos_payment_tree"/>
+            <field name="arch" type="xml">
+                <list position="attributes">
+                    <attribute name="string">Pagos del POS</attribute>
+                    <attribute name="decoration-success">payment_method_id.pago_usd == True</attribute>
+                    <attribute name="decoration-info">payment_method_id.pago_usd == False or not payment_method_id.pago_usd</attribute>
+                </list>
+
+                <!-- Reemplazar campo amount con la dualidad completa -->
+                <field name="amount" position="replace">
+                    <field name="importe_bs_str"  string="Importe" />
+                    <field name="tasa_sesion"  string="Tasa Sesión"  digits="[16,4]" readonly="1"/>
+                    <field name="importe_usd_str"  string="Monto Ref" readonly="1"/>
+                </field>
+
+                <!-- Agregar Cajero después de pos_order_id -->
+                <field name="pos_order_id" position="after">
+
+                </field>
+            </field>
+        </record>
+        <record id="view_pos_session_list_dual_currency" model="ir.ui.view">
+            <field name="name">pos.session.list.dual.currency</field>
+            <field name="model">pos.session</field>
+            <field name="inherit_id" ref="point_of_sale.view_pos_session_tree"/>
+            <field name="arch" type="xml">
+                <field name="stop_at" position="after">
+                    <field name="opening_cash_bs"  string="Apertura Bs" optional="show" digits="[16,2]"/>
+                    <field name="opening_cash_usd" string="Apertura $"  optional="show" digits="[16,2]"/>
+                    <field name="opening_pm_bs"    string="Apertura PM Bs" optional="show" digits="[16,2]"/>
+                    <field name="closing_cash_bs"  string="Cierre Bs"   optional="show" digits="[16,2]"/>
+                    <field name="closing_cash_usd" string="Cierre $"    optional="show" digits="[16,2]"/>
+                    <field name="closing_pm_bs"    string="Cierre PM Bs" optional="show" digits="[16,2]"/>
+                    <field name="igtf_total_bs"    string="IGTF Bs.F"   optional="show" digits="[16,2]" sum="Total IGTF Bs"/>
+                    <field name="igtf_total_usd"   string="IGTF USD $"   optional="show" digits="[16,2]" sum="Total IGTF $"/>
+                </field>
+            </field>
+        </record>
+
+		<record id="view_invoice_tree_bimc" model="ir.ui.view">
+			<field name="name">account.view_invoice_tree.bimc</field>
+			<field name="model">account.move</field>
+			<field name="inherit_id" ref="account.view_invoice_tree"/>
+			<field name="arch" type="xml">
+				<field name="amount_total_in_currency_signed" position="after">
+					<field name="vef_currency_id" invisible="1"/>
+					<field name="usd_currency_id" invisible="1"/>
+					<field name="currency_rate" optional="show" widget="monetary" options="{'currency_field': 'vef_currency_id'}"/>
+					<field name="impuesto_en_vef" optional="show" widget="monetary" options="{'currency_field': 'usd_currency_id'}"/>
+					<field name="total_amount_vef" optional="show" widget="monetary" options="{'currency_field': 'usd_currency_id'}"/>
+					
+				</field>
+			</field>
+		</record>
+
+		<record id="view_move_form_bimc" model="ir.ui.view">
+			<field name="name">account.view_invoice_tree.bimc</field>
+			<field name="model">account.move</field>
+			<field name="inherit_id" ref="account.view_move_form"/>
+			<field name="arch" type="xml">
+				<field name="currency_id" position="after">
+					<field name="currency_rate" widget="monetary" options="{'currency_field': 'vef_currency_id'}" invisible="0"/>
+					<field name="impuesto_en_vef" widget="monetary" options="{'currency_field': 'vef_currency_id'}" invisible="1"/>
+					<field name="total_amount_vef" widget="monetary" options="{'currency_field': 'vef_currency_id'}" invisible="1"/>
+					<field name="vef_currency_id"/>
+				</field>
+			</field>
+		</record>
+
+		<record id="view_inherit_tree_currency" model="ir.ui.view">
+			<field name="name">res.currency.tree.inherit</field>
+			<field name="model">res.currency</field>
+			<field name="inherit_id" ref="base.view_currency_tree"/>
+			<field name="arch" type="xml">
+				<xpath expr="//field[@name='rate']" position="replace">
+					<field name="rate" digits="[12,2]"/>
+				</xpath>
+			</field>
+		</record>
+
+		<record id="view_inherit_view_currency_form" model="ir.ui.view">
+			<field name="name">res.currency.form.inherit</field>
+			<field name="model">res.currency</field>
+			<field name="inherit_id" ref="base.view_currency_form"/>
+			<field name="arch" type="xml">
+				<xpath expr="//field[@name='rate']" position="replace">
+					<field name="rate" digits="[12,2]"/>
+				</xpath>
+			</field>
+		</record>
+
+		<record id="view_currency_rate_tree_inherit" model="ir.ui.view">
+			<field name="name">res.currency.rate.tree.inherit</field>
+			<field name="model">res.currency.rate</field>
+			<field name="inherit_id" ref="base.view_currency_rate_tree"/>
+			<field name="arch" type="xml">
+				<xpath expr="//field[@name='rate']" position="replace">
+					<field name="rate" digits="[12,2]"/>
+				</xpath>
+			</field>
+		</record>
+
+		<record id="view_currency_rate_form_inherit" model="ir.ui.view">
+			<field name="name">res.currency.rate.form.inherit</field>
+			<field name="model">res.currency.rate</field>
+			<field name="inherit_id" ref="base.view_currency_rate_form"/>
+			<field name="arch" type="xml">
+				<xpath expr="//field[@name='rate']" position="replace">
+					<field name="rate" digits="[12,2]"/>
+				</xpath>
+			</field>
+		</record>
+
+
+        <!-- Vista Tree para Datos Z Diarios -->
+        <record id="view_pos_fiscal_z_report_tree" model="ir.ui.view">
+            <field name="name">pos.fiscal.z.report.tree</field>
+            <field name="model">pos.fiscal.z.report</field>
+            <field name="arch" type="xml">
+                <list string="Datos Z Diarios" create="0" edit="0" delete="0">
+                    <field name="pos_config_id" />
+                    <field name="z_number" string="Número Z"/>
+                    <field name="date" string="Fecha Z"/>
+                    <field name="time" string="Hora Z"/>
+                    <field name="first_invoice_number" string="Factura Inicial"/>
+                    <field name="last_invoice_number" string="Última Factura"/>
+                    <field name="exempt_sales_bs" string="Exento (Bs.F)" sum="Total Exento"/>
+                    <field name="taxable_sales_bs" string="Base (Bs.F)" sum="Total BI"/>
+                    <field name="tax_amount_bs" string="IVA (Bs.F)" sum="Total IVA"/>
+                    <field name="total_sales_bs" string="Total (Bs.F)" sum="Total Bs.F"/>
+                    <field name="total_sales_usd" string="Total ($)" sum="Total USD" optional="show"/>
+                </list>
+            </field>
+        </record>
+
+        <!-- Vista Form para Datos Z Diarios (Solo Lectura) -->
+        <record id="view_pos_fiscal_z_report_form" model="ir.ui.view">
+            <field name="name">pos.fiscal.z.report.form</field>
+            <field name="model">pos.fiscal.z.report</field>
+            <field name="arch" type="xml">
+                <form string="Datos Z Diarios" create="0" edit="0" delete="0">
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="name" readonly="1"/>
+                                <field name="pos_config_id" readonly="1"/>
+                                <field name="z_number" readonly="1"/>
+                            </group>
+                            <group>
+                                <field name="date" readonly="1"/>
+                                <field name="time" readonly="1"/>
+                            </group>
+                        </group>
+                        <group string="Facturación Fiscal (Legal Bs.F)">
+                            <group>
+                                <field name="first_invoice_number" readonly="1"/>
+                                <field name="last_invoice_number" readonly="1"/>
+                            </group>
+                            <group>
+                                <field name="exempt_sales_bs" readonly="1"/>
+                                <field name="taxable_sales_bs" readonly="1"/>
+                                <field name="tax_amount_bs" readonly="1"/>
+                                <field name="igtf_amount_bs" readonly="1"/>
+                                <field name="total_sales_bs" readonly="1"/>
+                            </group>
+                        </group>
+                        <group string="Referencia USD ($)">
+                            <group>
+                                <field name="exempt_sales_usd" readonly="1"/>
+                                <field name="taxable_sales_usd" readonly="1"/>
+                            </group>
+                            <group>
+                                <field name="tax_amount_usd" readonly="1"/>
+                                <field name="igtf_amount_usd" readonly="1"/>
+                                <field name="total_sales_usd" readonly="1"/>
+                            </group>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <!-- Acción de Ventana para Datos Z Diarios -->
+        <record id="action_pos_fiscal_z_report" model="ir.actions.act_window">
+            <field name="name">Datos Z Diarios</field>
+            <field name="res_model">pos.fiscal.z.report</field>
+            <field name="view_mode">list,form</field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_empty_folder">
+                    No hay Reportes Z registrados.
+                </p>
+                <p>
+                    Los Reportes Z emitidos desde el Punto de Venta usando la impresora fiscal aparecerán aquí automáticamente.
+                </p>
+            </field>
+        </record>
+
+        <!-- Elemento de Menú en la barra superior del POS -->
+        <menuitem id="menu_pos_fiscal_z_report"
+                  name="Datos Z Diarios"
+                  parent="point_of_sale.menu_point_root"
+                  action="action_pos_fiscal_z_report"
+                  sequence="20"/>
+
+        <!-- Cambiar nombre de la aplicación raíz en el Dashboard principal de Odoo -->
+        <record id="point_of_sale.menu_point_root" model="ir.ui.menu">
+            <field name="name">VenPOS 360</field>
+        </record>
+
+	</data>
+</odoo>

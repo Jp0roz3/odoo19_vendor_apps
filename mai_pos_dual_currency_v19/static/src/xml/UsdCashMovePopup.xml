@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates id="template" xml:space="preserve">
+    <t t-name="point_of_sale.UsdCashMovePopup">
+        <Dialog contentClass="'cash-move-popup'">
+            <t t-set-slot="header">
+                <h4 class="modal-title mb-0 fw-bold" style="font-size: 1.1rem; letter-spacing: 0.5px;">
+                    💵 Efectivo <t t-esc="secondarySymbol"/> — Entrada / Salida
+                </h4>
+            </t>
+            <main class="cash-move-body" style="padding: 20px;">
+                <div class="cash-move d-flex flex-column gap-3">
+
+                    <!-- Botones Entrada / Salida -->
+                    <div class="input-group shadow-sm" style="border-radius: 8px; overflow: hidden;">
+                        <button t-on-click="() => this.onClickButton('in')"
+                                class="input-type btn flex-fill py-2 fw-bold fs-6"
+                                t-att-class="{ 'btn-success': state.type === 'in', 'btn-outline-secondary': state.type !== 'in' }">
+                            ↑ Entrada de efectivo
+                        </button>
+                        <button t-on-click="() => this.onClickButton('out')"
+                                class="input-type btn flex-fill py-2 fw-bold fs-6"
+                                t-att-class="{ 'btn-danger': state.type === 'out', 'btn-outline-secondary': state.type !== 'out' }">
+                            ↓ Salida de efectivo
+                        </button>
+                    </div>
+
+                    <!-- Etiqueta y campo de monto en Bs.F usando el Input nativo del POS -->
+                    <div class="d-flex flex-column gap-1">
+                        <label class="fw-bold text-secondary" style="font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.8px;">
+                            Monto en <t t-esc="secondarySymbol"/>
+                        </label>
+                        <Input
+                            tModel="[state, 'amount']"
+                            icon="{type: 'string', value: secondarySymbol}"
+                            iconOnLeftSide="true"
+                            isValid.bind="env.utils.isValidFloat"
+                            autofocus="true"
+                        />
+                    </div>
+
+                    <!-- Equivalente en USD (informativo, solo aparece si hay monto válido) -->
+                    <div t-if="usdEquivalent" class="d-flex align-items-center gap-2 px-3 py-2"
+                         style="background: #f0f9ff; border-left: 3px solid #0ea5e9; border-radius: 4px;">
+                        <span style="font-size: 1.1rem;">≈</span>
+                        <span class="fw-bold" style="font-size: 1rem;" t-esc="usdEquivalent"/>
+                        <span class="text-muted fw-bold" t-esc="mainSymbol"/>
+                        <span class="text-muted" style="font-size: 0.8rem;">(equivalente)</span>
+                    </div>
+
+                    <!-- Razón del movimiento -->
+                    <div class="form-floating">
+                        <textarea class="form-control" placeholder="Razón del movimiento..."
+                                  name="reason" id="reason-bs"
+                                  t-model="state.reason"
+                                  style="height: 90px; border-radius: 8px;" />
+                        <label for="reason-bs" class="text-muted">Razón del movimiento</label>
+                    </div>
+
+                    <!-- Mensaje de error -->
+                    <div t-if="dualMove.hasError"
+                         class="alert alert-danger py-2 mb-0" role="alert">
+                        <i class="fa fa-exclamation-circle me-2"/>
+                        <t t-esc="dualMove.errorMessage"/>
+                    </div>
+
+                </div>
+            </main>
+
+            <t t-set-slot="footer">
+                <div class="d-flex w-100 gap-2">
+                    <button class="button confirm btn btn-lg fw-bold flex-fill"
+                            t-on-click="confirm"
+                            t-att-disabled="!isAmountValid"
+                            t-att-class="{ 'btn-primary': state.type === 'in', 'btn-danger': state.type === 'out' }"
+                            style="border-radius: 8px;">
+                        <t t-if="state.type === 'in'">✅ Confirmar Entrada</t>
+                        <t t-else="">🔴 Confirmar Salida</t>
+                    </button>
+                    <button class="button cancel btn btn-lg btn-outline-secondary fw-bold"
+                            t-on-click="props.close"
+                            style="border-radius: 8px;">
+                        Descartar
+                    </button>
+                </div>
+            </t>
+        </Dialog>
+    </t>
+</templates>

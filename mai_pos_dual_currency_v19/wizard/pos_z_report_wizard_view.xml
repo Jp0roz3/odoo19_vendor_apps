@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Form View for the Wizard -->
+        <record id="view_pos_z_report_wizard_form" model="ir.ui.view">
+            <field name="name">pos.z.report.wizard.form</field>
+            <field name="model">pos.z.report.wizard</field>
+            <field name="arch" type="xml">
+                <form string="Reporte Z de Conciliación">
+                    <group>
+                        <group>
+                            <field name="date_from"/>
+                        </group>
+                        <group>
+                            <field name="date_to"/>
+                        </group>
+                    </group>
+                    <footer>
+                        <button name="print_report" string="Imprimir" type="object" class="btn-primary"/>
+                        <button string="Cancelar" class="btn-secondary" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <!-- Action to open the wizard -->
+        <record id="action_pos_z_report_wizard" model="ir.actions.act_window">
+            <field name="name">Report Z Details</field>
+            <field name="res_model">pos.z.report.wizard</field>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+        </record>
+
+        <!-- Menu Item -->
+        <menuitem id="menu_pos_z_report_details"
+                  name="Report Z Details"
+                  parent="point_of_sale.menu_point_rep"
+                  action="action_pos_z_report_wizard"
+                  sequence="100"/>
+    </data>
+</odoo>

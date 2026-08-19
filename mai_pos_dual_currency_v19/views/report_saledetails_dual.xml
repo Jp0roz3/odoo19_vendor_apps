@@ -1,0 +1,247 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <template id="dual_currency_value">
+            <t t-if="show_dual_currency">
+                <t t-set="sec_amount" t-value="amount * rate_company if is_main_usd else (amount / rate_company if rate_company else 0.0)" />
+                <div class="text-end" style="white-space: nowrap;">
+                    <t t-if="is_main_usd">
+                        <div style="font-weight: bold; color: #1a5fa8;">
+                            <span t-out="amount" t-options="{'widget': 'float', 'precision': 2}"/> <t t-esc="main_symbol"/>
+                        </div>
+                        <div style="font-weight: bold; color: #dc2626; font-size: 0.9em;">
+                            <span t-out="sec_amount" t-options="{'widget': 'float', 'precision': 2}"/> <t t-esc="sec_symbol"/>
+                        </div>
+                    </t>
+                    <t t-else="">
+                        <div style="font-weight: bold; color: #1a5fa8;">
+                            <span t-out="sec_amount" t-options="{'widget': 'float', 'precision': 2}"/> <t t-esc="sec_symbol"/>
+                        </div>
+                        <div style="font-weight: bold; color: #dc2626; font-size: 0.9em;">
+                            <span t-out="amount" t-options="{'widget': 'float', 'precision': 2}"/> <t t-esc="main_symbol"/>
+                        </div>
+                    </t>
+                </div>
+            </t>
+            <t t-else="">
+                <t t-if="currency['position']">
+                    <span t-out="amount" t-options="{'widget': 'float', 'precision': currency['precision']}"/> <span t-out='currency["symbol"]'/>
+                </t>
+                <t t-else="">
+                    <span t-out='currency["symbol"]'/> <span t-out="amount" t-options="{'widget': 'float', 'precision': currency['precision']}"/>
+                </t>
+            </t>
+        </template>
+
+        <template id="report_saledetails_dual" inherit_id="point_of_sale.pos_session_sales_details">
+            <!-- Orderlines: category total -->
+            <xpath expr="//div[@id='sales']//tr[@t-foreach='products']/td[5]" position="replace">
+                <td class="text-end" style="background-color: #dadada;">
+                    <t t-call="mai_pos_dual_currency_v19.dual_currency_value">
+                        <t t-set="amount" t-value="category['total']"/>
+                    </t>
+                </td>
+            </xpath>
+            <!-- Orderlines: line base_amount -->
+            <xpath expr="//div[@id='sales']//tr[@t-foreach=&quot;category['products']&quot;]/td[5]" position="replace">
+                <td class="text-end">
+                    <t t-call="mai_pos_dual_currency_v19.dual_currency_value">
+                        <t t-set="amount" t-value="line['base_amount']"/>
+                    </t>
+                    <t t-if='line["discount"] != 0'>
+                        Disc: <span t-out='line["discount"]'>45</span>%
+                    </t>
+                </td>
+            </xpath>
+            <!-- Orderlines: Total -->
+            <xpath expr="//div[@id='sales']//tr[last()]/td[5]" position="replace">
+                <td class="text-end" style="background-color: #b1b1b1;">
+                    <strong>
+                        <t t-call="mai_pos_dual_currency_v19.dual_currency_value">
+                            <t t-set="amount" t-value="products_info['total']"/>
+                        </t>
+                    </strong>
+                </td>
+            </xpath>
+
+            <!-- Taxes on sales: tax amount -->
+            <xpath expr="//div[@id='taxe_sales']//tr[@t-foreach='taxes']/td[2]" position="replace">
+                <td class="text-end">
+                    <t t-call="mai_pos_dual_currency_v19.dual_currency_value">
+                        <t t-set="amount" t-value="tax['tax_amount']"/>
+                    </t>
+                </td>
+            </xpath>
+            <!-- Taxes on sales: base amount -->
+            <xpath expr="//div[@id='taxe_sales']//tr[@t-foreach='taxes']/td[3]" position="replace">
+                <td class="text-end">
+                    <t t-call="mai_pos_dual_currency_v19.dual_currency_value">
+                        <t t-set="amount" t-value="tax['base_amount']"/>
+                    </t>
+                </td>
+            </xpath>
+            <!-- Taxes on sales: totals -->
+            <xpath expr="//div[@id='taxe_sales']//tr[last()]/td[2]" position="replace">
+                <td class="text-end" style="background-color: #b1b1b1;">
+                    <strong>
+                        <t t-call="mai_pos_dual_currency_v19.dual_currency_value">
+                            <t t-set="amount" t-value="taxes_info['tax_amount']"/>
+                        </t>
+                    </strong>
+                </td>
+            </xpath>
+            <xpath expr="//div[@id='taxe_sales']//tr[last()]/td[3]" position="replace">
+                <td class="text-end" style="background-color: #b1b1b1;">
+                    <strong>
+                        <t t-call="mai_pos_dual_currency_v19.dual_currency_value">
+                            <t t-set="amount" t-value="taxes_info['base_amount']"/>
+                        </t>
+                    </strong>
+                </td>
+            </xpath>
+
+            <!-- Refunds: category total -->
+            <xpath expr="//div[@id='refunds']//tr[@t-foreach='refund_products']/td[5]" position="replace">
+                <td class="text-end" style="background-color: #dadada;">
+                    <t t-call="mai_pos_dual_currency_v19.dual_currency_value">
+                        <t t-set="amount" t-value="category['total']"/>
+                    </t>
+                </td>
+            </xpath>
+            <!-- Refunds: line base_amount -->
+            <xpath expr="//div[@id='refunds']//tr[@t-foreach=&quot;category['products']&quot;]/td[5]" position="replace">
+                <td class="text-end">
+                    <t t-call="mai_pos_dual_currency_v19.dual_currency_value">
+                        <t t-set="amount" t-value="line['base_amount']"/>
+                    </t>
+                    <t t-if='line["discount"] != 0'>
+                        Disc: <span t-out='line["discount"]'>0</span>%
+                    </t>
+                </td>
+            </xpath>
+            <!-- Refunds: Total -->
+            <xpath expr="//div[@id='refunds']//tr[last()]/td[5]" position="replace">
+                <td class="text-end" style="background-color: #b1b1b1;">
+                    <strong>
+                        <t t-call="mai_pos_dual_currency_v19.dual_currency_value">
+                            <t t-set="amount" t-value="refund_info['total']"/>
+                        </t>
+                    </strong>
+                </td>
+            </xpath>
+
+            <!-- Refunds Taxes: tax amount -->
+            <xpath expr="//div[@id='taxe_refunds']//tr[@t-foreach='refund_taxes']/td[2]" position="replace">
+                <td class="text-end">
+                    <t t-call="mai_pos_dual_currency_v19.dual_currency_value">
+                        <t t-set="amount" t-value="tax['tax_amount']"/>
+                    </t>
+                </td>
+            </xpath>
+            <!-- Refunds Taxes: base amount -->
+            <xpath expr="//div[@id='taxe_refunds']//tr[@t-foreach='refund_taxes']/td[3]" position="replace">
+                <td class="text-end">
+                    <t t-call="mai_pos_dual_currency_v19.dual_currency_value">
+                        <t t-set="amount" t-value="tax['base_amount']"/>
+                    </t>
+                </td>
+            </xpath>
+            <!-- Refunds Taxes: totals -->
+            <xpath expr="//div[@id='taxe_refunds']//tr[last()]/td[2]" position="replace">
+                <td class="text-end" style="background-color: #b1b1b1;">
+                    <strong>
+                        <t t-call="mai_pos_dual_currency_v19.dual_currency_value">
+                            <t t-set="amount" t-value="refund_taxes_info['tax_amount']"/>
+                        </t>
+                    </strong>
+                </td>
+            </xpath>
+            <xpath expr="//div[@id='taxe_refunds']//tr[last()]/td[3]" position="replace">
+                <td class="text-end" style="background-color: #b1b1b1;">
+                    <strong>
+                        <t t-call="mai_pos_dual_currency_v19.dual_currency_value">
+                            <t t-set="amount" t-value="refund_taxes_info['base_amount']"/>
+                        </t>
+                    </strong>
+                </td>
+            </xpath>
+
+            <!-- Payments -->
+            <xpath expr="//div[@id='payments']//tr[@t-foreach='payments']/td[2]" position="replace">
+                <td class="text-end">
+                    <t t-call="mai_pos_dual_currency_v19.dual_currency_value">
+                        <t t-set="amount" t-value="payment['total']"/>
+                    </t>
+                </td>
+            </xpath>
+
+            <!-- Invoices -->
+            <xpath expr="//div[@id='invoices']//tr[@t-foreach='invoiceSession[&quot;invoices&quot;]']/td[3]" position="replace">
+                <td class="text-end">
+                    <t t-call="mai_pos_dual_currency_v19.dual_currency_value">
+                        <t t-set="amount" t-value="invoice['total']"/>
+                    </t>
+                </td>
+            </xpath>
+            <!-- Invoices total -->
+            <xpath expr="//div[@id='invoices']//tr[last()]/td[3]" position="replace">
+                <td class="text-end" style="background-color: #b1b1b1;">
+                    <strong>
+                        <t t-call="mai_pos_dual_currency_v19.dual_currency_value">
+                            <t t-set="amount" t-value="invoiceTotal"/>
+                        </t>
+                    </strong>
+                </td>
+            </xpath>
+
+            <!-- Session Control -->
+            <xpath expr="//t[@id='closing_session']//div[@style='break-inside: avoid;']/strong[contains(text(), 'Total:')]" position="replace">
+                <strong>Total: 
+                    <t t-call="mai_pos_dual_currency_v19.dual_currency_value">
+                        <t t-set="amount" t-value="currency['total_paid']"/>
+                    </t>
+                </strong>
+            </xpath>
+            
+            <xpath expr="//t[@id='closing_session']//t[@t-if=&quot;method['count']&quot;]/tr[1]/td[3]" position="replace">
+                <td class="text-end">
+                    <t t-call="mai_pos_dual_currency_v19.dual_currency_value">
+                        <t t-set="amount" t-value="method['final_count']"/>
+                    </t>
+                </td>
+            </xpath>
+            <xpath expr="//t[@id='closing_session']//t[@t-if=&quot;method['count']&quot;]/tr[1]/td[4]" position="replace">
+                <td t-if="(state == 'closed' or state == 'multiple') and payments" class="text-end">
+                    <t t-call="mai_pos_dual_currency_v19.dual_currency_value">
+                        <t t-set="amount" t-value="method['money_counted']"/>
+                    </t>
+                </td>
+            </xpath>
+            <xpath expr="//t[@id='closing_session']//t[@t-if=&quot;method['count']&quot;]/tr[1]/td[5]" position="replace">
+                <td t-if="(state == 'closed' or state == 'multiple') and payments" class="text-end">
+                    <t t-call="mai_pos_dual_currency_v19.dual_currency_value">
+                        <t t-set="amount" t-value="method['money_difference']"/>
+                    </t>
+                </td>
+            </xpath>
+            <xpath expr="//t[@id='closing_session']//tr[@t-foreach=&quot;method['cash_moves']&quot;]/td[3]" position="replace">
+                <td class="text-end">
+                    <t t-call="mai_pos_dual_currency_v19.dual_currency_value">
+                        <t t-set="amount" t-value="move['amount']"/>
+                    </t>
+                </td>
+            </xpath>
+            
+            <!-- Discounts -->
+            <xpath expr="//div[@id='discounts']//div[hasclass('row')][2]//div[hasclass('col-12')]" position="replace">
+                <div class="col-12">
+                    <strong>Amount of discounts</strong>:
+                    <t t-call="mai_pos_dual_currency_v19.dual_currency_value">
+                        <t t-set="amount" t-value="discount_amount"/>
+                    </t>
+                </div>
+            </xpath>
+
+        </template>
+    </data>
+</odoo>

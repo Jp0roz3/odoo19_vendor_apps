@@ -1,0 +1,72 @@
+{
+    "name": "VenPOS 360 | Doble Moneda | Nubelco",
+    "version": "19.0.1.0.0",
+    "sequence": 1,
+    "description": """
+        Módulo completo de doble moneda para el Punto de Venta de Odoo 19.
+        - Apertura de caja con efectivo inicial en Bs y USD por separado
+        - Tasa del día visible en la barra del POS
+        - Entrada/Salida de efectivo con campos duales Bs + USD
+        - Cierre con balance detallado en ambas monedas
+        - Precios en Bs y USD en todos los productos
+        - Totales duales en la pantalla de orden y pagos
+    """,
+    "summary": "POS con doble moneda Bs.F / USD. Único desarrollador con soporte directo. Disponible v17 a v19",
+    "category": "Point Of Sale",
+    "license": "OPL-1",
+    "author": "JeanPerozo/Nubelco",
+    "depends": ["point_of_sale"],
+    "data": [
+        "security/ir.model.access.csv",
+        "data/cron.xml",
+        "wizard/printer_options_views.xml",
+        "wizard/pos_z_report_wizard_view.xml",
+        "views/views.xml",
+        "views/pos_config_view.xml",
+        "views/report_saledetails_dual.xml",
+        "report/pos_z_report_action.xml",
+        "report/pos_z_report_template.xml",
+    ],
+    "assets": {
+        "web.assets_backend": [
+            "mai_pos_dual_currency_v19/static/src/js/FiscalPrinterService.js",
+            "mai_pos_dual_currency_v19/static/src/js/FiscalPrinterAction.js",
+        ],
+        "point_of_sale._assets_pos": [
+            # Utilities (must load first)
+            "mai_pos_dual_currency_v19/static/src/js/dual_currency_utils.js",
+            # Component patches
+            # FiscalPrinterService ya está en web.assets_backend — no duplicar
+            "mai_pos_dual_currency_v19/static/src/js/FiscalPrinterPopup.js",
+            "mai_pos_dual_currency_v19/static/src/js/models.js",
+            "mai_pos_dual_currency_v19/static/src/js/OrderDisplay.js",
+            "mai_pos_dual_currency_v19/static/src/js/PaymentScreen.js",
+            "mai_pos_dual_currency_v19/static/src/js/product_image_patch.js",
+            "mai_pos_dual_currency_v19/static/src/js/PaymentScreenStatus.js",
+            "mai_pos_dual_currency_v19/static/src/js/ProductCard.js",
+            "mai_pos_dual_currency_v19/static/src/js/Navbar.js",
+            "mai_pos_dual_currency_v19/static/src/js/OpeningControl.js",
+            "mai_pos_dual_currency_v19/static/src/js/UsdCashMovePopup.js",
+            "mai_pos_dual_currency_v19/static/src/js/ClosePosPopup.js",
+            "mai_pos_dual_currency_v19/static/src/js/CashMoveListPopup.js",
+            "mai_pos_dual_currency_v19/static/src/js/PaymentReportReceipt.js",
+            "mai_pos_dual_currency_v19/static/src/js/PartnerDetailsEdit.js",
+            
+            # Styles
+            "mai_pos_dual_currency_v19/static/src/css/pos.css",
+            
+            # Templates
+            "mai_pos_dual_currency_v19/static/src/xml/pos.xml",
+            "mai_pos_dual_currency_v19/static/src/xml/UsdCashMovePopup.xml",
+            "mai_pos_dual_currency_v19/static/src/xml/ClosePosPopup_table.xml",
+            "mai_pos_dual_currency_v19/static/src/xml/CashMoveListPopup_table.xml",
+            "mai_pos_dual_currency_v19/static/src/xml/FiscalPrinterPopup.xml",
+            "mai_pos_dual_currency_v19/static/src/xml/sales_detail_report.xml",
+            "mai_pos_dual_currency_v19/static/src/xml/PaymentReportReceipt.xml",
+        ],
+    },
+    "images": ["static/description/main_screenshot.png"],
+    "installable": True,
+    "auto_install": False,
+    "application": True,
+}

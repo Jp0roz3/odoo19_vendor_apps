@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_pos_printer_options_form" model="ir.ui.view">
+        <field name="name">pos.printer.options.form</field>
+        <field name="model">pos.printer.options</field>
+        <field name="arch" type="xml">
+            <form string="Opciones de Impresora">
+                <sheet>
+                    <div style="background-color: #dcedf5; padding: 10px; font-weight: bold; font-size: 14px; margin-bottom: 10px;">
+                        Reporte Z
+                    </div>
+                    <div style="color: #6c757d; margin-bottom: 15px;">Por Número</div>
+                    <group>
+                        <field name="pos_config_id" invisible="1"/>
+                        <field name="z_start" class="w-25"/>
+                        <field name="z_end" class="w-25"/>
+                    </group>
+                    <div class="mt-3 mb-4">
+                        <button string="Imprimir Reporte Z" name="action_print_z_report" type="object" class="btn-primary"/>
+                    </div>
+
+                    <div style="background-color: #f8f9fa; padding: 10px; font-weight: bold; font-size: 14px; margin-bottom: 10px; border-top: 1px solid #dee2e6;">
+                        Memoria de Auditoría
+                    </div>
+                    <group>
+                        <field name="audit_start" class="w-25"/>
+                        <field name="audit_end" class="w-25"/>
+                    </group>
+                    <div class="mt-3 mb-4">
+                        <button string="Imprimir Facturas" name="action_print_invoices" type="object" class="btn-primary" style="margin-right: 10px;"/>
+                        <button string="Imprimir Notas de Crédito" name="action_print_credit_notes" type="object" class="btn-secondary"/>
+                    </div>
+                </sheet>
+                <footer>
+                    <button string="Cancelar" class="btn-secondary" special="cancel" data-hotkey="z"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_pos_printer_options" model="ir.actions.act_window">
+        <field name="name">Opciones de Impresora</field>
+        <field name="res_model">pos.printer.options</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+</odoo>

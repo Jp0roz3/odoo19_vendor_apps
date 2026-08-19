@@ -1,0 +1,623 @@
+/* =========================================================================
+   DUAL CURRENCY POS — Professional Design System
+   mai_pos_dual_currency | Nubelco
+   ========================================================================= */
+
+/* ── Variables de Diseño ─────────────────────────────────────────────────── */
+:root {
+    --dc-primary:    #6c3e8f;   /* Morado corporativo */
+    --dc-secondary:  #e8a020;   /* Dorado USD */
+    --dc-bs-color:   #dc2626;   /* Rojo Bs */
+    --dc-usd-color:  #1a5fa8;   /* Azul USD */
+    --dc-danger:     #c0392b;
+    --dc-success:    #27ae60;
+    --dc-bg-card:    #f8f9ff;
+    --dc-border:     #e0e0ef;
+    --dc-text-main:  #2d2d3a;
+    --dc-text-light: #7a7a9a;
+    --dc-radius:     10px;
+    --dc-radius-sm:  6px;
+    --dc-shadow:     0 2px 12px rgba(108,62,143,0.10);
+    --dc-shadow-lg:  0 4px 24px rgba(108,62,143,0.18);
+}
+
+/* ── 1. BARRA DE TASA DEL DÍA (Header) ──────────────────────────────────── */
+.dc-rate-bar {
+    display: flex;
+    align-items: center;
+    background: transparent;
+    color: #2d2d3a;
+    padding: 0;
+    margin-right: 15px;
+    font-size: 0.95rem;
+    font-weight: 800;
+}
+
+.dc-rate-icon {
+    font-size: 16px;
+}
+
+.dc-rate-text {
+    font-size: 13px;
+    font-weight: 800;
+}
+
+.dc-rate-live-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #2ecc71;
+    animation: dc-blink 1.4s ease-in-out infinite;
+    box-shadow: 0 0 6px rgba(46,204,113,0.8);
+}
+
+@keyframes dc-blink {
+    0%, 100% { opacity: 1; }
+    50%       { opacity: 0.2; }
+}
+
+/* ── 2. PRODUCT PRICE BLOCK (REPLACES NATIVE) ─────────────────────────────── */
+/* Hide Odoo's native price so our dual-price block can take over */
+.product.btn .product-content span.price-tag,
+.product.btn .product-content .price-tag,
+.product.btn .product-content .product-price {
+    display: none !important;
+}
+
+/* Our Custom Dual Price Block */
+.dc-custom-price-block {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin-top: auto;
+    width: 100%;
+    padding: 4px 0 2px 0;
+    line-height: 1.1;
+    border-top: 1px dashed var(--dc-border);
+}
+
+.dc-price-primary {
+    font-size: 1.15rem;
+    font-weight: 900;
+    color: var(--dc-usd-color, #1a5fa8);
+}
+
+.dc-price-secondary {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--dc-bs-color, #dc2626);
+    opacity: 0.85;
+}
+
+.dc-currency-name {
+    margin-left: 2px;
+}
+
+/* ── 3. ORDER TOTALS DUAL ────────────────────────────────────────────────── */
+.dc-totals-wrapper {
+    display: flex;
+    justify-content: flex-end;
+    align-items: stretch;
+    gap: 0;
+    width: 100%;
+}
+
+.dc-col {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 6px 12px;
+}
+
+.dc-col-main {
+    background: rgba(220, 38, 38, 0.06); /* Fondo rojo suave */
+    border-radius: var(--dc-radius) 0 0 var(--dc-radius);
+}
+
+.dc-col-secondary {
+    background: rgba(26,95,168,0.06);
+    border-radius: 0 var(--dc-radius) var(--dc-radius) 0;
+    min-width: 140px;
+}
+
+.dc-separator {
+    width: 2px;
+    background: linear-gradient(to bottom, transparent, #c0bfe0, transparent);
+    margin: 4px 0;
+}
+
+.dc-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+}
+
+.dc-label {
+    color: var(--dc-text-light);
+    font-weight: 500;
+    font-size: 13px;
+}
+
+.dc-value {
+    font-weight: 700;
+    color: var(--dc-text-main);
+}
+
+.dc-secondary {
+    color: var(--dc-usd-color) !important;
+    font-weight: 700;
+}
+
+.dc-total-row {
+    border-top: 1px solid var(--dc-border);
+    padding-top: 4px;
+    margin-top: 2px;
+}
+
+.dc-total-value {
+    font-size: 17px;
+    font-weight: 900;
+}
+
+.dc-badge {
+    background: var(--dc-bs-color);
+    color: #fff;
+    padding: 1px 7px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.dc-badge-secondary {
+    background: var(--dc-usd-color);
+    color: #fff;
+    padding: 1px 7px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+/* ── 4. PAYMENT SECONDARY AMOUNT ─────────────────────────────────────────── */
+.dc-payment-secondary {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    margin-left: 6px;
+}
+
+.dc-payment-sep {
+    color: #aaa;
+    font-weight: 400;
+}
+
+.dc-payment-usd {
+    color: var(--dc-usd-color);
+    font-weight: 700;
+    font-size: 14px;
+}
+
+/* ── 5. PAYMENT STATUS ──────────────────────────────────────────────────── */
+.dc-status-total {
+    display: flex !important;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.dc-status-sep {
+    color: #bbb;
+    font-weight: 300;
+    font-size: 18px;
+}
+
+.dc-status-secondary {
+    color: var(--dc-usd-color);
+    font-weight: 700;
+    font-size: 16px;
+}
+
+.dc-status-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    font-size: 13px;
+    margin-top: 2px;
+}
+
+.dc-status-label {
+    color: var(--dc-text-light);
+}
+
+/* ── 6. OPENING POPUP ────────────────────────────────────────────────────── */
+.dc-opening-rate-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: linear-gradient(90deg, #5d3b7d, #8e44ad);
+    color: #fff;
+    padding: 8px 16px;
+    border-radius: var(--dc-radius);
+    font-size: 13px;
+    font-weight: 700;
+    margin: 12px 0 8px 0;
+    box-shadow: var(--dc-shadow);
+}
+
+.dc-opening-field {
+    margin: 10px 0;
+}
+
+.dc-opening-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--dc-text-main);
+    margin-bottom: 6px;
+}
+
+.dc-currency-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--dc-usd-color);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 900;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+}
+
+.dc-input-wrapper {
+    display: flex;
+    align-items: center;
+    border: 2px solid var(--dc-usd-color);
+    border-radius: var(--dc-radius-sm);
+    overflow: hidden;
+    background: #fff;
+    box-shadow: 0 2px 8px rgba(26,95,168,0.12);
+    transition: box-shadow 0.2s;
+}
+
+.dc-input-wrapper:focus-within {
+    box-shadow: 0 0 0 3px rgba(26,95,168,0.22);
+}
+
+.dc-input-prefix {
+    background: var(--dc-usd-color);
+    color: #fff;
+    padding: 8px 12px;
+    font-weight: 900;
+    font-size: 14px;
+    min-width: 36px;
+    text-align: center;
+}
+
+.dc-opening-input {
+    border: none !important;
+    outline: none !important;
+    padding: 8px 12px;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--dc-usd-color);
+    width: 100%;
+    background: transparent;
+}
+
+.dc-opening-summary {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--dc-bg-card);
+    border: 1px solid var(--dc-border);
+    border-radius: var(--dc-radius-sm);
+    padding: 8px 12px;
+    font-size: 13px;
+    color: var(--dc-primary);
+    font-weight: 600;
+    margin-top: 6px;
+}
+
+/* Live equivalence hint under each opening field */
+.dc-equiv-hint {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin: 3px 0 6px 4px;
+    font-size: 12px;
+    color: #666;
+    font-style: italic;
+}
+.dc-equiv-arrow {
+    font-size: 14px;
+    color: var(--dc-primary, #7c3aed);
+}
+.dc-equiv-text {
+    font-weight: 600;
+    color: var(--dc-primary, #7c3aed);
+}
+
+/* ── 7. CASH MOVE POPUP ─────────────────────────────────────────────────── */
+.dc-cashmove-separator {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 12px 0 8px 0;
+}
+
+.dc-or-text {
+    font-size: 12px;
+    color: var(--dc-text-light);
+    font-style: italic;
+    border-top: 1px solid var(--dc-border);
+    padding-top: 8px;
+    display: block;
+    width: 100%;
+}
+
+.dc-cashmove-usd-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 6px;
+}
+
+.dc-cashmove-currency-badge {
+    background: var(--dc-usd-color);
+    color: #fff;
+    font-weight: 900;
+    font-size: 13px;
+    padding: 6px 10px;
+    border-radius: var(--dc-radius-sm);
+    min-width: 36px;
+    text-align: center;
+}
+
+.dc-cashmove-input-group {
+    display: flex;
+    align-items: center;
+    border: 2px solid var(--dc-usd-color);
+    border-radius: var(--dc-radius-sm);
+    overflow: hidden;
+    flex: 1;
+    background: #fff;
+}
+
+.dc-cashmove-prefix {
+    background: var(--dc-usd-color);
+    color: #fff;
+    padding: 7px 10px;
+    font-weight: 900;
+}
+
+.dc-cashmove-usd-input {
+    border: none !important;
+    outline: none !important;
+    padding: 7px 10px;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--dc-usd-color);
+    width: 100%;
+    background: transparent;
+}
+
+.dc-bs-preview {
+    color: var(--dc-bs-color);
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.dc-cashmove-summary {
+    background: var(--dc-bg-card);
+    border: 1px solid var(--dc-border);
+    border-radius: var(--dc-radius-sm);
+    padding: 6px 12px;
+    font-size: 13px;
+    color: var(--dc-primary);
+    margin-top: 6px;
+}
+
+/* ── 8. CLOSE POS POPUP ─────────────────────────────────────────────────── */
+.dc-close-rate-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: linear-gradient(90deg, #2c3e50, #4a5568);
+    color: #fff;
+    padding: 8px 16px;
+    border-radius: var(--dc-radius);
+    font-size: 13px;
+    margin-bottom: 12px;
+}
+
+.dc-close-section {
+    margin: 10px 0;
+}
+
+.dc-close-section-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--dc-text-main);
+    margin: 0 0 6px 0;
+}
+
+.dc-currency-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+.dc-dot-bs  { background: var(--dc-bs-color); }
+.dc-dot-usd { background: var(--dc-usd-color); }
+
+.dc-close-input-group {
+    display: flex;
+    align-items: center;
+    border: 2px solid var(--dc-border);
+    border-radius: var(--dc-radius-sm);
+    overflow: hidden;
+    background: #fff;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.dc-close-bs-input:focus, .dc-close-usd-input:focus {
+    outline: none !important;
+}
+
+.dc-close-section:has(.dc-close-bs-input:focus-within) .dc-close-input-group {
+    border-color: var(--dc-bs-color);
+    box-shadow: 0 0 0 3px rgba(220,38,38,0.15); /* Sombra roja */
+}
+
+.dc-close-section:has(.dc-close-usd-input:focus-within) .dc-close-input-group {
+    border-color: var(--dc-usd-color);
+    box-shadow: 0 0 0 3px rgba(26,95,168,0.15);
+}
+
+.dc-close-prefix {
+    padding: 8px 14px;
+    font-weight: 900;
+    font-size: 14px;
+    color: #fff;
+    min-width: 42px;
+    text-align: center;
+}
+
+.dc-close-bs-input ~ .dc-close-prefix, .dc-close-section:nth-child(1) .dc-close-prefix  {
+    background: var(--dc-bs-color);
+}
+
+.dc-close-section:nth-child(2) .dc-close-prefix  {
+    background: var(--dc-usd-color);
+}
+
+.dc-close-input {
+    border: none !important;
+    outline: none !important;
+    padding: 8px 12px;
+    font-size: 20px;
+    font-weight: 800;
+    width: 100%;
+    background: transparent;
+}
+
+.dc-close-bs-input  { color: var(--dc-bs-color); }
+.dc-close-usd-input { color: var(--dc-usd-color); }
+
+/* Balance Card */
+.dc-close-balance-card {
+    background: linear-gradient(135deg, #f0f4ff, #e8f4e8);
+    border: 1px solid var(--dc-border);
+    border-radius: var(--dc-radius);
+    padding: 14px 18px;
+    margin: 12px 0;
+    box-shadow: var(--dc-shadow);
+}
+
+.dc-balance-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 4px 0;
+    font-size: 14px;
+}
+
+.dc-balance-label {
+    color: var(--dc-text-light);
+    font-weight: 500;
+}
+
+.dc-balance-val {
+    font-weight: 700;
+    color: var(--dc-text-main);
+}
+
+.dc-balance-total-row {
+    border-top: 1px solid var(--dc-border);
+    margin-top: 6px;
+    padding-top: 8px;
+    font-size: 16px;
+}
+
+.dc-balance-diff-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    margin-top: 8px;
+    padding: 6px 10px;
+    border-radius: var(--dc-radius-sm);
+    font-weight: 700;
+}
+
+.dc-diff-over {
+    background: rgba(39,174,96,0.12);
+    color: var(--dc-success);
+}
+
+.dc-diff-under {
+    background: rgba(192,57,43,0.10);
+    color: var(--dc-danger);
+}
+
+/* Nuevas clases para los span en el popup de cierre */
+.dc-bs-val {
+    color: var(--dc-bs-color);
+    font-weight: normal;
+}
+
+.dc-usd-val {
+    color: var(--dc-usd-color);
+    font-weight: normal;
+}
+
+.dc-close-sep {
+    color: #999;
+    margin: 0 4px;
+    font-weight: normal;
+}
+
+/* Fix for Odoo 19 paymentline squishing when adding elements */
+.paymentlines .paymentline {
+    flex-shrink: 0 !important;
+}
+
+/* ── Product Card Image Fix ───────────────────────────────────────────────── */
+/* El POS por defecto usa object-fit:cover que recorta logos.
+   Usamos object-fit:contain con fondo blanco para mostrar la imagen completa. */
+
+.product.btn .product-img {
+    background-color: #ffffff !important;
+    border-radius: 0.5rem 0.5rem 0 0;
+    overflow: hidden;
+    padding: 0;
+}
+
+.product.btn .product-img img {
+    object-fit: contain !important;
+    background-color: #ffffff !important;
+    padding: 8px !important; /* Añadimos padding con important para dar respiro al logo */
+}
+
+/* Asegurar que el área de contenido (nombre + stock) quede bien */
+.product.btn .product-content {
+    display: flex !important;
+    flex-direction: column !important;
+    min-height: 2.5rem;
+}
+
+/* Stock badge al fondo del cuadro de contenido */
+.product.btn .product-content .d-flex.mt-auto {
+    margin-top: auto !important;
+}

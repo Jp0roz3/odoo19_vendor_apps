@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates id="template" xml:space="preserve">
+
+    <!-- Sub-template para imprimir la línea dual (USD y Bs.F) -->
+    <t t-name="mai_pos_dual_currency_v19.DualCurrencyLine">
+        <t t-if="pos.config.show_dual_currency">
+            <t t-set="isMainUSD" t-value="pos.currency.name === 'USD'" />
+            <t t-set="rate" t-value="pos.config.rate_company" />
+            <t t-set="mainValue" t-value="formatCurrency(amount, false)" />
+            <t t-set="secValue" t-value="formatCurrency(isMainUSD ? amount * rate : amount / rate, false)" />
+            <t t-if="isMainUSD">
+                <span style="color: red; font-weight: normal;"><t t-esc="secValue"/> Bs.F</span> / <span style="font-weight: normal;">$ <t t-esc="mainValue"/></span>
+            </t>
+            <t t-else="">
+                <span style="color: red; font-weight: normal;"><t t-esc="mainValue"/> Bs.F</span> / <span style="font-weight: normal;">$ <t t-esc="secValue"/></span>
+            </t>
+        </t>
+        <t t-else="">
+            <span style="font-weight: normal;"><t t-esc="formatCurrency(amount, false)"/> <t t-esc="pos.currency.symbol"/></span>
+        </t>
+    </t>
+
+    <t t-name="point_of_sale.SaleDetailsReport_dual" t-inherit="point_of_sale.SaleDetailsReport" t-inherit-mode="extension" owl="1">
+        
+        <!-- Reemplazo para Products -->
+        <xpath expr="//t[@t-foreach='products']//div[hasclass('responsive-price')]/span[hasclass('pos-receipt-right-align')]" position="replace">
+            <span class="pos-receipt-right-align">
+                <t t-esc="Math.round(line.quantity * Math.pow(10, pos.dp['Product Unit of Measure'])) / Math.pow(10, pos.dp['Product Unit of Measure'])" />
+                <t t-if="line.uom !== 'Units'">
+                    <t t-esc="' ' + line.uom" />
+                </t>
+                <span class="ms-1" style="padding-left: 5px;"/>
+                <t t-call="mai_pos_dual_currency_v19.DualCurrencyLine">
+                    <t t-set="amount" t-value="line.base_amount" />
+                </t>
+            </span>
+        </xpath>
+
+        <!-- Reemplazo para Refunds -->
+        <xpath expr="//t[@t-foreach='refund_products']//div[hasclass('responsive-price')]/span[hasclass('pos-receipt-right-align')]" position="replace">
+            <span class="pos-receipt-right-align">
+                <t t-esc="Math.round(line.quantity * Math.pow(10, pos.dp['Product Unit of Measure'])) / Math.pow(10, pos.dp['Product Unit of Measure'])" />
+                <t t-if="line.uom !== 'Units'">
+                    <t t-esc="' ' + line.uom" />
+                </t>
+                <span class="ms-1" style="padding-left: 5px;"/>
+                <t t-call="mai_pos_dual_currency_v19.DualCurrencyLine">
+                    <t t-set="amount" t-value="line.base_amount" />
+                </t>
+            </span>
+        </xpath>
+
+        <!-- Reemplazo para Payments -->
+        <xpath expr="//div[@t-foreach='payments']/span" position="replace">
+            <span class="pos-receipt-right-align">
+                <t t-call="mai_pos_dual_currency_v19.DualCurrencyLine">
+                    <t t-set="amount" t-value="payment['total']" />
+                </t>
+            </span>
+        </xpath>
+
+        <!-- Reemplazo para Taxes -->
+        <xpath expr="//div[@t-foreach='taxes']/span" position="replace">
+            <span class="pos-receipt-right-align">
+                <t t-call="mai_pos_dual_currency_v19.DualCurrencyLine">
+                    <t t-set="amount" t-value="tax.tax_amount" />
+                </t>
+            </span>
+        </xpath>
+
+        <!-- Reemplazo para Total -->
+        <xpath expr="//span[@t-esc='formatCurrency(currency.total_paid, false)']" position="replace">
+            <span class="pos-receipt-right-align">
+                <t t-call="mai_pos_dual_currency_v19.DualCurrencyLine">
+                    <t t-set="amount" t-value="currency.total_paid" />
+                </t>
+            </span>
+        </xpath>
+
+    </t>
+
+</templates>

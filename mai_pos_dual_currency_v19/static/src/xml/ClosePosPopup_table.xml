@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates id="template" xml:space="preserve">
+    <t t-name="point_of_sale.ClosePosPopup" t-inherit="point_of_sale.ClosePosPopup" t-inherit-mode="extension">
+
+        <!-- Orders Total Header Override -->
+        <xpath expr="//div[hasclass('total-orders')]/span[hasclass('amount')]" position="replace">
+            <span class="amount" t-out="getDualFormattedAmount(props.orders_details.amount)"/>
+        </xpath>
+
+        <!-- Overview: Default Cash -->
+        <xpath expr="//div[hasclass('payment-methods-overview')]/div[@t-if='pos.config.cash_control']" position="replace">
+            <div t-if="pos.config.cash_control" class="w-100 mb-3 pb-3 border-bottom">
+                <t t-set="diff" t-value="getDifference(props.default_cash_details.id)" />
+                <t t-set="counted" t-value="state.payments[props.default_cash_details.id]?.counted || '0'" />
+                <t t-set="isDefaultUSD" t-value="_isUsdPaymentMethod(pos.config.payment_method_ids.find(p => p.id === props.default_cash_details.id))"/>
+                <div class="d-flex align-items-center justify-content-between fs-3" t-att-class="{'text-danger': isDefaultUSD}">
+                    <span t-esc="props.default_cash_details.name" />
+                    <span t-out="getMainFormattedAmount(getExpectedAmount(props.default_cash_details.id), props.default_cash_details.id)" />
+                </div>
+                <div class="d-flex align-items-center justify-content-between text-muted border-start ps-2" t-att-class="{'text-danger': isDefaultUSD}">
+                    <span>Apertura</span>
+                    <span t-out="getMainFormattedAmount(getOpeningAmount(props.default_cash_details.id), props.default_cash_details.id)" />
+                </div>
+                <div t-if="props.default_cash_details.payment_amount" class="d-flex align-items-center justify-content-between text-muted border-start ps-2" t-att-class="{'text-danger': isDefaultUSD}">
+                    <span>Pagos en <t t-esc="props.default_cash_details.name"/></span>
+                    <span class="align-top" t-out="getMainFormattedAmount(props.default_cash_details.payment_amount, props.default_cash_details.id)"/>
+                </div>
+                <t t-set="moveData" t-value="cashMoveData"/>
+                <AccordionItem disabled="moveData.moves.length === 0">
+                    <t t-set-slot="header">
+                        <div class="name-amount d-flex justify-content-between w-100" t-att-class="{'text-danger': isDefaultUSD}">
+                            <span>Entrada y salida de efectivo</span>
+                            <span>
+                                <span class="cash-sign me-1" t-esc="moveData.total &lt; 0 ? '-' : '+'" />
+                                <span t-out="getMainFormattedAmount(Math.abs(moveData.total), props.default_cash_details.id)" />
+                            </span>
+                        </div>
+                    </t>
+                    <t t-set-slot="content">
+                        <div class="border-start small text-muted d-flex flex-column ps-2 ms-1">
+                            <div t-foreach="moveData.moves" t-as="payment" t-key="payment.id" class="d-flex justify-content-between">
+                                <span t-esc="payment.name"/>
+                                <span>
+                                    <span class="cash-sign me-1" t-esc="payment.amount &lt; 0 ? '-' : '+'" />
+                                    <span t-out="getMainFormattedAmount(Math.abs(payment.amount), props.default_cash_details.id)" />
+                                </span>
+                            </div>
+                        </div>
+                    </t>
+                </AccordionItem>
+                <div class="d-flex align-items-center justify-content-between text-muted border-start ps-2" t-att-class="{'text-danger': isDefaultUSD}">
+                    <span>Contado</span>
+                    <span t-out="getMainFormattedCounted(state.payments[props.default_cash_details.id]?.counted, props.default_cash_details.id)" />
+                </div>
+                <div class="d-flex align-items-center justify-content-between text-muted border-start ps-2 mt-2 pt-1 border-top" t-att-class="{'text-danger fw-bold': diff, 'text-danger': isDefaultUSD}">
+                    <span>Diferencia</span>
+                    <span class="cash-difference" t-out="getMainFormattedAmount(diff, props.default_cash_details.id)" />
+                </div>
+            </div>
+        </xpath>
+
+        <!-- Overview: Other Payment Methods -->
+        <xpath expr="//div[hasclass('payment-methods-overview')]/div[@t-foreach='props.non_cash_payment_methods']" position="replace">
+            <div class="w-100 mb-3 pb-3 border-bottom" t-foreach="props.non_cash_payment_methods" t-as="pm" t-key="pm.id">
+                <t t-set="isPagoMovil" t-value="pm.name and pm.name.toLowerCase().includes('pago')"/>
+                <t t-set="_showDiff" t-value="(pm.type === 'bank' and (pm.number !== 0 or isPagoMovil)) or pm.type === 'cash'" />
+                <t t-set="diff" t-value="_showDiff ? getDifference(pm.id) : 0" />
+                <t t-set="counted" t-value="_showDiff ? env.utils.parseValidFloat(state.payments[pm.id]?.counted || '0') : 0" />
+                <t t-set="isUSDMethod" t-value="_isUsdPaymentMethod(pos.config.payment_method_ids.find(p => p.id === pm.id))"/>
+                
+                <div class="d-flex align-items-center justify-content-between fs-3" t-att-class="{'text-danger': isUSDMethod}">
+                    <span t-esc="pm.name" />
+                    <span t-out="getDualFormattedAmount(getExpectedAmount(pm.id), pm.id)" />
+                </div>
+
+                <t t-if="pm.type === 'cash' or isPagoMovil">
+                    <div class="d-flex align-items-center justify-content-between text-muted border-start ps-2 mt-2" t-att-class="{'text-danger': isUSDMethod}">
+                        <span>Apertura (Equiv.)</span>
+                        <span t-out="getDualFormattedAmount(getOpeningAmount(pm.id), pm.id)" />
+                    </div>
+                    <div class="d-flex align-items-center justify-content-between text-muted border-start ps-2" t-att-class="{'text-danger': isUSDMethod}">
+                        <span>Pagos en <t t-esc="pm.name"/></span>
+                        <span t-out="getDualFormattedAmount(pm.amount || 0, pm.id)" />
+                    </div>
+                    <t t-set="pmMoveData" t-value="getCashMoveDataFor(pm.id)"/>
+                    <t t-if="pmMoveData and pmMoveData.moves and pmMoveData.moves.length > 0">
+                        <AccordionItem disabled="pmMoveData.moves.length === 0">
+                            <t t-set-slot="header">
+                                <div class="name-amount d-flex justify-content-between w-100" t-att-class="{'text-danger': isUSDMethod}">
+                                    <span>Entrada y salida de efectivo</span>
+                                    <span>
+                                        <span class="cash-sign me-1" t-esc="pmMoveData.total &lt; 0 ? '-' : '+'" />
+                                        <span t-out="getDualFormattedAmount(Math.abs(pmMoveData.total), pm.id)" />
+                                    </span>
+                                </div>
+                            </t>
+                            <t t-set-slot="content">
+                                <div class="border-start small text-muted d-flex flex-column ps-2 ms-1">
+                                    <div t-foreach="pmMoveData.moves" t-as="payment" t-key="payment.id" class="d-flex justify-content-between">
+                                        <span t-esc="payment.name"/>
+                                        <span>
+                                            <span class="cash-sign me-1" t-esc="payment.amount &lt; 0 ? '-' : '+'" />
+                                            <span t-out="getDualFormattedAmount(Math.abs(payment.amount), pm.id)" />
+                                        </span>
+                                    </div>
+                                </div>
+                            </t>
+                        </AccordionItem>
+                    </t>
+                </t>
+
+                <div class="d-flex align-items-center justify-content-between text-muted border-start ps-2" t-att-class="{'text-danger': isUSDMethod}">
+                    <span>Contado</span>
+                    <span t-out="getFormattedCounted(state.payments[pm.id]?.counted, pm.id)" />
+                </div>
+                <div class="d-flex align-items-center justify-content-between text-muted border-start ps-2 mt-2 pt-1 border-top" t-att-class="{'text-danger fw-bold': diff, 'text-danger': isUSDMethod}">
+                    <span>Diferencia</span>
+                    <span t-out="getDualFormattedAmount(diff, pm.id)" />
+                </div>
+            </div>
+        </xpath>
+
+        <!-- Count Inputs: Default cash -->
+        <xpath expr="//div[@t-if='pos.config.cash_control']/label" position="replace">
+            <label class="form-label d-flex align-items-center gap-1">
+                Conteo de Caja 
+                <t t-set="_pm_def" t-value="pos.config.payment_method_ids.find(p => p.id === props.default_cash_details.id)"/>
+                <t t-set="_isBs" t-value="this._isBsPaymentMethod(_pm_def)"/>
+                <span class="badge ms-2" t-att-style="!_isBs ? 'background-color:#007bff;' : 'background-color:#dc3545;'">
+                    <t t-esc="!_isBs ? '$' : 'Bs.F'"/>
+                </span>
+            </label>
+        </xpath>
+
+        <!-- Count Inputs: Other methods -->
+        <xpath expr="(//div[@t-foreach='props.non_cash_payment_methods'])[2]" position="replace">
+            <div class="w-100 mb-3" t-foreach="props.non_cash_payment_methods" t-as="pm" t-key="pm.id">
+                <t t-set="isPagoMovil" t-value="pm.name and pm.name.toLowerCase().includes('pago')"/>
+                <t t-set="_showDiff" t-value="(pm.type === 'bank' and (pm.number !== 0 or isPagoMovil)) or pm.type === 'cash'" />
+                <t t-if="_showDiff">
+                    <span class="d-flex align-items-center gap-1">
+                        Conteo <t t-esc="pm.name" />
+                        <t t-set="_pm_obj" t-value="pos.config.payment_method_ids.find(p => p.id === pm.id)"/>
+                        <t t-set="_isBs2" t-value="this._isBsPaymentMethod(_pm_obj)"/>
+                        <span class="badge ms-2" t-att-style="!_isBs2 ? 'background-color:#007bff;' : 'background-color:#dc3545;'">
+                            <t t-esc="!_isBs2 ? '$' : 'Bs.F'"/>
+                        </span>
+                    </span>
+                    <div class="d-flex w-100 gap-2 mt-1">
+                        <Input tModel="[state.payments[pm.id], 'counted']"
+                            isValid.bind="env.utils.isValidFloat" class="'w-100'" />
+                        <!-- Botón de dinero extra para efectivo Bs.F -->
+                        <button t-if="pm.type === 'cash'" class="icon fa fa-money btn btn-secondary" t-on-click="() => this.openSecondaryDetailsPopup(pm.id)" />
+                        <button class="icon fa fa-clone btn btn-secondary" t-on-click="() => this.autoFillPMCount(pm.id)" />
+                    </div>
+                </t>
+            </div>
+        </xpath>
+
+        <!-- Footer Customization -->
+        <xpath expr="//t[@t-set-slot='footer']" position="replace">
+            <t t-set-slot="footer">
+                <div class="w-100 d-flex flex-column gap-3 p-2">
+                    <div class="d-flex flex-wrap gap-2 w-100">
+                        <button class="button highlight btn btn-primary flex-grow-1" t-att-disabled="!canConfirm()" t-on-click="confirm" style="background-color: #714B67 !important; border-color: #714B67 !important; padding: 12px; font-weight: bold;">Cerrar caja registradora</button>
+                        <button class="button btn btn-secondary flex-grow-1" t-att-disabled="!canCancel()" t-on-click="cancel" style="padding: 12px; font-weight: bold;">Descartar</button>
+                    </div>
+
+                    <div class="d-flex flex-wrap gap-2 w-100">
+                        <button t-if="pos.showCashMoveButton" class="button btn btn-secondary flex-grow-1" t-on-click="() => this.openCashMoveDetails()">Detalles entrada y salida de efectivo</button>
+                        <button class="button icon btn btn-secondary flex-grow-1" t-on-click="downloadSalesReport" title="Venta Diaria">Venta Diaria 📥</button>
+                        <button class="button icon btn btn-secondary flex-grow-1" t-on-click="printPaymentReport" title="Informe de Pagos">Informe Pagos 🖨️</button>
+                        <button class="button icon btn btn-secondary flex-grow-1" t-on-click="printReportX" title="Reporte X">Reporte X 🖨️</button>
+                        <button class="button icon btn btn-secondary flex-grow-1" t-on-click="printReportZ" title="Reporte Z">Reporte Z 🖨️</button>
+                    </div>
+                </div>
+            </t>
+        </xpath>
+
+    </t>
+</templates>

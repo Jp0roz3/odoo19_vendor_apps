@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <template id="report_z_details_template">
+            <t t-call="web.html_container">
+                <t t-call="web.basic_layout">
+                    <div class="page">
+                        
+                        <!-- Main Box -->
+                        <div style="border: 1px solid black; position: relative; margin-bottom: 8px;">
+                            <!-- Company Info -->
+                            <div style="font-size: 11px; font-weight: bold; position: absolute; top: 5px; left: 10px;">
+                                <span t-esc="company.name"/><br/>
+                                <span>R.I.F.: <t t-esc="company.vat or company.company_registry or 'N/A'"/></span>
+                            </div>
+                            
+                            <!-- Title -->
+                            <div class="text-center" style="font-size: 12px; font-weight: bold; padding-top: 25px; padding-bottom: 5px;">
+                                REPORTE Z DE CONCILIACIÓN (IMPRESORAS FISCALES) (Fecha: Desde <t t-esc="date_from"/> Hasta <t t-esc="date_to"/>)
+                            </div>
+                            
+                            <!-- Thick Line -->
+                            <div style="border-top: 2px solid black; width: 100%;"></div>
+                            
+                            <!-- Table -->
+                            <table class="table table-sm table-borderless" style="width: 100%; font-size: 11px; margin-bottom: 0; color: black;">
+                                <thead>
+                                    <tr style="font-weight: bold;">
+                                        <th class="text-start" style="width: 12%; padding-left: 10px;">Fecha</th>
+                                        <th class="text-center" style="width: 12%;">Número<br/>de Z</th>
+                                        <th class="text-center" style="width: 20%;">Total de Ventas<br/>Incluye I.V.A.</th>
+                                        <th class="text-center" style="width: 14%;">IGTF<br/>Percibido</th>
+                                        <th class="text-center" style="width: 14%;">Ventas<br/>Exentas</th>
+                                        <th class="text-center" style="width: 14%;">Base<br/>Imponible</th>
+                                        <th class="text-center" style="width: 14%;">%<br/>Alic</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <t t-foreach="records" t-as="r">
+                                        <tr>
+                                            <td class="text-start" style="padding-left: 10px;"><span t-esc="r['date']"/></td>
+                                            <td class="text-center"><span t-esc="r['z_number']"/></td>
+                                            <td class="text-center"><span t-esc="r['total_sales']" t-options='{"widget": "float", "precision": 2}'/></td>
+                                            <td class="text-center"><span t-esc="r['igtf']" t-options='{"widget": "float", "precision": 2}'/></td>
+                                            <td class="text-center"><span t-esc="r['exempt']" t-options='{"widget": "float", "precision": 2}'/></td>
+                                            <td class="text-center"><span t-esc="r['taxable']" t-options='{"widget": "float", "precision": 2}'/></td>
+                                            <td class="text-center"><span t-esc="r['alic_pct']" t-options='{"widget": "float", "precision": 2}'/></td>
+                                        </tr>
+                                    </t>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Totals Box -->
+                        <div style="border: 1px solid black; padding-top: 2px; padding-bottom: 2px;">
+                            <table class="table table-sm table-borderless" style="width: 100%; font-size: 11px; font-weight: bold; margin-bottom: 0; color: black;">
+                                <tr>
+                                    <td class="text-start" style="width: 24%; padding-left: 10px;" colspan="2">Totales</td>
+                                    <td class="text-center" style="width: 20%;"><span t-esc="sum(r['total_sales'] for r in records)" t-options='{"widget": "float", "precision": 2}'/></td>
+                                    <td class="text-center" style="width: 14%;"><span t-esc="sum(r['igtf'] for r in records)" t-options='{"widget": "float", "precision": 2}'/></td>
+                                    <td class="text-center" style="width: 14%;"><span t-esc="sum(r['exempt'] for r in records)" t-options='{"widget": "float", "precision": 2}'/></td>
+                                    <td class="text-center" style="width: 14%;"><span t-esc="sum(r['taxable'] for r in records)" t-options='{"widget": "float", "precision": 2}'/></td>
+                                    <td class="text-center" style="width: 14%;"></td>
+                                </tr>
+                            </table>
+                        </div>
+                        
+                    </div>
+                </t>
+            </t>
+        </template>
+    </data>
+</odoo>

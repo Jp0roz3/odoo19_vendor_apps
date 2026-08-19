@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates id="template" xml:space="preserve">
+
+    <t t-name="mai_pos_dual_currency_v19.PaymentReportReceipt" owl="1">
+        <div class="pos-receipt report-a4-wrapper" style="width: 100%; max-width: 800px; padding: 20px; font-family: sans-serif; background-color: white;">
+            
+            <!-- Estilos forzados para impresión Carta/A4 -->
+            <style>
+                @media print {
+                    @page { size: letter; margin: 1cm; }
+                    /* Anular la restricción de 80mm/300px nativa de Odoo POS */
+                    .pos-receipt-print, .pos-receipt, .report-a4-wrapper {
+                        width: 100% !important;
+                        max-width: 100% !important;
+                        min-width: 100% !important;
+                        margin: 0 !important;
+                        padding: 0 !important;
+                    }
+                    /* Ocultar elementos innecesarios */
+                    .pos-receipt-contact, .pos-receipt-header { display: none !important; }
+                }
+            </style>
+            
+            <div style="background-color: #dbe0e4; padding: 20px; text-align: center; border-radius: 5px;">
+                <h2 style="margin: 0; color: #1f2937;">Informe De Cerrar</h2>
+                <div style="color: #374151; font-weight: bold; margin-top: 10px;">
+                    Session ID: <t t-esc="receipt.session_id" />
+                </div>
+                <div style="color: #374151; font-weight: bold;" t-if="receipt.rate">
+                    Tasa de cambio: <t t-esc="receipt.rate" />
+                </div>
+                <div style="color: #374151; font-weight: bold;">
+                    <t t-esc="receipt.date" />
+                </div>
+            </div>
+            
+            <br/>
+            <h3 style="border-bottom: 2px solid #1f2937; padding-bottom: 5px;">Pagos</h3>
+            
+            <table class="receipt-orderlines" style="width: 100%; margin-top: 10px; font-size: 13px; border-collapse: collapse;">
+                <thead style="border-bottom: 2px solid #1f2937; font-weight: bold;">
+                    <tr>
+                        <th class="text-start" style="padding: 8px 4px;">Nombre</th>
+                        <th class="text-end" style="padding: 8px 4px;">Apertura</th>
+                        <th class="text-end" style="padding: 8px 4px;">Mov. E/S</th>
+                        <th class="text-end" style="padding: 8px 4px;">Esperado</th>
+                        <th class="text-end" style="padding: 8px 4px;">Contado</th>
+                        <th class="text-end" style="padding: 8px 4px;">Total <t t-esc="receipt.sec_symbol"/></th>
+                        <th class="text-end" style="padding: 8px 4px;">Diferencia</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <t t-foreach="receipt.payments" t-as="pm" t-key="pm.id">
+                        <tr style="border-bottom: 1px solid #e5e7eb;">
+                            <td class="text-start" style="padding: 8px 4px;" t-esc="pm.name" />
+                            <td class="text-end" style="padding: 8px 4px;">
+                                <t t-esc="env.utils.formatCurrency(pm.opening || 0)" />
+                            </td>
+                            <td class="text-end" style="padding: 8px 4px;">
+                                <t t-esc="env.utils.formatCurrency(pm.moves || 0)" />
+                            </td>
+                            <td class="text-end" style="padding: 8px 4px;">
+                                <t t-esc="env.utils.formatCurrency(pm.expected || 0)" />
+                            </td>
+                            <td class="text-end" style="padding: 8px 4px;">
+                                <t t-esc="env.utils.formatCurrency(pm.counted || 0)" />
+                                <!-- Mostrar equivalencia dual si no es exacto cero -->
+                                <t t-if="pm.counted !== 0">
+                                    <div style="font-size: 11px; color: #dc2626;">
+                                        <t t-esc="receipt.sec_symbol"/> 
+                                        <t t-esc="(receipt.is_main_usd ? pm.counted * receipt.rate : pm.counted / receipt.rate).toFixed(2)"/>
+                                    </div>
+                                </t>
+                            </td>
+                            <td class="text-end" style="padding: 8px 4px;">
+                                <t t-esc="receipt.sec_symbol"/> <t t-esc="(pm.total_sec || 0).toFixed(2)" />
+                            </td>
+                            <td class="text-end" style="padding: 8px 4px; font-weight: bold; color: #b91c1c;">
+                                <t t-esc="env.utils.formatCurrency(pm.difference || 0)" />
+                            </td>
+                        </tr>
+                    </t>
+                </tbody>
+            </table>
+            
+            <br/>
+            <div style="display: flex; justify-content: flex-end;">
+                <table style="width: 50%; border-top: 2px solid #1f2937; padding-top: 10px; font-size: 14px;">
+                    <tr>
+                        <td class="text-start fw-bolder" style="padding: 4px;">APERTURA</td>
+                        <td class="text-end fw-bold" style="padding: 4px;"><t t-esc="env.utils.formatCurrency(receipt.total_opening || 0)" /></td>
+                    </tr>
+                    <tr>
+                        <td class="text-start fw-bolder" style="padding: 4px;">TOTAL ESPERADO</td>
+                        <td class="text-end fw-bold" style="padding: 4px;"><t t-esc="env.utils.formatCurrency(receipt.total_expected || 0)" /></td>
+                    </tr>
+                    <tr>
+                        <td class="text-start fw-bolder" style="padding: 4px;">TOTAL CONTADO</td>
+                        <td class="text-end fw-bold" style="padding: 4px;"><t t-esc="env.utils.formatCurrency(receipt.total_counted || 0)" /></td>
+                    </tr>
+                    <tr>
+                        <td class="text-start fw-bolder" style="padding: 4px; color: #b91c1c;">DIFERENCIA</td>
+                        <td class="text-end fw-bold" style="padding: 4px; color: #b91c1c;"><t t-esc="env.utils.formatCurrency(receipt.total_difference || 0)" /></td>
+                    </tr>
+                </table>
+            </div>
+
+        </div>
+    </t>
+
+</templates>

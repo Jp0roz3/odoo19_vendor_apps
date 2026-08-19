@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates id="template" xml:space="preserve">
+    <t t-name="point_of_sale.CashMoveListPopup" t-inherit="point_of_sale.CashMoveListPopup" t-inherit-mode="extension">
+        <!-- Desktop view -->
+        <xpath expr="//td[hasclass('align-middle')]/div[hasclass('cash-move-amount')]" position="replace">
+            <div class="cash-move-amount fw-bolder">
+                <t t-out="getAmount(cm)"></t>
+            </div>
+        </xpath>
+        <!-- Mobile view -->
+        <xpath expr="//div[hasclass('cash-move-amount') and hasclass('col-4')]" position="replace">
+            <div class="cash-move-amount col-4 align-self-center fw-bolder">
+                <t t-out="getAmount(cm)"></t>
+            </div>
+        </xpath>
+    </t>
+</templates>
