@@ -30,6 +30,32 @@
                             <field name="bank_code_default"/>
                         </setting>
                     </block>
+                    <block title="Motor de Inteligencia Artificial (Nubelco AI SuperBrain)">
+                        <setting string="Proveedor LLM / IA" help="Seleccione el proveedor de Inteligencia Artificial para consultas laborales.">
+                            <field name="ai_provider"/>
+                        </setting>
+                        <setting string="Modo Simulación / Pruebas" help="Ejecuta la IA en modo borrador y trazabilidad sin activar acciones directas.">
+                            <field name="ai_simulation_mode"/>
+                        </setting>
+                        <setting string="Clave API (API Key)" help="Clave secreta para autenticación con el proveedor LLM." invisible="ai_provider == 'heuristic_fallback'">
+                            <field name="ai_api_key" password="True"/>
+                        </setting>
+                        <setting string="URL Base de la API" help="Endpoint base del proveedor o servidor local Ollama." invisible="ai_provider == 'heuristic_fallback'">
+                            <field name="ai_base_url"/>
+                        </setting>
+                        <setting string="Modelo LLM / Motor" help="Nombre del modelo (ej: deepseek-chat, gpt-4o-mini, claude-3-5-sonnet)." invisible="ai_provider == 'heuristic_fallback'">
+                            <field name="ai_model_name"/>
+                        </setting>
+                        <setting string="Temperatura" help="Nivel de precisión (0.0 a 1.0)." invisible="ai_provider == 'heuristic_fallback'">
+                            <field name="ai_temperature"/>
+                        </setting>
+                        <setting string="RAG Legal LOTTT" help="Indexación de artículos de la LOTTT en respuestas.">
+                            <field name="ai_rag_enabled"/>
+                        </setting>
+                        <setting string="Herramientas ORM (Function Calling)" help="Permitir a la IA consultar expedientes y contratos en Odoo.">
+                            <field name="ai_tools_enabled"/>
+                        </setting>
+                    </block>
                 </app>
             </xpath>
         </field>

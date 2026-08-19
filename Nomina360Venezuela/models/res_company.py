@@ -67,6 +67,23 @@ class ResCompany(models.Model):
         ('120', '120 Días de Utilidades (Máximo Legal)'),
     ], string="Convención de Provisión de Utilidades", default='60', required=True)
 
+    # Motor de Inteligencia Artificial (Nubelco AI SuperBrain)
+    ai_provider = fields.Selection([
+        ('heuristic_fallback', 'Motor Determinista Local (Palabras Clave / Sin API Key)'),
+        ('deepseek', 'DeepSeek API (DeepSeek-R1 / V3)'),
+        ('openai', 'OpenAI API (GPT-4o / GPT-4o-mini)'),
+        ('anthropic', 'Anthropic API (Claude 3.5 Sonnet)'),
+        ('ollama', 'Ollama Servidor Local (Privado On-Premise)'),
+    ], string="Proveedor de Inteligencia Artificial", default='heuristic_fallback', required=True)
+
+    ai_api_key = fields.Char(string="API Key del Proveedor LLM", help="Clave de API cifrada para autenticación con el proveedor LLM.")
+    ai_base_url = fields.Char(string="Base URL API", default="https://api.deepseek.com", help="URL base del servicio de IA (ej: https://api.deepseek.com o http://localhost:11434).")
+    ai_model_name = fields.Char(string="Nombre del Modelo LLM", default="deepseek-chat", help="Identificador del modelo (ej: deepseek-chat, gpt-4o-mini, claude-3-5-sonnet, llama3).")
+    ai_temperature = fields.Float(string="Temperatura / Creatividad", default=0.2, help="Nivel de temperatura entre 0.0 (preciso) y 1.0 (creativo).")
+    ai_simulation_mode = fields.Boolean(string="Modo Simulación / Borrador", default=True, help="Ejecuta la IA en modo de pruebas con trazabilidad sin afectar flujos de producción.")
+    ai_rag_enabled = fields.Boolean(string="Activar RAG Legal LOTTT", default=False, help="Indexación y citación de artículos de la LOTTT (solo lectura).")
+    ai_tools_enabled = fields.Boolean(string="Activar Herramientas Odoo (Function Calling)", default=False, help="Permite a la IA consultar datos en el ORM (solo lectura).")
+
     def get_bcv_rate(self, is_cesta_ticket=False):
         self.ensure_one()
         if is_cesta_ticket and self.cesta_ticket_special_rate > 1.0:
@@ -120,3 +137,14 @@ class ResConfigSettings(models.TransientModel):
     salario_minimo_nacional = fields.Float(related='company_id.salario_minimo_nacional', readonly=False)
     ley_pensiones_rate = fields.Float(related='company_id.ley_pensiones_rate', readonly=False)
     bank_code_default = fields.Selection(related='company_id.bank_code_default', readonly=False)
+
+    # Campos relacionados de IA
+    ai_provider = fields.Selection(related='company_id.ai_provider', readonly=False)
+    ai_api_key = fields.Char(related='company_id.ai_api_key', readonly=False)
+    ai_base_url = fields.Char(related='company_id.ai_base_url', readonly=False)
+    ai_model_name = fields.Char(related='company_id.ai_model_name', readonly=False)
+    ai_temperature = fields.Float(related='company_id.ai_temperature', readonly=False)
+    ai_simulation_mode = fields.Boolean(related='company_id.ai_simulation_mode', readonly=False)
+    ai_rag_enabled = fields.Boolean(related='company_id.ai_rag_enabled', readonly=False)
+    ai_tools_enabled = fields.Boolean(related='company_id.ai_tools_enabled', readonly=False)
+

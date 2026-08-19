@@ -14,4 +14,6 @@ from . import hr_loan
 from . import hr_innovations
 from . import hr_provisiones
 from . import hr_payslip_todoticket
+from . import hr_payroll_ai_service
+from . import hr_payroll_ai_tools
 

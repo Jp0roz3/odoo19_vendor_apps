@@ -194,7 +194,7 @@ class HrPayrollDashboardBI(models.Model):
                 <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #334155; padding-bottom: 18px; margin-bottom: 24px;">
                     <div style="display: flex; align-items: center; gap: 14px;">
                         <div style="width: 48px; height: 48px; border-radius: 14px; background: linear-gradient(135deg, #0EA5E9 0%, #2563EB 100%); display: flex; align-items: center; justify-content: center; font-size: 26px; box-shadow: 0 4px 14px rgba(14, 165, 233, 0.4);">
-                            📊
+                            &#128202;
                         </div>
                         <div>
                             <h2 style="margin: 0; font-size: 22px; font-weight: 800; color: #FFFFFF; letter-spacing: -0.5px;">Tablero BI Gerencial 360 <span style="background: #0284C7; color: #E0F2FE; font-size: 11px; padding: 3px 10px; border-radius: 20px; font-weight: 700; text-transform: uppercase; margin-left: 10px;">Executive Live</span></h2>
@@ -202,7 +202,7 @@ class HrPayrollDashboardBI(models.Model):
                         </div>
                     </div>
                     <div style="background: rgba(14, 165, 233, 0.1); border: 1px solid #0EA5E9; padding: 8px 16px; border-radius: 24px; color: #38BDF8; font-size: 13px; font-weight: 700;">
-                        🔱 Tasa BCV Oficial: <strong style="color: #34D399;">{rate:.4f} Bs/USD</strong>
+                        &#128305; Tasa BCV Oficial: <strong style="color: #34D399;">{rate:.4f} Bs/USD</strong>
                     </div>
                 </div>
 
@@ -249,7 +249,7 @@ class HrPayrollDashboardBI(models.Model):
 
                 <!-- Graphic Visual Bar Cards -->
                 <div style="background: #1E293B; border-radius: 14px; padding: 20px; margin-bottom: 20px; border: 1px solid #334155;">
-                    <h3 style="margin-top: 0; margin-bottom: 14px; font-size: 16px; color: #FFFFFF;">📊 Distribución Gráfica de Masa Salarial & Carga Patronal</h3>
+                    <h3 style="margin-top: 0; margin-bottom: 14px; font-size: 16px; color: #FFFFFF;">&#128202; Distribución Gráfica de Masa Salarial & Carga Patronal</h3>
                     
                     <div style="margin-bottom: 14px;">
                         <div style="display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 6px;">
@@ -283,7 +283,7 @@ class HrPayrollDashboardBI(models.Model):
                 </div>
 
                 <div style="text-align: right; color: #64748B; font-size: 11px;">
-                    ⚡ Nomina360 Enterprise BI Dashboard • Nubelco Real-Time Analytics v19.2
+                    &#9889; Nomina360 Enterprise BI Dashboard &#8226; Nubelco Real-Time Analytics v19.2
                 </div>
 
             </div>
@@ -351,12 +351,48 @@ class HrPayrollAIChat(models.TransientModel):
     def action_send_chat(self):
         self.ensure_one()
         q_raw = self.pregunta_chat or ''
+        
+        # Intentar procesamiento con servicio LLM configurable
+        llm_response = self.env['hr.payroll.ai.service'].process_chat_query(
+            q_raw,
+            employee_id=self.employee_id.id if self.employee_id else False,
+            company_id=self.company_id
+        )
+        if llm_response:
+            card_html = f"""
+            <div style="background: #0F172A; border-radius: 16px; padding: 24px; color: #F8FAFC; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.4); border: 1px solid #1E293B;">
+                <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #334155; padding-bottom: 16px; margin-bottom: 20px;">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <div style="width: 44px; height: 44px; border-radius: 12px; background: linear-gradient(135deg, #6366F1 0%, #3B82F6 100%); display: flex; align-items: center; justify-content: center; font-size: 22px;">🤖</div>
+                        <div>
+                            <h3 style="margin: 0; font-size: 18px; font-weight: 800; color: #FFFFFF;">Nubelco AI SuperBrain Engine</h3>
+                            <span style="color: #94A3B8; font-size: 12px;">Respuesta de Inteligencia Artificial (LLM Activo)</span>
+                        </div>
+                    </div>
+                    <div style="background: #10B981; color: #022C22; padding: 4px 12px; border-radius: 12px; font-size: 11px; font-weight: 800;">LLM Neural Engine</div>
+                </div>
+                <div style="color: #CBD5E1; font-size: 14px; line-height: 1.7;">
+                    {llm_response}
+                </div>
+            </div>
+            """
+            self.respuesta_html = card_html
+            return {
+                'name': _('Chat Directo Nubelco AI'),
+                'type': 'ir.actions.act_window',
+                'res_model': 'hr.payroll.ai.chat',
+                'res_id': self.id,
+                'view_mode': 'form',
+                'target': 'new',
+            }
+
+        # Fallback al motor determinista local
         q = q_raw.lower()
-        rate = self.company_id.get_bcv_rate()
-        cesta_usd = self.company_id.cesta_ticket_usd
+        rate = self.company_id.get_bcv_rate() or 757.74
+        cesta_usd = 40.0
         cesta_bs = round(cesta_usd * rate, 2)
 
-        # 1. Search for Employee in query or use explicitly selected employee
+        # 1. Multi-Intent Search: Employee, Technical, Legal or Financial
         target_emp = self.employee_id
         if not target_emp:
             all_emps = self.env['hr.employee'].search([('active', '=', True)])
@@ -364,7 +400,9 @@ class HrPayrollAIChat(models.TransientModel):
                 name_parts = emp.name.lower().split()
                 if any(part in q for part in name_parts if len(part) > 2):
                     target_emp = emp
-                    break
+        is_technical = any(k in q for k in ['tecnico', 'técnica', 'desarrollo', 'codigo', 'código', 'modelo', 'model', 'regla', 'rule', 'banco', 'disquete', 'seniat', 'xml', 'ar-c', 'ar-i', 'estructura', 'arquitectura', 'odoo', 'version', 'versión', 'instalado', 'módulo'])
+        is_legal = any(k in q for k in ['ley', 'lottt', 'articulo', 'artículo', '142', '144', '92', '105', '143', 'antig&#252;edad', 'antiguedad', 'retroactivo', 'garantía', 'garantia', 'intereses', 'vacaciones', 'utilidades', 'preaviso', 'despido'])
+        is_company = any(k in q for k in ['lote', 'quincena', 'mes', 'total', 'costo', 'resumen', 'kpi', 'asiento', 'contabilidad', 'pensiones', '9%'])
 
         # 2. Ultra-Sleek Glassmorphic Modern UI Cards
         if target_emp:
@@ -394,7 +432,7 @@ class HrPayrollAIChat(models.TransientModel):
                 <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #334155; padding-bottom: 16px; margin-bottom: 20px;">
                     <div style="display: flex; align-items: center; gap: 12px;">
                         <div style="width: 44px; height: 44px; border-radius: 12px; background: linear-gradient(135deg, #6366F1 0%, #3B82F6 100%); display: flex; align-items: center; justify-content: center; font-size: 22px; box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);">
-                            🤖
+                            &#129302;
                         </div>
                         <div>
                             <h3 style="margin: 0; font-size: 18px; font-weight: 700; color: #FFFFFF; letter-spacing: -0.3px;">Nubelco AI SuperBrain <span style="background: #10B981; color: #022C22; font-size: 10px; padding: 2px 8px; border-radius: 20px; font-weight: 800; text-transform: uppercase; margin-left: 8px;">Neural v19.2</span></h3>
@@ -402,7 +440,7 @@ class HrPayrollAIChat(models.TransientModel):
                         </div>
                     </div>
                     <div style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); padding: 6px 14px; border-radius: 20px; font-size: 12px; color: #CBD5E1;">
-                        🔱 Tasa BCV: <strong style="color: #10B981;">{rate:.4f} Bs/USD</strong>
+                        &#128305; Tasa BCV: <strong style="color: #10B981;">{rate:.4f} Bs/USD</strong>
                     </div>
                 </div>
 
@@ -412,10 +450,10 @@ class HrPayrollAIChat(models.TransientModel):
                         <div>
                             <span style="color: #6366F1; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">EXPEDIENTE DEL TRABAJADOR</span>
                             <h2 style="margin: 4px 0 2px 0; font-size: 22px; font-weight: 700; color: #FFFFFF;">{emp.name}</h2>
-                            <span style="color: #94A3B8; font-size: 13px;">C.I. {ci} • {job}</span>
+                            <span style="color: #94A3B8; font-size: 13px;">C.I. {ci} &#8226; {job}</span>
                         </div>
                         <div style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(5, 150, 105, 0.25) 100%); border: 1px solid #10B981; color: #34D399; padding: 6px 14px; border-radius: 8px; font-size: 12px; font-weight: 600;">
-                            ✓ Contrato USD Activo
+                            &#10003; Contrato USD Activo
                         </div>
                     </div>
                 </div>
@@ -451,17 +489,87 @@ class HrPayrollAIChat(models.TransientModel):
 
                 <!-- Legal Footer Note -->
                 <div style="background: rgba(15, 23, 42, 0.8); border: 1px solid #334155; border-radius: 10px; padding: 14px; font-size: 12px; color: #94A3B8; display: flex; align-items: center; justify-content: space-between;">
-                    <span>⚖️ <strong>Marco Legal Vigilado:</strong> LOTTT Art. 142/144 • Cestaticket ${cesta_usd:.0f} BCV ({cesta_bs:,.2f} Bs) • SENIAT 9% Pensiones.</span>
+                    <span>&#9878;&#65039; <strong>Marco Legal Vigilado:</strong> LOTTT Art. 142/144 &#8226; Cestaticket ${cesta_usd:.0f} BCV ({cesta_bs:,.2f} Bs) &#8226; SENIAT 9% Pensiones.</span>
                     <span style="color: #6366F1; font-weight: 700;">Nubelco Enterprise v19</span>
                 </div>
 
+            </div>
+            """
+        elif is_technical:
+            html = f"""
+            <div style="background: #0F172A; border-radius: 16px; padding: 24px; color: #F8FAFC; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.4); border: 1px solid #1E293B;">
+                <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #334155; padding-bottom: 16px; margin-bottom: 20px;">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <div style="width: 44px; height: 44px; border-radius: 12px; background: linear-gradient(135deg, #0EA5E9 0%, #2563EB 100%); display: flex; align-items: center; justify-content: center; font-size: 22px;">&#9881;</div>
+                        <div>
+                            <h3 style="margin: 0; font-size: 18px; font-weight: 800; color: #FFFFFF;">Arquitectura Técnica - Nómina 360 Venezuela (Odoo 19)</h3>
+                            <span style="color: #94A3B8; font-size: 12px;">Especificación Estructural de Modelos, Formatos Bancarios y Reglas Salariales</span>
+                        </div>
+                    </div>
+                    <div style="background: #0284C7; color: #FFFFFF; padding: 4px 12px; border-radius: 12px; font-size: 11px; font-weight: 800;">Odoo 19 Engine</div>
+                </div>
+                <div style="background: #1E293B; border-radius: 12px; padding: 18px; margin-bottom: 18px; border-left: 4px solid #0EA5E9;">
+                    <h4 style="margin: 0 0 10px 0; color: #38BDF8; font-size: 15px;">&#128230; Modelos de Datos Principales (ORMs):</h4>
+                    <ul style="margin: 0; padding-left: 20px; color: #CBD5E1; font-size: 13px; line-height: 1.8;">
+                        <li><code>hr.contract</code>: Salario multimoneda ($ USD / Bs), Tasa BCV, Bono Art. 105, ISLR AR-I y Guarderías.</li>
+                        <li><code>hr.payslip</code>: Recibos individuales de pago con cálculo automático en 2 monedas y desglose LOTTT.</li>
+                        <li><code>hr.payslip.run</code>: Lotes de nómina quincenales/semanales con generación de asiento contable y disquetes bancarios.</li>
+                        <li><code>hr.prestaciones.line</code>: Fideicomiso acumulativo por trimestre (Art. 142a/b), tasa pasiva BCV e intereses (Art. 143).</li>
+                        <li><code>bank.payroll.export.wizard</code>: Motor de exportación a archivos planos bancarios venezolanos.</li>
+                    </ul>
+                </div>
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; margin-bottom: 18px;">
+                    <div style="background: #1E293B; border-radius: 12px; padding: 16px; border: 1px solid #334155;">
+                        <h4 style="margin: 0 0 8px 0; color: #34D399; font-size: 14px;">&#127974; Formatos Bancarios Soportados:</h4>
+                        <ul style="margin: 0; padding-left: 18px; color: #CBD5E1; font-size: 12px; line-height: 1.6;">
+                            <li><strong>Banesco</strong>: TXT 156 bytes de estructura fija.</li>
+                            <li><strong>BBVA Provincial</strong>: TXT 120 bytes (Formato P).</li>
+                            <li><strong>BanCaribe</strong>: TXT Asfalpro (12d Cédula/RIF).</li>
+                            <li><strong>TodoTicket</strong>: TXT Cestaticket 41 posiciones.</li>
+                            <li><strong>BDV / Mercantil / BNC / Bancamiga</strong>: CSV/TXT.</li>
+                        </ul>
+                    </div>
+                    <div style="background: #1E293B; border-radius: 12px; padding: 16px; border: 1px solid #334155;">
+                        <h4 style="margin: 0 0 8px 0; color: #FBBF24; font-size: 14px;">&#127963;&#65039; Integración SENIAT & Retenciones:</h4>
+                        <ul style="margin: 0; padding-left: 18px; color: #CBD5E1; font-size: 12px; line-height: 1.6;">
+                            <li><strong>XML ISLR</strong>: Formato oficial SENIAT <code>RelacionRetencionesISLR</code>.</li>
+                            <li><strong>Certificado AR-C</strong>: Wizard de envío automático por correo masivo en PDF.</li>
+                            <li><strong>Ley Pensiones 9%</strong>: Asiento contable automatizado en <code>account.move</code>.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            """
+        elif is_legal:
+            html = f"""
+            <div style="background: #0F172A; border-radius: 16px; padding: 24px; color: #F8FAFC; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.4); border: 1px solid #1E293B;">
+                <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #334155; padding-bottom: 16px; margin-bottom: 20px;">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <div style="width: 44px; height: 44px; border-radius: 12px; background: linear-gradient(135deg, #10B981 0%, #059669 100%); display: flex; align-items: center; justify-content: center; font-size: 22px;">&#9878;&#65039;</div>
+                        <div>
+                            <h3 style="margin: 0; font-size: 18px; font-weight: 800; color: #FFFFFF;">Marco Legal & Fórmulas LOTTT (Venezuela)</h3>
+                            <span style="color: #94A3B8; font-size: 12px;">Ley Orgánica del Trabajo, los Trabajadores y las Trabajadoras</span>
+                        </div>
+                    </div>
+                    <div style="background: #065F46; color: #34D399; padding: 4px 12px; border-radius: 12px; font-size: 11px; font-weight: 800;">LOTTT Compliance</div>
+                </div>
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; margin-bottom: 18px;">
+                    <div style="background: #1E293B; border-radius: 12px; padding: 16px; border-left: 4px solid #10B981;">
+                        <h4 style="margin: 0 0 6px 0; color: #34D399; font-size: 14px;">Garantía Trimestral (Art. 142a LOTTT)</h4>
+                        <p style="margin: 0; color: #CBD5E1; font-size: 12px;">15 días de salario integral por cada trimestre trabajado, abonados de forma inembargable.</p>
+                    </div>
+                    <div style="background: #1E293B; border-radius: 12px; padding: 16px; border-left: 4px solid #3B82F6;">
+                        <h4 style="margin: 0 0 6px 0; color: #60A5FA; font-size: 14px;">Días Adicionales (Art. 142b LOTTT)</h4>
+                        <p style="margin: 0; color: #CBD5E1; font-size: 12px;">2 días de salario por cada año de antig&#252;edad a partir del 2do año, acumulable hasta 30 días.</p>
+                    </div>
+                </div>
             </div>
             """
         elif 'cestaticket' in q or 'bono' in q or 'aliment' in q or '40' in q:
             html = f"""
             <div style="background: #0F172A; border-radius: 16px; padding: 24px; color: #F8FAFC; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3); border: 1px solid #1E293B;">
                 <div style="display: flex; align-items: center; gap: 12px; border-bottom: 1px solid #334155; padding-bottom: 14px; margin-bottom: 18px;">
-                    <div style="width: 40px; height: 40px; border-radius: 10px; background: #10B981; display: flex; align-items: center; justify-content: center; font-size: 20px;">🟢</div>
+                    <div style="width: 40px; height: 40px; border-radius: 10px; background: #10B981; display: flex; align-items: center; justify-content: center; font-size: 20px;">&#128994;</div>
                     <div>
                         <h3 style="margin: 0; color: #FFFFFF; font-size: 17px;">Cestaticket Socialista Indexado</h3>
                         <span style="color: #94A3B8; font-size: 12px;">Decreto Presidencial & LOTTT Art. 105</span>
@@ -490,7 +598,7 @@ class HrPayrollAIChat(models.TransientModel):
             html = f"""
             <div style="background: #0F172A; border-radius: 16px; padding: 24px; color: #F8FAFC; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3); border: 1px solid #1E293B;">
                 <div style="display: flex; align-items: center; gap: 12px; border-bottom: 1px solid #334155; padding-bottom: 14px; margin-bottom: 18px;">
-                    <div style="width: 40px; height: 40px; border-radius: 10px; background: #0284C7; display: flex; align-items: center; justify-content: center; font-size: 20px;">📊</div>
+                    <div style="width: 40px; height: 40px; border-radius: 10px; background: #0284C7; display: flex; align-items: center; justify-content: center; font-size: 20px;">&#128202;</div>
                     <div>
                         <h3 style="margin: 0; color: #FFFFFF; font-size: 17px;">Consolidado de Masa Salarial & Retenciones SENIAT</h3>
                         <span style="color: #94A3B8; font-size: 12px;">Nube de Datos Financieros de la Empresa</span>
@@ -517,7 +625,7 @@ class HrPayrollAIChat(models.TransientModel):
             html = f"""
             <div style="background: #0F172A; border-radius: 16px; padding: 24px; color: #F8FAFC; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3); border: 1px solid #1E293B;">
                 <div style="display: flex; align-items: center; gap: 12px; border-bottom: 1px solid #334155; padding-bottom: 14px; margin-bottom: 14px;">
-                    <div style="width: 40px; height: 40px; border-radius: 10px; background: #6366F1; display: flex; align-items: center; justify-content: center; font-size: 20px;">🤖</div>
+                    <div style="width: 40px; height: 40px; border-radius: 10px; background: #6366F1; display: flex; align-items: center; justify-content: center; font-size: 20px;">&#129302;</div>
                     <div>
                         <h3 style="margin: 0; color: #FFFFFF; font-size: 17px;">Nubelco AI SuperBrain Engine</h3>
                         <span style="color: #94A3B8; font-size: 12px;">Respuesta Inteligente de Asistencia Laboral</span>
