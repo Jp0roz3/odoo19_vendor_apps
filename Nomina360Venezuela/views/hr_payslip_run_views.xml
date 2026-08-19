@@ -26,7 +26,8 @@
         <field name="arch" type="xml">
             <form string="Lote de Nómina">
                 <header>
-                    <button name="%(action_bank_payroll_export_wizard)d" string="Exportar Disquete Bancario" type="action" class="oe_highlight"/>
+                    <button name="%(action_bank_payroll_export_wizard)d" string="Exportar Disquete Bancario" type="action" context="{'default_payslip_run_id': id}" class="oe_highlight"/>
+                    <button name="%(Nomina360Venezuela.action_report_resumen_nomina_lote)d" string="🖨️ Imprimir Resumen de Lote" type="action" class="btn-secondary"/>
                     <button name="action_close" string="Aprobar, Cerrar y Generar Asiento Contable" type="object" invisible="state not in ('draft', 'verify')" class="oe_highlight"/>
                     <button name="action_open_journal_entry" string="📄 Ver Asiento Contable" type="object" invisible="not move_id" class="btn-secondary"/>
                     <button name="action_paid" string="Marcar como Pagado" type="object" invisible="state != 'close'" class="oe_highlight"/>

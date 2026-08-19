@@ -28,6 +28,9 @@
         <field name="model">hr.prestaciones.line</field>
         <field name="arch" type="xml">
             <form string="Registro de Prestaciones Sociales">
+                <header>
+                    <button name="%(Nomina360Venezuela.action_report_prestaciones_acumuladas)d" string="🖨️ Imprimir Estado de Cuenta (Art. 142/143)" type="action" class="oe_highlight"/>
+                </header>
                 <sheet>
                     <group string="Datos Generales del Empleado">
                         <group>

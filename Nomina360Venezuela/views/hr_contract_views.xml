@@ -27,6 +27,7 @@
             <form string="Contrato de Trabajo">
                 <header>
                     <button name="action_print_contract" string="📄 Imprimir Contrato LOTTT" type="object" class="oe_highlight"/>
+                    <button name="%(Nomina360Venezuela.action_report_constancia_trabajo)d" string="📄 Imprimir Constancia de Trabajo" type="action" class="btn-secondary"/>
                     <field name="state" widget="statusbar"/>
                 </header>
                 <sheet>

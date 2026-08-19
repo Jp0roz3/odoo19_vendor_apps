@@ -29,6 +29,7 @@
                 <header>
                     <button name="action_calculate" string="Calcular Liquidación" type="object" invisible="state != 'draft'" class="oe_highlight"/>
                     <button name="action_approve" string="Aprobar y Finalizar Contrato" type="object" invisible="state != 'calculated'" class="oe_highlight"/>
+                    <button name="%(Nomina360Venezuela.action_report_liquidacion)d" string="📄 Imprimir Finiquito PDF" type="action" class="btn-secondary"/>
                     <field name="state" widget="statusbar"/>
                 </header>
                 <sheet>

@@ -27,6 +27,17 @@ class BankPayrollExportWizard(models.TransientModel):
     file_data = fields.Binary(string="Archivo Bancario Generado", readonly=True)
     file_name = fields.Char(string="Nombre del Archivo")
 
+    @api.model
+    def default_get(self, fields_list):
+        res = super(BankPayrollExportWizard, self).default_get(fields_list)
+        active_id = self.env.context.get('active_id')
+        active_model = self.env.context.get('active_model')
+        if active_model == 'hr.payslip.run' and active_id:
+            res['payslip_run_id'] = active_id
+        elif self.env.context.get('default_payslip_run_id'):
+            res['payslip_run_id'] = self.env.context.get('default_payslip_run_id')
+        return res
+
     def action_generate_bank_file(self):
         self.ensure_one()
         run = self.payslip_run_id
