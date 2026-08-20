@@ -12,21 +12,16 @@ export class BcvRateSystray extends Component {
         this.orm = useService("orm");
         this.state = useState({
             rate: "45.5000",
-            companyName: "",
         });
 
         onWillStart(async () => {
             try {
-                const companies = await this.orm.searchRead("res.company", [], ["name"], { limit: 1 });
-                if (companies && companies.length > 0) {
-                    this.state.companyName = companies[0].name;
-                }
                 const today = new Date().toISOString().split("T")[0];
                 const rates = await this.orm.searchRead(
                     "l10n_ve.exchange.rate",
-                    [["date", "=", today]],
+                    [["date", "<=", today]],
                     ["rate"],
-                    { limit: 1 }
+                    { limit: 1, order: "date desc" }
                 );
                 if (rates && rates.length > 0) {
                     this.state.rate = rates[0].rate.toFixed(4);

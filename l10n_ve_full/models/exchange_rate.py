@@ -239,3 +239,95 @@ class L10nVeExchangeRate(models.Model):
             ('company_id', '=', company_id),
             ('active', '=', True),
         ], order='date desc', limit=1)
+
+    # ------------------------------------------------------------------
+    # Sincronización Automática BCV (APIs + Cron)
+    # ------------------------------------------------------------------
+    @api.model
+    def fetch_live_bcv_rate(self):
+        """Consulta APIs oficiales/públicas para obtener la tasa oficial BCV del día."""
+        import urllib.request
+        import json
+        import ssl
+
+        ctx = ssl.create_default_context()
+        ctx.check_hostname = False
+        ctx.verify_mode = ssl.CERT_NONE
+
+        endpoints = [
+            ('https://ve.dolarapi.com/v1/dolares/oficial', lambda d: float(d['promedio'])),
+            ('https://pydolarvenezuela-api.vercel.app/api/v1/dollar/unit/bcv', lambda d: float(d['price'])),
+        ]
+
+        for url, parser in endpoints:
+            try:
+                req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'})
+                with urllib.request.urlopen(req, context=ctx, timeout=10) as resp:
+                    data = json.loads(resp.read().decode('utf-8'))
+                    rate = parser(data)
+                    if rate and rate > 0:
+                        _logger.info('Venezuela360: Tasa BCV obtenida desde %s: %s', url, rate)
+                        return rate
+            except Exception as e:
+                _logger.warning('Venezuela360: No se pudo obtener tasa de %s: %s', url, e)
+        return None
+
+    @api.model
+    def cron_sync_bcv_rate(self):
+        """Método ejecutado automáticamente por el cron para sincronizar la tasa BCV diaria."""
+        rate_val = self.fetch_live_bcv_rate()
+        if not rate_val:
+            _logger.error('Venezuela360 Cron: No se pudo obtener la tasa BCV automática.')
+            return False
+
+        today = fields.Date.context_today(self)
+        companies = self.env['res.company'].search([])
+        usd = self.env.ref('base.USD', raise_if_not_found=False)
+        ves = self.env.ref('base.VEF', raise_if_not_found=False) or self.env['res.currency'].search([('name', '=', 'VES')], limit=1)
+
+        if not usd or not ves:
+            return False
+
+        records_created = 0
+        for company in companies:
+            existing = self.search([
+                ('date', '=', today),
+                ('company_id', '=', company.id),
+                ('currency_from_id', '=', usd.id),
+                ('currency_to_id', '=', ves.id),
+            ], limit=1)
+
+            if existing:
+                existing.write({'rate': rate_val, 'source': 'bcv'})
+            else:
+                self.create({
+                    'date': today,
+                    'rate': rate_val,
+                    'source': 'bcv',
+                    'currency_from_id': usd.id,
+                    'currency_to_id': ves.id,
+                    'company_id': company.id,
+                    'notes': 'Sincronización automática de tasa BCV oficial diaria.',
+                })
+                records_created += 1
+
+        _logger.info('Venezuela360 Cron: Tasa BCV %s sincronizada para %s compañías.', rate_val, len(companies))
+        return True
+
+    def action_sync_bcv_now(self):
+        """Acción de botón manual para sincronizar la tasa BCV oficial al instante desde la vista."""
+        res = self.cron_sync_bcv_rate()
+        if res:
+            return {
+                'type': 'ir.actions.client',
+                'tag': 'display_notification',
+                'params': {
+                    'title': _('Tasa BCV Sincronizada'),
+                    'message': _('La tasa oficial del Banco Central de Venezuela ha sido sincronizada exitosamente.'),
+                    'type': 'success',
+                    'sticky': False,
+                }
+            }
+        else:
+            raise UserError(_('No se pudo sincronizar la tasa BCV en este momento. Por favor verifique la conexión a internet o intente más tarde.'))
+
