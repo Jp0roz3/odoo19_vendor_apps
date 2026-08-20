@@ -6,21 +6,21 @@ import { Component, onWillStart, useState } from "@odoo/owl";
 
 export class BcvRateSystray extends Component {
     static template = "l10n_ve_full.BcvRateSystray";
+    static props = {};
 
     setup() {
         this.orm = useService("orm");
-        this.company = useService("company");
         this.state = useState({
             rate: "45.5000",
             companyName: "",
         });
 
         onWillStart(async () => {
-            const currentCompany = this.company.currentCompany;
-            if (currentCompany) {
-                this.state.companyName = currentCompany.name;
-            }
             try {
+                const companies = await this.orm.searchRead("res.company", [], ["name"], { limit: 1 });
+                if (companies && companies.length > 0) {
+                    this.state.companyName = companies[0].name;
+                }
                 const today = new Date().toISOString().split("T")[0];
                 const rates = await this.orm.searchRead(
                     "l10n_ve.exchange.rate",
@@ -32,7 +32,7 @@ export class BcvRateSystray extends Component {
                     this.state.rate = rates[0].rate.toFixed(4);
                 }
             } catch (e) {
-                // Fallback silencioso si no hay tasa registrada para hoy
+                // Fallback silencioso
             }
         });
     }
