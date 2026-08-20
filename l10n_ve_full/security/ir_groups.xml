@@ -24,4 +24,9 @@
         <field name="implied_ids" eval="[(4, ref('group_l10n_ve_manager'))]"/>
         <field name="comment">Configuración completa: tasa BCV, UT, territorialidad, conceptos ISLR, diarios y cuentas.</field>
     </record>
+
+    <!-- Asignar automáticamente los permisos a los usuarios del módulo de Contabilidad/Facturación -->
+    <record id="account.group_account_user" model="res.groups">
+        <field name="implied_ids" eval="[(4, ref('group_l10n_ve_admin'))]"/>
+    </record>
 </odoo>

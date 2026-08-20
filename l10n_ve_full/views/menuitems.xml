@@ -120,4 +120,49 @@
               action="action_account_wh_islr_concept"
               sequence="40"
               groups="l10n_ve_full.group_l10n_ve_admin"/>
+
+    <!-- ================================================================
+         ACCESOS DIRECTOS EN EL MENÚ "CONFIGURACIÓN" DE FACTURACIÓN
+         ================================================================ -->
+    <menuitem id="menu_l10n_ve_config_root"
+              name="Localización Venezuela"
+              parent="account.menu_finance_configuration"
+              sequence="100"/>
+
+    <menuitem id="menu_l10n_ve_config_rates"
+              name="Tasas BCV"
+              parent="menu_l10n_ve_config_root"
+              action="action_l10n_ve_exchange_rate"
+              sequence="10"/>
+
+    <menuitem id="menu_l10n_ve_config_ut"
+              name="Unidad Tributaria"
+              parent="menu_l10n_ve_config_root"
+              action="action_account_ut_history"
+              sequence="20"/>
+
+    <menuitem id="menu_l10n_ve_config_islr_concepts"
+              name="Conceptos ISLR"
+              parent="menu_l10n_ve_config_root"
+              action="action_account_wh_islr_concept"
+              sequence="30"/>
+
+    <menuitem id="menu_l10n_ve_config_states"
+              name="Estados de Venezuela"
+              parent="menu_l10n_ve_config_root"
+              action="action_l10n_ve_state"
+              sequence="40"/>
+
+    <menuitem id="menu_l10n_ve_config_municipalities"
+              name="Municipios"
+              parent="menu_l10n_ve_config_root"
+              action="action_l10n_ve_municipality"
+              sequence="50"/>
+
+    <menuitem id="menu_l10n_ve_config_parishes"
+              name="Parroquias"
+              parent="menu_l10n_ve_config_root"
+              action="action_l10n_ve_parish"
+              sequence="60"/>
+
 </odoo>
