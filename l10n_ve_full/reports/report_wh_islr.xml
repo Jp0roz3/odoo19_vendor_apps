@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <!-- ================================================================
-         Venezuela360: Reporte PDF — Comprobante Retención ISLR
+         Venezuela360: Reporte PDF — Comprobante Oficial SENIAT Retención ISLR
     ================================================================ -->
     <record id="report_wh_islr_action" model="ir.actions.report">
-        <field name="name">Comprobante Retención ISLR</field>
+        <field name="name">Comprobante Retención ISLR SENIAT</field>
         <field name="model">account.wh.islr</field>
         <field name="report_type">qweb-pdf</field>
         <field name="report_name">l10n_ve_full.report_wh_islr_document</field>
         <field name="report_file">l10n_ve_full.report_wh_islr_document</field>
-        <field name="print_report_name">'Ret_ISLR_' + object.name.replace('/', '_')</field>
+        <field name="print_report_name">'Ret_ISLR_' + (object.name or '').replace('/', '_')</field>
         <field name="binding_model_id" ref="model_account_wh_islr"/>
         <field name="binding_type">report</field>
     </record>
@@ -17,117 +17,125 @@
     <template id="report_wh_islr_document">
         <t t-call="web.html_container">
             <t t-foreach="docs" t-as="o">
-                <t t-call="web.external_layout">
-                    <div class="page">
-                        <div class="row mb-4">
-                            <div class="col-12 text-center">
-                                <h2 class="l10n-ve-report-title">
-                                    COMPROBANTE DE RETENCIÓN DE I.S.L.R.
-                                </h2>
-                            </div>
-                        </div>
-                        <div class="row mb-3">
-                            <div class="col-6">
-                                <strong>N° Comprobante:</strong>
-                                <span t-field="o.name"/>
-                            </div>
-                            <div class="col-6 text-end">
-                                <strong>Fecha:</strong>
-                                <span t-field="o.date" t-options='{"format": "dd/MM/yyyy"}'/>
-                            </div>
-                        </div>
-                        <div class="row mb-2 border p-2 bg-light">
-                            <div class="col-12">
-                                <strong>AGENTE DE RETENCIÓN:</strong>
-                                <span t-field="o.company_id.name"/> —
-                                RIF: <span t-field="o.company_id.l10n_ve_rif"/>
-                            </div>
-                        </div>
-                        <div class="row mb-2 border p-2">
-                            <div class="col-6">
-                                <strong>BENEFICIARIO:</strong><br/>
-                                <span t-field="o.partner_id.name"/><br/>
-                                RIF: <span t-field="o.partner_id.l10n_ve_rif"/>
-                            </div>
-                            <div class="col-6">
-                                <strong>Concepto ISLR:</strong><br/>
-                                <span t-field="o.concept_id.code"/> —
-                                <span t-field="o.concept_id.name"/><br/>
-                                <strong>Método:</strong>
-                                <span t-field="o.calculation_method"/>
-                            </div>
-                        </div>
-                        <div class="row mb-2">
-                            <div class="col-4">
-                                <strong>UT Vigente:</strong>
-                                <span t-field="o.ut_value"/> Bs
-                            </div>
-                            <div class="col-4">
-                                <strong>Tasa BCV:</strong>
-                                <span t-field="o.rate"/> Bs/USD
-                            </div>
-                            <div class="col-4">
-                                <strong>Factura:</strong>
-                                <span t-field="o.move_id.name"/>
-                            </div>
-                        </div>
-                        <table class="table table-bordered mt-3">
-                            <thead class="table-dark">
+                <t t-call="web.basic_layout">
+                    <div class="page" style="font-family: Arial, sans-serif; font-size: 10px; color: #000; padding: 10px;">
+                        <!-- Determinar Agente de Retención vs Agente Retenido/Beneficiario -->
+                        <t t-set="is_supplier" t-value="o.move_id.move_type in ['in_invoice', 'in_refund']"/>
+                        <t t-set="agent" t-value="o.company_id if is_supplier else o.partner_id"/>
+                        <t t-set="retained" t-value="o.partner_id if is_supplier else o.company_id"/>
+
+                        <!-- Encabezado SENIAT -->
+                        <table class="table table-bordered mb-0" style="border: 2px solid #000; table-layout: fixed; width: 100%;">
+                            <tr>
+                                <td style="width: 20%; vertical-align: middle; text-align: center; border: 1px solid #000; padding: 4px;">
+                                    <img t-if="o.company_id.logo" t-att-src="image_data_uri(o.company_id.logo)" style="max-height: 50px; max-width: 100%;"/>
+                                    <span t-else="" style="font-weight: bold; font-size: 12px;" t-field="o.company_id.name"/>
+                                </td>
+                                <td style="width: 50%; vertical-align: middle; text-align: center; border: 1px solid #000;">
+                                    <h4 style="color: #c00000; font-weight: bold; margin: 0;">Comprobante de Retención de I.S.L.R.</h4>
+                                    <span style="font-size: 9px; font-weight: bold;">Ley de Impuesto Sobre la Renta (Decreto Ley ISLR)</span>
+                                </td>
+                                <td style="width: 30%; font-size: 8px; text-align: justify; vertical-align: middle; border: 1px solid #000; padding: 4px;">
+                                    RETENCIÓN EN LA FUENTE DE IMPUESTO SOBRE LA RENTA SEGÚN LA NORMATIVA FISCAL VIGENTE DEL SENIAT
+                                </td>
+                            </tr>
+                        </table>
+
+                        <!-- Sub-encabezado: Nro Comprobante, Fecha, Período -->
+                        <table class="table table-bordered mb-0" style="border-left: 2px solid #000; border-right: 2px solid #000; border-bottom: 1px solid #000; width: 100%;">
+                            <tr style="background-color: #f2f2f2; font-weight: bold;">
+                                <td style="width: 40%; border: 1px solid #000; padding: 4px;">
+                                    Nro. Comprobante ISLR: <span t-field="o.name" style="font-size: 11px; font-weight: bold;"/>
+                                </td>
+                                <td style="width: 30%; border: 1px solid #000; padding: 4px;">
+                                    Fecha: <span t-field="o.date" t-options='{"format": "dd/MM/yyyy"}'/>
+                                </td>
+                                <td style="width: 30%; border: 1px solid #000; padding: 4px;">
+                                    Período Fiscal: <span t-field="o.date" t-options='{"format": "MM/yyyy"}'/>
+                                </td>
+                            </tr>
+                        </table>
+
+                        <!-- Datos Agente vs Beneficiario -->
+                        <table class="table table-bordered mb-0" style="border-left: 2px solid #000; border-right: 2px solid #000; border-bottom: 2px solid #000; width: 100%;">
+                            <tr>
+                                <td style="width: 70%; border: 1px solid #000; padding: 3px;">
+                                    <strong>Agente de Retención (Razón Social):</strong><br/>
+                                    <span t-esc="agent.name" style="font-size: 11px; font-weight: bold; text-transform: uppercase;"/>
+                                </td>
+                                <td style="width: 30%; border: 1px solid #000; padding: 3px;">
+                                    <strong>RIF Agente Retención:</strong><br/>
+                                    <span t-esc="agent.l10n_ve_rif or (agent.vat if hasattr(agent, 'vat') else '')" style="font-size: 11px; font-weight: bold;"/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td colspan="2" style="border: 1px solid #000; padding: 3px;">
+                                    <strong>Dirección Fiscal Agente Retención:</strong><br/>
+                                    <span t-esc="(agent.street or '') + ' ' + (agent.street2 or '') + ' ' + (agent.city or '')"/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="width: 70%; border: 1px solid #000; padding: 3px;">
+                                    <strong>Sujeto Retenido / Beneficiario:</strong><br/>
+                                    <span t-esc="retained.name" style="font-size: 11px; font-weight: bold; text-transform: uppercase;"/>
+                                </td>
+                                <td style="width: 30%; border: 1px solid #000; padding: 3px;">
+                                    <strong>RIF Beneficiario:</strong><br/>
+                                    <span t-esc="retained.l10n_ve_rif or (retained.vat if hasattr(retained, 'vat') else '')" style="font-size: 11px; font-weight: bold;"/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td colspan="2" style="border: 1px solid #000; padding: 3px;">
+                                    <strong>Concepto SENIAT ISLR:</strong><br/>
+                                    <span t-field="o.concept_id.code"/> — <span t-field="o.concept_id.name"/>
+                                </td>
+                            </tr>
+                        </table>
+
+                        <!-- Tabla Detalle ISLR -->
+                        <table class="table table-bordered mt-2 mb-0" style="border: 2px solid #000; font-size: 9px; text-align: center; width: 100%;">
+                            <thead style="background-color: #d1ecf1; font-weight: bold; color: #000;">
                                 <tr>
-                                    <th>Concepto</th>
-                                    <th class="text-end">Bs</th>
-                                    <th class="text-end">UT</th>
-                                    <th class="text-end">USD</th>
+                                    <th style="border: 1px solid #000;">Fecha Factura</th>
+                                    <th style="border: 1px solid #000;">Nro. Factura</th>
+                                    <th style="border: 1px solid #000;">Nro. Control</th>
+                                    <th style="border: 1px solid #000;">Monto Objeto Retención (Bs)</th>
+                                    <th style="border: 1px solid #000;">% Alícuota ISLR</th>
+                                    <th style="border: 1px solid #000;">Sustraendo (Bs)</th>
+                                    <th style="border: 1px solid #000;">Total ISLR Retenido (Bs)</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr>
-                                    <td>Base Gravable</td>
-                                    <td class="text-end">
-                                        <span t-field="o.taxable_amount_bs"
-                                              t-options='{"widget": "monetary", "display_currency": o.currency_bs_id}'/>
-                                    </td>
-                                    <td class="text-end">
-                                        <span t-esc="'{:,.4f}'.format(o.taxable_amount_ut)"/>
-                                    </td>
-                                    <td class="text-end">
-                                        <span t-esc="'$ {:,.4f}'.format(o.taxable_amount_usd)"/>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>Tasa ISLR</td>
-                                    <td class="text-end" colspan="3">
-                                        <span t-esc="'{:.4f}%'.format(o.wh_rate)"/>
-                                        <t t-if="o.subtract"> — Sustraendo: <span t-esc="'{:,.2f}'.format(o.subtract)"/> Bs</t>
-                                    </td>
-                                </tr>
-                                <tr class="table-warning">
-                                    <td><strong>I.S.L.R. Retenido</strong></td>
-                                    <td class="text-end">
-                                        <strong>
-                                        <span t-field="o.amount_bs"
-                                              t-options='{"widget": "monetary", "display_currency": o.currency_bs_id}'/>
-                                        </strong>
-                                    </td>
-                                    <td class="text-end">
-                                        <strong><span t-esc="'{:,.4f}'.format(o.amount_ut)"/> UT</strong>
-                                    </td>
-                                    <td class="text-end">
-                                        <strong><span t-esc="'$ {:,.4f}'.format(o.amount_usd)"/></strong>
-                                    </td>
+                                    <td style="border: 1px solid #000;"><span t-field="o.move_id.invoice_date" t-options='{"format": "dd/MM/yyyy"}'/></td>
+                                    <td style="border: 1px solid #000;"><span t-field="o.move_id.name"/></td>
+                                    <td style="border: 1px solid #000;"><span t-field="o.move_id.l10n_ve_control_number"/></td>
+                                    <td style="border: 1px solid #000; text-align: right;"><span t-field="o.taxable_amount_bs" t-options='{"widget": "monetary", "display_currency": o.currency_bs_id}'/></td>
+                                    <td style="border: 1px solid #000;"><span t-field="o.wh_rate"/>%</td>
+                                    <td style="border: 1px solid #000; text-align: right;"><span t-field="o.subtract" t-options='{"widget": "monetary", "display_currency": o.currency_bs_id}'/></td>
+                                    <td style="border: 1px solid #000; text-align: right; font-weight: bold;"><span t-field="o.amount_bs" t-options='{"widget": "monetary", "display_currency": o.currency_bs_id}'/></td>
                                 </tr>
                             </tbody>
                         </table>
-                        <div class="row mt-5">
-                            <div class="col-6 text-center border-top pt-2">
-                                <p>Firma Agente de Retención</p>
-                                <p><strong><span t-field="o.company_id.name"/></strong></p>
-                            </div>
-                            <div class="col-6 text-center border-top pt-2">
-                                <p>Firma Beneficiario</p>
-                                <p><strong><span t-field="o.partner_id.name"/></strong></p>
-                            </div>
-                        </div>
+
+                        <!-- Caja de Firmas -->
+                        <table class="table table-bordered mt-4" style="border: 2px solid #000; width: 100%;">
+                            <tr>
+                                <td style="width: 50%; height: 80px; vertical-align: bottom; text-align: center; border: 1px solid #000; padding-bottom: 5px;">
+                                    <div style="border-top: 1px solid #000; margin: 0 30px; padding-top: 3px;">
+                                        <strong><span t-esc="agent.name"/></strong><br/>
+                                        RIF: <span t-esc="agent.l10n_ve_rif or (agent.vat if hasattr(agent, 'vat') else '')"/><br/>
+                                        <strong>Agente de Retención (Sello y Firma)</strong>
+                                    </div>
+                                </td>
+                                <td style="width: 50%; height: 80px; vertical-align: bottom; text-align: center; border: 1px solid #000; padding-bottom: 5px;">
+                                    <div style="border-top: 1px solid #000; margin: 0 30px; padding-top: 3px;">
+                                        <strong><span t-esc="retained.name"/></strong><br/>
+                                        <strong>Firma del Beneficiario</strong>
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
                     </div>
                 </t>
             </t>
