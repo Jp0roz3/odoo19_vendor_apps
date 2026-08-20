@@ -65,7 +65,7 @@
                                 </td>
                                 <td style="width: 30%; border: 1px solid #000; padding: 3px;">
                                     <strong>RIF Agente Retención:</strong><br/>
-                                    <span t-esc="agent.l10n_ve_rif or (agent.vat if hasattr(agent, 'vat') else '')" style="font-size: 11px; font-weight: bold;"/>
+                                    <span t-esc="agent.l10n_ve_rif or agent.vat or ''" style="font-size: 11px; font-weight: bold;"/>
                                 </td>
                             </tr>
                             <tr>
@@ -81,7 +81,7 @@
                                 </td>
                                 <td style="width: 30%; border: 1px solid #000; padding: 3px;">
                                     <strong>RIF Beneficiario:</strong><br/>
-                                    <span t-esc="retained.l10n_ve_rif or (retained.vat if hasattr(retained, 'vat') else '')" style="font-size: 11px; font-weight: bold;"/>
+                                    <span t-esc="retained.l10n_ve_rif or retained.vat or ''" style="font-size: 11px; font-weight: bold;"/>
                                 </td>
                             </tr>
                             <tr>
@@ -124,7 +124,7 @@
                                 <td style="width: 50%; height: 80px; vertical-align: bottom; text-align: center; border: 1px solid #000; padding-bottom: 5px;">
                                     <div style="border-top: 1px solid #000; margin: 0 30px; padding-top: 3px;">
                                         <strong><span t-esc="agent.name"/></strong><br/>
-                                        RIF: <span t-esc="agent.l10n_ve_rif or (agent.vat if hasattr(agent, 'vat') else '')"/><br/>
+                                        RIF: <span t-esc="agent.l10n_ve_rif or agent.vat or ''"/><br/>
                                         <strong>Agente de Retención (Sello y Firma)</strong>
                                     </div>
                                 </td>
