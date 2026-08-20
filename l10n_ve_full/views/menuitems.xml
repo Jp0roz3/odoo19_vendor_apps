@@ -2,10 +2,10 @@
 <odoo>
     <!-- ================================================================
          Venezuela360: Estructura de Menús
-         Menú raíz: Contabilidad > Venezuela360
+         Integración total para Odoo Enterprise y Community
     ================================================================ -->
 
-    <!-- ── MENÚ RAÍZ ─────────────────────────────────────────────── -->
+    <!-- ── MENÚ RAÍZ VENEZUELA360 ──────────────────────────────────── -->
     <menuitem id="menu_l10n_ve_root"
               name="Venezuela360"
               parent="account.menu_finance"
@@ -32,7 +32,7 @@
               sequence="20"
               groups="l10n_ve_full.group_l10n_ve_user"/>
 
-    <!-- ── RETENCIONES ────────────────────────────────────────────── -->
+    <!-- ── RETENCIONES (MENÚ RAÍZ VENEZUELA360) ────────────────────── -->
     <menuitem id="menu_l10n_ve_retenciones"
               name="Retenciones"
               parent="menu_l10n_ve_root"
@@ -59,7 +59,7 @@
               sequence="30"
               groups="l10n_ve_full.group_l10n_ve_user"/>
 
-    <!-- ── LIBROS FISCALES ────────────────────────────────────────── -->
+    <!-- ── LIBROS FISCALES (MENÚ RAÍZ VENEZUELA360) ────────────────── -->
     <menuitem id="menu_l10n_ve_libros"
               name="Libros Fiscales"
               parent="menu_l10n_ve_root"
@@ -86,7 +86,7 @@
               sequence="30"
               groups="l10n_ve_full.group_l10n_ve_user"/>
 
-    <!-- ── CONFIGURACIÓN / ADMINISTRACIÓN ────────────────────────── -->
+    <!-- ── CONFIGURACIÓN VE ───────────────────────────────────────── -->
     <menuitem id="menu_l10n_ve_config"
               name="Configuración VE"
               parent="menu_l10n_ve_root"
@@ -122,7 +122,22 @@
               groups="l10n_ve_full.group_l10n_ve_admin"/>
 
     <!-- ================================================================
-         ACCESOS DIRECTOS EN EL MENÚ "CONFIGURACIÓN" DE FACTURACIÓN
+         ACCESOS DIRECTOS EN CLIENTES Y PROVEEDORES
+         ================================================================ -->
+    <menuitem id="menu_l10n_ve_client_retenciones"
+              name="Retenciones Recibidas (IVA / ISLR)"
+              parent="account.menu_finance_receivables"
+              action="action_account_wh_iva"
+              sequence="80"/>
+
+    <menuitem id="menu_l10n_ve_supplier_retenciones"
+              name="Retenciones Emitidas (IVA / ISLR)"
+              parent="account.menu_finance_payables"
+              action="action_account_wh_iva"
+              sequence="80"/>
+
+    <!-- ================================================================
+         ACCESOS DIRECTOS EN EL MENÚ "CONFIGURACIÓN" DE FACTURACIÓN/CONTABILIDAD
          ================================================================ -->
     <menuitem id="menu_l10n_ve_config_root"
               name="Localización Venezuela"
