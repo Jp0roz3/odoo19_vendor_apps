@@ -100,13 +100,12 @@
                                readonly="state == 'posted'"/>
                     </group>
                     <!-- Campo invisible helper -->
-                    <field name="l10n_ve_localization" invisible="1"/>
-                    <field name="l10n_ve_currency_bs_id" invisible="1"/>
+                    <field name="l10n_ve_is_usd_document" invisible="1"/>
                 </page>
             </notebook>
 
             <!-- ── Campos de Cabecera Bimoneda (Panel Derecho) ───────────────── -->
-            <xpath expr="//field[@name='journal_id']" position="after">
+            <xpath expr="//group[@id='header_right_group']" position="inside">
                 <field name="l10n_ve_is_bs_agreement" string="Acuerdo de Factura Bs." invisible="not l10n_ve_localization"/>
                 <field name="l10n_ve_dual_currency_name" string="Moneda Dual Ref." invisible="not l10n_ve_localization" readonly="1"/>
                 <field name="l10n_ve_ref_currency_label" string="Moneda de Referencia" invisible="not l10n_ve_localization" readonly="1"/>
@@ -124,8 +123,26 @@
             <!-- ── Totales Duales al Pie de la Factura (USD / Bs) ───────────── -->
             <xpath expr="//group[hasclass('oe_subtotal_footer')]" position="before">
                 <div class="row me-0 ms-auto" invisible="not l10n_ve_localization" style="width: 100%; display: flex; justify-content: space-between; padding: 10px 0;">
-                    <!-- Lado Izquierdo: Totales en Moneda de Referencia (USD) -->
-                    <div style="width: 48%; border-right: 1px solid #dee2e6; padding-right: 15px;">
+                    <!-- Lado Izquierdo: Totales de Referencia en Bolívares (Cuando la factura está en USD) -->
+                    <div style="width: 48%; border-right: 1px solid #dee2e6; padding-right: 15px;" invisible="not l10n_ve_is_usd_document">
+                        <table class="table table-sm table-borderless" style="margin-bottom: 0;">
+                            <tr>
+                                <td><strong>Base imponible Bs.:</strong></td>
+                                <td class="text-end"><field name="l10n_ve_untaxed_bs" widget="float" digits="[18,2]" readonly="1"/> Bs.F</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Impuestos Bs.:</strong></td>
+                                <td class="text-end"><field name="l10n_ve_tax_bs" widget="float" digits="[18,2]" readonly="1"/> Bs.F</td>
+                            </tr>
+                            <tr class="border-top">
+                                <td><strong>Total Bs.:</strong></td>
+                                <td class="text-end"><strong><field name="l10n_ve_total_bs" widget="float" digits="[18,2]" readonly="1"/> Bs.F</strong></td>
+                            </tr>
+                        </table>
+                    </div>
+
+                    <!-- Lado Izquierdo: Totales de Referencia en Dólares (Cuando la factura está en Bs) -->
+                    <div style="width: 48%; border-right: 1px solid #dee2e6; padding-right: 15px;" invisible="l10n_ve_is_usd_document">
                         <table class="table table-sm table-borderless" style="margin-bottom: 0;">
                             <tr>
                                 <td><strong>Base imponible Ref.:</strong></td>
@@ -154,3 +171,4 @@
         </field>
     </record>
 </odoo>
+

@@ -273,15 +273,23 @@ class AccountMove(models.Model):
     # Compute: tasa de cambio desde registro histórico
     # ------------------------------------------------------------------
     @api.depends('l10n_ve_exchange_rate_id', 'l10n_ve_exchange_rate_id.rate',
-                 'l10n_ve_exchange_rate_id.date', 'l10n_ve_exchange_rate_id.source')
+                 'invoice_date', 'date', 'company_id')
     def _compute_ve_rate(self):
         for move in self:
+            doc_date = move.invoice_date or move.date or fields.Date.context_today(move)
             rate_rec = move.l10n_ve_exchange_rate_id
-            move.l10n_ve_rate = rate_rec.rate if rate_rec else 0.0
+            if not rate_rec and doc_date and move.company_id.l10n_ve_active:
+                rate_rec = self.env['l10n_ve.exchange.rate'].get_rate_for_date(
+                    doc_date, company_id=move.company_id.id
+                )
+                if rate_rec:
+                    move.l10n_ve_exchange_rate_id = rate_rec.id
+            move.l10n_ve_rate = rate_rec.rate if rate_rec else 1.0
             move.l10n_ve_rate_date = rate_rec.date if rate_rec else False
             move.l10n_ve_rate_source = dict(
                 rate_rec._fields['source'].selection
             ).get(rate_rec.source, '') if rate_rec else ''
+
 
     # ------------------------------------------------------------------
     # Compute: montos duales BS/USD
@@ -416,6 +424,26 @@ class AccountMove(models.Model):
     # ------------------------------------------------------------------
     # Computos Duales (USD / Bs) de Cabecera y Totales
     # ------------------------------------------------------------------
+    l10n_ve_is_usd_document = fields.Boolean(
+        string='Factura en USD',
+        compute='_compute_ve_dual_totals',
+    )
+    l10n_ve_untaxed_bs = fields.Float(
+        string='Base imponible Bs.',
+        compute='_compute_ve_dual_totals',
+        digits=(18, 2),
+    )
+    l10n_ve_tax_bs = fields.Float(
+        string='Impuestos Bs.',
+        compute='_compute_ve_dual_totals',
+        digits=(18, 2),
+    )
+    l10n_ve_total_bs = fields.Float(
+        string='Total Bs.',
+        compute='_compute_ve_dual_totals',
+        digits=(18, 2),
+    )
+
     @api.depends('company_id')
     def _compute_ve_dual_header(self):
         usd = self.env.ref('base.USD', raise_if_not_found=False)
@@ -429,18 +457,31 @@ class AccountMove(models.Model):
         for move in self:
             rate = move.l10n_ve_rate or 1.0
             bs_currency = move.company_id.l10n_ve_currency_bs_id
-            if move.currency_id == bs_currency and bs_currency:
+            is_bs = (move.currency_id == bs_currency) or (move.currency_id.name in ['VES', 'VEF', 'VEB'])
+            move.l10n_ve_is_usd_document = not is_bs
+
+            if is_bs:
+                # Document in Bs -> Ref totals in USD (divide by rate)
                 move.l10n_ve_untaxed_ref = round(move.amount_untaxed / rate, 2) if rate else 0.0
                 move.l10n_ve_tax_ref = round(move.amount_tax / rate, 2) if rate else 0.0
                 move.l10n_ve_total_ref = round(move.amount_total / rate, 2) if rate else 0.0
                 move.l10n_ve_residual_ref = round(move.amount_residual / rate, 2) if rate else 0.0
                 move.l10n_ve_paid_ref = round((move.amount_total - move.amount_residual) / rate, 2) if rate else 0.0
+
+                move.l10n_ve_untaxed_bs = move.amount_untaxed
+                move.l10n_ve_tax_bs = move.amount_tax
+                move.l10n_ve_total_bs = move.amount_total
             else:
+                # Document in USD -> Ref totals in Bs (multiply by rate)
                 move.l10n_ve_untaxed_ref = round(move.amount_untaxed, 2)
                 move.l10n_ve_tax_ref = round(move.amount_tax, 2)
                 move.l10n_ve_total_ref = round(move.amount_total, 2)
                 move.l10n_ve_residual_ref = round(move.amount_residual, 2)
                 move.l10n_ve_paid_ref = round(move.amount_total - move.amount_residual, 2)
+
+                move.l10n_ve_untaxed_bs = round(move.amount_untaxed * rate, 2)
+                move.l10n_ve_tax_bs = round(move.amount_tax * rate, 2)
+                move.l10n_ve_total_bs = round(move.amount_total * rate, 2)
 
 
 class AccountMoveLine(models.Model):
@@ -464,10 +505,12 @@ class AccountMoveLine(models.Model):
             move = line.move_id
             rate = move.l10n_ve_rate or 1.0
             bs_currency = move.company_id.l10n_ve_currency_bs_id
-            if move.currency_id == bs_currency and bs_currency:
+            is_bs = (move.currency_id == bs_currency) or (move.currency_id.name in ['VES', 'VEF', 'VEB'])
+            if is_bs:
                 line.l10n_ve_price_unit_usd = round(line.price_unit / rate, 2) if rate else 0.0
                 line.l10n_ve_price_subtotal_usd = round(line.price_subtotal / rate, 2) if rate else 0.0
             else:
                 line.l10n_ve_price_unit_usd = round(line.price_unit, 2)
                 line.l10n_ve_price_subtotal_usd = round(line.price_subtotal, 2)
+
 
