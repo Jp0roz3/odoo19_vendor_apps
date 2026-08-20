@@ -121,52 +121,38 @@
                 <field name="l10n_ve_price_subtotal_usd" string="Subtotal Ref." optional="show" invisible="not parent.l10n_ve_localization"/>
             </xpath>
 
-            <!-- ── Totales Duales al Pie de la Factura (USD / Bs) ───────────── -->
+            <!-- ── Totales Duales al Pie de la Factura (USD / Bs - Formato Imagen 3) ───────────── -->
             <xpath expr="//group[hasclass('oe_subtotal_footer')]" position="before">
-                <div invisible="not l10n_ve_localization" class="p-3 mb-2 rounded border bg-light shadow-sm" style="width: 100%; min-width: 280px; max-width: 480px; margin-right: 15px;">
-                    <div class="d-flex align-items-center mb-2 pb-1 border-bottom">
-                        <i class="fa fa-refresh text-primary me-2"/>
-                        <span class="fw-bold text-dark fs-6" invisible="not l10n_ve_is_usd_document">Equivalencia Fiscal en Bolívares (Bs.)</span>
-                        <span class="fw-bold text-dark fs-6" invisible="l10n_ve_is_usd_document">Equivalencia en Moneda Dual ($ USD)</span>
-                    </div>
-
-                    <!-- Si la factura está en USD: Muestra Referencia en Bs -->
+                <div invisible="not l10n_ve_localization" class="float-start me-4 py-2" style="min-width: 260px; max-width: 380px;">
+                    <!-- Si la factura está en USD: Muestra Referencia en Bs (Exacto Imagen 3) -->
                     <div invisible="not l10n_ve_is_usd_document">
-                        <div class="d-flex justify-content-between py-1 border-bottom">
-                            <span class="text-secondary fw-semibold">Base imponible Bs.:</span>
-                            <span class="fw-bold"><field name="l10n_ve_untaxed_bs" widget="float" digits="[18,2]" readonly="1"/> Bs.F</span>
+                        <div class="d-flex justify-content-between py-1">
+                            <span class="text-secondary fw-normal">Base imponible Bs.:</span>
+                            <span class="fw-bold ms-3"><field name="l10n_ve_untaxed_bs" widget="float" digits="[18,2]" readonly="1"/> Bs.F</span>
                         </div>
-                        <div class="d-flex justify-content-between py-1 border-bottom">
-                            <span class="text-secondary fw-semibold">Impuestos Bs.:</span>
-                            <span class="fw-bold"><field name="l10n_ve_tax_bs" widget="float" digits="[18,2]" readonly="1"/> Bs.F</span>
+                        <div class="d-flex justify-content-between py-1">
+                            <span class="text-secondary fw-normal">Impuestos Bs.:</span>
+                            <span class="fw-bold ms-3"><field name="l10n_ve_tax_bs" widget="float" digits="[18,2]" readonly="1"/> Bs.F</span>
                         </div>
-                        <div class="d-flex justify-content-between py-1 pt-2">
-                            <span class="fw-bolder text-dark fs-6">Total Factura Bs.:</span>
-                            <span class="fw-bolder text-primary fs-6"><field name="l10n_ve_total_bs" widget="float" digits="[18,2]" readonly="1"/> Bs.F</span>
+                        <div class="d-flex justify-content-between py-1 border-top mt-1 pt-1">
+                            <span class="fw-bolder text-dark fs-6">Total Bs.:</span>
+                            <span class="fw-bolder text-dark fs-6 ms-3"><field name="l10n_ve_total_bs" widget="float" digits="[18,2]" readonly="1"/> Bs.F</span>
                         </div>
                     </div>
 
                     <!-- Si la factura está en Bs: Muestra Referencia en USD -->
                     <div invisible="l10n_ve_is_usd_document">
-                        <div class="d-flex justify-content-between py-1 border-bottom">
-                            <span class="text-secondary fw-semibold">Base imponible Ref. ($):</span>
-                            <span class="fw-bold">$ <field name="l10n_ve_untaxed_ref" widget="float" digits="[18,2]" readonly="1"/></span>
+                        <div class="d-flex justify-content-between py-1">
+                            <span class="text-secondary fw-normal">Base imponible Ref.:</span>
+                            <span class="fw-bold ms-3">$ <field name="l10n_ve_untaxed_ref" widget="float" digits="[18,2]" readonly="1"/></span>
                         </div>
-                        <div class="d-flex justify-content-between py-1 border-bottom">
-                            <span class="text-secondary fw-semibold">Impuestos Ref. ($):</span>
-                            <span class="fw-bold">$ <field name="l10n_ve_tax_ref" widget="float" digits="[18,2]" readonly="1"/></span>
+                        <div class="d-flex justify-content-between py-1">
+                            <span class="text-secondary fw-normal">Impuestos Ref.:</span>
+                            <span class="fw-bold ms-3">$ <field name="l10n_ve_tax_ref" widget="float" digits="[18,2]" readonly="1"/></span>
                         </div>
-                        <div class="d-flex justify-content-between py-1 border-bottom">
-                            <span class="fw-bold text-dark">Total Ref. ($):</span>
-                            <span class="fw-bold text-dark">$ <field name="l10n_ve_total_ref" widget="float" digits="[18,2]" readonly="1"/></span>
-                        </div>
-                        <div class="d-flex justify-content-between py-1 border-bottom">
-                            <span class="text-muted small">Pagado Ref. ($):</span>
-                            <span class="text-muted small">$ <field name="l10n_ve_paid_ref" widget="float" digits="[18,2]" readonly="1"/></span>
-                        </div>
-                        <div class="d-flex justify-content-between py-1 pt-2">
-                            <span class="fw-bolder text-dark fs-6">Adeudado Ref. ($):</span>
-                            <span class="fw-bolder text-primary fs-6">$ <field name="l10n_ve_residual_ref" widget="float" digits="[18,2]" readonly="1"/></span>
+                        <div class="d-flex justify-content-between py-1 border-top mt-1 pt-1">
+                            <span class="fw-bolder text-dark fs-6">Total Ref.:</span>
+                            <span class="fw-bolder text-dark fs-6 ms-3">$ <field name="l10n_ve_total_ref" widget="float" digits="[18,2]" readonly="1"/></span>
                         </div>
                     </div>
                 </div>
