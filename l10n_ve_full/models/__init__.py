@@ -5,6 +5,7 @@
 # 3. Modelos de documentos (dependen de partner, company, tax)
 # 4. Modelos de retención (dependen de account.move)
 # 5. Libros fiscales (dependen de todo lo anterior)
+import sys
 
 from . import territory          # estados, municipios, parroquias (sin deps)
 from . import exchange_rate      # tasa de cambio histórica BCV (sin deps)
@@ -19,9 +20,9 @@ from . import withholding_islr   # retención de ISLR (depende de account.move, 
 from . import withholding_municipal  # retención municipal (depende de territory, account.move)
 from . import fiscal_book        # libros fiscales (depende de todo lo anterior)
 from . import res_config_settings  # extensión de ajustes (relaciona campos de company)
-from . import sale_order           # extensión de ventas (moneda dual y tarifa USD)
 from . import account_journal      # extensión del diario (dashboard bimoneda dual)
 from . import product_template     # extensión de productos (precios duales Bs/USD)
 
-
-
+# Importar extensión de ventas únicamente si el módulo de ventas de Odoo está presente
+if 'odoo.addons.sale' in sys.modules:
+    from . import sale_order

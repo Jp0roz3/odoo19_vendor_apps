@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'Venezuela360: Localización Completa',
-    'version': '19.0.1.0.0',
+    'version': '19.0.1.1.0',
     'category': 'Accounting/Localizations',
     'summary': (
         'Localización fiscal, contable y tributaria completa para Venezuela: '
@@ -38,26 +38,13 @@ Soporte: soporte@nubelco.com
     """,
     'author': 'JeanPerozo / Nubelco',
     'website': 'https://www.nubelco.com',
-    'support': 'soporte@nubelco.com',
     'license': 'LGPL-3',
-
-    # -----------------------------------------------------------------
-    # Dependencias
-    # -----------------------------------------------------------------
     'depends': [
         'base',
-        'mail',
         'account',
-        'sale',
-        'purchase',
-        'stock',
-        'base_setup',
-        'contacts',
+        'mail',
+        'product',
     ],
-
-    # -----------------------------------------------------------------
-    # Datos (orden obligatorio: security → datos → vistas → menús)
-    # -----------------------------------------------------------------
     'data': [
         # Seguridad
         'security/ir_groups.xml',
@@ -86,7 +73,6 @@ Soporte: soporte@nubelco.com
         # Vistas: contactos y productos
         'views/res_partner_views.xml',
         'views/product_views.xml',
-
 
         # Vistas: documentos contables
         'views/account_move_views.xml',
@@ -118,10 +104,6 @@ Soporte: soporte@nubelco.com
         # Menús y acciones (siempre al final)
         'views/menuitems.xml',
     ],
-
-    # -----------------------------------------------------------------
-    # Assets JS/CSS (Odoo 19 usa bundles declarativos en manifest)
-    # -----------------------------------------------------------------
     'assets': {
         'web.assets_backend': [
             'l10n_ve_full/static/src/css/l10n_ve.css',
@@ -129,20 +111,7 @@ Soporte: soporte@nubelco.com
             'l10n_ve_full/static/src/components/bcv_rate_systray.xml',
         ],
     },
-    # -----------------------------------------------------------------
-    # Post-install
-    # -----------------------------------------------------------------
-    'post_init_hook': 'post_init_hook',
-
-    # -----------------------------------------------------------------
-    # Flags
-    # -----------------------------------------------------------------
     'installable': True,
     'application': True,
     'auto_install': False,
-
-    # -----------------------------------------------------------------
-    # Imágenes
-    # -----------------------------------------------------------------
-    'images': ['static/description/banner.png'],
 }
