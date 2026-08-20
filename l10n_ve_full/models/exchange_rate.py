@@ -146,6 +146,41 @@ class L10nVeExchangeRate(models.Model):
             rec.rate_usd_to_bs = rec.rate
             rec.rate_bs_to_usd = (1.0 / rec.rate) if rec.rate else 0.0
 
+    @api.model_create_multi
+    def create(self, vals_list):
+        records = super().create(vals_list)
+        records._sync_res_currency_rates()
+        return records
+
+    def write(self, vals):
+        res = super().write(vals)
+        self._sync_res_currency_rates()
+        return res
+
+    def _sync_res_currency_rates(self):
+        """
+        Sincroniza la tasa oficial BCV en res.currency.rate para Odoo nativo.
+        En Odoo 17/18/19 con moneda base USD, la tasa en res.currency.rate
+        para VEF/VES debe ser el valor directo (ej: 777.416100 o 60.00).
+        """
+        Rate = self.env['res.currency.rate']
+        for rec in self:
+            if rec.currency_to_id and rec.rate > 0:
+                existing = Rate.search([
+                    ('currency_id', '=', rec.currency_to_id.id),
+                    ('name', '=', rec.date),
+                    ('company_id', 'in', [rec.company_id.id, False]),
+                ], limit=1)
+                if existing:
+                    existing.write({'rate': rec.rate})
+                else:
+                    Rate.create({
+                        'currency_id': rec.currency_to_id.id,
+                        'name': rec.date,
+                        'rate': rec.rate,
+                        'company_id': rec.company_id.id,
+                    })
+
     @api.depends('date', 'rate', 'currency_from_id', 'currency_to_id')
     def _compute_display_name_field(self):
         for rec in self:

@@ -173,6 +173,11 @@ class AccountMove(models.Model):
         compute='_compute_ve_dual_totals',
         digits=(18, 2),
     )
+    l10n_ve_residual_bs = fields.Monetary(
+        string='Adeudado Bs.',
+        currency_field='l10n_ve_currency_bs_id',
+        compute='_compute_ve_dual_totals',
+    )
 
     # ------------------------------------------------------------------
     # Unidad Tributaria al momento del documento
@@ -207,6 +212,16 @@ class AccountMove(models.Model):
         size=14,
         copy=False,
         help='Número de control asignado al documento (ej: 00-12345678).',
+    )
+    l10n_ve_fiscal_printer_serial = fields.Char(
+        string='Serial Impresora Fiscal',
+        help='Serial de la máquina o impresora fiscal SENIAT.',
+        copy=False,
+    )
+    l10n_ve_requires_control = fields.Boolean(
+        string='Requiere N° Control',
+        default=True,
+        help='Indica si el documento fiscal requiere asignación de número de control SENIAT.',
     )
 
     # ------------------------------------------------------------------
@@ -487,6 +502,7 @@ class AccountMove(models.Model):
                 move.l10n_ve_untaxed_bs = move.amount_untaxed
                 move.l10n_ve_tax_bs = move.amount_tax
                 move.l10n_ve_total_bs = move.amount_total
+                move.l10n_ve_residual_bs = move.amount_residual
             else:
                 # Document in USD -> Ref totals in Bs (multiply by rate)
                 move.l10n_ve_untaxed_ref = round(move.amount_untaxed, 2)
@@ -498,10 +514,11 @@ class AccountMove(models.Model):
                 move.l10n_ve_untaxed_bs = round(move.amount_untaxed * rate, 2)
                 move.l10n_ve_tax_bs = round(move.amount_tax * rate, 2)
                 move.l10n_ve_total_bs = round(move.amount_total * rate, 2)
+                move.l10n_ve_residual_bs = round(move.amount_residual * rate, 2)
 
 
 class AccountMoveLine(models.Model):
-    """Extensión de líneas de asiento para montos en moneda dual (USD)."""
+    """Extensión de líneas de asiento para montos en moneda dual (USD y Bs)."""
     _inherit = 'account.move.line'
 
     l10n_ve_price_unit_usd = fields.Float(
@@ -514,19 +531,84 @@ class AccountMoveLine(models.Model):
         compute='_compute_ve_line_usd',
         digits=(18, 2),
     )
+    l10n_ve_rate_display = fields.Float(
+        string='Tasa',
+        compute='_compute_ve_line_usd',
+        digits=(18, 6),
+        store=True,
+    )
+    l10n_ve_debit_usd = fields.Float(
+        string='Débito $',
+        compute='_compute_ve_line_usd',
+        digits=(18, 2),
+        store=True,
+    )
+    l10n_ve_credit_usd = fields.Float(
+        string='Crédito $',
+        compute='_compute_ve_line_usd',
+        digits=(18, 2),
+        store=True,
+    )
+    l10n_ve_debit_bs = fields.Monetary(
+        string='Débito (Bs)',
+        currency_field='l10n_ve_currency_bs_id',
+        compute='_compute_ve_line_usd',
+        store=True,
+    )
+    l10n_ve_credit_bs = fields.Monetary(
+        string='Crédito (Bs)',
+        currency_field='l10n_ve_currency_bs_id',
+        compute='_compute_ve_line_usd',
+        store=True,
+    )
+    l10n_ve_amount_residual_bs = fields.Monetary(
+        string='Importe residual (Bs)',
+        currency_field='l10n_ve_currency_bs_id',
+        compute='_compute_ve_line_usd',
+        store=True,
+    )
+    l10n_ve_currency_bs_id = fields.Many2one(
+        comodel_name='res.currency',
+        string='Moneda Bs',
+        related='company_id.l10n_ve_currency_bs_id',
+        store=True,
+    )
 
-    @api.depends('price_unit', 'price_subtotal', 'move_id.l10n_ve_rate', 'move_id.currency_id', 'move_id.company_id.l10n_ve_currency_bs_id')
+    @api.depends('price_unit', 'price_subtotal', 'debit', 'credit', 'amount_residual',
+                 'move_id.l10n_ve_rate', 'move_id.currency_id', 'company_id.currency_id', 'company_id.l10n_ve_currency_bs_id')
     def _compute_ve_line_usd(self):
         for line in self:
             move = line.move_id
             rate = move.l10n_ve_rate or 1.0
-            bs_currency = move.company_id.l10n_ve_currency_bs_id
+            line.l10n_ve_rate_display = rate
+
+            bs_currency = line.company_id.l10n_ve_currency_bs_id
+            comp_currency = line.company_id.currency_id
             is_bs = (move.currency_id == bs_currency) or (move.currency_id.name in ['VES', 'VEF', 'VEB'])
+
+            # Precios en líneas de factura
             if is_bs:
                 line.l10n_ve_price_unit_usd = round(line.price_unit / rate, 2) if rate else 0.0
                 line.l10n_ve_price_subtotal_usd = round(line.price_subtotal / rate, 2) if rate else 0.0
             else:
                 line.l10n_ve_price_unit_usd = round(line.price_unit, 2)
                 line.l10n_ve_price_subtotal_usd = round(line.price_subtotal, 2)
+
+            # Débito / Crédito en USD y Bs
+            if comp_currency == bs_currency or comp_currency.name in ['VES', 'VEF', 'VEB']:
+                # Moneda de la empresa es Bs.
+                line.l10n_ve_debit_bs = line.debit
+                line.l10n_ve_credit_bs = line.credit
+                line.l10n_ve_debit_usd = round(line.debit / rate, 2) if rate else 0.0
+                line.l10n_ve_credit_usd = round(line.credit / rate, 2) if rate else 0.0
+                line.l10n_ve_amount_residual_bs = line.amount_residual
+            else:
+                # Moneda de la empresa es USD
+                line.l10n_ve_debit_usd = line.debit
+                line.l10n_ve_credit_usd = line.credit
+                line.l10n_ve_debit_bs = round(line.debit * rate, 2)
+                line.l10n_ve_credit_bs = round(line.credit * rate, 2)
+                line.l10n_ve_amount_residual_bs = round(line.amount_residual * rate, 2)
+
 
 

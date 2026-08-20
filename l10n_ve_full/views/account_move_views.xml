@@ -4,6 +4,7 @@
          Venezuela360: Extensión de Factura (account.move)
          Añade pestaña "Venezuela360" en facturas con dual BS/USD,
          tasa BCV, UT, campos fiscales y stat buttons de retenciones.
+         Formato de totales duales en bloque paralelo (Paridad con Foto 2).
     ================================================================ -->
 
     <!-- Stat Buttons y Limpieza de Encabezado de la factura -->
@@ -58,110 +59,132 @@
                 </button>
             </div>
 
-            <!-- Pestaña Venezuela360 dentro del notebook -->
-            <notebook position="inside">
-                <page string="Venezuela360" name="l10n_ve"
-                      invisible="not l10n_ve_localization">
+        </field>
+    </record>
+
+    <!-- Pestaña Fiscal Venezuela360 y Totales Bimoneda Paralelos (Paridad Foto 2) -->
+    <record id="view_move_form_l10n_ve_tab" model="ir.ui.view">
+        <field name="name">account.move.form.l10n_ve.tab</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="account.view_move_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//notebook" position="inside">
+                <page string="Venezuela360" name="l10n_ve_fiscal" invisible="not l10n_ve_localization">
                     <group>
-                        <group string="Tasa BCV y Moneda Dual">
-                            <field name="l10n_ve_exchange_rate_id"
-                                   readonly="state == 'posted'"/>
-                            <field name="l10n_ve_rate" readonly="1" string="Tasa Bs/USD"/>
-                            <field name="l10n_ve_rate_date" readonly="1"/>
-                            <field name="l10n_ve_rate_source" readonly="1"/>
+                        <group string="Control de Tasa y Dualidad Monetaria">
+                            <field name="l10n_ve_rate" string="Tasa BCV Documento" digits="[18, 6]" readonly="state != 'draft'"/>
+                            <field name="l10n_ve_rate_date" string="Fecha Tasa BCV" readonly="state != 'draft'"/>
+                            <field name="l10n_ve_is_usd_document" string="Documento en USD"/>
+                            <field name="l10n_ve_amount_untaxed_bs" string="Subtotal en Bs." widget="monetary" options="{'currency_field': 'l10n_ve_currency_bs_id'}"/>
+                            <field name="l10n_ve_amount_tax_bs" string="Impuestos en Bs." widget="monetary" options="{'currency_field': 'l10n_ve_currency_bs_id'}"/>
+                            <field name="l10n_ve_amount_total_bs" string="Total General en Bs." widget="monetary" options="{'currency_field': 'l10n_ve_currency_bs_id'}"/>
                         </group>
-                        <group string="Unidad Tributaria">
-                            <field name="l10n_ve_ut_id"    readonly="1"/>
-                            <field name="l10n_ve_ut_value" readonly="1" string="Valor UT (Bs)"/>
+                        <group string="Datos Fiscales y Control SENIAT">
+                            <field name="l10n_ve_control_number" string="Número de Control" readonly="state == 'posted'"/>
+                            <field name="l10n_ve_fiscal_printer_serial" string="Serial Impresora Fiscal"/>
+                            <field name="l10n_ve_requires_control" string="Requiere N° Control"/>
                         </group>
                     </group>
-                    <group string="Montos en Bolívares (Bs)">
+                    <group string="Referencia Dual USD ($)">
                         <group>
-                            <field name="l10n_ve_amount_untaxed_bs" readonly="1"
-                                   widget="monetary" options="{'currency_field': 'l10n_ve_currency_bs_id'}"/>
-                            <field name="l10n_ve_amount_tax_bs" readonly="1"
-                                   widget="monetary" options="{'currency_field': 'l10n_ve_currency_bs_id'}"/>
-                            <field name="l10n_ve_amount_total_bs" readonly="1"
-                                   widget="monetary" options="{'currency_field': 'l10n_ve_currency_bs_id'}"/>
+                            <field name="l10n_ve_untaxed_ref" string="Subtotal Ref. ($)"/>
+                            <field name="l10n_ve_tax_ref" string="Impuestos Ref. ($)"/>
+                            <field name="l10n_ve_total_ref" string="Total Ref. ($)"/>
                         </group>
-                        <group string="Retenciones aplicadas (Bs)">
-                            <field name="l10n_ve_wh_iva_total_bs" readonly="1"
-                                   widget="monetary" options="{'currency_field': 'l10n_ve_currency_bs_id'}"/>
-                            <field name="l10n_ve_wh_islr_total_bs" readonly="1"
-                                   widget="monetary" options="{'currency_field': 'l10n_ve_currency_bs_id'}"/>
-                            <field name="l10n_ve_wh_municipal_total_bs" readonly="1"
-                                   widget="monetary" options="{'currency_field': 'l10n_ve_currency_bs_id'}"/>
-                        </group>
-                    </group>
-                    <group string="Montos en USD">
-                        <field name="l10n_ve_amount_untaxed_usd" readonly="1"/>
-                        <field name="l10n_ve_amount_tax_usd"     readonly="1"/>
-                        <field name="l10n_ve_amount_total_usd"   readonly="1"/>
-                        <field name="l10n_ve_wh_iva_total_usd"   readonly="1"/>
-                    </group>
-                    <group string="Documentación Fiscal">
-                        <field name="l10n_ve_fiscal_number"
-                               readonly="state == 'posted'"/>
-                        <field name="l10n_ve_control_number"
-                               readonly="state == 'posted'"/>
-                        <field name="l10n_ve_is_usd_document" invisible="1"/>
-                        <field name="l10n_ve_localization" invisible="1"/>
-                        <field name="l10n_ve_currency_bs_id" invisible="1"/>
                     </group>
                 </page>
-            </notebook>
-
-            <!-- ── Campos de Cabecera Bimoneda (Panel Derecho) ───────────────── -->
-            <xpath expr="//group[@id='header_right_group']" position="inside">
-                <field name="l10n_ve_is_bs_agreement" string="Acuerdo de Factura Bs." invisible="not l10n_ve_localization"/>
-                <field name="l10n_ve_dual_currency_name" string="Moneda Dual Ref." invisible="not l10n_ve_localization" readonly="1"/>
-                <field name="l10n_ve_ref_currency_label" string="Moneda de Referencia" invisible="not l10n_ve_localization" readonly="1"/>
-                <field name="l10n_ve_rate" string="Tasa" invisible="not l10n_ve_localization" readonly="1"/>
             </xpath>
 
-            <!-- ── Columnas Bimoneda en Tabla de Líneas ──────────────────────── -->
-            <xpath expr="//field[@name='invoice_line_ids']/list/field[@name='price_unit']" position="after">
-                <field name="l10n_ve_price_unit_usd" string="Precio $ Moneda D..." optional="show" invisible="not parent.l10n_ve_localization"/>
+            <!-- Totales Duales Paralelos al Pie del Formulario (Paridad Foto 2) -->
+            <xpath expr="//field[@name='narration']/parent::group" position="attributes">
+                <attribute name="colspan">5</attribute>
             </xpath>
-            <xpath expr="//field[@name='invoice_line_ids']/list/field[@name='price_subtotal']" position="after">
-                <field name="l10n_ve_price_subtotal_usd" string="Subtotal Ref." optional="show" invisible="not parent.l10n_ve_localization"/>
+            <xpath expr="//field[@name='narration']/parent::group" position="after">
+                <group colspan="3" invisible="not l10n_ve_localization">
+                    <!-- Si la Factura está en USD -> Mostrar bloque en Bolívares en el centro -->
+                    <group class="oe_subtotal_footer" invisible="not l10n_ve_is_usd_document">
+                        <div class="text-muted small fw-bold mb-1 me-2">Tasa BCV: <field name="l10n_ve_rate" digits="[18,4]" readonly="1"/></div>
+                        <field name="l10n_ve_amount_untaxed_bs" string="Subtotal Bs.:" widget="monetary" options="{'currency_field': 'l10n_ve_currency_bs_id'}" readonly="1"/>
+                        <field name="l10n_ve_amount_tax_bs" string="Impuestos Bs.:" widget="monetary" options="{'currency_field': 'l10n_ve_currency_bs_id'}" readonly="1"/>
+                        <field name="l10n_ve_amount_total_bs" string="Total Bs.:" widget="monetary" options="{'currency_field': 'l10n_ve_currency_bs_id'}" readonly="1" class="oe_subtotal_footer_separator"/>
+                        <field name="l10n_ve_residual_bs" string="Adeudado Bs.:" widget="monetary" options="{'currency_field': 'l10n_ve_currency_bs_id'}" readonly="1"/>
+                    </group>
+                    <!-- Si la Factura está en Bs -> Mostrar bloque de Referencia Dólares en el centro (Foto 2) -->
+                    <group class="oe_subtotal_footer" invisible="l10n_ve_is_usd_document">
+                        <div class="text-muted small fw-bold mb-1 me-2">Tasa BCV: <field name="l10n_ve_rate" digits="[18,4]" readonly="1"/></div>
+                        <field name="l10n_ve_untaxed_ref" string="Base imponible Ref.:" widget="float" digits="[18,2]" readonly="1"/>
+                        <field name="l10n_ve_tax_ref" string="Impuestos Ref.:" widget="float" digits="[18,2]" readonly="1"/>
+                        <field name="l10n_ve_total_ref" string="Total Ref.:" widget="float" digits="[18,2]" readonly="1" class="oe_subtotal_footer_separator"/>
+                        <field name="l10n_ve_residual_ref" string="Adeudado Ref.:" widget="float" digits="[18,2]" readonly="1"/>
+                    </group>
+                </group>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Extensión de la Vista Lista de Facturas (account.view_invoice_tree) para Columnas Bimoneda Dual en Bs. -->
+    <record id="view_invoice_tree_l10n_ve" model="ir.ui.view">
+        <field name="name">account.invoice.list.l10n_ve</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="account.view_invoice_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='amount_untaxed_in_currency_signed']" position="after">
+                <field name="l10n_ve_amount_untaxed_bs" string="Impuestos no incl. (Bs)" sum="Total Subtotal Bs" optional="show" widget="monetary" options="{'currency_field': 'l10n_ve_currency_bs_id'}"/>
+            </xpath>
+            <xpath expr="//field[@name='amount_total_in_currency_signed']" position="after">
+                <field name="l10n_ve_amount_total_bs" string="Total (Bs)" sum="Total General Bs" optional="show" decoration-bf="1" widget="monetary" options="{'currency_field': 'l10n_ve_currency_bs_id'}"/>
+                <field name="l10n_ve_currency_bs_id" column_invisible="True"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Extensión de la Vista Lista de Apuntes Contables (account.view_move_line_tree) para Columnas Duales Bs y USD -->
+    <record id="view_move_line_tree_l10n_ve_dual" model="ir.ui.view">
+        <field name="name">account.move.line.list.l10n_ve.dual</field>
+        <field name="model">account.move.line</field>
+        <field name="inherit_id" ref="account.view_move_line_tree"/>
+        <field name="arch" type="xml">
+
+            <!-- Renombrar Débito y Crédito nativos como Débito $ y Crédito $ -->
+            <xpath expr="//field[@name='debit']" position="attributes">
+                <attribute name="string">Débito $</attribute>
+            </xpath>
+            <xpath expr="//field[@name='credit']" position="attributes">
+                <attribute name="string">Crédito $</attribute>
             </xpath>
 
-            <!-- ── Totales Duales de Referencia LADO IZQUIERDO HORIZONTAL (Lado a Lado con USD) ── -->
-            <xpath expr="//field[@name='narration']/ancestor::group[1]" position="inside">
-                <div invisible="not l10n_ve_localization" class="mt-3 pt-2 pe-4" style="max-width: 380px;">
-                    <!-- Si la factura está en USD: Muestra Referencia en Bs (Lado Izquierdo) -->
-                    <div invisible="not l10n_ve_is_usd_document">
-                        <div class="d-flex justify-content-between py-1" style="white-space: nowrap;">
-                            <span class="text-secondary fw-semibold">Base imponible Bs.:</span>
-                            <span class="fw-bold ms-3 text-nowrap"><field name="l10n_ve_untaxed_bs" widget="float" digits="[18,2]" readonly="1"/> Bs.F</span>
-                        </div>
-                        <div class="d-flex justify-content-between py-1" style="white-space: nowrap;">
-                            <span class="text-secondary fw-semibold">Impuestos Bs.:</span>
-                            <span class="fw-bold ms-3 text-nowrap"><field name="l10n_ve_tax_bs" widget="float" digits="[18,2]" readonly="1"/> Bs.F</span>
-                        </div>
-                        <div class="d-flex justify-content-between py-1 border-top mt-1 pt-1" style="white-space: nowrap;">
-                            <span class="fw-bolder text-dark fs-6">Total Bs.:</span>
-                            <span class="fw-bolder text-dark fs-6 ms-3 text-nowrap"><field name="l10n_ve_total_bs" widget="float" digits="[18,2]" readonly="1"/> Bs.F</span>
-                        </div>
-                    </div>
+            <!-- Insertar Débito (Bs) y Crédito (Bs) antes de Débito $ -->
+            <xpath expr="//field[@name='debit']" position="before">
+                <field name="l10n_ve_debit_bs" string="Débito (Bs)" optional="show" sum="Total Débito Bs" widget="monetary" options="{'currency_field': 'l10n_ve_currency_bs_id'}"/>
+                <field name="l10n_ve_credit_bs" string="Crédito (Bs)" optional="show" sum="Total Crédito Bs" widget="monetary" options="{'currency_field': 'l10n_ve_currency_bs_id'}"/>
+                <field name="l10n_ve_currency_bs_id" column_invisible="True"/>
+            </xpath>
 
-                    <!-- Si la factura está en Bs: Muestra Referencia en USD (Lado Izquierdo) -->
-                    <div invisible="l10n_ve_is_usd_document">
-                        <div class="d-flex justify-content-between py-1" style="white-space: nowrap;">
-                            <span class="text-secondary fw-semibold">Base imponible Ref.:</span>
-                            <span class="fw-bold ms-3 text-nowrap">$ <field name="l10n_ve_untaxed_ref" widget="float" digits="[18,2]" readonly="1"/></span>
-                        </div>
-                        <div class="d-flex justify-content-between py-1" style="white-space: nowrap;">
-                            <span class="text-secondary fw-semibold">Impuestos Ref.:</span>
-                            <span class="fw-bold ms-3 text-nowrap">$ <field name="l10n_ve_tax_ref" widget="float" digits="[18,2]" readonly="1"/></span>
-                        </div>
-                        <div class="d-flex justify-content-between py-1 border-top mt-1 pt-1" style="white-space: nowrap;">
-                            <span class="fw-bolder text-dark fs-6">Total Ref.:</span>
-                            <span class="fw-bolder text-dark fs-6 ms-3 text-nowrap">$ <field name="l10n_ve_total_ref" widget="float" digits="[18,2]" readonly="1"/></span>
-                        </div>
-                    </div>
-                </div>
+            <!-- Insertar Tasa después de Crédito $ -->
+            <xpath expr="//field[@name='credit']" position="after">
+                <field name="l10n_ve_rate_display" string="Tasa" optional="show" digits="[18, 6]"/>
+            </xpath>
+
+            <!-- Insertar Importe residual (Bs) después de amount_residual -->
+            <xpath expr="//field[@name='amount_residual']" position="after">
+                <field name="l10n_ve_amount_residual_bs" string="Importe residual (Bs)" optional="show" sum="Total Residual Bs"/>
+            </xpath>
+
+        </field>
+    </record>
+
+    <!-- Extensión de Apuntes dentro del Formulario de Asiento (account.move.form -> line_ids) -->
+    <record id="view_move_form_l10n_ve_lines_dual" model="ir.ui.view">
+        <field name="name">account.move.form.l10n_ve.lines.dual</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="account.view_move_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='line_ids']/list/field[@name='debit']" position="before">
+                <field name="l10n_ve_debit_bs" string="Débito (Bs)" optional="show" sum="Total Débito Bs"/>
+                <field name="l10n_ve_credit_bs" string="Crédito (Bs)" optional="show" sum="Total Crédito Bs"/>
+            </xpath>
+            <xpath expr="//field[@name='line_ids']/list/field[@name='credit']" position="after">
+                <field name="l10n_ve_rate_display" string="Tasa" optional="show" digits="[18, 6]"/>
             </xpath>
         </field>
     </record>

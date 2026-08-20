@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!--
+        Venezuela360: Extensión de Vista de Productos para Precios y Costos Duales
+        ==========================================================================
+        Coincidencia exacta con Fotos 2 y 3 compartidas por el usuario:
+          - Formulario:
+            - Precio de Venta (Bs / USD)
+            - Costo (Bs / USD)
+            - Margen Ganancia (%)
+            - Costo Reposición ($)
+            - Pestaña: Retención ISLR (Concepto de Retención SENIAT)
+          - Kanban:
+            - Precio: XX,XX Bs.
+            - Precio $: $ XX,XX (en texto ROJO 🔴)
+    -->
+
+    <!-- Extensión del Formulario de Productos (product.template_form_view) -->
+    <record id="product_template_form_view_l10n_ve_dual" model="ir.ui.view">
+        <field name="name">product.template.form.l10n_ve.dual</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="product.product_template_form_view"/>
+        <field name="arch" type="xml">
+
+            <!-- Insertar Precio (Bs) y Precio ($) después del contenedor de precio -->
+            <xpath expr="//div[@name='list_price_uom']" position="after">
+                <field name="l10n_ve_list_price_bs" string="Precio de Venta (Bs)" widget="monetary" options="{'currency_field': 'l10n_ve_currency_bs_id'}"/>
+                <field name="l10n_ve_list_price_usd" string="Precio de Venta ($)"/>
+                <field name="l10n_ve_currency_bs_id" invisible="1"/>
+            </xpath>
+
+            <!-- Insertar Costo (Bs), Costo ($), Margen Ganancia (%) y Costo Reposición ($) como filas independientes después de standard_price_uom -->
+            <xpath expr="//div[@name='standard_price_uom']" position="after">
+                <field name="l10n_ve_standard_price_bs" string="Costo (Bs)" widget="monetary" options="{'currency_field': 'l10n_ve_currency_bs_id'}"/>
+                <field name="l10n_ve_standard_price_usd" string="Costo ($)"/>
+                <field name="l10n_ve_profit_margin" string="Margen Ganancia (%)"/>
+                <field name="l10n_ve_replacement_cost_usd" string="Costo Reposición ($)"/>
+            </xpath>
+
+            <!-- Pestaña Retención ISLR en la ficha del producto -->
+            <xpath expr="//notebook" position="inside">
+                <page string="Retención ISLR" name="l10n_ve_islr_tab">
+                    <group string="Concepto de Retención de ISLR (SENIAT)">
+                        <field name="l10n_ve_islr_concept_id" string="Concepto de Retención" options="{'no_create': True}"/>
+                    </group>
+                </page>
+            </xpath>
+
+        </field>
+    </record>
+
+    <!-- Vista Lista de Productos con Precios y Costos Duales -->
+    <record id="product_template_tree_view_l10n_ve_dual" model="ir.ui.view">
+        <field name="name">product.template.list.l10n_ve.dual</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="product.product_template_tree_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='list_price']" position="after">
+                <field name="l10n_ve_list_price_bs" optional="show" widget="monetary" options="{'currency_field': 'l10n_ve_currency_bs_id'}"/>
+                <field name="l10n_ve_list_price_usd" optional="show" string="Precio ($)"/>
+            </xpath>
+            <xpath expr="//field[@name='standard_price']" position="after">
+                <field name="l10n_ve_standard_price_bs" optional="hide" widget="monetary" options="{'currency_field': 'l10n_ve_currency_bs_id'}"/>
+                <field name="l10n_ve_standard_price_usd" optional="hide" string="Costo ($)"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Vista Kanban de Productos: Precio en Bs. y Precio $ en ROJO 🔴 (Coincidencia Exacta Foto 3) -->
+    <record id="product_template_kanban_view_l10n_ve_dual" model="ir.ui.view">
+        <field name="name">product.template.kanban.l10n_ve.dual</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="product.product_template_kanban_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='currency_id']" position="after">
+                <field name="l10n_ve_list_price_bs"/>
+                <field name="l10n_ve_list_price_usd"/>
+                <field name="l10n_ve_currency_bs_id"/>
+            </xpath>
+            <xpath expr="//span[field[@name='list_price']]" position="after">
+                <div class="mt-1 small">
+                    <span class="text-muted fw-semibold">Precio: </span>
+                    <field name="l10n_ve_list_price_bs" widget="monetary" options="{'currency_field': 'l10n_ve_currency_bs_id'}"/>
+                </div>
+                <div class="small fw-bold text-danger">
+                    <span>Precio $: </span>
+                    $ <field name="l10n_ve_list_price_usd"/>
+                </div>
+            </xpath>
+        </field>
+    </record>
+</odoo>

@@ -68,6 +68,7 @@ Soporte: soporte@nubelco.com
         'data/sequence_data.xml',
         'data/territory_state_data.xml',
         'data/account_tax_group_data.xml',
+        'data/account_tax_data.xml',
         'data/ut_history_data.xml',
 
         # Vistas: configuración
@@ -82,13 +83,16 @@ Soporte: soporte@nubelco.com
         # Vistas: territorialidad
         'views/territory_views.xml',
 
-        # Vistas: contactos
+        # Vistas: contactos y productos
         'views/res_partner_views.xml',
+        'views/product_views.xml',
+
 
         # Vistas: documentos contables
         'views/account_move_views.xml',
         'views/account_payment_views.xml',
         'views/account_tax_views.xml',
+        'views/account_journal_dashboard_views.xml',
 
         # Vistas: retenciones
         'views/withholding_iva_views.xml',
@@ -125,7 +129,6 @@ Soporte: soporte@nubelco.com
             'l10n_ve_full/static/src/components/bcv_rate_systray.xml',
         ],
     },
-
     # -----------------------------------------------------------------
     # Post-install
     # -----------------------------------------------------------------

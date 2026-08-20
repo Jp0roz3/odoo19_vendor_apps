@@ -20,4 +20,8 @@ from . import withholding_municipal  # retención municipal (depende de territor
 from . import fiscal_book        # libros fiscales (depende de todo lo anterior)
 from . import res_config_settings  # extensión de ajustes (relaciona campos de company)
 from . import sale_order           # extensión de ventas (moneda dual y tarifa USD)
+from . import account_journal      # extensión del diario (dashboard bimoneda dual)
+from . import product_template     # extensión de productos (precios duales Bs/USD)
+
+
 
