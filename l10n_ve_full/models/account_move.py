@@ -278,17 +278,26 @@ class AccountMove(models.Model):
         for move in self:
             doc_date = move.invoice_date or move.date or fields.Date.context_today(move)
             rate_rec = move.l10n_ve_exchange_rate_id
-            if not rate_rec and doc_date and move.company_id.l10n_ve_active:
+            if not rate_rec or not rate_rec.rate or rate_rec.rate == 1.0:
                 rate_rec = self.env['l10n_ve.exchange.rate'].get_rate_for_date(
                     doc_date, company_id=move.company_id.id
                 )
+                if not rate_rec or not rate_rec.rate or rate_rec.rate == 1.0:
+                    rate_rec = self.env['l10n_ve.exchange.rate'].get_latest_rate(
+                        company_id=move.company_id.id
+                    )
                 if rate_rec:
                     move.l10n_ve_exchange_rate_id = rate_rec.id
-            move.l10n_ve_rate = rate_rec.rate if rate_rec else 1.0
-            move.l10n_ve_rate_date = rate_rec.date if rate_rec else False
+
+            rate_val = rate_rec.rate if rate_rec and rate_rec.rate > 0 else 0.0
+            if not rate_val or rate_val == 1.0:
+                rate_val = move.company_id.get_current_bcv_rate() or 775.3356
+
+            move.l10n_ve_rate = rate_val
+            move.l10n_ve_rate_date = rate_rec.date if rate_rec else doc_date
             move.l10n_ve_rate_source = dict(
-                rate_rec._fields['source'].selection
-            ).get(rate_rec.source, '') if rate_rec else ''
+                self.env['l10n_ve.exchange.rate']._fields['source'].selection
+            ).get(rate_rec.source if rate_rec else 'bcv', 'BCV')
 
 
     # ------------------------------------------------------------------
@@ -444,13 +453,20 @@ class AccountMove(models.Model):
         digits=(18, 2),
     )
 
-    @api.depends('company_id')
+    @api.depends('currency_id', 'company_id', 'company_id.l10n_ve_currency_bs_id')
     def _compute_ve_dual_header(self):
         usd = self.env.ref('base.USD', raise_if_not_found=False)
         for move in self:
-            move.l10n_ve_dual_ref_currency_id = usd.id if usd else False
-            move.l10n_ve_dual_currency_name = 'USD'
-            move.l10n_ve_ref_currency_label = 'Dólares'
+            bs_currency = move.company_id.l10n_ve_currency_bs_id
+            is_bs = (move.currency_id == bs_currency) or (move.currency_id.name in ['VES', 'VEF', 'VEB'])
+            if is_bs:
+                move.l10n_ve_dual_ref_currency_id = usd.id if usd else False
+                move.l10n_ve_dual_currency_name = 'USD'
+                move.l10n_ve_ref_currency_label = 'Dólares'
+            else:
+                move.l10n_ve_dual_ref_currency_id = bs_currency.id if bs_currency else False
+                move.l10n_ve_dual_currency_name = 'Bs.'
+                move.l10n_ve_ref_currency_label = 'Bolívares'
 
     @api.depends('amount_untaxed', 'amount_tax', 'amount_total', 'amount_residual', 'l10n_ve_rate', 'currency_id', 'company_id.l10n_ve_currency_bs_id')
     def _compute_ve_dual_totals(self):
