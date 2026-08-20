@@ -31,6 +31,13 @@ class AccountMove(models.Model):
         store=False,
     )
 
+    # Medio de emisión fiscal
+    l10n_ve_journal_emission_medium = fields.Selection([
+        ('manual', 'Manual'),
+        ('fiscal_printer', 'Impresora Fiscal'),
+        ('free_format', 'Forma Libre'),
+    ], string='Medio de Emisión', default='free_format', help='Medio de emisión del documento fiscal.')
+
     # ------------------------------------------------------------------
     # Tasa de cambio BCV
     # ------------------------------------------------------------------
