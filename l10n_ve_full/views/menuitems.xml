@@ -1,183 +1,153 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <!-- ================================================================
-         Venezuela360: Estructura de Menús
-         Integración total para Odoo Enterprise y Community
+         Venezuela360: Integración Nativa en Menús Contables de Odoo
+         Elimina la pestaña separada superior y se integra 100% en:
+         - Clientes (Retenciones Recibidas / Libro de Ventas)
+         - Proveedores (Retenciones Emitidas / Libro de Compras)
+         - Reportes (Libros Fiscales SENIAT)
+         - Contabilidad (Tasas BCV)
+         - Configuración (Localización Venezuela)
     ================================================================ -->
 
-    <!-- ── MENÚ RAÍZ VENEZUELA360 ──────────────────────────────────── -->
-    <menuitem id="menu_l10n_ve_root"
-              name="Venezuela360"
-              parent="account.menu_finance"
-              sequence="99"
-              groups="l10n_ve_full.group_l10n_ve_user"/>
-
-    <!-- ── TASAS Y UT ─────────────────────────────────────────────── -->
-    <menuitem id="menu_l10n_ve_rates"
-              name="Tasas y Valores Fiscales"
-              parent="menu_l10n_ve_root"
-              sequence="10"/>
-
-    <menuitem id="menu_l10n_ve_exchange_rate"
-              name="Tasas de Cambio BCV"
-              parent="menu_l10n_ve_rates"
-              action="action_l10n_ve_exchange_rate"
-              sequence="10"
-              groups="l10n_ve_full.group_l10n_ve_user"/>
-
-    <menuitem id="menu_account_ut_history"
-              name="Unidad Tributaria Histórica"
-              parent="menu_l10n_ve_rates"
-              action="action_account_ut_history"
-              sequence="20"
-              groups="l10n_ve_full.group_l10n_ve_user"/>
-
-    <!-- ── RETENCIONES (MENÚ RAÍZ VENEZUELA360) ────────────────────── -->
-    <menuitem id="menu_l10n_ve_retenciones"
-              name="Retenciones"
-              parent="menu_l10n_ve_root"
-              sequence="20"/>
-
-    <menuitem id="menu_account_wh_iva"
-              name="Retenciones IVA"
-              parent="menu_l10n_ve_retenciones"
-              action="action_account_wh_iva"
-              sequence="10"
-              groups="l10n_ve_full.group_l10n_ve_user"/>
-
-    <menuitem id="menu_account_wh_islr"
-              name="Retenciones ISLR"
-              parent="menu_l10n_ve_retenciones"
-              action="action_account_wh_islr"
-              sequence="20"
-              groups="l10n_ve_full.group_l10n_ve_user"/>
-
-    <menuitem id="menu_account_wh_municipal"
-              name="Retenciones Municipales (IAE)"
-              parent="menu_l10n_ve_retenciones"
-              action="action_account_wh_municipal"
-              sequence="30"
-              groups="l10n_ve_full.group_l10n_ve_user"/>
-
-    <!-- ── LIBROS FISCALES (MENÚ RAÍZ VENEZUELA360) ────────────────── -->
-    <menuitem id="menu_l10n_ve_libros"
-              name="Libros Fiscales"
-              parent="menu_l10n_ve_root"
-              sequence="30"/>
-
-    <menuitem id="menu_fiscal_book_all"
-              name="Todos los Libros"
-              parent="menu_l10n_ve_libros"
-              action="action_account_fiscal_book"
-              sequence="10"
-              groups="l10n_ve_full.group_l10n_ve_user"/>
-
-    <menuitem id="menu_fiscal_book_purchase"
-              name="Libro de Compras"
-              parent="menu_l10n_ve_libros"
-              action="action_fiscal_book_purchase"
-              sequence="20"
-              groups="l10n_ve_full.group_l10n_ve_user"/>
-
-    <menuitem id="menu_fiscal_book_sale"
-              name="Libro de Ventas"
-              parent="menu_l10n_ve_libros"
-              action="action_fiscal_book_sale"
-              sequence="30"
-              groups="l10n_ve_full.group_l10n_ve_user"/>
-
-    <!-- ── CONFIGURACIÓN VE ───────────────────────────────────────── -->
-    <menuitem id="menu_l10n_ve_config"
-              name="Configuración VE"
-              parent="menu_l10n_ve_root"
-              sequence="90"
-              groups="l10n_ve_full.group_l10n_ve_admin"/>
-
-    <menuitem id="menu_l10n_ve_states"
-              name="Estados de Venezuela"
-              parent="menu_l10n_ve_config"
-              action="action_l10n_ve_state"
-              sequence="10"
-              groups="l10n_ve_full.group_l10n_ve_admin"/>
-
-    <menuitem id="menu_l10n_ve_municipalities"
-              name="Municipios"
-              parent="menu_l10n_ve_config"
-              action="action_l10n_ve_municipality"
-              sequence="20"
-              groups="l10n_ve_full.group_l10n_ve_admin"/>
-
-    <menuitem id="menu_l10n_ve_parishes"
-              name="Parroquias"
-              parent="menu_l10n_ve_config"
-              action="action_l10n_ve_parish"
-              sequence="30"
-              groups="l10n_ve_full.group_l10n_ve_admin"/>
-
-    <menuitem id="menu_account_wh_islr_concept"
-              name="Conceptos ISLR"
-              parent="menu_l10n_ve_config"
-              action="action_account_wh_islr_concept"
-              sequence="40"
-              groups="l10n_ve_full.group_l10n_ve_admin"/>
-
-    <!-- ================================================================
-         ACCESOS DIRECTOS EN CLIENTES Y PROVEEDORES
-         ================================================================ -->
-    <menuitem id="menu_l10n_ve_client_retenciones"
-              name="Retenciones Recibidas (IVA / ISLR)"
+    <!-- ── 1. ACCESOS EN EL MENÚ "CLIENTES" ───────────────────────── -->
+    <menuitem id="menu_account_wh_iva_customer"
+              name="Retenciones IVA Recibidas"
               parent="account.menu_finance_receivables"
               action="action_account_wh_iva"
-              sequence="80"/>
+              sequence="80"
+              groups="l10n_ve_full.group_l10n_ve_user"/>
 
-    <menuitem id="menu_l10n_ve_supplier_retenciones"
-              name="Retenciones Emitidas (IVA / ISLR)"
+    <menuitem id="menu_account_wh_islr_customer"
+              name="Retenciones ISLR Recibidas"
+              parent="account.menu_finance_receivables"
+              action="action_account_wh_islr"
+              sequence="81"
+              groups="l10n_ve_full.group_l10n_ve_user"/>
+
+    <menuitem id="menu_fiscal_book_sale_customer"
+              name="Libro de Ventas SENIAT"
+              parent="account.menu_finance_receivables"
+              action="action_fiscal_book_sale"
+              sequence="82"
+              groups="l10n_ve_full.group_l10n_ve_user"/>
+
+
+    <!-- ── 2. ACCESOS EN EL MENÚ "PROVEEDORES" ────────────────────── -->
+    <menuitem id="menu_account_wh_iva_supplier"
+              name="Retenciones IVA Emitidas"
               parent="account.menu_finance_payables"
               action="action_account_wh_iva"
-              sequence="80"/>
+              sequence="80"
+              groups="l10n_ve_full.group_l10n_ve_user"/>
 
-    <!-- ================================================================
-         ACCESOS DIRECTOS EN EL MENÚ "CONFIGURACIÓN" DE FACTURACIÓN/CONTABILIDAD
-         ================================================================ -->
+    <menuitem id="menu_account_wh_islr_supplier"
+              name="Retenciones ISLR Emitidas"
+              parent="account.menu_finance_payables"
+              action="action_account_wh_islr"
+              sequence="81"
+              groups="l10n_ve_full.group_l10n_ve_user"/>
+
+    <menuitem id="menu_account_wh_municipal_supplier"
+              name="Retenciones Municipales (IAE)"
+              parent="account.menu_finance_payables"
+              action="action_account_wh_municipal"
+              sequence="82"
+              groups="l10n_ve_full.group_l10n_ve_user"/>
+
+    <menuitem id="menu_fiscal_book_purchase_supplier"
+              name="Libro de Compras SENIAT"
+              parent="account.menu_finance_payables"
+              action="action_fiscal_book_purchase"
+              sequence="83"
+              groups="l10n_ve_full.group_l10n_ve_user"/>
+
+
+    <!-- ── 3. ACCESOS EN EL MENÚ "REPORTES" ────────────────────────── -->
+    <menuitem id="menu_l10n_ve_reports_root"
+              name="Libros Fiscales SENIAT"
+              parent="account.menu_finance_reports"
+              sequence="50"
+              groups="l10n_ve_full.group_l10n_ve_user"/>
+
+    <menuitem id="menu_fiscal_book_purchase_report"
+              name="Libro de Compras"
+              parent="menu_l10n_ve_reports_root"
+              action="action_fiscal_book_purchase"
+              sequence="10"
+              groups="l10n_ve_full.group_l10n_ve_user"/>
+
+    <menuitem id="menu_fiscal_book_sale_report"
+              name="Libro de Ventas"
+              parent="menu_l10n_ve_reports_root"
+              action="action_fiscal_book_sale"
+              sequence="20"
+              groups="l10n_ve_full.group_l10n_ve_user"/>
+
+    <menuitem id="menu_fiscal_book_all_report"
+              name="Resumen Libros Fiscales"
+              parent="menu_l10n_ve_reports_root"
+              action="action_account_fiscal_book"
+              sequence="30"
+              groups="l10n_ve_full.group_l10n_ve_user"/>
+
+
+    <!-- ── 4. ACCESOS EN EL MENÚ "CONTABILIDAD" ────────────────────── -->
+    <menuitem id="menu_l10n_ve_bcv_rates_accounting"
+              name="Tasas de Cambio BCV"
+              parent="account.menu_finance_entries"
+              action="action_l10n_ve_exchange_rate"
+              sequence="90"
+              groups="l10n_ve_full.group_l10n_ve_user"/>
+
+
+    <!-- ── 5. ACCESOS EN EL MENÚ "CONFIGURACIÓN" ──────────────────── -->
     <menuitem id="menu_l10n_ve_config_root"
               name="Localización Venezuela"
               parent="account.menu_finance_configuration"
-              sequence="100"/>
+              sequence="100"
+              groups="l10n_ve_full.group_l10n_ve_admin"/>
 
     <menuitem id="menu_l10n_ve_config_rates"
-              name="Tasas BCV"
+              name="Tasas de Cambio BCV"
               parent="menu_l10n_ve_config_root"
               action="action_l10n_ve_exchange_rate"
-              sequence="10"/>
+              sequence="10"
+              groups="l10n_ve_full.group_l10n_ve_admin"/>
 
     <menuitem id="menu_l10n_ve_config_ut"
-              name="Unidad Tributaria"
+              name="Unidad Tributaria Histórica"
               parent="menu_l10n_ve_config_root"
               action="action_account_ut_history"
-              sequence="20"/>
+              sequence="20"
+              groups="l10n_ve_full.group_l10n_ve_admin"/>
 
     <menuitem id="menu_l10n_ve_config_islr_concepts"
-              name="Conceptos ISLR"
+              name="Conceptos ISLR SENIAT"
               parent="menu_l10n_ve_config_root"
               action="action_account_wh_islr_concept"
-              sequence="30"/>
+              sequence="30"
+              groups="l10n_ve_full.group_l10n_ve_admin"/>
 
     <menuitem id="menu_l10n_ve_config_states"
               name="Estados de Venezuela"
               parent="menu_l10n_ve_config_root"
               action="action_l10n_ve_state"
-              sequence="40"/>
+              sequence="40"
+              groups="l10n_ve_full.group_l10n_ve_admin"/>
 
     <menuitem id="menu_l10n_ve_config_municipalities"
               name="Municipios"
               parent="menu_l10n_ve_config_root"
               action="action_l10n_ve_municipality"
-              sequence="50"/>
+              sequence="50"
+              groups="l10n_ve_full.group_l10n_ve_admin"/>
 
     <menuitem id="menu_l10n_ve_config_parishes"
               name="Parroquias"
               parent="menu_l10n_ve_config_root"
               action="action_l10n_ve_parish"
-              sequence="60"/>
+              sequence="60"
+              groups="l10n_ve_full.group_l10n_ve_admin"/>
 
 </odoo>
