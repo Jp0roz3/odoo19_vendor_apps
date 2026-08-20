@@ -167,6 +167,7 @@ class AccountWhMunicipal(models.Model):
             if rec.name == '/':
                 rec.name = self.env['ir.sequence'].next_by_code('account.wh.municipal') or '/'
             rec.state = 'confirmed'
+        return True
 
     def action_post(self):
         for rec in self:
@@ -177,6 +178,7 @@ class AccountWhMunicipal(models.Model):
             entry = rec._create_journal_entry()
             rec.journal_entry_id = entry.id
             rec.state = 'posted'
+        return True
 
     def _create_journal_entry(self):
         self.ensure_one()

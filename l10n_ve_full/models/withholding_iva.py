@@ -252,6 +252,7 @@ class AccountWhIva(models.Model):
                 else:
                     rec.name = self.env['ir.sequence'].next_by_code('account.wh.iva') or '/'
             rec.state = 'confirmed'
+        return True
 
     def action_post(self):
         """Contabilizar la retención: genera el asiento contable."""
@@ -270,6 +271,7 @@ class AccountWhIva(models.Model):
             rec.journal_entry_id = entry.id
             rec.state = 'posted'
             _logger.info('Venezuela360 IVA: Retención %s contabilizada → Asiento %s', rec.name, entry.name)
+        return True
 
     def _create_journal_entry(self):
         """
