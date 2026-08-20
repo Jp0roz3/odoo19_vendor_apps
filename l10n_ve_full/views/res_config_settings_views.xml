@@ -125,23 +125,19 @@
                             <div class="content-group">
                                 <div class="row mt16">
                                     <label for="l10n_ve_wh_iva_account_id" string="IVA Retenido (emitido)" class="col-lg-3 o_light_label"/>
-                                    <field name="l10n_ve_wh_iva_account_id"
-                                           domain="[('deprecated','=',False)]"/>
+                                    <field name="l10n_ve_wh_iva_account_id"/>
                                 </div>
                                 <div class="row">
                                     <label for="l10n_ve_wh_iva_received_account_id" string="IVA Retenido (recibido)" class="col-lg-3 o_light_label"/>
-                                    <field name="l10n_ve_wh_iva_received_account_id"
-                                           domain="[('deprecated','=',False)]"/>
+                                    <field name="l10n_ve_wh_iva_received_account_id"/>
                                 </div>
                                 <div class="row">
                                     <label for="l10n_ve_wh_islr_account_id" string="ISLR Retenido" class="col-lg-3 o_light_label"/>
-                                    <field name="l10n_ve_wh_islr_account_id"
-                                           domain="[('deprecated','=',False)]"/>
+                                    <field name="l10n_ve_wh_islr_account_id"/>
                                 </div>
                                 <div class="row">
                                     <label for="l10n_ve_wh_municipal_account_id" string="Ret. Municipal" class="col-lg-3 o_light_label"/>
-                                    <field name="l10n_ve_wh_municipal_account_id"
-                                           domain="[('deprecated','=',False)]"/>
+                                    <field name="l10n_ve_wh_municipal_account_id"/>
                                 </div>
                             </div>
                         </setting>

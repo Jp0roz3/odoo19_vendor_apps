@@ -67,7 +67,7 @@
                 <filter name="filter_manual" string="Manual"         domain="[('source','=','manual')]"/>
                 <separator/>
                 <filter name="filter_active" string="Activos" domain="[('active','=',True)]"/>
-                <group expand="0" string="Agrupar Por">
+                <group>
                     <filter name="group_source"  string="Fuente"   context="{'group_by':'source'}"/>
                     <filter name="group_company" string="Compañía" context="{'group_by':'company_id'}"/>
                     <filter name="group_date"    string="Fecha"    context="{'group_by':'date:month'}"/>

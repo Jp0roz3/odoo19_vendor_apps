@@ -135,7 +135,7 @@
                 <separator/>
                 <filter name="draft"   string="Borrador"   domain="[('state','=','draft')]"/>
                 <filter name="done"    string="Cerrado"    domain="[('state','=','done')]"/>
-                <group expand="0" string="Agrupar Por">
+                <group>
                     <filter name="group_type"    string="Tipo"     context="{'group_by':'book_type'}"/>
                     <filter name="group_period"  string="Período"  context="{'group_by':'date_from:month'}"/>
                     <filter name="group_company" string="Compañía" context="{'group_by':'company_id'}"/>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <!-- ================================================================
-         Venezuela360: Grupos de Usuarios
+         Venezuela360: Grupos de Usuarios — Odoo 19
          ================================================================
          Jerarquía:
            l10n_ve_full.group_l10n_ve_user    → Usuario básico (solo lectura fiscal)
@@ -10,20 +10,17 @@
     ================================================================ -->
     <record id="group_l10n_ve_user" model="res.groups">
         <field name="name">Usuario Fiscal Venezuela</field>
-        <field name="category_id" ref="base.module_category_accounting_accounting"/>
         <field name="comment">Puede consultar tasas BCV, UT, libros fiscales y comprobantes de retención.</field>
     </record>
 
     <record id="group_l10n_ve_manager" model="res.groups">
         <field name="name">Gerente Fiscal Venezuela</field>
-        <field name="category_id" ref="base.module_category_accounting_accounting"/>
         <field name="implied_ids" eval="[(4, ref('group_l10n_ve_user'))]"/>
         <field name="comment">Puede crear y confirmar retenciones IVA/ISLR/Municipal y generar libros fiscales.</field>
     </record>
 
     <record id="group_l10n_ve_admin" model="res.groups">
         <field name="name">Administrador Localización Venezuela</field>
-        <field name="category_id" ref="base.module_category_accounting_accounting"/>
         <field name="implied_ids" eval="[(4, ref('group_l10n_ve_manager'))]"/>
         <field name="comment">Configuración completa: tasa BCV, UT, territorialidad, conceptos ISLR, diarios y cuentas.</field>
     </record>

@@ -116,7 +116,7 @@
                 <separator/>
                 <filter name="supplier"  string="A Proveedores" domain="[('wh_type','=','supplier')]"/>
                 <filter name="customer"  string="A Clientes"    domain="[('wh_type','=','customer')]"/>
-                <group expand="0" string="Agrupar Por">
+                <group>
                     <filter name="group_partner"  string="Proveedor/Cliente" context="{'group_by':'partner_id'}"/>
                     <filter name="group_date"     string="Fecha"             context="{'group_by':'date:month'}"/>
                     <filter name="group_state"    string="Estado"            context="{'group_by':'state'}"/>
