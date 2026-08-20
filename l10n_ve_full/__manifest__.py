@@ -48,6 +48,7 @@ Soporte: soporte@nubelco.com
         'base',
         'mail',
         'account',
+        'sale',
         'purchase',
         'stock',
         'base_setup',
