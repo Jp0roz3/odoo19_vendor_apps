@@ -104,6 +104,53 @@
                     <field name="l10n_ve_currency_bs_id" invisible="1"/>
                 </page>
             </notebook>
+
+            <!-- ── Campos de Cabecera Bimoneda (Panel Derecho) ───────────────── -->
+            <xpath expr="//field[@name='journal_id']" position="after">
+                <field name="l10n_ve_is_bs_agreement" string="Acuerdo de Factura Bs." invisible="not l10n_ve_localization"/>
+                <field name="l10n_ve_dual_currency_name" string="Moneda Dual Ref." invisible="not l10n_ve_localization" readonly="1"/>
+                <field name="l10n_ve_ref_currency_label" string="Moneda de Referencia" invisible="not l10n_ve_localization" readonly="1"/>
+                <field name="l10n_ve_rate" string="Tasa" invisible="not l10n_ve_localization" readonly="1"/>
+            </xpath>
+
+            <!-- ── Columnas Bimoneda en Tabla de Líneas ──────────────────────── -->
+            <xpath expr="//field[@name='invoice_line_ids']/list/field[@name='price_unit']" position="after">
+                <field name="l10n_ve_price_unit_usd" string="Precio $ Moneda D..." optional="show" invisible="not parent.l10n_ve_localization"/>
+            </xpath>
+            <xpath expr="//field[@name='invoice_line_ids']/list/field[@name='price_subtotal']" position="after">
+                <field name="l10n_ve_price_subtotal_usd" string="Subtotal Ref." optional="show" invisible="not parent.l10n_ve_localization"/>
+            </xpath>
+
+            <!-- ── Totales Duales al Pie de la Factura (USD / Bs) ───────────── -->
+            <xpath expr="//group[hasclass('oe_subtotal_footer')]" position="before">
+                <div class="row me-0 ms-auto" invisible="not l10n_ve_localization" style="width: 100%; display: flex; justify-content: space-between; padding: 10px 0;">
+                    <!-- Lado Izquierdo: Totales en Moneda de Referencia (USD) -->
+                    <div style="width: 48%; border-right: 1px solid #dee2e6; padding-right: 15px;">
+                        <table class="table table-sm table-borderless" style="margin-bottom: 0;">
+                            <tr>
+                                <td><strong>Base imponible Ref.:</strong></td>
+                                <td class="text-end">$ <field name="l10n_ve_untaxed_ref" widget="float" digits="[18,2]" readonly="1"/></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Impuestos Ref.:</strong></td>
+                                <td class="text-end">$ <field name="l10n_ve_tax_ref" widget="float" digits="[18,2]" readonly="1"/></td>
+                            </tr>
+                            <tr class="border-top">
+                                <td><strong>Total Ref.:</strong></td>
+                                <td class="text-end"><strong>$ <field name="l10n_ve_total_ref" widget="float" digits="[18,2]" readonly="1"/></strong></td>
+                            </tr>
+                            <tr>
+                                <td><span class="text-muted">Pagado Ref.:</span></td>
+                                <td class="text-end text-muted">$ <field name="l10n_ve_paid_ref" widget="float" digits="[18,2]" readonly="1"/></td>
+                            </tr>
+                            <tr class="border-top">
+                                <td><strong>Adeudado Ref.:</strong></td>
+                                <td class="text-end"><strong class="text-primary">$ <field name="l10n_ve_residual_ref" widget="float" digits="[18,2]" readonly="1"/></strong></td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </xpath>
         </field>
     </record>
 </odoo>

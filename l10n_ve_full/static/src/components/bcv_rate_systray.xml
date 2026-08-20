@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="l10n_ve_full.BcvRateSystray">
+        <div class="o_bcv_rate_systray d-flex align-items-center me-3 text-nowrap fw-bold" style="font-size: 0.85rem; color: #1e293b;">
+            <i class="fa fa-exchange text-primary me-1"/>
+            <span class="text-primary me-1">USD:</span>
+            <span t-esc="state.rate" class="me-2 text-dark"/>
+            <span class="text-muted small" t-esc="state.companyName"/>
+        </div>
+    </t>
+</templates>

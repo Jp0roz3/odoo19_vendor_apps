@@ -125,6 +125,56 @@ class AccountMove(models.Model):
     )
 
     # ------------------------------------------------------------------
+    # Campos de Moneda Dual / Referencia (USD / Bs)
+    # ------------------------------------------------------------------
+    l10n_ve_is_bs_agreement = fields.Boolean(
+        string='Acuerdo de Factura Bs.',
+        help='Indica si el documento tiene acuerdo especial de factura en Bolívares.',
+    )
+    l10n_ve_dual_ref_currency_id = fields.Many2one(
+        comodel_name='res.currency',
+        string='Moneda Dual Ref.',
+        compute='_compute_ve_dual_header',
+    )
+    l10n_ve_dual_currency_name = fields.Char(
+        string='Moneda Dual Ref.',
+        compute='_compute_ve_dual_header',
+        default='USD',
+    )
+    l10n_ve_ref_currency_label = fields.Char(
+        string='Moneda de Referencia',
+        compute='_compute_ve_dual_header',
+        default='Dólares',
+    )
+
+    # Totales en Moneda de Referencia (USD) para pie de página
+    l10n_ve_untaxed_ref = fields.Float(
+        string='Base imponible Ref.',
+        compute='_compute_ve_dual_totals',
+        digits=(18, 2),
+    )
+    l10n_ve_tax_ref = fields.Float(
+        string='Impuestos Ref.',
+        compute='_compute_ve_dual_totals',
+        digits=(18, 2),
+    )
+    l10n_ve_total_ref = fields.Float(
+        string='Total Ref.',
+        compute='_compute_ve_dual_totals',
+        digits=(18, 2),
+    )
+    l10n_ve_paid_ref = fields.Float(
+        string='Pagado Ref.',
+        compute='_compute_ve_dual_totals',
+        digits=(18, 2),
+    )
+    l10n_ve_residual_ref = fields.Float(
+        string='Adeudado Ref.',
+        compute='_compute_ve_dual_totals',
+        digits=(18, 2),
+    )
+
+    # ------------------------------------------------------------------
     # Unidad Tributaria al momento del documento
     # ------------------------------------------------------------------
     l10n_ve_ut_id = fields.Many2one(
@@ -362,3 +412,62 @@ class AccountMove(models.Model):
             'domain': [('move_id', '=', self.id)],
             'context': {'default_move_id': self.id},
         }
+
+    # ------------------------------------------------------------------
+    # Computos Duales (USD / Bs) de Cabecera y Totales
+    # ------------------------------------------------------------------
+    @api.depends('company_id')
+    def _compute_ve_dual_header(self):
+        usd = self.env.ref('base.USD', raise_if_not_found=False)
+        for move in self:
+            move.l10n_ve_dual_ref_currency_id = usd.id if usd else False
+            move.l10n_ve_dual_currency_name = 'USD'
+            move.l10n_ve_ref_currency_label = 'Dólares'
+
+    @api.depends('amount_untaxed', 'amount_tax', 'amount_total', 'amount_residual', 'l10n_ve_rate', 'currency_id', 'company_id.l10n_ve_currency_bs_id')
+    def _compute_ve_dual_totals(self):
+        for move in self:
+            rate = move.l10n_ve_rate or 1.0
+            bs_currency = move.company_id.l10n_ve_currency_bs_id
+            if move.currency_id == bs_currency and bs_currency:
+                move.l10n_ve_untaxed_ref = round(move.amount_untaxed / rate, 2) if rate else 0.0
+                move.l10n_ve_tax_ref = round(move.amount_tax / rate, 2) if rate else 0.0
+                move.l10n_ve_total_ref = round(move.amount_total / rate, 2) if rate else 0.0
+                move.l10n_ve_residual_ref = round(move.amount_residual / rate, 2) if rate else 0.0
+                move.l10n_ve_paid_ref = round((move.amount_total - move.amount_residual) / rate, 2) if rate else 0.0
+            else:
+                move.l10n_ve_untaxed_ref = round(move.amount_untaxed, 2)
+                move.l10n_ve_tax_ref = round(move.amount_tax, 2)
+                move.l10n_ve_total_ref = round(move.amount_total, 2)
+                move.l10n_ve_residual_ref = round(move.amount_residual, 2)
+                move.l10n_ve_paid_ref = round(move.amount_total - move.amount_residual, 2)
+
+
+class AccountMoveLine(models.Model):
+    """Extensión de líneas de asiento para montos en moneda dual (USD)."""
+    _inherit = 'account.move.line'
+
+    l10n_ve_price_unit_usd = fields.Float(
+        string='Precio $ Moneda Ref.',
+        compute='_compute_ve_line_usd',
+        digits=(18, 2),
+    )
+    l10n_ve_price_subtotal_usd = fields.Float(
+        string='Subtotal Ref.',
+        compute='_compute_ve_line_usd',
+        digits=(18, 2),
+    )
+
+    @api.depends('price_unit', 'price_subtotal', 'move_id.l10n_ve_rate', 'move_id.currency_id', 'move_id.company_id.l10n_ve_currency_bs_id')
+    def _compute_ve_line_usd(self):
+        for line in self:
+            move = line.move_id
+            rate = move.l10n_ve_rate or 1.0
+            bs_currency = move.company_id.l10n_ve_currency_bs_id
+            if move.currency_id == bs_currency and bs_currency:
+                line.l10n_ve_price_unit_usd = round(line.price_unit / rate, 2) if rate else 0.0
+                line.l10n_ve_price_subtotal_usd = round(line.price_subtotal / rate, 2) if rate else 0.0
+            else:
+                line.l10n_ve_price_unit_usd = round(line.price_unit, 2)
+                line.l10n_ve_price_subtotal_usd = round(line.price_subtotal, 2)
+

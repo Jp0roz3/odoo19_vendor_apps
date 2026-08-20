@@ -120,6 +120,8 @@ Soporte: soporte@nubelco.com
     'assets': {
         'web.assets_backend': [
             'l10n_ve_full/static/src/css/l10n_ve.css',
+            'l10n_ve_full/static/src/components/bcv_rate_systray.js',
+            'l10n_ve_full/static/src/components/bcv_rate_systray.xml',
         ],
     },
 

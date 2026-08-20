@@ -143,10 +143,12 @@ def run_test():
             print(f"  Factura Borrador Creada: ID {move.id} | Control: {move.l10n_ve_control_number}")
             
             # Confirmar Factura
-            move.action_post()
             print(f"  Factura Confirmada: {move.name} | Estado: {move.state}")
             print(f"  Base (Bs): {move.l10n_ve_amount_untaxed_bs:.2f} | IVA (Bs): {move.l10n_ve_amount_tax_bs:.2f} | Total (Bs): {move.l10n_ve_amount_total_bs:.2f}")
-            print(f"  Tasa BCV Aplicada: {move.l10n_ve_rate:.4f} | Equiv. USD: ${move.l10n_ve_amount_total_usd:.2f} [OK]")
+            print(f"  Tasa BCV Aplicada: {move.l10n_ve_rate:.4f} | Moneda Dual Ref: {move.l10n_ve_dual_currency_name} ({move.l10n_ve_ref_currency_label})")
+            print(f"  Totales Ref: Base Ref: ${move.l10n_ve_untaxed_ref:.2f} | Tax Ref: ${move.l10n_ve_tax_ref:.2f} | Total Ref: ${move.l10n_ve_total_ref:.2f} | Adeudado Ref: ${move.l10n_ve_residual_ref:.2f} [OK]")
+            line_usd = move.invoice_line_ids[0]
+            print(f"  Línea Ref: Precio Ref: ${line_usd.l10n_ve_price_unit_usd:.2f} | Subtotal Ref: ${line_usd.l10n_ve_price_subtotal_usd:.2f} [OK]")
 
             # 6. Retención de IVA
             print("\n--- [6/8] Generación de Retención de IVA (75%) ---")
