@@ -5,8 +5,19 @@
  * Conecta el selector de moneda interactivo con el controlador AccountReport
  * de Odoo Enterprise, permitiendo alternar al instante entre USD y Bs.F.
  *
- * Moneda Principal al abrir: Dólares ($ / USD)
- * Moneda Secundaria al cambiar: Bolívares (Bs.F) a Tasa Oficial BCV
+ * Soporte Integral para TODOS los Reportes Contables y Financieros de Odoo 19:
+ *   - Balance General (Balance Sheet)
+ *   - Estado de Resultados / Ganancias y Pérdidas (Profit and Loss)
+ *   - Estado de Flujo de Efectivo (Cash Flow)
+ *   - Libro Mayor (General Ledger)
+ *   - Balance de Comprobación (Trial Balance)
+ *   - Libro Diario (Journal Report)
+ *   - Libro Mayor de Socios (Partner Ledger)
+ *   - Resumen Ejecutivo (Executive Summary)
+ *   - Antigüedad de Saldos por Cobrar / Pagar (Aged Receivables / Payables)
+ *
+ * Moneda Principal por Defecto: Dólares ($ / USD)
+ * Moneda Secundaria Bimoneda: Bolívares (Bs.F) a Tasa Oficial BCV
  *
  * Autor: JeanPerozo / Nubelco
  */
@@ -16,6 +27,7 @@ import { patch } from "@web/core/utils/patch";
 // Moneda inicial por defecto: USD ($)
 let currentSelectedCurrency = "usd";
 let currentBcvRate = 779.9522;
+let tableObserver = null;
 
 // Limpiar cualquier clave corrupta en sessionStorage
 function cleanCorruptedSessionStorage() {
@@ -81,12 +93,16 @@ function formatVeNumber(num) {
 function transformReportTableCells(currency) {
     try {
         const rate = extractBcvRate();
-        const tables = document.querySelectorAll(".o_account_reports_table, .o_account_reports_body table, .o_account_report table, table");
+        const tables = document.querySelectorAll(
+            ".o_account_reports_table, .o_account_reports_body table, .o_account_report table, .o_account_reports_page table, table"
+        );
         
         tables.forEach(table => {
-            const cells = table.querySelectorAll("td, th, span.o_account_report_column_value, div.o_account_report_column_value");
+            const cells = table.querySelectorAll(
+                "td, th, span.o_account_report_column_value, div.o_account_report_column_value"
+            );
             cells.forEach(cell => {
-                // Evitar celdas de títulos de cuentas o encabezados con texto puro
+                // Evitar celdas que son títulos de cuentas o encabezados con texto puro
                 if (cell.children.length > 2) return;
                 const txt = cell.textContent.trim();
                 if (!txt) return;
@@ -112,12 +128,23 @@ function transformReportTableCells(currency) {
                 }
             });
         });
+
+        // Observar dinámicamente cuando el usuario despliega o expande cuentas hijas (unfold)
+        const reportBody = document.querySelector(".o_account_reports_body, .o_account_report, .o_content");
+        if (reportBody && !tableObserver) {
+            tableObserver = new MutationObserver(() => {
+                if (currentSelectedCurrency === "bs") {
+                    transformReportTableCells("bs");
+                }
+            });
+            tableObserver.observe(reportBody, { childList: true, subtree: true });
+        }
     } catch (e) {
         console.warn("[Venezuela360] transformReportTableCells error:", e);
     }
 }
 
-// Ejecutar recarga del reporte de forma segura
+// Ejecutar recarga del reporte de forma segura y sincronizada
 async function triggerReportReload(reportComp, currency) {
     currentSelectedCurrency = currency;
     cleanCorruptedSessionStorage();
@@ -187,7 +214,7 @@ function ensureAccountReportPatched() {
     } catch (e) {}
 }
 
-// Inyector universal de botón bimoneda en la barra de control de Odoo Enterprise
+// Inyector universal de botón bimoneda en la barra de control de TODOS los reportes financieros
 function injectCurrencyWidgetToDOM() {
     try {
         if (typeof document === "undefined" || !document.body) return;
@@ -203,7 +230,12 @@ function injectCurrencyWidgetToDOM() {
             || cpText.includes("Balance")
             || cpText.includes("Resultados")
             || cpText.includes("flujo")
-            || document.querySelector(".o_account_reports_body, .o_account_report, .o_account_reports_table");
+            || cpText.includes("Mayor")
+            || cpText.includes("Diario")
+            || cpText.includes("Socios")
+            || cpText.includes("Ejecutivo")
+            || cpText.includes("Antigüedad")
+            || document.querySelector(".o_account_reports_body, .o_account_report, .o_account_reports_table, .o_account_reports_page");
 
         if (!isFinancialReport) return;
 
@@ -322,7 +354,7 @@ function injectCurrencyWidgetToDOM() {
                 // Transformar inmediatamente todos los valores en pantalla
                 transformReportTableCells(chosen);
 
-                // Obtener la instancia activa del reporte y sincronizar
+                // Obtener la instancia activa del reporte y sincronizar con el backend
                 let activeReport = window.__activeAccountReport;
                 if (!activeReport) {
                     const reportNodes = document.querySelectorAll(".o_account_reports_body, .o_account_report, .o_content, .o_action_manager");
