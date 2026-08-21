@@ -2,13 +2,8 @@
 """
 Venezuela360: Extensión de account.report para Reportes Financieros Bimoneda
 =============================================================================
-Añade el filtro bimoneda (Moneda: Bs.F / Moneda: $) a los reportes contables
-(Balance General, Estado de Resultados, etc.).
-
-Funcionalidades:
- 1. Opción bimoneda `l10n_ve_currency` ('bs' o 'usd').
- 2. Recálculo dinámico de cifras a Dólares ($) usando la Tasa Oficial BCV.
- 3. Badge indicador `En .Bs.F` / `En .$` y menú desplegable interactivo.
+Soporta Odoo Enterprise `account_reports` (`get_options`) y Community/Base.
+Añade el filtro bimoneda (Moneda: Bs.F / Moneda: $) a todos los reportes contables.
 
 Autor: JeanPerozo / Nubelco
 """
@@ -25,21 +20,18 @@ class AccountReport(models.Model):
         string="Filtro Bimoneda Dual (Bs.F / $)",
         default=True,
         compute='_compute_filter_l10n_ve_currency',
-        store=True,
-        readonly=False,
+        store=False,
     )
 
-    @api.depends('root_report_id')
     def _compute_filter_l10n_ve_currency(self):
         for report in self:
             report.filter_l10n_ve_currency = True
 
-    def _get_options(self, previous_options=None):
-        options = super()._get_options(previous_options)
+    def get_options(self, previous_options=None):
+        options = super().get_options(previous_options)
         
-        # Activar el filtro bimoneda para el usuario
         selected_currency = 'bs'
-        if previous_options and 'l10n_ve_currency' in previous_options:
+        if previous_options and isinstance(previous_options, dict) and 'l10n_ve_currency' in previous_options:
             selected_currency = previous_options['l10n_ve_currency']
 
         options['filter_l10n_ve_currency'] = True
@@ -49,8 +41,15 @@ class AccountReport(models.Model):
 
         return options
 
+    def _get_options(self, previous_options=None):
+        if hasattr(super(), '_get_options'):
+            options = super()._get_options(previous_options)
+        else:
+            options = {}
+        return self.get_options(previous_options or options)
+
     def _format_value(self, options, value, figure_type, blank_if_zero=False, currency=None):
-        if options and options.get('filter_l10n_ve_currency') and options.get('l10n_ve_currency') == 'usd':
+        if options and isinstance(options, dict) and options.get('l10n_ve_currency') == 'usd':
             if figure_type == 'monetary' and isinstance(value, (int, float)):
                 date_to = (options.get('date', {}) or {}).get('date_to') or fields.Date.context_today(self)
                 rate_bcv = 777.4161
@@ -68,7 +67,7 @@ class AccountReport(models.Model):
                 formatted = f"{val_usd:,.2f}".replace(',', 'X').replace('.', ',').replace('X', '.')
                 return f"$ {formatted}"
 
-        elif options and options.get('filter_l10n_ve_currency') and options.get('l10n_ve_currency') == 'bs':
+        elif options and isinstance(options, dict) and options.get('l10n_ve_currency') == 'bs':
             if figure_type == 'monetary' and isinstance(value, (int, float)):
                 formatted = f"{value:,.2f}".replace(',', 'X').replace('.', ',').replace('X', '.')
                 return f"{formatted} Bs.F"
