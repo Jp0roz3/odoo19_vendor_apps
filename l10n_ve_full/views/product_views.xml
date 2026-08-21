@@ -24,16 +24,16 @@
 
             <!-- Insertar Precio (Bs) y Precio ($) después del contenedor de precio -->
             <xpath expr="//div[@name='list_price_uom']" position="after">
-                <field name="l10n_ve_list_price_bs" string="Precio de Venta (Bs)" widget="monetary" options="{'currency_field': 'l10n_ve_currency_bs_id'}"/>
-                <field name="l10n_ve_list_price_usd" string="Precio de Venta ($)"/>
+                <field name="l10n_ve_list_price_bs" string="Precio de Venta (Bs)" widget="monetary" options="{'currency_field': 'l10n_ve_currency_bs_id'}" readonly="0"/>
+                <field name="l10n_ve_list_price_usd" string="Precio de Venta ($)" readonly="0"/>
                 <field name="l10n_ve_currency_bs_id" invisible="1"/>
             </xpath>
 
             <!-- Insertar Costo (Bs), Costo ($), Margen Ganancia (%) y Costo Reposición ($) como filas independientes después de standard_price_uom -->
             <xpath expr="//div[@name='standard_price_uom']" position="after">
-                <field name="l10n_ve_standard_price_bs" string="Costo (Bs)" widget="monetary" options="{'currency_field': 'l10n_ve_currency_bs_id'}"/>
-                <field name="l10n_ve_standard_price_usd" string="Costo ($)"/>
-                <field name="l10n_ve_profit_margin" string="Margen Ganancia (%)"/>
+                <field name="l10n_ve_standard_price_bs" string="Costo (Bs)" widget="monetary" options="{'currency_field': 'l10n_ve_currency_bs_id'}" readonly="0"/>
+                <field name="l10n_ve_standard_price_usd" string="Costo ($)" readonly="0"/>
+                <field name="l10n_ve_profit_margin" string="Margen Ganancia (%)" readonly="0"/>
                 <field name="l10n_ve_replacement_cost_usd" string="Costo Reposición ($)"/>
             </xpath>
 
