@@ -15,28 +15,49 @@ function injectCurrencyWidgetToDOM(reportInstance) {
     try {
         if (typeof document === "undefined" || !document.body) return;
 
-        // Verificar si estamos en un reporte contable
-        const isReport = document.querySelector(
-            ".o_account_reports_page, .o_account_report, .o_account_reports_body, .o_account_reports_table, .o_account_reports_header"
-        );
-        if (!isReport) return;
-
+        // 1. Detectar si estamos en una pantalla de reporte contable
         const cp = document.querySelector(".o_control_panel");
         if (!cp) return;
 
-        // Buscar el contenedor de filtros / navegación del reporte
-        const nav = cp.querySelector(".o_control_panel_navigation")
-                 || cp.querySelector(".o_account_reports_filters")
-                 || cp.querySelector(".o_control_panel_actions")
-                 || cp.querySelector(".o_search_options")
-                 || cp;
+        const cpText = cp.textContent || "";
+        const isFinancialReport = cpText.includes("PDF") 
+            || cpText.includes("XLSX")
+            || cpText.includes("Balance")
+            || cpText.includes("Resultados")
+            || cpText.includes("flujo")
+            || document.querySelector(".o_account_reports_body, .o_account_report, .o_account_reports_table");
 
-        if (!nav) return;
+        if (!isFinancialReport) return;
 
+        // 2. Encontrar el contenedor exacto de las píldoras de filtro en el header
+        let filterTarget = null;
+
+        // Búsqueda inteligente por texto de píldoras existentes
+        const buttonsAndPills = cp.querySelectorAll("button, .btn, .badge, .dropdown, div");
+        for (const el of buttonsAndPills) {
+            const txt = el.textContent || "";
+            if (txt.includes("diarios") || txt.includes("Comparación") || txt.includes("Asientos") || txt.includes("En .")) {
+                filterTarget = el.parentElement;
+                break;
+            }
+        }
+
+        // Fallback a contenedores estándar
+        if (!filterTarget) {
+            filterTarget = cp.querySelector(".o_control_panel_navigation")
+                        || cp.querySelector(".o_account_reports_filters")
+                        || cp.querySelector(".o_control_panel_actions")
+                        || cp.querySelector(".d-flex.flex-wrap")
+                        || cp;
+        }
+
+        if (!filterTarget) return;
+
+        // 3. Determinar moneda activa
         const options = (reportInstance && reportInstance.options) || {};
         const curr = options.l10n_ve_currency || "bs";
 
-        // Si ya existe el widget, sincronizar su texto
+        // 4. Si ya existe el widget, sincronizar etiquetas
         let widget = cp.querySelector(".l10n_ve_currency_widget");
         if (widget) {
             const label = widget.querySelector(".l10n_ve_curr_label");
@@ -46,7 +67,7 @@ function injectCurrencyWidgetToDOM(reportInstance) {
             return;
         }
 
-        // Crear el widget visual idéntico a las fotos de referencia
+        // 5. Crear el widget idéntico a la Imagen 4 de referencia
         widget = document.createElement("div");
         widget.className = "l10n_ve_currency_widget d-inline-flex align-items-center ms-1 me-1";
         widget.style.cssText = "display: inline-flex !important; align-items: center; z-index: 1050; margin: 2px 4px; vertical-align: middle;";
@@ -98,26 +119,33 @@ function injectCurrencyWidgetToDOM(reportInstance) {
                 menu.style.display = "none";
                 const chosen = item.getAttribute("data-curr");
 
-                // Buscar el componente AccountReport activo en OWL
+                // Buscar componente AccountReport activo en OWL
                 let activeCtrl = reportInstance;
                 if (!activeCtrl || typeof activeCtrl.setL10nVeCurrency !== "function") {
-                    const pageEl = document.querySelector(".o_account_reports_page, .o_account_report");
-                    if (pageEl && pageEl.__owl__ && pageEl.__owl__.component) {
-                        activeCtrl = pageEl.__owl__.component;
+                    const reportNodes = document.querySelectorAll(".o_account_reports_body, .o_account_report, .o_content, .o_action_manager");
+                    for (const node of reportNodes) {
+                        if (node.__owl__ && node.__owl__.component) {
+                            activeCtrl = node.__owl__.component;
+                            break;
+                        }
                     }
                 }
 
                 if (activeCtrl && typeof activeCtrl.setL10nVeCurrency === "function") {
                     await activeCtrl.setL10nVeCurrency(chosen);
-                } else {
-                    // Fallback directo a través de los botones nativos
-                    const switchBtn = document.querySelector(".o_control_panel_actions button, .o_statusbar_buttons button");
-                    if (switchBtn) switchBtn.click();
+                } else if (activeCtrl && activeCtrl.options) {
+                    activeCtrl.options.l10n_ve_currency = chosen;
+                    activeCtrl.options.l10n_ve_currency_label = chosen === 'bs' ? 'Bs.F' : '$';
+                    activeCtrl.options.l10n_ve_badge_label = chosen === 'bs' ? 'En .Bs.F' : 'En .$';
+                    if (typeof activeCtrl.reload === "function") {
+                        await activeCtrl.reload({ options: activeCtrl.options });
+                    }
                 }
             });
         });
 
-        nav.appendChild(widget);
+        // Insertar en la posición óptima
+        filterTarget.appendChild(widget);
     } catch (err) {
         console.warn("[Venezuela360] Error in injectCurrencyWidgetToDOM:", err);
     }
@@ -171,14 +199,14 @@ try {
     }
 } catch (e) {}
 
-// Timer continuo e infalible para montar en navegación SPA
+// Timer continuo e infalible para SPA
 setInterval(() => {
     try {
-        const isReport = document.querySelector(".o_account_reports_page, .o_account_report, .o_account_reports_body, .o_account_reports_table");
         const cp = document.querySelector(".o_control_panel");
-        if (isReport && cp && !cp.querySelector(".l10n_ve_currency_widget")) {
-            const owlComp = isReport.__owl__?.component;
+        if (cp && !cp.querySelector(".l10n_ve_currency_widget")) {
+            const reportEl = document.querySelector(".o_account_reports_body, .o_account_report, .o_content");
+            const owlComp = reportEl?.__owl__?.component;
             injectCurrencyWidgetToDOM(owlComp);
         }
     } catch (e) {}
-}, 300);
+}, 250);

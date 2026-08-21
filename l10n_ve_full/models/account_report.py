@@ -60,21 +60,6 @@ class AccountReport(models.Model):
         options['l10n_ve_badge_label'] = 'En .Bs.F' if selected_currency == 'bs' else 'En .$'
         options['filter_l10n_ve_currency'] = True
 
-        # Botón nativo de respaldo en options['buttons']
-        buttons = list(options.get('buttons') or [])
-        buttons = [
-            b for b in buttons
-            if not (isinstance(b, dict) and b.get('action') == 'action_switch_l10n_ve_currency')
-        ]
-
-        btn_label = '💱 Ver en $' if selected_currency == 'bs' else '💱 Ver en Bs.F'
-        buttons.append({
-            'name': btn_label,
-            'action': 'action_switch_l10n_ve_currency',
-            'sequence': 99,
-        })
-        options['buttons'] = buttons
-
         return options
 
     # ─────────────────────────────────────────────────────────────────────────
@@ -83,7 +68,7 @@ class AccountReport(models.Model):
 
     def action_switch_l10n_ve_currency(self, options):
         """
-        Conmuta la moneda activa entre 'usd' y 'bs' y retorna las nuevas opciones.
+        Conmuta la moneda activa entre 'usd' y 'bs' y retorna la recarga del reporte.
         """
         self.ensure_one()
         current = (options or {}).get('l10n_ve_currency', 'bs')
@@ -95,25 +80,17 @@ class AccountReport(models.Model):
         new_options['l10n_ve_badge_label'] = 'En .Bs.F' if new_curr == 'bs' else 'En .$'
         new_options['filter_l10n_ve_currency'] = True
 
-        # Actualizar etiqueta del botón
-        buttons = list(new_options.get('buttons') or [])
-        buttons = [
-            b for b in buttons
-            if not (isinstance(b, dict) and b.get('action') == 'action_switch_l10n_ve_currency')
-        ]
-        btn_label = '💱 Ver en $' if new_curr == 'bs' else '💱 Ver en Bs.F'
-        buttons.append({
-            'name': btn_label,
-            'action': 'action_switch_l10n_ve_currency',
-            'sequence': 99,
-        })
-        new_options['buttons'] = buttons
-
         _logger.info(
             '[Venezuela360] Reporte %s: Moneda conmutada %s → %s',
             self.name, current, new_curr
         )
-        return new_options
+
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'account_report',
+            'options': new_options,
+            'ignore_session': 'both',
+        }
 
     # ─────────────────────────────────────────────────────────────────────────
     # GENERACIÓN Y CONVERSIÓN DE LÍNEAS DEL REPORTE
