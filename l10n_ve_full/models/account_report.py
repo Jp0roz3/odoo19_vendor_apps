@@ -44,24 +44,23 @@ class AccountReport(models.Model):
     def get_options(self, previous_options=None):
         """
         Inyecta las opciones de moneda dual en el diccionario de opciones del reporte.
-        Persiste la selección del usuario (USD o Bs.F) entre recargas.
+        Por defecto inicializa en 'bs' (Bolívares con tasa BCV) o persiste la selección del usuario.
         """
         options = super().get_options(previous_options)
 
-        # Determinar moneda activa (por defecto 'bs' para visualización venezolana en Bs.F o 'usd')
+        # Moneda activa: 'bs' por defecto para visualización venezolana o 'usd' si fue seleccionado
         selected_currency = 'bs'
         if previous_options and isinstance(previous_options, dict):
             prev_val = previous_options.get('l10n_ve_currency')
             if prev_val in ('usd', 'bs'):
                 selected_currency = prev_val
 
-        # Claves de opciones para control en Python y en OWL
         options['l10n_ve_currency'] = selected_currency
         options['l10n_ve_currency_label'] = 'Bs.F' if selected_currency == 'bs' else '$'
-        options['l10n_ve_badge_label'] = 'En .Bs.F' if selected_currency == 'bs' else 'En $'
+        options['l10n_ve_badge_label'] = 'En .Bs.F' if selected_currency == 'bs' else 'En .$'
         options['filter_l10n_ve_currency'] = True
 
-        # Botón nativo de respaldo en options['buttons'] (aparece en la barra de acciones)
+        # Botón nativo de respaldo en options['buttons']
         buttons = list(options.get('buttons') or [])
         buttons = [
             b for b in buttons
@@ -88,8 +87,7 @@ class AccountReport(models.Model):
 
     def action_switch_l10n_ve_currency(self, options):
         """
-        Conmuta la moneda activa entre 'usd' y 'bs' y retorna el diccionario
-        de opciones actualizado para recargar el reporte en Enterprise.
+        Conmuta la moneda activa entre 'usd' y 'bs' y retorna las nuevas opciones.
         """
         self.ensure_one()
         current = (options or {}).get('l10n_ve_currency', 'bs')
@@ -98,7 +96,7 @@ class AccountReport(models.Model):
         new_options = dict(options or {})
         new_options['l10n_ve_currency'] = new_curr
         new_options['l10n_ve_currency_label'] = 'Bs.F' if new_curr == 'bs' else '$'
-        new_options['l10n_ve_badge_label'] = 'En .Bs.F' if new_curr == 'bs' else 'En $'
+        new_options['l10n_ve_badge_label'] = 'En .Bs.F' if new_curr == 'bs' else 'En .$'
         new_options['filter_l10n_ve_currency'] = True
 
         _logger.info(
@@ -108,39 +106,86 @@ class AccountReport(models.Model):
         return new_options
 
     # ─────────────────────────────────────────────────────────────────────────
+    # GENERACIÓN Y CONVERSIÓN DE LÍNEAS DEL REPORTE
+    # ─────────────────────────────────────────────────────────────────────────
+
+    def _get_lines(self, options, *args, **kwargs):
+        """
+        Sobrescribe la generación de líneas de Odoo Enterprise para asegurar que
+        todas las columnas monetarias muestren los montos convertidos a tasa BCV en Bs.F.
+        """
+        lines = super()._get_lines(options, *args, **kwargs)
+        try:
+            ve_currency = (options or {}).get('l10n_ve_currency', 'bs')
+            date_to = ((options or {}).get('date') or {}).get('date_to') or str(fields.Date.context_today(self))
+            rate = self._get_bcv_rate(date_to)
+
+            for line in lines:
+                columns = line.get('columns', [])
+                for col in columns:
+                    if isinstance(col, dict):
+                        raw_val = col.get('no_format')
+                        if raw_val is not None and isinstance(raw_val, (int, float)):
+                            figure_type = col.get('figure_type', 'monetary')
+                            if figure_type in ('monetary', None):
+                                if ve_currency == 'bs':
+                                    val_bs = round(raw_val * rate, 2)
+                                    col['name'] = f"{self._ve_format_number(val_bs)} Bs.F"
+                                else:
+                                    col['name'] = f"{self._ve_format_number(raw_val)} $"
+        except Exception as e:
+            _logger.warning('[Venezuela360] _get_lines formatting error: %s', e)
+
+        return lines
+
+    # ─────────────────────────────────────────────────────────────────────────
     # FORMATEADOR DE VALORES MONETARIOS (USD ↔ Bs.F)
     # ─────────────────────────────────────────────────────────────────────────
 
-    def _format_value(self, options, value, figure_type, *args, **kwargs):
+    def _format_value(self, options, value, figure_type='monetary', *args, **kwargs):
         """
-        Intercepta el formateo monetario de celdas para aplicar la conversión a tasa BCV.
-        Firma compatible con todas las versiones y variantes de Odoo 19 (*args, **kwargs).
+        Intercepta el formateo de celdas monetarias para aplicar la conversión a tasa BCV.
         """
         try:
-            if (options
-                    and isinstance(options, dict)
-                    and figure_type == 'monetary'
-                    and isinstance(value, (int, float))):
+            if options and isinstance(options, dict) and isinstance(value, (int, float)):
+                if figure_type in ('monetary', None):
+                    ve_currency = options.get('l10n_ve_currency', 'bs')
+                    if ve_currency == 'bs':
+                        date_to = (options.get('date') or {}).get('date_to') or str(fields.Date.context_today(self))
+                        rate = self._get_bcv_rate(date_to)
+                        val_bs = round(value * rate, 2)
+                        fmt = self._ve_format_number(val_bs)
+                        return f'{fmt} Bs.F'
+                    elif ve_currency == 'usd':
+                        fmt = self._ve_format_number(value)
+                        return f'{fmt} $'
+        except Exception as e:
+            _logger.warning('[Venezuela360] _format_value error: %s', e)
 
+        return super()._format_value(options, value, figure_type, *args, **kwargs)
+
+    def _format_monetary_value(self, options, value, *args, **kwargs):
+        """
+        Intercepta _format_monetary_value en Odoo Enterprise para soporte integral.
+        """
+        try:
+            if options and isinstance(options, dict) and isinstance(value, (int, float)):
                 ve_currency = options.get('l10n_ve_currency', 'bs')
-
                 if ve_currency == 'bs':
-                    # Obtener fecha de corte del reporte
                     date_to = (options.get('date') or {}).get('date_to') or str(fields.Date.context_today(self))
                     rate = self._get_bcv_rate(date_to)
                     val_bs = round(value * rate, 2)
                     fmt = self._ve_format_number(val_bs)
                     return f'{fmt} Bs.F'
-
                 elif ve_currency == 'usd':
                     fmt = self._ve_format_number(value)
                     return f'{fmt} $'
-
         except Exception as e:
-            _logger.warning('[Venezuela360] _format_value error: %s', e)
+            _logger.warning('[Venezuela360] _format_monetary_value error: %s', e)
 
-        # Fallback al comportamiento nativo de Odoo
-        return super()._format_value(options, value, figure_type, *args, **kwargs)
+        if hasattr(super(), '_format_monetary_value'):
+            return super()._format_monetary_value(options, value, *args, **kwargs)
+        return self._format_value(options, value, figure_type='monetary', *args, **kwargs)
 
     # ─────────────────────────────────────────────────────────────────────────
     # HELPERS Y CONSULTA DE TASA BCV
