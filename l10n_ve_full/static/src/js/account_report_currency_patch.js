@@ -5,12 +5,18 @@
  * Conecta el selector de moneda interactivo con el controlador AccountReport
  * de Odoo Enterprise, permitiendo alternar al instante entre Bs.F y USD.
  *
+ * Moneda Base de la Compañía: USD ($)
+ * Moneda Secundaria Bimoneda: Bolívares (Bs.F) a Tasa Oficial BCV
+ *
  * Autor: JeanPerozo / Nubelco
  */
 
 import { patch } from "@web/core/utils/patch";
 
-// Limpiar cualquier clave corrupta en sessionStorage que cause 'SyntaxError: "undefined" is not valid JSON'
+// Estado global de la moneda seleccionada para evitar que el timer sobreescriba la UI
+let currentSelectedCurrency = "bs";
+
+// Limpiar cualquier clave corrupta en sessionStorage
 function cleanCorruptedSessionStorage() {
     try {
         if (typeof sessionStorage === "undefined") return;
@@ -26,7 +32,84 @@ function cleanCorruptedSessionStorage() {
     } catch (e) {}
 }
 
-// Parchear componentes de reportes contables para capturar la instancia raíz de AccountReport
+// Ejecutar recarga del reporte de forma segura a través de múltiples estrategias de Odoo 19
+async function triggerReportReload(reportComp, currency) {
+    if (!reportComp) return;
+
+    currentSelectedCurrency = currency;
+    cleanCorruptedSessionStorage();
+
+    // 1. Actualizar opciones en todas las referencias del reporte
+    const options = reportComp.options || (reportComp.controller && reportComp.controller.options) || {};
+    options.l10n_ve_currency = currency;
+    options.l10n_ve_currency_label = currency === "bs" ? "Bs.F" : "$";
+    options.l10n_ve_badge_label = currency === "bs" ? "En .Bs.F" : "En .$";
+
+    reportComp.options = options;
+    if (reportComp.controller) reportComp.controller.options = options;
+    if (reportComp.report) reportComp.report.options = options;
+
+    // 2. Estrategia A: orm.call directo a get_report_information (100% inmune a errores de Proxy)
+    const reportId = reportComp.props?.reportId 
+        || reportComp.props?.action?.context?.report_id 
+        || options.report_id 
+        || reportComp.reportId;
+
+    if (reportComp.env?.services?.orm && reportId) {
+        try {
+            const info = await reportComp.env.services.orm.call(
+                "account.report",
+                "get_report_information",
+                [reportId, options]
+            );
+            if (info && info.lines) {
+                if (reportComp.controller) {
+                    reportComp.controller.lines = info.lines;
+                    reportComp.controller.options = info.options || options;
+                }
+                reportComp.lines = info.lines;
+                reportComp.options = info.options || options;
+
+                if (typeof reportComp.render === "function") {
+                    reportComp.render(true);
+                    return;
+                }
+            }
+        } catch (eA) {
+            console.warn("[Venezuela360] ORM direct reload fallback:", eA);
+        }
+    }
+
+    // 3. Estrategia B: Invocar reload() en el controller o en el root component
+    try {
+        if (reportComp.controller && typeof reportComp.controller.reload === "function") {
+            await reportComp.controller.reload();
+            return;
+        }
+    } catch (eB) {}
+
+    try {
+        if (typeof reportComp.reload === "function") {
+            await reportComp.reload();
+            return;
+        }
+    } catch (eC) {}
+
+    // 4. Estrategia C: Recarga via action service
+    if (reportComp.env?.services?.action) {
+        try {
+            const action = reportComp.props?.action || reportComp.env.services.action.currentController?.action;
+            if (action) {
+                await reportComp.env.services.action.doAction(action, {
+                    stackPosition: "replaceCurrent",
+                    additionalContext: { l10n_ve_currency: currency },
+                });
+            }
+        } catch (eD) {}
+    }
+}
+
+// Parchear componentes de reportes contables para capturar la instancia activa
 function ensureAccountReportPatched() {
     try {
         cleanCorruptedSessionStorage();
@@ -38,32 +121,10 @@ function ensureAccountReportPatched() {
                 setup() {
                     super.setup(...arguments);
                     cleanCorruptedSessionStorage();
-                    window.__activeAccountReportRoot = this;
                     window.__activeAccountReport = this;
                 },
                 async setL10nVeCurrency(currency) {
-                    cleanCorruptedSessionStorage();
-
-                    const targets = [this, this.controller, this.report, this.props?.controller];
-                    for (const t of targets) {
-                        if (t && t.options) {
-                            t.options.l10n_ve_currency = currency;
-                            t.options.l10n_ve_currency_label = currency === 'bs' ? 'Bs.F' : '$';
-                            t.options.l10n_ve_badge_label = currency === 'bs' ? 'En .Bs.F' : 'En .$';
-                        }
-                    }
-
-                    try {
-                        if (this.report && typeof this.report.reload === "function") {
-                            await this.report.reload();
-                        } else if (typeof this.reload === "function") {
-                            await this.reload();
-                        } else if (this.controller && typeof this.controller.reload === "function") {
-                            await this.controller.reload();
-                        }
-                    } catch (e) {
-                        console.warn("[Venezuela360] Reload execution:", e);
-                    }
+                    await triggerReportReload(this, currency);
                 },
             });
         }
@@ -111,18 +172,21 @@ function injectCurrencyWidgetToDOM() {
 
         if (!filterTarget) return;
 
-        // Determinar moneda activa
-        const ctrl = window.__activeAccountReportRoot || window.__activeAccountReport;
-        const options = (ctrl && (ctrl.options || (ctrl.report && ctrl.report.options))) || {};
-        const curr = options.l10n_ve_currency || "bs";
+        const curr = currentSelectedCurrency;
 
-        // Si ya existe el widget, sincronizar etiquetas
+        // Si ya existe el widget, sincronizar etiquetas según currentSelectedCurrency
         let widget = cp.querySelector(".l10n_ve_currency_widget");
         if (widget) {
             const label = widget.querySelector(".l10n_ve_curr_label");
             if (label) label.textContent = curr === "usd" ? "$" : "Bs.F";
             const badge = widget.querySelector(".l10n_ve_badge");
             if (badge) badge.textContent = curr === "usd" ? "En .$" : "En .Bs.F";
+
+            widget.querySelectorAll("[data-curr]").forEach(el => {
+                const isThis = el.getAttribute("data-curr") === curr;
+                const icon = el.querySelector("i");
+                if (icon) icon.className = isThis ? "fa fa-check text-success me-1" : "fa fa-fw me-1";
+            });
             return;
         }
 
@@ -178,9 +242,10 @@ function injectCurrencyWidgetToDOM() {
                 menu.style.display = "none";
                 const chosen = item.getAttribute("data-curr");
 
+                currentSelectedCurrency = chosen;
                 cleanCorruptedSessionStorage();
 
-                // Actualizar inmediatamente etiquetas del widget
+                // Actualizar inmediatamente etiquetas visuales
                 const label = widget.querySelector(".l10n_ve_curr_label");
                 if (label) label.textContent = chosen === "usd" ? "$" : "Bs.F";
                 const badge = widget.querySelector(".l10n_ve_badge");
@@ -193,21 +258,20 @@ function injectCurrencyWidgetToDOM() {
                 });
 
                 // Obtener la instancia activa del reporte
-                let activeReport = window.__activeAccountReportRoot || window.__activeAccountReport;
+                let activeReport = window.__activeAccountReport;
 
-                if (activeReport && typeof activeReport.setL10nVeCurrency === "function") {
-                    await activeReport.setL10nVeCurrency(chosen);
-                } else if (activeReport) {
-                    if (activeReport.options) {
-                        activeReport.options.l10n_ve_currency = chosen;
-                        activeReport.options.l10n_ve_currency_label = chosen === 'bs' ? 'Bs.F' : '$';
-                        activeReport.options.l10n_ve_badge_label = chosen === 'bs' ? 'En .Bs.F' : 'En .$';
+                if (!activeReport) {
+                    const reportNodes = document.querySelectorAll(".o_account_reports_body, .o_account_report, .o_content, .o_action_manager");
+                    for (const node of reportNodes) {
+                        if (node.__owl__ && node.__owl__.component) {
+                            activeReport = node.__owl__.component;
+                            break;
+                        }
                     }
-                    if (activeReport.report && typeof activeReport.report.reload === "function") {
-                        await activeReport.report.reload();
-                    } else if (typeof activeReport.reload === "function") {
-                        await activeReport.reload();
-                    }
+                }
+
+                if (activeReport) {
+                    await triggerReportReload(activeReport, chosen);
                 }
             });
         });
@@ -225,5 +289,5 @@ if (typeof document !== "undefined") {
     });
 }
 
-// Iniciar monitoreo activo para parchear y montar en SPA
+// Iniciar monitoreo activo para montar en SPA
 setInterval(injectCurrencyWidgetToDOM, 250);
