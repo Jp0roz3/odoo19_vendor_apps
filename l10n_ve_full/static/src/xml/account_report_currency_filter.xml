@@ -1,52 +1,41 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <templates xml:space="preserve">
 
-    <!-- Extensión OWL del Panel de Filtros de Reportes Contables en Odoo Enterprise -->
-    <t t-name="l10n_ve_full.AccountReportFilters" t-inherit="account_reports.AccountReportFilters" t-inherit-mode="extension" owl="1">
-        <xpath expr="//div[hasclass('o_account_reports_filters') or hasclass('d-flex')]" position="inside">
-            <!-- Contenedor del Selector Bimoneda -->
-            <div class="btn-group dropdown ms-1 me-1 l10n_ve_currency_container" style="display: inline-flex !important; position: relative;">
-                <button class="btn btn-secondary dropdown-toggle l10n_ve_currency_btn"
-                        type="button"
-                        data-bs-toggle="dropdown"
-                        aria-expanded="false"
-                        style="display: inline-flex !important; align-items: center; gap: 4px; font-size: 13px; font-weight: 500; padding: 4px 10px;">
-                    <i class="fa fa-money me-1" style="color: #0d6efd;"/>
-                    <span>Moneda:</span>
-                    <span class="ms-1 fw-bold" style="color: #dc3545;">
-                        <t t-if="props and props.options and props.options.l10n_ve_currency === 'usd'">$</t>
-                        <t t-elif="controller and controller.options and controller.options.l10n_ve_currency === 'usd'">$</t>
-                        <t t-else="">Bs.F</t>
-                    </span>
-                </button>
-                <ul class="dropdown-menu dropdown-menu-end shadow" style="min-width: 140px; position: absolute; z-index: 1050;">
-                    <li>
-                        <a class="dropdown-item d-flex align-items-center gap-2 py-2"
-                           href="#"
-                           t-on-click.prevent="() => this.selectL10nVeCurrency ? this.selectL10nVeCurrency('bs') : (controller || props.controller).setL10nVeCurrency('bs')">
-                            <i t-if="(!props or !props.options or props.options.l10n_ve_currency !== 'usd') and (!controller or !controller.options or controller.options.l10n_ve_currency !== 'usd')" class="fa fa-check text-success me-1"/>
-                            <i t-else="" class="fa fa-fw me-1"/>
-                            <span class="fw-bold">Bs.F</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a class="dropdown-item d-flex align-items-center gap-2 py-2"
-                           href="#"
-                           t-on-click.prevent="() => this.selectL10nVeCurrency ? this.selectL10nVeCurrency('usd') : (controller || props.controller).setL10nVeCurrency('usd')">
-                            <i t-if="(props and props.options and props.options.l10n_ve_currency === 'usd') or (controller and controller.options and controller.options.l10n_ve_currency === 'usd')" class="fa fa-check text-success me-1"/>
-                            <i t-else="" class="fa fa-fw me-1"/>
-                            <span class="fw-bold">$</span>
-                        </a>
-                    </li>
-                </ul>
-            </div>
-            <!-- Badge de Moneda Activa -->
-            <span class="badge rounded-pill align-self-center ms-1 me-1 l10n_ve_currency_badge"
-                  style="background-color: #f1f3f5; color: #495057; font-weight: 600; padding: 6px 10px; font-size: 12px; border: 1px solid #ced4da; display: inline-block;">
-                <t t-if="(props and props.options and props.options.l10n_ve_currency === 'usd') or (controller and controller.options and controller.options.l10n_ve_currency === 'usd')">En .$</t>
-                <t t-else="">En .Bs.F</t>
-            </span>
-        </xpath>
+    <!-- Plantilla Standalone para Selector de Moneda Bimoneda -->
+    <t t-name="l10n_ve_full.CurrencyFilterDropdown">
+        <div class="btn-group dropdown ms-1 me-1 l10n_ve_currency_container" style="display: inline-flex !important; position: relative;">
+            <button class="btn btn-secondary dropdown-toggle l10n_ve_currency_btn"
+                    type="button"
+                    style="display: inline-flex !important; align-items: center; gap: 4px; font-size: 13px; font-weight: 500; padding: 4px 10px;">
+                <i class="fa fa-money me-1" style="color: #0d6efd;"/>
+                <span>Moneda:</span>
+                <span class="ms-1 fw-bold" style="color: #dc3545;">
+                    <t t-if="props and props.options and props.options.l10n_ve_currency === 'usd'">$</t>
+                    <t t-else="">Bs.F</t>
+                </span>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end shadow" style="min-width: 140px; position: absolute; z-index: 1050;">
+                <li>
+                    <a class="dropdown-item d-flex align-items-center gap-2 py-2" href="#" data-currency="bs">
+                        <i t-if="!props or !props.options or props.options.l10n_ve_currency !== 'usd'" class="fa fa-check text-success me-1"/>
+                        <i t-else="" class="fa fa-fw me-1"/>
+                        <span class="fw-bold">Bs.F</span>
+                    </a>
+                </li>
+                <li>
+                    <a class="dropdown-item d-flex align-items-center gap-2 py-2" href="#" data-currency="usd">
+                        <i t-if="props and props.options and props.options.l10n_ve_currency === 'usd'" class="fa fa-check text-success me-1"/>
+                        <i t-else="" class="fa fa-fw me-1"/>
+                        <span class="fw-bold">$</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+        <span class="badge rounded-pill align-self-center ms-1 me-1 l10n_ve_currency_badge"
+              style="background-color: #f1f3f5; color: #495057; font-weight: 600; padding: 6px 10px; font-size: 12px; border: 1px solid #ced4da; display: inline-block;">
+            <t t-if="props and props.options and props.options.l10n_ve_currency === 'usd'">En .$</t>
+            <t t-else="">En .Bs.F</t>
+        </span>
     </t>
 
 </templates>
