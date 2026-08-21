@@ -10,40 +10,59 @@
 
 import { patch } from "@web/core/utils/patch";
 
+// Limpiar cualquier clave corrupta en sessionStorage que cause 'SyntaxError: "undefined" is not valid JSON'
+function cleanCorruptedSessionStorage() {
+    try {
+        if (typeof sessionStorage === "undefined") return;
+        for (let i = sessionStorage.length - 1; i >= 0; i--) {
+            const k = sessionStorage.key(i);
+            if (k) {
+                const val = sessionStorage.getItem(k);
+                if (val === "undefined" || val === "null" || val === "") {
+                    sessionStorage.removeItem(k);
+                }
+            }
+        }
+    } catch (e) {}
+}
+
 // Parchear componentes de reportes contables para capturar la instancia raíz de AccountReport
 function ensureAccountReportPatched() {
     try {
+        cleanCorruptedSessionStorage();
+
         const reportMod = odoo?.loader?.modules?.get("@account_reports/components/account_report/account_report");
         if (reportMod && reportMod.AccountReport && !reportMod.AccountReport._l10n_ve_patched) {
             reportMod.AccountReport._l10n_ve_patched = true;
             patch(reportMod.AccountReport.prototype, {
                 setup() {
                     super.setup(...arguments);
-                    // Capturar la instancia raíz del componente que tiene report_id y reload()
+                    cleanCorruptedSessionStorage();
                     window.__activeAccountReportRoot = this;
                     window.__activeAccountReport = this;
                 },
                 async setL10nVeCurrency(currency) {
-                    this.options = this.options || {};
-                    this.options.l10n_ve_currency = currency;
-                    this.options.l10n_ve_currency_label = currency === 'bs' ? 'Bs.F' : '$';
-                    this.options.l10n_ve_badge_label = currency === 'bs' ? 'En .Bs.F' : 'En .$';
+                    cleanCorruptedSessionStorage();
 
-                    if (this.controller && this.controller.options) {
-                        this.controller.options.l10n_ve_currency = currency;
-                        this.controller.options.l10n_ve_currency_label = currency === 'bs' ? 'Bs.F' : '$';
-                        this.controller.options.l10n_ve_badge_label = currency === 'bs' ? 'En .Bs.F' : 'En .$';
+                    const targets = [this, this.controller, this.report, this.props?.controller];
+                    for (const t of targets) {
+                        if (t && t.options) {
+                            t.options.l10n_ve_currency = currency;
+                            t.options.l10n_ve_currency_label = currency === 'bs' ? 'Bs.F' : '$';
+                            t.options.l10n_ve_badge_label = currency === 'bs' ? 'En .Bs.F' : 'En .$';
+                        }
                     }
 
                     try {
-                        await this.reload();
-                    } catch (e) {
-                        console.warn("[Venezuela360] Reload fallback attempt:", e);
-                        if (this.controller && typeof this.controller.reload === "function") {
-                            try {
-                                await this.controller.reload();
-                            } catch (err) {}
+                        if (this.report && typeof this.report.reload === "function") {
+                            await this.report.reload();
+                        } else if (typeof this.reload === "function") {
+                            await this.reload();
+                        } else if (this.controller && typeof this.controller.reload === "function") {
+                            await this.controller.reload();
                         }
+                    } catch (e) {
+                        console.warn("[Venezuela360] Reload execution:", e);
                     }
                 },
             });
@@ -94,7 +113,7 @@ function injectCurrencyWidgetToDOM() {
 
         // Determinar moneda activa
         const ctrl = window.__activeAccountReportRoot || window.__activeAccountReport;
-        const options = (ctrl && ctrl.options) || {};
+        const options = (ctrl && (ctrl.options || (ctrl.report && ctrl.report.options))) || {};
         const curr = options.l10n_ve_currency || "bs";
 
         // Si ya existe el widget, sincronizar etiquetas
@@ -159,6 +178,8 @@ function injectCurrencyWidgetToDOM() {
                 menu.style.display = "none";
                 const chosen = item.getAttribute("data-curr");
 
+                cleanCorruptedSessionStorage();
+
                 // Actualizar inmediatamente etiquetas del widget
                 const label = widget.querySelector(".l10n_ve_curr_label");
                 if (label) label.textContent = chosen === "usd" ? "$" : "Bs.F";
@@ -171,33 +192,21 @@ function injectCurrencyWidgetToDOM() {
                     if (icon) icon.className = isThis ? "fa fa-check text-success me-1" : "fa fa-fw me-1";
                 });
 
-                // Obtener la instancia raíz del reporte
+                // Obtener la instancia activa del reporte
                 let activeReport = window.__activeAccountReportRoot || window.__activeAccountReport;
 
-                if (!activeReport) {
-                    const reportNodes = document.querySelectorAll(".o_account_reports_body, .o_account_report, .o_content, .o_action_manager");
-                    for (const node of reportNodes) {
-                        if (node.__owl__ && node.__owl__.component) {
-                            activeReport = node.__owl__.component;
-                            break;
-                        }
-                    }
-                }
-
-                if (activeReport) {
-                    if (typeof activeReport.setL10nVeCurrency === "function") {
-                        await activeReport.setL10nVeCurrency(chosen);
-                    } else {
-                        activeReport.options = activeReport.options || {};
+                if (activeReport && typeof activeReport.setL10nVeCurrency === "function") {
+                    await activeReport.setL10nVeCurrency(chosen);
+                } else if (activeReport) {
+                    if (activeReport.options) {
                         activeReport.options.l10n_ve_currency = chosen;
                         activeReport.options.l10n_ve_currency_label = chosen === 'bs' ? 'Bs.F' : '$';
                         activeReport.options.l10n_ve_badge_label = chosen === 'bs' ? 'En .Bs.F' : 'En .$';
-
-                        if (typeof activeReport.reload === "function") {
-                            await activeReport.reload();
-                        } else if (activeReport.controller && typeof activeReport.controller.reload === "function") {
-                            await activeReport.controller.reload();
-                        }
+                    }
+                    if (activeReport.report && typeof activeReport.report.reload === "function") {
+                        await activeReport.report.reload();
+                    } else if (typeof activeReport.reload === "function") {
+                        await activeReport.reload();
                     }
                 }
             });
