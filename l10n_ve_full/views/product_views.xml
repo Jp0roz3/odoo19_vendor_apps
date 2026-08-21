@@ -89,7 +89,7 @@
                 <field name="l10n_ve_list_price_usd"/>
                 <field name="l10n_ve_currency_bs_id"/>
             </xpath>
-            <xpath expr="//span[field[@name='list_price']]" position="after">
+            <xpath expr="//span[field[@name='list_price']]" position="replace">
                 <div class="mt-1 small">
                     <span class="text-muted fw-semibold">Precio: </span>
                     <field name="l10n_ve_list_price_bs" widget="monetary" options="{'currency_field': 'l10n_ve_currency_bs_id'}"/>
