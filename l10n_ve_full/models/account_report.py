@@ -4,24 +4,16 @@ Venezuela360: Reportes Financieros Bimoneda ($ / Bs.F)
 ======================================================
 Hereda account.report de Odoo Enterprise para agregar:
 
-  1. Selector interactivo [💱 Moneda: Bs.F] / [💱 Moneda: $] en la barra de filtros.
-  2. Conversión dinámica de todos los valores monetarios según la tasa BCV a la fecha del reporte.
-  3. Soporte para TODOS los reportes financieros:
+  1. Moneda Principal por defecto: Dólares ($ / USD).
+  2. Moneda Secundaria: Bolívares (Bs.F) a Tasa Oficial BCV.
+  3. Selector interactivo [💱 Moneda: $] / [💱 Moneda: Bs.F] en la barra de filtros.
+  4. Conversión dinámica e instantánea de todos los valores monetarios según la tasa BCV del día.
+  5. Soporte para TODOS los reportes financieros:
      - Balance General (Balance Sheet)
      - Estado de Resultados (Profit and Loss)
      - Estado de Flujo de Efectivo (Cash Flow)
      - Libro Mayor (General Ledger)
      - Balance de Comprobación (Trial Balance)
-     - Resumen Ejecutivo y demás reportes de account.report.
-
-ARQUITECTURA:
-─────────────────────────────────────────────────────────────────
-  • Moneda PRINCIPAL de la empresa: USD (company.currency_id = USD)
-  • Moneda SECUNDARIA: Bs.F (VES / VEF)
-  • Los importes internos de Odoo se calculan en USD (moneda base).
-  • Modo 'bs'  → Multiplica por tasa BCV de la fecha de corte → Formatea como 'X.XXX,XX Bs.F'
-  • Modo 'usd' → Muestra los valores directamente en USD ($)
-─────────────────────────────────────────────────────────────────
 
 Autor: JeanPerozo / Nubelco
 """
@@ -38,26 +30,26 @@ class AccountReport(models.Model):
     _inherit = 'account.report'
 
     # ─────────────────────────────────────────────────────────────────────────
-    # OPCIONES DEL REPORTE: Inyección del selector bimoneda
+    # OPCIONES DEL REPORTE: Moneda principal USD por defecto
     # ─────────────────────────────────────────────────────────────────────────
 
     def get_options(self, previous_options=None):
         """
         Inyecta las opciones de moneda dual en el diccionario de opciones del reporte.
-        Por defecto inicializa en 'bs' (Bolívares con tasa BCV) o persiste la selección del usuario.
+        Moneda principal por defecto: 'usd' ($).
+        Solo cambia a 'bs' cuando el usuario lo selecciona explícitamente.
         """
         options = super().get_options(previous_options)
 
-        # Moneda activa: 'bs' por defecto para visualización venezolana o 'usd' si fue seleccionado
-        selected_currency = 'bs'
+        selected_currency = 'usd'
         if previous_options and isinstance(previous_options, dict):
             prev_val = previous_options.get('l10n_ve_currency')
             if prev_val in ('usd', 'bs'):
                 selected_currency = prev_val
 
         options['l10n_ve_currency'] = selected_currency
-        options['l10n_ve_currency_label'] = 'Bs.F' if selected_currency == 'bs' else '$'
-        options['l10n_ve_badge_label'] = 'En .Bs.F' if selected_currency == 'bs' else 'En .$'
+        options['l10n_ve_currency_label'] = '$' if selected_currency == 'usd' else 'Bs.F'
+        options['l10n_ve_badge_label'] = 'En .$' if selected_currency == 'usd' else 'En .Bs.F'
         options['filter_l10n_ve_currency'] = True
 
         return options
@@ -71,13 +63,13 @@ class AccountReport(models.Model):
         Conmuta la moneda activa entre 'usd' y 'bs' y retorna la recarga del reporte.
         """
         self.ensure_one()
-        current = (options or {}).get('l10n_ve_currency', 'bs')
-        new_curr = 'usd' if current == 'bs' else 'bs'
+        current = (options or {}).get('l10n_ve_currency', 'usd')
+        new_curr = 'bs' if current == 'usd' else 'usd'
 
         new_options = dict(options or {})
         new_options['l10n_ve_currency'] = new_curr
-        new_options['l10n_ve_currency_label'] = 'Bs.F' if new_curr == 'bs' else '$'
-        new_options['l10n_ve_badge_label'] = 'En .Bs.F' if new_curr == 'bs' else 'En .$'
+        new_options['l10n_ve_currency_label'] = '$' if new_curr == 'usd' else 'Bs.F'
+        new_options['l10n_ve_badge_label'] = 'En .$' if new_curr == 'usd' else 'En .Bs.F'
         new_options['filter_l10n_ve_currency'] = True
 
         _logger.info(
@@ -99,11 +91,12 @@ class AccountReport(models.Model):
     def _get_lines(self, options, *args, **kwargs):
         """
         Sobrescribe la generación de líneas de Odoo Enterprise para asegurar que
-        todas las columnas monetarias muestren los montos convertidos a tasa BCV en Bs.F.
+        cuando se seleccione 'bs', todas las columnas monetarias muestren los montos
+        convertidos a tasa BCV en Bs.F, y en 'usd' muestren los dólares base.
         """
         lines = super()._get_lines(options, *args, **kwargs)
         try:
-            ve_currency = (options or {}).get('l10n_ve_currency', 'bs')
+            ve_currency = (options or {}).get('l10n_ve_currency', 'usd')
             date_to = ((options or {}).get('date') or {}).get('date_to') or str(fields.Date.context_today(self))
             rate = self._get_bcv_rate(date_to)
 
@@ -136,7 +129,7 @@ class AccountReport(models.Model):
         try:
             if options and isinstance(options, dict) and isinstance(value, (int, float)):
                 if figure_type in ('monetary', None):
-                    ve_currency = options.get('l10n_ve_currency', 'bs')
+                    ve_currency = options.get('l10n_ve_currency', 'usd')
                     if ve_currency == 'bs':
                         date_to = (options.get('date') or {}).get('date_to') or str(fields.Date.context_today(self))
                         rate = self._get_bcv_rate(date_to)
@@ -157,7 +150,7 @@ class AccountReport(models.Model):
         """
         try:
             if options and isinstance(options, dict) and isinstance(value, (int, float)):
-                ve_currency = options.get('l10n_ve_currency', 'bs')
+                ve_currency = options.get('l10n_ve_currency', 'usd')
                 if ve_currency == 'bs':
                     date_to = (options.get('date') or {}).get('date_to') or str(fields.Date.context_today(self))
                     rate = self._get_bcv_rate(date_to)

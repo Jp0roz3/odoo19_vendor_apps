@@ -1,20 +1,21 @@
 /** @odoo-module **/
 /**
- * Venezuela360: Selector Bimoneda [💱 Moneda: Bs.F / $] en Reportes Financieros
+ * Venezuela360: Selector Bimoneda [💱 Moneda: $ / Bs.F] en Reportes Financieros
  * ==============================================================================
  * Conecta el selector de moneda interactivo con el controlador AccountReport
- * de Odoo Enterprise, permitiendo alternar al instante entre Bs.F y USD.
+ * de Odoo Enterprise, permitiendo alternar al instante entre USD y Bs.F.
  *
- * Moneda Base de la Compañía: USD ($)
- * Moneda Secundaria Bimoneda: Bolívares (Bs.F) a Tasa Oficial BCV
+ * Moneda Principal al abrir: Dólares ($ / USD)
+ * Moneda Secundaria al cambiar: Bolívares (Bs.F) a Tasa Oficial BCV
  *
  * Autor: JeanPerozo / Nubelco
  */
 
 import { patch } from "@web/core/utils/patch";
 
-// Estado global de la moneda seleccionada para evitar que el timer sobreescriba la UI
-let currentSelectedCurrency = "bs";
+// Moneda inicial por defecto: USD ($)
+let currentSelectedCurrency = "usd";
+let currentBcvRate = 779.9522;
 
 // Limpiar cualquier clave corrupta en sessionStorage
 function cleanCorruptedSessionStorage() {
@@ -32,24 +33,107 @@ function cleanCorruptedSessionStorage() {
     } catch (e) {}
 }
 
-// Ejecutar recarga del reporte de forma segura a través de múltiples estrategias de Odoo 19
-async function triggerReportReload(reportComp, currency) {
-    if (!reportComp) return;
+// Obtener la tasa BCV activa desde el systray o estado
+function extractBcvRate() {
+    try {
+        const systrayEl = document.querySelector(".o_bcv_rate_systray, [class*='bcv'], .o_menu_systray");
+        if (systrayEl) {
+            const match = (systrayEl.textContent || "").match(/BCV:\s*([\d\.,]+)/i);
+            if (match && match[1]) {
+                const clean = match[1].replace(/\./g, "").replace(/,/g, ".");
+                const val = parseFloat(clean);
+                if (!isNaN(val) && val > 0) {
+                    currentBcvRate = val;
+                    return val;
+                }
+            }
+        }
+    } catch (e) {}
+    return currentBcvRate;
+}
 
+// Parsear número con formato contable/venezolano a float
+function parseVeNumber(str) {
+    if (!str) return null;
+    let clean = str.replace(/Bs\.F|\$|EUR|\s/g, "").trim();
+    if (!clean) return null;
+    const isNeg = clean.startsWith("-") || clean.startsWith("(");
+    clean = clean.replace(/[\(\)-]/g, "").trim();
+    clean = clean.replace(/\./g, "").replace(/,/g, ".");
+    const val = parseFloat(clean);
+    if (isNaN(val)) return null;
+    return isNeg ? -val : val;
+}
+
+// Formatear número con estándar venezolano: 2339.86 -> "2.339,86"
+function formatVeNumber(num) {
+    if (num === null || isNaN(num)) return "0,00";
+    const isNeg = num < 0;
+    const absNum = Math.abs(num);
+    const parts = absNum.toFixed(2).split(".");
+    const intPart = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+    const decPart = parts[1];
+    const res = `${intPart},${decPart}`;
+    return isNeg ? `-${res}` : res;
+}
+
+// Transformación directa e instantánea de todas las celdas numéricas de la tabla
+function transformReportTableCells(currency) {
+    try {
+        const rate = extractBcvRate();
+        const tables = document.querySelectorAll(".o_account_reports_table, .o_account_reports_body table, .o_account_report table, table");
+        
+        tables.forEach(table => {
+            const cells = table.querySelectorAll("td, th, span.o_account_report_column_value, div.o_account_report_column_value");
+            cells.forEach(cell => {
+                // Evitar celdas de títulos de cuentas o encabezados con texto puro
+                if (cell.children.length > 2) return;
+                const txt = cell.textContent.trim();
+                if (!txt) return;
+
+                // Capturar el valor base en USD en el primer parseo
+                if (!cell.hasAttribute("data-original-usd")) {
+                    const parsed = parseVeNumber(txt);
+                    if (parsed !== null && (txt.match(/^-?[\d\.,]+$/) || txt.includes("$") || txt.includes("Bs.F"))) {
+                        cell.setAttribute("data-original-usd", parsed.toString());
+                    }
+                }
+
+                if (cell.hasAttribute("data-original-usd")) {
+                    const usdVal = parseFloat(cell.getAttribute("data-original-usd"));
+                    if (!isNaN(usdVal)) {
+                        if (currency === "bs") {
+                            const bsVal = Math.round(usdVal * rate * 100) / 100;
+                            cell.textContent = `${formatVeNumber(bsVal)} Bs.F`;
+                        } else {
+                            cell.textContent = `${formatVeNumber(usdVal)} $`;
+                        }
+                    }
+                }
+            });
+        });
+    } catch (e) {
+        console.warn("[Venezuela360] transformReportTableCells error:", e);
+    }
+}
+
+// Ejecutar recarga del reporte de forma segura
+async function triggerReportReload(reportComp, currency) {
     currentSelectedCurrency = currency;
     cleanCorruptedSessionStorage();
+    transformReportTableCells(currency);
 
-    // 1. Actualizar opciones en todas las referencias del reporte
+    if (!reportComp) return;
+
     const options = reportComp.options || (reportComp.controller && reportComp.controller.options) || {};
     options.l10n_ve_currency = currency;
-    options.l10n_ve_currency_label = currency === "bs" ? "Bs.F" : "$";
-    options.l10n_ve_badge_label = currency === "bs" ? "En .Bs.F" : "En .$";
+    options.l10n_ve_currency_label = currency === "usd" ? "$" : "Bs.F";
+    options.l10n_ve_badge_label = currency === "usd" ? "En .$" : "En .Bs.F";
 
     reportComp.options = options;
     if (reportComp.controller) reportComp.controller.options = options;
     if (reportComp.report) reportComp.report.options = options;
 
-    // 2. Estrategia A: orm.call directo a get_report_information (100% inmune a errores de Proxy)
     const reportId = reportComp.props?.reportId 
         || reportComp.props?.action?.context?.report_id 
         || options.report_id 
@@ -72,40 +156,12 @@ async function triggerReportReload(reportComp, currency) {
 
                 if (typeof reportComp.render === "function") {
                     reportComp.render(true);
-                    return;
+                    setTimeout(() => transformReportTableCells(currency), 50);
                 }
             }
         } catch (eA) {
             console.warn("[Venezuela360] ORM direct reload fallback:", eA);
         }
-    }
-
-    // 3. Estrategia B: Invocar reload() en el controller o en el root component
-    try {
-        if (reportComp.controller && typeof reportComp.controller.reload === "function") {
-            await reportComp.controller.reload();
-            return;
-        }
-    } catch (eB) {}
-
-    try {
-        if (typeof reportComp.reload === "function") {
-            await reportComp.reload();
-            return;
-        }
-    } catch (eC) {}
-
-    // 4. Estrategia C: Recarga via action service
-    if (reportComp.env?.services?.action) {
-        try {
-            const action = reportComp.props?.action || reportComp.env.services.action.currentController?.action;
-            if (action) {
-                await reportComp.env.services.action.doAction(action, {
-                    stackPosition: "replaceCurrent",
-                    additionalContext: { l10n_ve_currency: currency },
-                });
-            }
-        } catch (eD) {}
     }
 }
 
@@ -178,7 +234,10 @@ function injectCurrencyWidgetToDOM() {
         let widget = cp.querySelector(".l10n_ve_currency_widget");
         if (widget) {
             const label = widget.querySelector(".l10n_ve_curr_label");
-            if (label) label.textContent = curr === "usd" ? "$" : "Bs.F";
+            if (label) {
+                label.textContent = curr === "usd" ? "$" : "Bs.F";
+                label.style.color = curr === "usd" ? "#212529" : "#dc3545";
+            }
             const badge = widget.querySelector(".l10n_ve_badge");
             if (badge) badge.textContent = curr === "usd" ? "En .$" : "En .Bs.F";
 
@@ -190,7 +249,7 @@ function injectCurrencyWidgetToDOM() {
             return;
         }
 
-        // Crear el widget idéntico a la Imagen 4 de referencia
+        // Crear el widget con USD ($) seleccionado por defecto
         widget = document.createElement("div");
         widget.className = "l10n_ve_currency_widget d-inline-flex align-items-center ms-1 me-1";
         widget.style.cssText = "display: inline-flex !important; align-items: center; z-index: 1050; margin: 2px 4px; vertical-align: middle;";
@@ -202,19 +261,19 @@ function injectCurrencyWidgetToDOM() {
                         style="display: inline-flex; align-items: center; gap: 4px; font-size: 13px; font-weight: 500; padding: 4px 10px; border: 1px solid #ced4da; cursor: pointer; background-color: #ffffff; color: #212529; border-radius: 4px;">
                     <i class="fa fa-money me-1" style="color: #0d6efd;"></i>
                     <span>Moneda:</span>
-                    <span class="ms-1 fw-bold l10n_ve_curr_label" style="color: #dc3545;">${curr === "usd" ? "$" : "Bs.F"}</span>
+                    <span class="ms-1 fw-bold l10n_ve_curr_label" style="color: ${curr === "usd" ? "#212529" : "#dc3545"};">${curr === "usd" ? "$" : "Bs.F"}</span>
                 </button>
                 <ul class="dropdown-menu dropdown-menu-end shadow l10n_ve_menu" style="min-width: 140px; position: absolute; z-index: 1090; display: none; top: 100%; right: 0; background-color: #ffffff; border: 1px solid rgba(0,0,0,0.15); border-radius: 4px; box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.15);">
-                    <li>
-                        <a class="dropdown-item d-flex align-items-center gap-2 py-2" href="#" data-curr="bs" style="cursor: pointer; color: #212529;">
-                            <i class="fa ${curr !== "usd" ? "fa-check text-success" : "fa-fw"} me-1"></i>
-                            <span class="fw-bold">Bs.F</span>
-                        </a>
-                    </li>
                     <li>
                         <a class="dropdown-item d-flex align-items-center gap-2 py-2" href="#" data-curr="usd" style="cursor: pointer; color: #212529;">
                             <i class="fa ${curr === "usd" ? "fa-check text-success" : "fa-fw"} me-1"></i>
                             <span class="fw-bold">$</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item d-flex align-items-center gap-2 py-2" href="#" data-curr="bs" style="cursor: pointer; color: #212529;">
+                            <i class="fa ${curr !== "usd" ? "fa-check text-success" : "fa-fw"} me-1"></i>
+                            <span class="fw-bold">Bs.F</span>
                         </a>
                     </li>
                 </ul>
@@ -247,7 +306,10 @@ function injectCurrencyWidgetToDOM() {
 
                 // Actualizar inmediatamente etiquetas visuales
                 const label = widget.querySelector(".l10n_ve_curr_label");
-                if (label) label.textContent = chosen === "usd" ? "$" : "Bs.F";
+                if (label) {
+                    label.textContent = chosen === "usd" ? "$" : "Bs.F";
+                    label.style.color = chosen === "usd" ? "#212529" : "#dc3545";
+                }
                 const badge = widget.querySelector(".l10n_ve_badge");
                 if (badge) badge.textContent = chosen === "usd" ? "En .$" : "En .Bs.F";
 
@@ -257,9 +319,11 @@ function injectCurrencyWidgetToDOM() {
                     if (icon) icon.className = isThis ? "fa fa-check text-success me-1" : "fa fa-fw me-1";
                 });
 
-                // Obtener la instancia activa del reporte
-                let activeReport = window.__activeAccountReport;
+                // Transformar inmediatamente todos los valores en pantalla
+                transformReportTableCells(chosen);
 
+                // Obtener la instancia activa del reporte y sincronizar
+                let activeReport = window.__activeAccountReport;
                 if (!activeReport) {
                     const reportNodes = document.querySelectorAll(".o_account_reports_body, .o_account_report, .o_content, .o_action_manager");
                     for (const node of reportNodes) {
