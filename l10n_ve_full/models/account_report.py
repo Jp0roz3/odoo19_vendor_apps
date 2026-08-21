@@ -2,8 +2,9 @@
 """
 Venezuela360: Extensión de account.report para Reportes Financieros Bimoneda
 =============================================================================
-Soporta Odoo Enterprise `account_reports` (`get_options`) y Community/Base.
-Añade el filtro bimoneda (Moneda: Bs.F / Moneda: $) a todos los reportes contables.
+Soporta Odoo Enterprise `account_reports` (`get_options`).
+Añade el botón [💵 Moneda: Bs.F / $] en la barra de acciones superior
+y recalcula dinámicamente el Balance General entre Bolívares (Bs.F) y Dólares ($).
 
 Autor: JeanPerozo / Nubelco
 """
@@ -39,6 +40,17 @@ class AccountReport(models.Model):
         options['l10n_ve_currency_label'] = '$' if selected_currency == 'usd' else 'Bs.F'
         options['l10n_ve_badge_label'] = 'En .$' if selected_currency == 'usd' else 'En .Bs.F'
 
+        # Agregar botón de Moneda en la barra de acciones superior (junto a PDF / XLSX)
+        if 'buttons' in options and isinstance(options['buttons'], list):
+            btn_label = f"💵 Moneda: {options['l10n_ve_currency_label']}"
+            # Evitar duplicados
+            options['buttons'] = [b for b in options['buttons'] if not (isinstance(b, dict) and b.get('action') == 'action_switch_l10n_ve_currency')]
+            options['buttons'].append({
+                'name': btn_label,
+                'action': 'action_switch_l10n_ve_currency',
+                'sequence': 1,
+            })
+
         return options
 
     def _get_options(self, previous_options=None):
@@ -47,6 +59,22 @@ class AccountReport(models.Model):
         else:
             options = {}
         return self.get_options(previous_options or options)
+
+    def action_switch_l10n_ve_currency(self, options):
+        """Acción ejecutada al hacer clic en el botón de Moneda en el reporte."""
+        current = options.get('l10n_ve_currency', 'bs')
+        new_currency = 'usd' if current == 'bs' else 'bs'
+        options['l10n_ve_currency'] = new_currency
+        options['l10n_ve_currency_label'] = '$' if new_currency == 'usd' else 'Bs.F'
+        options['l10n_ve_badge_label'] = 'En .$' if new_currency == 'usd' else 'En .Bs.F'
+
+        # Retornar recarga reactiva de la vista del reporte
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'account_report',
+            'options': options,
+            'ignore_session': 'both',
+        }
 
     def _format_value(self, options, value, figure_type, blank_if_zero=False, currency=None):
         if options and isinstance(options, dict) and options.get('l10n_ve_currency') == 'usd':
