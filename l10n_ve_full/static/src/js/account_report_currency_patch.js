@@ -10,37 +10,51 @@
 
 import { patch } from "@web/core/utils/patch";
 
-// Función periódica para parchear AccountReport en cuanto Odoo lo cargue en memoria
+// Parchear componentes de reportes contables para capturar el controlador activo
 function ensureAccountReportPatched() {
     try {
+        // 1. Parchear AccountReport
         const reportMod = odoo?.loader?.modules?.get("@account_reports/components/account_report/account_report");
         if (reportMod && reportMod.AccountReport && !reportMod.AccountReport._l10n_ve_patched) {
             reportMod.AccountReport._l10n_ve_patched = true;
             patch(reportMod.AccountReport.prototype, {
                 setup() {
                     super.setup(...arguments);
-                    window.__activeAccountReport = this;
+                    window.__activeAccountReport = this.controller || this;
                 },
                 async setL10nVeCurrency(currency) {
-                    this.options = this.options || {};
-                    this.options.l10n_ve_currency = currency;
-                    this.options.l10n_ve_currency_label = currency === 'bs' ? 'Bs.F' : '$';
-                    this.options.l10n_ve_badge_label = currency === 'bs' ? 'En .Bs.F' : 'En .$';
+                    const ctrl = this.controller || this;
+                    ctrl.options = ctrl.options || {};
+                    ctrl.options.l10n_ve_currency = currency;
+                    ctrl.options.l10n_ve_currency_label = currency === 'bs' ? 'Bs.F' : '$';
+                    ctrl.options.l10n_ve_badge_label = currency === 'bs' ? 'En .Bs.F' : 'En .$';
 
                     try {
-                        if (typeof this.reload === "function") {
-                            // En Odoo 19 reload() no recibe un objeto {options:...} sino opcionalmente un string optionPath
+                        if (ctrl.controller && typeof ctrl.controller.reload === "function") {
+                            await ctrl.controller.reload();
+                        } else if (typeof ctrl.reload === "function") {
+                            await ctrl.reload();
+                        } else if (typeof this.reload === "function") {
                             await this.reload();
-                        } else if (this.controller && typeof this.controller.reload === "function") {
-                            await this.controller.reload();
-                        } else if (typeof this.updateOptions === "function") {
-                            await this.updateOptions(this.options);
                         }
                     } catch (e) {
-                        console.warn("[Venezuela360] Reload fallback:", e);
-                        try {
-                            await this.reload("l10n_ve_currency");
-                        } catch (err) {}
+                        console.warn("[Venezuela360] Reload attempt failed:", e);
+                    }
+                },
+            });
+        }
+    } catch (e) {}
+
+    try {
+        // 2. Parchear AccountReportFilters
+        const filtersMod = odoo?.loader?.modules?.get("@account_reports/components/account_report/filters/filters");
+        if (filtersMod && filtersMod.AccountReportFilters && !filtersMod.AccountReportFilters._l10n_ve_patched) {
+            filtersMod.AccountReportFilters._l10n_ve_patched = true;
+            patch(filtersMod.AccountReportFilters.prototype, {
+                setup() {
+                    super.setup(...arguments);
+                    if (this.controller || this.props?.controller) {
+                        window.__activeAccountReport = this.controller || this.props.controller;
                     }
                 },
             });
@@ -168,14 +182,24 @@ function injectCurrencyWidgetToDOM() {
                     if (icon) icon.className = isThis ? "fa fa-check text-success me-1" : "fa fa-fw me-1";
                 });
 
-                // Buscar controlador activo
+                // Obtener el controlador real que contiene reload() y reportId
                 let activeCtrl = window.__activeAccountReport;
-                if (!activeCtrl || typeof activeCtrl.setL10nVeCurrency !== "function") {
+                if (activeCtrl && activeCtrl.controller) {
+                    activeCtrl = activeCtrl.controller;
+                }
+
+                if (!activeCtrl || (typeof activeCtrl.reload !== "function" && typeof activeCtrl.setL10nVeCurrency !== "function")) {
                     const reportNodes = document.querySelectorAll(".o_account_reports_body, .o_account_report, .o_content, .o_action_manager, .o_view_controller");
                     for (const node of reportNodes) {
                         if (node.__owl__ && node.__owl__.component) {
                             const comp = node.__owl__.component;
-                            if (comp.options || typeof comp.reload === "function" || typeof comp.setL10nVeCurrency === "function") {
+                            if (comp.controller) {
+                                activeCtrl = comp.controller;
+                                break;
+                            } else if (comp.props && comp.props.controller) {
+                                activeCtrl = comp.props.controller;
+                                break;
+                            } else if (typeof comp.reload === "function" || typeof comp.setL10nVeCurrency === "function") {
                                 activeCtrl = comp;
                                 break;
                             }
@@ -184,13 +208,17 @@ function injectCurrencyWidgetToDOM() {
                 }
 
                 if (activeCtrl) {
+                    activeCtrl.options = activeCtrl.options || {};
+                    activeCtrl.options.l10n_ve_currency = chosen;
+                    activeCtrl.options.l10n_ve_currency_label = chosen === 'bs' ? 'Bs.F' : '$';
+                    activeCtrl.options.l10n_ve_badge_label = chosen === 'bs' ? 'En .Bs.F' : 'En .$';
+
                     if (typeof activeCtrl.setL10nVeCurrency === "function") {
                         await activeCtrl.setL10nVeCurrency(chosen);
-                    } else if (activeCtrl.options && typeof activeCtrl.reload === "function") {
-                        activeCtrl.options.l10n_ve_currency = chosen;
-                        activeCtrl.options.l10n_ve_currency_label = chosen === 'bs' ? 'Bs.F' : '$';
-                        activeCtrl.options.l10n_ve_badge_label = chosen === 'bs' ? 'En .Bs.F' : 'En .$';
+                    } else if (typeof activeCtrl.reload === "function") {
                         await activeCtrl.reload();
+                    } else if (activeCtrl.controller && typeof activeCtrl.controller.reload === "function") {
+                        await activeCtrl.controller.reload();
                     }
                 }
             });
