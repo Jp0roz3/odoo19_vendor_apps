@@ -10,12 +10,50 @@
 
 import { patch } from "@web/core/utils/patch";
 
+// Función periódica para parchear AccountReport en cuanto Odoo lo cargue en memoria
+function ensureAccountReportPatched() {
+    try {
+        const reportMod = odoo?.loader?.modules?.get("@account_reports/components/account_report/account_report");
+        if (reportMod && reportMod.AccountReport && !reportMod.AccountReport._l10n_ve_patched) {
+            reportMod.AccountReport._l10n_ve_patched = true;
+            patch(reportMod.AccountReport.prototype, {
+                setup() {
+                    super.setup(...arguments);
+                    window.__activeAccountReport = this;
+                },
+                async setL10nVeCurrency(currency) {
+                    this.options = this.options || {};
+                    this.options.l10n_ve_currency = currency;
+                    this.options.l10n_ve_currency_label = currency === 'bs' ? 'Bs.F' : '$';
+                    this.options.l10n_ve_badge_label = currency === 'bs' ? 'En .Bs.F' : 'En .$';
+
+                    const newOptions = {
+                        ...this.options,
+                        l10n_ve_currency: currency,
+                        l10n_ve_currency_label: currency === 'bs' ? 'Bs.F' : '$',
+                        l10n_ve_badge_label: currency === 'bs' ? 'En .Bs.F' : 'En .$',
+                    };
+
+                    if (typeof this.reload === "function") {
+                        await this.reload({ options: newOptions });
+                    } else if (typeof this.updateOptions === "function") {
+                        await this.updateOptions(newOptions);
+                    } else if (this.controller && typeof this.controller.reload === "function") {
+                        await this.controller.reload({ options: newOptions });
+                    }
+                },
+            });
+        }
+    } catch (e) {}
+}
+
 // Inyector universal de botón bimoneda en la barra de control de Odoo Enterprise
-function injectCurrencyWidgetToDOM(reportInstance) {
+function injectCurrencyWidgetToDOM() {
     try {
         if (typeof document === "undefined" || !document.body) return;
 
-        // 1. Detectar si estamos en una pantalla de reporte contable
+        ensureAccountReportPatched();
+
         const cp = document.querySelector(".o_control_panel");
         if (!cp) return;
 
@@ -29,10 +67,8 @@ function injectCurrencyWidgetToDOM(reportInstance) {
 
         if (!isFinancialReport) return;
 
-        // 2. Encontrar el contenedor exacto de las píldoras de filtro en el header
+        // Encontrar el contenedor exacto de las píldoras de filtro en el header
         let filterTarget = null;
-
-        // Búsqueda inteligente por texto de píldoras existentes
         const buttonsAndPills = cp.querySelectorAll("button, .btn, .badge, .dropdown, div");
         for (const el of buttonsAndPills) {
             const txt = el.textContent || "";
@@ -42,7 +78,6 @@ function injectCurrencyWidgetToDOM(reportInstance) {
             }
         }
 
-        // Fallback a contenedores estándar
         if (!filterTarget) {
             filterTarget = cp.querySelector(".o_control_panel_navigation")
                         || cp.querySelector(".o_account_reports_filters")
@@ -53,11 +88,12 @@ function injectCurrencyWidgetToDOM(reportInstance) {
 
         if (!filterTarget) return;
 
-        // 3. Determinar moneda activa
-        const options = (reportInstance && reportInstance.options) || {};
+        // Determinar moneda activa
+        const ctrl = window.__activeAccountReport;
+        const options = (ctrl && ctrl.options) || {};
         const curr = options.l10n_ve_currency || "bs";
 
-        // 4. Si ya existe el widget, sincronizar etiquetas
+        // Si ya existe el widget, sincronizar etiquetas
         let widget = cp.querySelector(".l10n_ve_currency_widget");
         if (widget) {
             const label = widget.querySelector(".l10n_ve_curr_label");
@@ -67,7 +103,7 @@ function injectCurrencyWidgetToDOM(reportInstance) {
             return;
         }
 
-        // 5. Crear el widget idéntico a la Imagen 4 de referencia
+        // Crear el widget idéntico a la Imagen 4 de referencia
         widget = document.createElement("div");
         widget.className = "l10n_ve_currency_widget d-inline-flex align-items-center ms-1 me-1";
         widget.style.cssText = "display: inline-flex !important; align-items: center; z-index: 1050; margin: 2px 4px; vertical-align: middle;";
@@ -119,32 +155,46 @@ function injectCurrencyWidgetToDOM(reportInstance) {
                 menu.style.display = "none";
                 const chosen = item.getAttribute("data-curr");
 
-                // Buscar componente AccountReport activo en OWL
-                let activeCtrl = reportInstance;
+                // Actualizar inmediatamente etiquetas del widget
+                const label = widget.querySelector(".l10n_ve_curr_label");
+                if (label) label.textContent = chosen === "usd" ? "$" : "Bs.F";
+                const badge = widget.querySelector(".l10n_ve_badge");
+                if (badge) badge.textContent = chosen === "usd" ? "En .$" : "En .Bs.F";
+
+                widget.querySelectorAll("[data-curr]").forEach(el => {
+                    const isThis = el.getAttribute("data-curr") === chosen;
+                    const icon = el.querySelector("i");
+                    if (icon) icon.className = isThis ? "fa fa-check text-success me-1" : "fa fa-fw me-1";
+                });
+
+                // Buscar controlador activo
+                let activeCtrl = window.__activeAccountReport;
                 if (!activeCtrl || typeof activeCtrl.setL10nVeCurrency !== "function") {
-                    const reportNodes = document.querySelectorAll(".o_account_reports_body, .o_account_report, .o_content, .o_action_manager");
+                    const reportNodes = document.querySelectorAll(".o_account_reports_body, .o_account_report, .o_content, .o_action_manager, .o_view_controller");
                     for (const node of reportNodes) {
                         if (node.__owl__ && node.__owl__.component) {
-                            activeCtrl = node.__owl__.component;
-                            break;
+                            const comp = node.__owl__.component;
+                            if (comp.options || typeof comp.reload === "function" || typeof comp.setL10nVeCurrency === "function") {
+                                activeCtrl = comp;
+                                break;
+                            }
                         }
                     }
                 }
 
-                if (activeCtrl && typeof activeCtrl.setL10nVeCurrency === "function") {
-                    await activeCtrl.setL10nVeCurrency(chosen);
-                } else if (activeCtrl && activeCtrl.options) {
-                    activeCtrl.options.l10n_ve_currency = chosen;
-                    activeCtrl.options.l10n_ve_currency_label = chosen === 'bs' ? 'Bs.F' : '$';
-                    activeCtrl.options.l10n_ve_badge_label = chosen === 'bs' ? 'En .Bs.F' : 'En .$';
-                    if (typeof activeCtrl.reload === "function") {
+                if (activeCtrl) {
+                    if (typeof activeCtrl.setL10nVeCurrency === "function") {
+                        await activeCtrl.setL10nVeCurrency(chosen);
+                    } else if (activeCtrl.options && typeof activeCtrl.reload === "function") {
+                        activeCtrl.options.l10n_ve_currency = chosen;
+                        activeCtrl.options.l10n_ve_currency_label = chosen === 'bs' ? 'Bs.F' : '$';
+                        activeCtrl.options.l10n_ve_badge_label = chosen === 'bs' ? 'En .Bs.F' : 'En .$';
                         await activeCtrl.reload({ options: activeCtrl.options });
                     }
                 }
             });
         });
 
-        // Insertar en la posición óptima
         filterTarget.appendChild(widget);
     } catch (err) {
         console.warn("[Venezuela360] Error in injectCurrencyWidgetToDOM:", err);
@@ -158,55 +208,5 @@ if (typeof document !== "undefined") {
     });
 }
 
-// Parchear la clase AccountReport en OWL
-try {
-    const reportMod = odoo?.loader?.modules?.get("@account_reports/components/account_report/account_report");
-    if (reportMod && reportMod.AccountReport && !reportMod.AccountReport._l10n_ve_patched) {
-        reportMod.AccountReport._l10n_ve_patched = true;
-        patch(reportMod.AccountReport.prototype, {
-            setup() {
-                super.setup(...arguments);
-                setTimeout(() => injectCurrencyWidgetToDOM(this), 150);
-            },
-            async render() {
-                const res = await super.render(...arguments);
-                setTimeout(() => injectCurrencyWidgetToDOM(this), 100);
-                return res;
-            },
-            async setL10nVeCurrency(currency) {
-                if (!this.options) return;
-                this.options.l10n_ve_currency = currency;
-                this.options.l10n_ve_currency_label = currency === 'bs' ? 'Bs.F' : '$';
-                this.options.l10n_ve_badge_label = currency === 'bs' ? 'En .Bs.F' : 'En .$';
-
-                const newOptions = {
-                    ...this.options,
-                    l10n_ve_currency: currency,
-                    l10n_ve_currency_label: currency === 'bs' ? 'Bs.F' : '$',
-                    l10n_ve_badge_label: currency === 'bs' ? 'En .Bs.F' : 'En .$',
-                };
-
-                if (typeof this.reload === "function") {
-                    await this.reload({ options: newOptions });
-                } else if (typeof this.updateOptions === "function") {
-                    await this.updateOptions(newOptions);
-                } else if (this.controller && typeof this.controller.reload === "function") {
-                    await this.controller.reload({ options: newOptions });
-                }
-                setTimeout(() => injectCurrencyWidgetToDOM(this), 250);
-            },
-        });
-    }
-} catch (e) {}
-
-// Timer continuo e infalible para SPA
-setInterval(() => {
-    try {
-        const cp = document.querySelector(".o_control_panel");
-        if (cp && !cp.querySelector(".l10n_ve_currency_widget")) {
-            const reportEl = document.querySelector(".o_account_reports_body, .o_account_report, .o_content");
-            const owlComp = reportEl?.__owl__?.component;
-            injectCurrencyWidgetToDOM(owlComp);
-        }
-    } catch (e) {}
-}, 250);
+// Iniciar monitoreo activo para parchear y montar en SPA
+setInterval(injectCurrencyWidgetToDOM, 250);
