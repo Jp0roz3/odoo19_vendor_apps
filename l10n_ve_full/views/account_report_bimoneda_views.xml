@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!--
+        Venezuela360: Vistas y Recursos para Reportes Financieros Bimoneda Dual
+        ========================================================================
+        Habilita el selector interactivo [Moneda: Bs.F] / [Moneda: $] en el encabezado
+        de todos los reportes contables (Balance General, Estado de Resultados).
+    -->
+</odoo>

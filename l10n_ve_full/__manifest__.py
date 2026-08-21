@@ -79,6 +79,7 @@ Soporte: soporte@nubelco.com
         'views/account_payment_views.xml',
         'views/account_tax_views.xml',
         'views/account_journal_dashboard_views.xml',
+        'views/account_report_bimoneda_views.xml',
 
         # Vistas: retenciones
         'views/withholding_iva_views.xml',

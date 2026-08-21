@@ -22,6 +22,7 @@ from . import fiscal_book        # libros fiscales (depende de todo lo anterior)
 from . import res_config_settings  # extensión de ajustes (relaciona campos de company)
 from . import account_journal      # extensión del diario (dashboard bimoneda dual)
 from . import product_template     # extensión de productos (precios duales Bs/USD)
+from . import account_report       # extensión de reportes contables bimoneda dual
 
 # Importar extensión de ventas únicamente si el módulo de ventas de Odoo está presente
 if 'odoo.addons.sale' in sys.modules:
