@@ -1,10 +1,45 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <templates xml:space="preserve">
     <t t-name="l10n_ve_full.BcvRateSystray">
-        <div class="o_bcv_rate_systray d-flex align-items-center me-3 text-nowrap fw-bold" title="Tasa Oficial BCV (Bs/USD)" style="font-size: 0.88rem; cursor: pointer;">
-            <i class="fa fa-dollar text-warning me-1"/>
-            <span class="me-1" style="color: inherit;">USD:</span>
-            <span t-esc="state.rate" class="fw-bold"/>
+        <!--
+            Systray Venezuela360: Indicador Tasa BCV Oficial
+            =================================================
+            Moneda principal: USD
+            Muestra: 1 USD = XXX,XX Bs.F  (tasa BCV oficial)
+            Clic → sincroniza tasa BCV al instante desde la API oficial.
+        -->
+        <div class="o_bcv_rate_systray d-flex align-items-center me-3 text-nowrap"
+             title="Tasa BCV Oficial · Clic para sincronizar ahora"
+             style="font-size: 0.85rem; cursor: pointer; gap: 4px;"
+             t-on-click="onClickSync">
+
+            <!-- Ícono de bandera Venezuela o dólar -->
+            <span style="font-size: 1rem;">🏦</span>
+
+            <!-- Etiqueta fija: moneda principal USD -->
+            <span class="fw-semibold" style="color: #f8c200;">BCV:</span>
+
+            <!-- Tasa actual -->
+            <span t-if="!state.loading and !state.error"
+                  class="fw-bold"
+                  style="color: #ffffff; letter-spacing: 0.3px;">
+                <t t-out="state.rate"/> <span style="color: #adb5bd; font-weight: 400; font-size: 0.78rem;">Bs/$</span>
+            </span>
+
+            <!-- Estado: cargando -->
+            <span t-if="state.loading"
+                  class="fw-semibold"
+                  style="color: #adb5bd; font-size: 0.78rem;">
+                <i class="fa fa-spinner fa-spin me-1"/>Sincronizando...
+            </span>
+
+            <!-- Estado: error / sin datos en BD -->
+            <span t-if="!state.loading and state.error"
+                  class="fw-bold"
+                  style="color: #dc3545; font-size: 0.78rem;"
+                  title="Sin tasa BCV registrada. Haz clic para sincronizar.">
+                <i class="fa fa-exclamation-triangle me-1"/>Sin tasa · Clic p/ sincronizar
+            </span>
         </div>
     </t>
 </templates>

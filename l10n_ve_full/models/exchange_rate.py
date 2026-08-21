@@ -280,7 +280,16 @@ class L10nVeExchangeRate(models.Model):
     # ------------------------------------------------------------------
     @api.model
     def fetch_live_bcv_rate(self):
-        """Consulta APIs oficiales/públicas para obtener la tasa oficial BCV del día."""
+        """
+        Consulta múltiples APIs públicas en cascada para obtener la tasa oficial BCV.
+
+        IMPORTANTE: La tasa retornada es SIEMPRE en formato Bs/USD
+        (cuántos Bolívares equivalen a 1 USD).
+        Ejemplo: si el BCV publica 779.9522, retorna 779.9522
+
+        Moneda principal del sistema: USD
+        Moneda secundaria: Bs.F (VES/VEF)
+        """
         import urllib.request
         import json
         import ssl
@@ -289,14 +298,45 @@ class L10nVeExchangeRate(models.Model):
         ctx.check_hostname = False
         ctx.verify_mode = ssl.CERT_NONE
 
+        # ── Endpoints en orden de prioridad (5 fuentes) ──────────────────────
+        # Cada parser extrae el valor en Bs/USD de la respuesta JSON
         endpoints = [
-            ('https://ve.dolarapi.com/v1/dolares/oficial', lambda d: float(d['promedio'])),
-            ('https://pydolarvenezuela-api.vercel.app/api/v1/dollar/unit/bcv', lambda d: float(d['price'])),
+            # 1. DolarAPI Venezuela – fuente más confiable
+            (
+                'https://ve.dolarapi.com/v1/dolares/oficial',
+                lambda d: float(d.get('promedio') or d.get('venta') or 0)
+            ),
+            # 2. PyDolarVenezuela API
+            (
+                'https://pydolarvenezuela-api.vercel.app/api/v1/dollar/unit/bcv',
+                lambda d: float(d.get('price') or 0)
+            ),
+            # 3. ExchangeRate API (alternativa)
+            (
+                'https://api.exchangerate-api.com/v4/latest/USD',
+                lambda d: float((d.get('rates') or {}).get('VES') or 0)
+            ),
+            # 4. Open Exchange Rates alternativo
+            (
+                'https://open.er-api.com/v6/latest/USD',
+                lambda d: float((d.get('rates') or {}).get('VES') or 0)
+            ),
+            # 5. ExchangeRate Host
+            (
+                'https://api.exchangerate.host/latest?base=USD&symbols=VES',
+                lambda d: float(((d.get('rates') or {}).get('VES')) or 0)
+            ),
         ]
 
         for url, parser in endpoints:
             try:
-                req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'})
+                req = urllib.request.Request(
+                    url,
+                    headers={
+                        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Venezuela360/1.0',
+                        'Accept': 'application/json',
+                    }
+                )
                 with urllib.request.urlopen(req, context=ctx, timeout=10) as resp:
                     data = json.loads(resp.read().decode('utf-8'))
                     rate = parser(data)
@@ -309,31 +349,67 @@ class L10nVeExchangeRate(models.Model):
 
     @api.model
     def cron_sync_bcv_rate(self):
-        """Método ejecutado automáticamente por el cron para sincronizar la tasa BCV diaria."""
+        """
+        Sincronización automática (cron diario) de la tasa BCV oficial.
+
+        LÓGICA DE TASAS:
+        ─────────────────────────────────────────────────────────────────
+        - Moneda PRINCIPAL del sistema: USD (company.currency_id = USD)
+        - Moneda SECUNDARIA: Bs.F (VES/VEF)
+        - La tasa BCV publica cuántos Bs equivale 1 USD (ej: 779.9522)
+        - En l10n_ve.exchange.rate: se guarda rate = 779.9522 (Bs/USD)
+        - En res.currency.rate: Odoo calcula la inversa automáticamente
+          cuando la moneda base es USD (rate = 1/779.9522 = 0.00128211)
+          PERO si la moneda base es Bs, entonces rate = 779.9522 directamente.
+        ─────────────────────────────────────────────────────────────────
+        """
         rate_val = self.fetch_live_bcv_rate()
         if not rate_val:
             _logger.error('Venezuela360 Cron: No se pudo obtener la tasa BCV automática.')
             return False
 
+        # Validar que la tasa tenga sentido (debe ser > 1 para Bs/USD)
+        if rate_val < 1:
+            _logger.error(
+                'Venezuela360 Cron: Tasa obtenida inválida (%s). '
+                'Debería ser > 1 (Bs/USD). Abortando sincronización.', rate_val
+            )
+            return False
+
         today = fields.Date.context_today(self)
         companies = self.env['res.company'].search([])
         usd = self.env.ref('base.USD', raise_if_not_found=False)
-        ves = self.env.ref('base.VEF', raise_if_not_found=False) or self.env['res.currency'].search([('name', '=', 'VES')], limit=1)
+
+        # Buscar moneda Bolívar: VES (actual) > VEF (soberano) > VEB (fuerte)
+        ves = (
+            self.env['res.currency'].search([('name', '=', 'VES')], limit=1)
+            or self.env['res.currency'].search([('name', '=', 'VEF')], limit=1)
+            or self.env['res.currency'].search([('name', '=', 'VEB')], limit=1)
+        )
 
         if not usd or not ves:
+            _logger.error(
+                'Venezuela360 Cron: No se encontraron las monedas USD/VES en el sistema. '
+                'Verifique que estén activas en Contabilidad → Monedas.'
+            )
             return False
 
-        records_created = 0
+        _logger.info(
+            'Venezuela360 Cron: Sincronizando tasa BCV %.4f Bs/USD para %d compañías...',
+            rate_val, len(companies)
+        )
+
         for company in companies:
-            existing = self.search([
+            # ── 1. Actualizar l10n_ve.exchange.rate (tabla propia) ────────────
+            existing_ve = self.search([
                 ('date', '=', today),
                 ('company_id', '=', company.id),
                 ('currency_from_id', '=', usd.id),
                 ('currency_to_id', '=', ves.id),
             ], limit=1)
 
-            if existing:
-                existing.write({'rate': rate_val, 'source': 'bcv'})
+            if existing_ve:
+                existing_ve.write({'rate': rate_val, 'source': 'bcv'})
             else:
                 self.create({
                     'date': today,
@@ -342,27 +418,79 @@ class L10nVeExchangeRate(models.Model):
                     'currency_from_id': usd.id,
                     'currency_to_id': ves.id,
                     'company_id': company.id,
-                    'notes': 'Sincronización automática de tasa BCV oficial diaria.',
+                    'notes': f'Sincronización automática BCV. Tasa: {rate_val:.4f} Bs/USD.',
                 })
-                records_created += 1
 
-        _logger.info('Venezuela360 Cron: Tasa BCV %s sincronizada para %s compañías.', rate_val, len(companies))
+            # ── 2. Actualizar res.currency.rate (moneda nativa Odoo) ──────────
+            # En Odoo, cuando la moneda base es USD:
+            #   res.currency.rate.rate para VES = 1 / rate_val (USD por 1 Bs)
+            # Cuando la moneda base es VES:
+            #   res.currency.rate.rate para USD = rate_val (Bs por 1 USD) → no aplica
+            #
+            # Determinamos si la moneda base de la compañía es USD o VES
+            company_currency = company.currency_id
+            if company_currency and company_currency.name == 'USD':
+                # Moneda base = USD: la rate de VES en Odoo = 1/rate_val
+                odoo_rate = 1.0 / rate_val
+            else:
+                # Moneda base = VES/Bs: la rate del USD en Odoo = rate_val
+                odoo_rate = rate_val
+
+            # Actualizar res.currency.rate para que Odoo use la tasa correcta
+            Rate = self.env['res.currency.rate']
+
+            # Si la moneda base es USD, actualizamos la tasa de VES
+            # Si la moneda base es VES, actualizamos la tasa de USD
+            target_currency = ves if (company_currency and company_currency.name == 'USD') else usd
+
+            existing_odoo = Rate.search([
+                ('currency_id', '=', target_currency.id),
+                ('name', '=', today),
+                ('company_id', '=', company.id),
+            ], limit=1)
+
+            if existing_odoo:
+                existing_odoo.write({'rate': odoo_rate})
+            else:
+                Rate.create({
+                    'currency_id': target_currency.id,
+                    'name': today,
+                    'rate': odoo_rate,
+                    'company_id': company.id,
+                })
+
+        _logger.info(
+            'Venezuela360 Cron: ✅ Tasa BCV %.4f Bs/USD sincronizada exitosamente para %d compañías.',
+            rate_val, len(companies)
+        )
         return True
 
     def action_sync_bcv_now(self):
-        """Acción de botón manual para sincronizar la tasa BCV oficial al instante desde la vista."""
+        """Sincroniza la tasa BCV oficial al instante (botón manual desde la vista)."""
         res = self.cron_sync_bcv_rate()
         if res:
+            # Obtener la tasa actualizada para mostrarla en la notificación
+            latest = self.get_latest_rate()
+            rate_display = f"{latest.rate:,.4f}" if latest else "N/A"
             return {
                 'type': 'ir.actions.client',
                 'tag': 'display_notification',
                 'params': {
-                    'title': _('Tasa BCV Sincronizada'),
-                    'message': _('La tasa oficial del Banco Central de Venezuela ha sido sincronizada exitosamente.'),
+                    'title': _('✅ Tasa BCV Sincronizada'),
+                    'message': _(
+                        'Tasa BCV oficial actualizada: %(rate)s Bs/USD\n'
+                        '(1 USD = %(rate)s Bs.F)'
+                    ) % {'rate': rate_display},
                     'type': 'success',
                     'sticky': False,
                 }
             }
         else:
-            raise UserError(_('No se pudo sincronizar la tasa BCV en este momento. Por favor verifique la conexión a internet o intente más tarde.'))
+            raise UserError(_(
+                'No se pudo sincronizar la tasa BCV en este momento.\n'
+                'Por favor verifique la conexión a internet o intente más tarde.'
+            ))
+
+
+
 
