@@ -13,13 +13,19 @@ import { patch } from "@web/core/utils/patch";
 // Inyector universal de botón bimoneda en la barra de control de Odoo Enterprise
 function injectCurrencyWidgetToDOM(reportInstance) {
     try {
-        if (!document.body) return;
+        if (typeof document === "undefined" || !document.body) return;
+
+        // Verificar si estamos en un reporte contable
+        const isReport = document.querySelector(
+            ".o_account_reports_page, .o_account_report, .o_account_reports_body, .o_account_reports_table, .o_account_reports_header"
+        );
+        if (!isReport) return;
 
         const cp = document.querySelector(".o_control_panel");
         if (!cp) return;
 
-        // Buscar el contenedor de navegación o filtros
-        const nav = cp.querySelector(".o_control_panel_navigation") 
+        // Buscar el contenedor de filtros / navegación del reporte
+        const nav = cp.querySelector(".o_control_panel_navigation")
                  || cp.querySelector(".o_account_reports_filters")
                  || cp.querySelector(".o_control_panel_actions")
                  || cp.querySelector(".o_search_options")
@@ -27,11 +33,12 @@ function injectCurrencyWidgetToDOM(reportInstance) {
 
         if (!nav) return;
 
-        // Evitar duplicados si ya está presente
-        if (nav.querySelector(".l10n_ve_currency_widget")) {
-            const widget = nav.querySelector(".l10n_ve_currency_widget");
-            const options = (reportInstance && reportInstance.options) || {};
-            const curr = options.l10n_ve_currency || "bs";
+        const options = (reportInstance && reportInstance.options) || {};
+        const curr = options.l10n_ve_currency || "bs";
+
+        // Si ya existe el widget, sincronizar su texto
+        let widget = cp.querySelector(".l10n_ve_currency_widget");
+        if (widget) {
             const label = widget.querySelector(".l10n_ve_curr_label");
             if (label) label.textContent = curr === "usd" ? "$" : "Bs.F";
             const badge = widget.querySelector(".l10n_ve_badge");
@@ -39,10 +46,8 @@ function injectCurrencyWidgetToDOM(reportInstance) {
             return;
         }
 
-        const options = (reportInstance && reportInstance.options) || {};
-        const curr = options.l10n_ve_currency || "bs";
-
-        const widget = document.createElement("div");
+        // Crear el widget visual idéntico a las fotos de referencia
+        widget = document.createElement("div");
         widget.className = "l10n_ve_currency_widget d-inline-flex align-items-center ms-1 me-1";
         widget.style.cssText = "display: inline-flex !important; align-items: center; z-index: 1050; margin: 2px 4px; vertical-align: middle;";
 
@@ -50,20 +55,20 @@ function injectCurrencyWidgetToDOM(reportInstance) {
             <div class="btn-group dropdown" style="position: relative; display: inline-flex;">
                 <button class="btn btn-secondary dropdown-toggle l10n_ve_btn"
                         type="button"
-                        style="display: inline-flex; align-items: center; gap: 4px; font-size: 13px; font-weight: 500; padding: 4px 10px; border: 1px solid #ced4da; cursor: pointer; background-color: rgba(255, 255, 255, 0.08);">
+                        style="display: inline-flex; align-items: center; gap: 4px; font-size: 13px; font-weight: 500; padding: 4px 10px; border: 1px solid #ced4da; cursor: pointer; background-color: #ffffff; color: #212529; border-radius: 4px;">
                     <i class="fa fa-money me-1" style="color: #0d6efd;"></i>
                     <span>Moneda:</span>
                     <span class="ms-1 fw-bold l10n_ve_curr_label" style="color: #dc3545;">${curr === "usd" ? "$" : "Bs.F"}</span>
                 </button>
-                <ul class="dropdown-menu dropdown-menu-end shadow l10n_ve_menu" style="min-width: 140px; position: absolute; z-index: 1090; display: none; top: 100%; right: 0; background-color: var(--Dropdown-background, #ffffff); border: 1px solid rgba(0,0,0,0.15);">
+                <ul class="dropdown-menu dropdown-menu-end shadow l10n_ve_menu" style="min-width: 140px; position: absolute; z-index: 1090; display: none; top: 100%; right: 0; background-color: #ffffff; border: 1px solid rgba(0,0,0,0.15); border-radius: 4px; box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.15);">
                     <li>
-                        <a class="dropdown-item d-flex align-items-center gap-2 py-2" href="#" data-curr="bs">
+                        <a class="dropdown-item d-flex align-items-center gap-2 py-2" href="#" data-curr="bs" style="cursor: pointer; color: #212529;">
                             <i class="fa ${curr !== "usd" ? "fa-check text-success" : "fa-fw"} me-1"></i>
                             <span class="fw-bold">Bs.F</span>
                         </a>
                     </li>
                     <li>
-                        <a class="dropdown-item d-flex align-items-center gap-2 py-2" href="#" data-curr="usd">
+                        <a class="dropdown-item d-flex align-items-center gap-2 py-2" href="#" data-curr="usd" style="cursor: pointer; color: #212529;">
                             <i class="fa ${curr === "usd" ? "fa-check text-success" : "fa-fw"} me-1"></i>
                             <span class="fw-bold">$</span>
                         </a>
@@ -71,7 +76,7 @@ function injectCurrencyWidgetToDOM(reportInstance) {
                 </ul>
             </div>
             <span class="badge rounded-pill align-self-center ms-1 me-1 l10n_ve_badge"
-                  style="background-color: rgba(255, 255, 255, 0.12); color: inherit; font-weight: 600; padding: 6px 10px; font-size: 12px; border: 1px solid rgba(255, 255, 255, 0.2); display: inline-block;">
+                  style="background-color: #f1f3f5; color: #495057; font-weight: 600; padding: 6px 10px; font-size: 12px; border: 1px solid #ced4da; border-radius: 50rem; display: inline-block;">
                 ${curr === "usd" ? "En .$" : "En .Bs.F"}
             </span>
         `;
@@ -93,10 +98,20 @@ function injectCurrencyWidgetToDOM(reportInstance) {
                 menu.style.display = "none";
                 const chosen = item.getAttribute("data-curr");
 
-                if (reportInstance && typeof reportInstance.setL10nVeCurrency === "function") {
-                    await reportInstance.setL10nVeCurrency(chosen);
+                // Buscar el componente AccountReport activo en OWL
+                let activeCtrl = reportInstance;
+                if (!activeCtrl || typeof activeCtrl.setL10nVeCurrency !== "function") {
+                    const pageEl = document.querySelector(".o_account_reports_page, .o_account_report");
+                    if (pageEl && pageEl.__owl__ && pageEl.__owl__.component) {
+                        activeCtrl = pageEl.__owl__.component;
+                    }
+                }
+
+                if (activeCtrl && typeof activeCtrl.setL10nVeCurrency === "function") {
+                    await activeCtrl.setL10nVeCurrency(chosen);
                 } else {
-                    const switchBtn = document.querySelector(".o_control_panel_actions button");
+                    // Fallback directo a través de los botones nativos
+                    const switchBtn = document.querySelector(".o_control_panel_actions button, .o_statusbar_buttons button");
                     if (switchBtn) switchBtn.click();
                 }
             });
@@ -123,7 +138,7 @@ try {
         patch(reportMod.AccountReport.prototype, {
             setup() {
                 super.setup(...arguments);
-                setTimeout(() => injectCurrencyWidgetToDOM(this), 200);
+                setTimeout(() => injectCurrencyWidgetToDOM(this), 150);
             },
             async render() {
                 const res = await super.render(...arguments);
@@ -150,33 +165,20 @@ try {
                 } else if (this.controller && typeof this.controller.reload === "function") {
                     await this.controller.reload({ options: newOptions });
                 }
-                setTimeout(() => injectCurrencyWidgetToDOM(this), 300);
+                setTimeout(() => injectCurrencyWidgetToDOM(this), 250);
             },
         });
     }
 } catch (e) {}
 
-// Inicializar observador únicamente cuando el DOM esté listo
-function initDomObserver() {
+// Timer continuo e infalible para montar en navegación SPA
+setInterval(() => {
     try {
-        if (!document || !document.body) return;
-        const observer = new MutationObserver(() => {
-            try {
-                const cp = document.querySelector(".o_control_panel");
-                const isReport = document.querySelector(".o_account_reports_page") || document.querySelector(".o_account_report");
-                if (cp && isReport && !cp.querySelector(".l10n_ve_currency_widget")) {
-                    injectCurrencyWidgetToDOM(window.__owl__?.root?.component);
-                }
-            } catch (e) {}
-        });
-        observer.observe(document.body, { childList: true, subtree: true });
+        const isReport = document.querySelector(".o_account_reports_page, .o_account_report, .o_account_reports_body, .o_account_reports_table");
+        const cp = document.querySelector(".o_control_panel");
+        if (isReport && cp && !cp.querySelector(".l10n_ve_currency_widget")) {
+            const owlComp = isReport.__owl__?.component;
+            injectCurrencyWidgetToDOM(owlComp);
+        }
     } catch (e) {}
-}
-
-if (typeof document !== "undefined") {
-    if (document.readyState === "loading") {
-        document.addEventListener("DOMContentLoaded", initDomObserver);
-    } else {
-        initDomObserver();
-    }
-}
+}, 300);
