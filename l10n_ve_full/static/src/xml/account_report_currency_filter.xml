@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <!-- Extensión OWL del Panel de Control de Reportes Contables en Odoo Enterprise -->
+    <t t-name="l10n_ve_full.AccountReportControlPanel" t-inherit="account_reports.AccountReportControlPanel" t-inherit-mode="extension" owl="1">
+        <xpath expr="//div[hasclass('o_account_reports_filter_input_wrapper') or hasclass('d-flex') or hasclass('btn-group')][last()]" position="after">
+            <div t-if="controller.options and controller.options.filter_l10n_ve_currency" class="btn-group dropdown ms-1 me-1">
+                <button class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="fa fa-money me-1"/>Moneda: 
+                    <span t-attf-style="color: {{ controller.options.l10n_ve_currency == 'usd' ? '#dc3545' : 'inherit' }}; font-weight: bold;">
+                        <t t-out="controller.options.l10n_ve_currency_label or 'Bs.F'"/>
+                    </span>
+                </button>
+                <ul class="dropdown-menu">
+                    <li>
+                        <a class="dropdown-item" href="#" t-on-click.prevent="() => this.setL10nVeCurrency('bs')">
+                            <i t-if="controller.options.l10n_ve_currency != 'usd'" class="fa fa-check text-primary me-2"/>
+                            Bs.F
+                        </a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item" href="#" t-on-click.prevent="() => this.setL10nVeCurrency('usd')">
+                            <i t-if="controller.options.l10n_ve_currency == 'usd'" class="fa fa-check text-primary me-2"/>
+                            $
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </xpath>
+    </t>
+
+</templates>

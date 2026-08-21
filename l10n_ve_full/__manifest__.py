@@ -110,6 +110,7 @@ Soporte: soporte@nubelco.com
             'l10n_ve_full/static/src/css/l10n_ve.css',
             'l10n_ve_full/static/src/components/bcv_rate_systray.js',
             'l10n_ve_full/static/src/components/bcv_rate_systray.xml',
+            'l10n_ve_full/static/src/xml/account_report_currency_filter.xml',
         ],
     },
     'installable': True,
