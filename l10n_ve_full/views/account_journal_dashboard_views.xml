@@ -1,23 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <!--
-        Venezuela360: Dashboard Kanban DUAL COLOR - TODOS LOS DIARIOS
-        =================================================================
-        Cubre 4 tipos de diario:
-
-        1. VENTA / COMPRA (JournalBodySalePurchase)
-           Campos: sum_waiting, sum_draft, sum_late
-           Bs via: JSON.parse(record.kanban_dashboard.raw_value).<campo>_bs
-
-        2. BANCO / EFECTIVO (JournalBodyBankCash)
-           Campos: account_balance, outstanding_pay_account_balance, last_balance
-           Bs via: JSON.parse(record.kanban_dashboard.raw_value).<campo>_bs
-
-        TÉCNICA:
-          · position="replace" garantiza 2 spans en una operación atómica
-          · span #1: color:#dc3545 (ROJO)  → USD original
-          · span #2: color:#1a1a1a (NEGRO) → Bs. via JSON.parse directo
-          · JSON y record son siempre accesibles en renderingContext de OWL
+        Venezuela360: Dashboard Kanban DUAL COLOR (Coincidencia Exacta Foto 2 de Referencia)
+        =====================================================================================
+        Formato: $ 2,78 / 1.490,02 Bs.F
+          - USD en ROJO (#dc3545)
+          - Separador /
+          - Bs en NEGRO (#1a1a1a)
     -->
     <record id="account_journal_dashboard_kanban_view_l10n_ve" model="ir.ui.view">
         <field name="name">account.journal.dashboard.kanban.l10n_ve</field>
@@ -32,9 +21,10 @@
             <!-- sum_draft: Borradores -->
             <xpath expr="//span[@dir='ltr'][.//t[@t-out='dashboard.sum_draft']]" position="replace">
                 <span dir="ltr" style="color:#dc3545;font-weight:bold;">
-                    <t t-out="dashboard.sum_draft"/>
+                    <t t-out="JSON.parse(record.kanban_dashboard.raw_value).sum_draft_usd or dashboard.sum_draft"/>
                 </span>
-                <span style="color:#1a1a1a;font-weight:bold;margin-left:6px;">
+                <span style="color:#666666;margin:0 4px;">/</span>
+                <span style="color:#1a1a1a;font-weight:bold;">
                     <t t-out="JSON.parse(record.kanban_dashboard.raw_value).sum_draft_bs or ''"/>
                 </span>
             </xpath>
@@ -42,9 +32,10 @@
             <!-- sum_waiting: Sin pagar / Sin cobrar -->
             <xpath expr="//span[@dir='ltr'][.//t[@t-out='dashboard.sum_waiting']]" position="replace">
                 <span dir="ltr" style="color:#dc3545;font-weight:bold;">
-                    <t t-out="dashboard.sum_waiting"/>
+                    <t t-out="JSON.parse(record.kanban_dashboard.raw_value).sum_waiting_usd or dashboard.sum_waiting"/>
                 </span>
-                <span style="color:#1a1a1a;font-weight:bold;margin-left:6px;">
+                <span style="color:#666666;margin:0 4px;">/</span>
+                <span style="color:#1a1a1a;font-weight:bold;">
                     <t t-out="JSON.parse(record.kanban_dashboard.raw_value).sum_waiting_bs or ''"/>
                 </span>
             </xpath>
@@ -52,9 +43,10 @@
             <!-- sum_late: Vencidos -->
             <xpath expr="//span[@dir='ltr'][.//t[@t-out='dashboard.sum_late']]" position="replace">
                 <span dir="ltr" style="color:#dc3545;font-weight:bold;">
-                    <t t-out="dashboard.sum_late"/>
+                    <t t-out="JSON.parse(record.kanban_dashboard.raw_value).sum_late_usd or dashboard.sum_late"/>
                 </span>
-                <span style="color:#1a1a1a;font-weight:bold;margin-left:6px;">
+                <span style="color:#666666;margin:0 4px;">/</span>
+                <span style="color:#1a1a1a;font-weight:bold;">
                     <t t-out="JSON.parse(record.kanban_dashboard.raw_value).sum_late_bs or ''"/>
                 </span>
             </xpath>
@@ -66,9 +58,10 @@
             <!-- account_balance: Balance de cuenta -->
             <xpath expr="//span[@dir='ltr'][.//t[@t-out='dashboard.account_balance']]" position="replace">
                 <span dir="ltr" style="color:#dc3545;font-weight:bold;">
-                    <t t-out="dashboard.account_balance"/>
+                    <t t-out="JSON.parse(record.kanban_dashboard.raw_value).account_balance_usd or dashboard.account_balance"/>
                 </span>
-                <span style="color:#1a1a1a;font-weight:bold;margin-left:6px;">
+                <span style="color:#666666;margin:0 4px;">/</span>
+                <span style="color:#1a1a1a;font-weight:bold;">
                     <t t-out="JSON.parse(record.kanban_dashboard.raw_value).account_balance_bs or ''"/>
                 </span>
             </xpath>
@@ -76,9 +69,10 @@
             <!-- outstanding_pay_account_balance: Pagos pendientes -->
             <xpath expr="//span[@dir='ltr'][.//t[@t-out='dashboard.outstanding_pay_account_balance']]" position="replace">
                 <span dir="ltr" style="color:#dc3545;font-weight:bold;">
-                    <t t-out="dashboard.outstanding_pay_account_balance"/>
+                    <t t-out="JSON.parse(record.kanban_dashboard.raw_value).outstanding_pay_balance_usd or dashboard.outstanding_pay_account_balance"/>
                 </span>
-                <span style="color:#1a1a1a;font-weight:bold;margin-left:6px;">
+                <span style="color:#666666;margin:0 4px;">/</span>
+                <span style="color:#1a1a1a;font-weight:bold;">
                     <t t-out="JSON.parse(record.kanban_dashboard.raw_value).outstanding_pay_balance_bs or ''"/>
                 </span>
             </xpath>
@@ -86,9 +80,10 @@
             <!-- last_balance: Último extracto -->
             <xpath expr="//span[@dir='ltr'][.//t[@t-out='dashboard.last_balance']]" position="replace">
                 <span dir="ltr" style="color:#dc3545;font-weight:bold;">
-                    <t t-out="dashboard.last_balance"/>
+                    <t t-out="JSON.parse(record.kanban_dashboard.raw_value).last_balance_usd or dashboard.last_balance"/>
                 </span>
-                <span style="color:#1a1a1a;font-weight:bold;margin-left:6px;">
+                <span style="color:#666666;margin:0 4px;">/</span>
+                <span style="color:#1a1a1a;font-weight:bold;">
                     <t t-out="JSON.parse(record.kanban_dashboard.raw_value).last_balance_bs or ''"/>
                 </span>
             </xpath>
