@@ -27,19 +27,20 @@ function ensureAccountReportPatched() {
                     this.options.l10n_ve_currency_label = currency === 'bs' ? 'Bs.F' : '$';
                     this.options.l10n_ve_badge_label = currency === 'bs' ? 'En .Bs.F' : 'En .$';
 
-                    const newOptions = {
-                        ...this.options,
-                        l10n_ve_currency: currency,
-                        l10n_ve_currency_label: currency === 'bs' ? 'Bs.F' : '$',
-                        l10n_ve_badge_label: currency === 'bs' ? 'En .Bs.F' : 'En .$',
-                    };
-
-                    if (typeof this.reload === "function") {
-                        await this.reload({ options: newOptions });
-                    } else if (typeof this.updateOptions === "function") {
-                        await this.updateOptions(newOptions);
-                    } else if (this.controller && typeof this.controller.reload === "function") {
-                        await this.controller.reload({ options: newOptions });
+                    try {
+                        if (typeof this.reload === "function") {
+                            // En Odoo 19 reload() no recibe un objeto {options:...} sino opcionalmente un string optionPath
+                            await this.reload();
+                        } else if (this.controller && typeof this.controller.reload === "function") {
+                            await this.controller.reload();
+                        } else if (typeof this.updateOptions === "function") {
+                            await this.updateOptions(this.options);
+                        }
+                    } catch (e) {
+                        console.warn("[Venezuela360] Reload fallback:", e);
+                        try {
+                            await this.reload("l10n_ve_currency");
+                        } catch (err) {}
                     }
                 },
             });
@@ -189,7 +190,7 @@ function injectCurrencyWidgetToDOM() {
                         activeCtrl.options.l10n_ve_currency = chosen;
                         activeCtrl.options.l10n_ve_currency_label = chosen === 'bs' ? 'Bs.F' : '$';
                         activeCtrl.options.l10n_ve_badge_label = chosen === 'bs' ? 'En .Bs.F' : 'En .$';
-                        await activeCtrl.reload({ options: activeCtrl.options });
+                        await activeCtrl.reload();
                     }
                 }
             });
