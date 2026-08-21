@@ -159,27 +159,55 @@ class L10nVeExchangeRate(models.Model):
 
     def _sync_res_currency_rates(self):
         """
-        Sincroniza la tasa oficial BCV en res.currency.rate para Odoo nativo.
-        En Odoo 17/18/19 con moneda base USD, la tasa en res.currency.rate
-        para VEF/VES debe ser el valor directo (ej: 777.416100 o 60.00).
+        Sincroniza la tasa BCV en res.currency.rate (motor de conversión nativo de Odoo).
+
+        FÓRMULA ODOO 17+:
+        ─────────────────────────────────────────────────────────────────
+        conversion_rate(from, to) = to.rate / from.rate
+        La moneda base (company.currency_id) siempre tiene rate implícito = 1.0.
+
+        Caso A: base = USD, convirtiendo USD → VES:
+            rate_ves / 1.0 = rate_ves → se guarda rate_ves = 779.9522 ✅
+
+        Caso B: base = VES, convirtiendo VES → USD:
+            1.0 / rate_usd = tasa → rate_usd = 1/779.9522 ✅
+        ─────────────────────────────────────────────────────────────────
         """
         Rate = self.env['res.currency.rate']
         for rec in self:
-            if rec.currency_to_id and rec.rate > 0:
-                existing = Rate.search([
-                    ('currency_id', '=', rec.currency_to_id.id),
-                    ('name', '=', rec.date),
-                    ('company_id', 'in', [rec.company_id.id, False]),
-                ], limit=1)
-                if existing:
-                    existing.write({'rate': rec.rate})
-                else:
-                    Rate.create({
-                        'currency_id': rec.currency_to_id.id,
-                        'name': rec.date,
-                        'rate': rec.rate,
-                        'company_id': rec.company_id.id,
-                    })
+            if not rec.currency_to_id or rec.rate <= 0:
+                continue
+
+            company_currency = rec.company_id.currency_id
+            is_usd_base = bool(company_currency and company_currency.name == 'USD')
+
+            # Determinar qué moneda va en res.currency.rate y con qué valor
+            if is_usd_base:
+                # Base = USD: guardamos la tasa de VES (currency_to) = rate_val
+                target_currency = rec.currency_to_id
+                odoo_rate = rec.rate          # ej: 779.9522 Bs/USD ✅
+            else:
+                # Base = VES: guardamos la tasa de USD (currency_from) = 1/rate_val
+                target_currency = rec.currency_from_id
+                odoo_rate = 1.0 / rec.rate   # ej: 0.001282 USD/Bs ✅
+
+            existing = Rate.search([
+                ('currency_id', '=', target_currency.id),
+                ('name', '=', rec.date),
+                ('company_id', 'in', [rec.company_id.id, False]),
+            ], limit=1)
+
+            if existing:
+                existing.write({'rate': odoo_rate})
+            else:
+                Rate.create({
+                    'currency_id': target_currency.id,
+                    'name': rec.date,
+                    'rate': odoo_rate,
+                    'company_id': rec.company_id.id,
+                })
+
+
 
     @api.depends('date', 'rate', 'currency_from_id', 'currency_to_id')
     def _compute_display_name_field(self):
@@ -352,15 +380,15 @@ class L10nVeExchangeRate(models.Model):
         """
         Sincronización automática (cron diario) de la tasa BCV oficial.
 
-        LÓGICA DE TASAS:
+        LÓGICA DE TASAS (Odoo 17/18/19):
         ─────────────────────────────────────────────────────────────────
-        - Moneda PRINCIPAL del sistema: USD (company.currency_id = USD)
-        - Moneda SECUNDARIA: Bs.F (VES/VEF)
-        - La tasa BCV publica cuántos Bs equivale 1 USD (ej: 779.9522)
-        - En l10n_ve.exchange.rate: se guarda rate = 779.9522 (Bs/USD)
-        - En res.currency.rate: Odoo calcula la inversa automáticamente
-          cuando la moneda base es USD (rate = 1/779.9522 = 0.00128211)
-          PERO si la moneda base es Bs, entonces rate = 779.9522 directamente.
+        - Moneda PRINCIPAL: USD  |  Moneda SECUNDARIA: Bs.F (VES/VEF)
+        - BCV publica: 1 USD = 779.9522 Bs (rate_val = 779.9522)
+        - res.currency.rate.rate en Odoo 17+:
+            * Si base = USD → rate para VES = 779.9522  (Bs por 1 USD)
+            * Si base = VES → rate para USD = 1/779.9522 (USD por 1 Bs)
+        - CRITICAL: search currencies with active_test=False para encontrar
+          VES/VEF aunque estén inactivas cuando base=USD.
         ─────────────────────────────────────────────────────────────────
         """
         rate_val = self.fetch_live_bcv_rate()
@@ -368,39 +396,57 @@ class L10nVeExchangeRate(models.Model):
             _logger.error('Venezuela360 Cron: No se pudo obtener la tasa BCV automática.')
             return False
 
-        # Validar que la tasa tenga sentido (debe ser > 1 para Bs/USD)
+        # Validar dirección correcta: tasa Bs/USD debe ser > 1
         if rate_val < 1:
             _logger.error(
-                'Venezuela360 Cron: Tasa obtenida inválida (%s). '
-                'Debería ser > 1 (Bs/USD). Abortando sincronización.', rate_val
+                'Venezuela360 Cron: Tasa inválida (%s Bs/USD). Debe ser > 1. Abortando.', rate_val
             )
             return False
 
         today = fields.Date.context_today(self)
         companies = self.env['res.company'].search([])
-        usd = self.env.ref('base.USD', raise_if_not_found=False)
 
-        # Buscar moneda Bolívar: VES (actual) > VEF (soberano) > VEB (fuerte)
+        # ── Buscar USD: siempre activo como moneda base ────────────────────────
+        usd = (
+            self.env.ref('base.USD', raise_if_not_found=False)
+            or self.env['res.currency'].with_context(active_test=False).search(
+                [('name', '=', 'USD')], limit=1
+            )
+        )
+
+        # ── Buscar Bolívar con active_test=False (puede estar inactivo) ────────
+        # Cuando la moneda base es USD, VES queda inactiva por defecto en Odoo.
+        # CRITICAL: debemos buscarlo incluso si está inactivo.
+        CurrencyModel = self.env['res.currency'].with_context(active_test=False)
         ves = (
-            self.env['res.currency'].search([('name', '=', 'VES')], limit=1)
-            or self.env['res.currency'].search([('name', '=', 'VEF')], limit=1)
-            or self.env['res.currency'].search([('name', '=', 'VEB')], limit=1)
+            CurrencyModel.search([('name', '=', 'VES')], limit=1)
+            or CurrencyModel.search([('name', '=', 'VEF')], limit=1)
+            or CurrencyModel.search([('name', '=', 'VEB')], limit=1)
         )
 
         if not usd or not ves:
             _logger.error(
-                'Venezuela360 Cron: No se encontraron las monedas USD/VES en el sistema. '
-                'Verifique que estén activas en Contabilidad → Monedas.'
+                'Venezuela360 Cron: No se encontraron las monedas USD/VES/VEF en la BD. '
+                'Vaya a Contabilidad → Configuración → Monedas y asegúrese de que '
+                'USD (dólar) y VES/VEF (bolívar) existen.'
             )
             return False
 
+        # ── Activar VES si está inactiva (necesario para usarla como moneda secundaria) ──
+        if not ves.active:
+            _logger.info(
+                'Venezuela360 Cron: Activando moneda %s (estaba inactiva) para sincronización BCV.',
+                ves.name
+            )
+            ves.sudo().write({'active': True})
+
         _logger.info(
-            'Venezuela360 Cron: Sincronizando tasa BCV %.4f Bs/USD para %d compañías...',
-            rate_val, len(companies)
+            'Venezuela360 Cron: Sincronizando tasa BCV %.4f %s/USD para %d compañías...',
+            rate_val, ves.name, len(companies)
         )
 
         for company in companies:
-            # ── 1. Actualizar l10n_ve.exchange.rate (tabla propia) ────────────
+            # ── 1. Actualizar l10n_ve.exchange.rate (tabla histórica propia) ──
             existing_ve = self.search([
                 ('date', '=', today),
                 ('company_id', '=', company.id),
@@ -421,28 +467,31 @@ class L10nVeExchangeRate(models.Model):
                     'notes': f'Sincronización automática BCV. Tasa: {rate_val:.4f} Bs/USD.',
                 })
 
-            # ── 2. Actualizar res.currency.rate (moneda nativa Odoo) ──────────
-            # En Odoo, cuando la moneda base es USD:
-            #   res.currency.rate.rate para VES = 1 / rate_val (USD por 1 Bs)
-            # Cuando la moneda base es VES:
-            #   res.currency.rate.rate para USD = rate_val (Bs por 1 USD) → no aplica
+            # ── 2. Actualizar res.currency.rate (motor de conversión Odoo) ────
             #
-            # Determinamos si la moneda base de la compañía es USD o VES
+            # FÓRMULA ODOO 17+:
+            #   conversion_rate = to_currency.rate / from_currency.rate
+            #   La moneda base siempre tiene rate implícito = 1.0
+            #
+            #   Si base = USD (rate=1.0) y queremos 1 USD → X Bs:
+            #     X = ves_rate / usd_rate → ves_rate = rate_val (779.9522)
+            #
+            #   Si base = VES (rate=1.0) y queremos 1 VES → Y USD:
+            #     Y = usd_rate / ves_rate → usd_rate = 1/rate_val (0.001282)
+            #
             company_currency = company.currency_id
-            if company_currency and company_currency.name == 'USD':
-                # Moneda base = USD: la rate de VES en Odoo = 1/rate_val
-                odoo_rate = 1.0 / rate_val
+            is_usd_base = bool(company_currency and company_currency.name == 'USD')
+
+            if is_usd_base:
+                # Base = USD: la rate de VES en Odoo = rate_val (ej: 779.9522)
+                target_currency = ves
+                odoo_rate = rate_val          # ✅ CORRECTO para Odoo 17+
             else:
-                # Moneda base = VES/Bs: la rate del USD en Odoo = rate_val
-                odoo_rate = rate_val
+                # Base = VES: la rate de USD en Odoo = 1/rate_val (ej: 0.001282)
+                target_currency = usd
+                odoo_rate = 1.0 / rate_val   # ✅ CORRECTO para Odoo 17+
 
-            # Actualizar res.currency.rate para que Odoo use la tasa correcta
             Rate = self.env['res.currency.rate']
-
-            # Si la moneda base es USD, actualizamos la tasa de VES
-            # Si la moneda base es VES, actualizamos la tasa de USD
-            target_currency = ves if (company_currency and company_currency.name == 'USD') else usd
-
             existing_odoo = Rate.search([
                 ('currency_id', '=', target_currency.id),
                 ('name', '=', today),
@@ -459,8 +508,14 @@ class L10nVeExchangeRate(models.Model):
                     'company_id': company.id,
                 })
 
+            _logger.info(
+                'Venezuela360 Cron: Compañía [%s] | Base=%s | Rate BCV=%.4f | OdooRate(%s)=%.6f',
+                company.name, company_currency.name if company_currency else '?',
+                rate_val, target_currency.name, odoo_rate
+            )
+
         _logger.info(
-            'Venezuela360 Cron: ✅ Tasa BCV %.4f Bs/USD sincronizada exitosamente para %d compañías.',
+            'Venezuela360 Cron: ✅ Tasa BCV %.4f Bs/USD sincronizada para %d compañías.',
             rate_val, len(companies)
         )
         return True
