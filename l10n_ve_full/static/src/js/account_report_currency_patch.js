@@ -10,51 +10,40 @@
 
 import { patch } from "@web/core/utils/patch";
 
-// Parchear componentes de reportes contables para capturar el controlador activo
+// Parchear componentes de reportes contables para capturar la instancia raíz de AccountReport
 function ensureAccountReportPatched() {
     try {
-        // 1. Parchear AccountReport
         const reportMod = odoo?.loader?.modules?.get("@account_reports/components/account_report/account_report");
         if (reportMod && reportMod.AccountReport && !reportMod.AccountReport._l10n_ve_patched) {
             reportMod.AccountReport._l10n_ve_patched = true;
             patch(reportMod.AccountReport.prototype, {
                 setup() {
                     super.setup(...arguments);
-                    window.__activeAccountReport = this.controller || this;
+                    // Capturar la instancia raíz del componente que tiene report_id y reload()
+                    window.__activeAccountReportRoot = this;
+                    window.__activeAccountReport = this;
                 },
                 async setL10nVeCurrency(currency) {
-                    const ctrl = this.controller || this;
-                    ctrl.options = ctrl.options || {};
-                    ctrl.options.l10n_ve_currency = currency;
-                    ctrl.options.l10n_ve_currency_label = currency === 'bs' ? 'Bs.F' : '$';
-                    ctrl.options.l10n_ve_badge_label = currency === 'bs' ? 'En .Bs.F' : 'En .$';
+                    this.options = this.options || {};
+                    this.options.l10n_ve_currency = currency;
+                    this.options.l10n_ve_currency_label = currency === 'bs' ? 'Bs.F' : '$';
+                    this.options.l10n_ve_badge_label = currency === 'bs' ? 'En .Bs.F' : 'En .$';
+
+                    if (this.controller && this.controller.options) {
+                        this.controller.options.l10n_ve_currency = currency;
+                        this.controller.options.l10n_ve_currency_label = currency === 'bs' ? 'Bs.F' : '$';
+                        this.controller.options.l10n_ve_badge_label = currency === 'bs' ? 'En .Bs.F' : 'En .$';
+                    }
 
                     try {
-                        if (ctrl.controller && typeof ctrl.controller.reload === "function") {
-                            await ctrl.controller.reload();
-                        } else if (typeof ctrl.reload === "function") {
-                            await ctrl.reload();
-                        } else if (typeof this.reload === "function") {
-                            await this.reload();
-                        }
+                        await this.reload();
                     } catch (e) {
-                        console.warn("[Venezuela360] Reload attempt failed:", e);
-                    }
-                },
-            });
-        }
-    } catch (e) {}
-
-    try {
-        // 2. Parchear AccountReportFilters
-        const filtersMod = odoo?.loader?.modules?.get("@account_reports/components/account_report/filters/filters");
-        if (filtersMod && filtersMod.AccountReportFilters && !filtersMod.AccountReportFilters._l10n_ve_patched) {
-            filtersMod.AccountReportFilters._l10n_ve_patched = true;
-            patch(filtersMod.AccountReportFilters.prototype, {
-                setup() {
-                    super.setup(...arguments);
-                    if (this.controller || this.props?.controller) {
-                        window.__activeAccountReport = this.controller || this.props.controller;
+                        console.warn("[Venezuela360] Reload fallback attempt:", e);
+                        if (this.controller && typeof this.controller.reload === "function") {
+                            try {
+                                await this.controller.reload();
+                            } catch (err) {}
+                        }
                     }
                 },
             });
@@ -104,7 +93,7 @@ function injectCurrencyWidgetToDOM() {
         if (!filterTarget) return;
 
         // Determinar moneda activa
-        const ctrl = window.__activeAccountReport;
+        const ctrl = window.__activeAccountReportRoot || window.__activeAccountReport;
         const options = (ctrl && ctrl.options) || {};
         const curr = options.l10n_ve_currency || "bs";
 
@@ -182,43 +171,33 @@ function injectCurrencyWidgetToDOM() {
                     if (icon) icon.className = isThis ? "fa fa-check text-success me-1" : "fa fa-fw me-1";
                 });
 
-                // Obtener el controlador real que contiene reload() y reportId
-                let activeCtrl = window.__activeAccountReport;
-                if (activeCtrl && activeCtrl.controller) {
-                    activeCtrl = activeCtrl.controller;
-                }
+                // Obtener la instancia raíz del reporte
+                let activeReport = window.__activeAccountReportRoot || window.__activeAccountReport;
 
-                if (!activeCtrl || (typeof activeCtrl.reload !== "function" && typeof activeCtrl.setL10nVeCurrency !== "function")) {
-                    const reportNodes = document.querySelectorAll(".o_account_reports_body, .o_account_report, .o_content, .o_action_manager, .o_view_controller");
+                if (!activeReport) {
+                    const reportNodes = document.querySelectorAll(".o_account_reports_body, .o_account_report, .o_content, .o_action_manager");
                     for (const node of reportNodes) {
                         if (node.__owl__ && node.__owl__.component) {
-                            const comp = node.__owl__.component;
-                            if (comp.controller) {
-                                activeCtrl = comp.controller;
-                                break;
-                            } else if (comp.props && comp.props.controller) {
-                                activeCtrl = comp.props.controller;
-                                break;
-                            } else if (typeof comp.reload === "function" || typeof comp.setL10nVeCurrency === "function") {
-                                activeCtrl = comp;
-                                break;
-                            }
+                            activeReport = node.__owl__.component;
+                            break;
                         }
                     }
                 }
 
-                if (activeCtrl) {
-                    activeCtrl.options = activeCtrl.options || {};
-                    activeCtrl.options.l10n_ve_currency = chosen;
-                    activeCtrl.options.l10n_ve_currency_label = chosen === 'bs' ? 'Bs.F' : '$';
-                    activeCtrl.options.l10n_ve_badge_label = chosen === 'bs' ? 'En .Bs.F' : 'En .$';
+                if (activeReport) {
+                    if (typeof activeReport.setL10nVeCurrency === "function") {
+                        await activeReport.setL10nVeCurrency(chosen);
+                    } else {
+                        activeReport.options = activeReport.options || {};
+                        activeReport.options.l10n_ve_currency = chosen;
+                        activeReport.options.l10n_ve_currency_label = chosen === 'bs' ? 'Bs.F' : '$';
+                        activeReport.options.l10n_ve_badge_label = chosen === 'bs' ? 'En .Bs.F' : 'En .$';
 
-                    if (typeof activeCtrl.setL10nVeCurrency === "function") {
-                        await activeCtrl.setL10nVeCurrency(chosen);
-                    } else if (typeof activeCtrl.reload === "function") {
-                        await activeCtrl.reload();
-                    } else if (activeCtrl.controller && typeof activeCtrl.controller.reload === "function") {
-                        await activeCtrl.controller.reload();
+                        if (typeof activeReport.reload === "function") {
+                            await activeReport.reload();
+                        } else if (activeReport.controller && typeof activeReport.controller.reload === "function") {
+                            await activeReport.controller.reload();
+                        }
                     }
                 }
             });
