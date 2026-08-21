@@ -10,7 +10,7 @@
 
 import { patch } from "@web/core/utils/patch";
 
-function patchAllReportComponents() {
+function patchReportComponents() {
     // 1. Parchear AccountReport
     try {
         const reportMod = odoo.loader.modules.get("@account_reports/components/account_report/account_report");
@@ -42,14 +42,14 @@ function patchAllReportComponents() {
         }
     } catch (e) {}
 
-    // 2. Parchear AccountReportControlPanel
+    // 2. Parchear AccountReportFilters
     try {
-        const panelMod = odoo.loader.modules.get("@account_reports/components/account_report/control_panel/control_panel");
-        if (panelMod && panelMod.AccountReportControlPanel && !panelMod.AccountReportControlPanel._l10n_ve_patched) {
-            panelMod.AccountReportControlPanel._l10n_ve_patched = true;
-            patch(panelMod.AccountReportControlPanel.prototype, {
-                async onSelectL10nVeCurrency(currency) {
-                    const ctrl = this.controller || this.props?.controller;
+        const filtersMod = odoo.loader.modules.get("@account_reports/components/account_report/filters/filters");
+        if (filtersMod && filtersMod.AccountReportFilters && !filtersMod.AccountReportFilters._l10n_ve_patched) {
+            filtersMod.AccountReportFilters._l10n_ve_patched = true;
+            patch(filtersMod.AccountReportFilters.prototype, {
+                async selectL10nVeCurrency(currency) {
+                    const ctrl = this.controller || this.props?.controller || this.env?.controller;
                     if (ctrl && typeof ctrl.setL10nVeCurrency === "function") {
                         await ctrl.setL10nVeCurrency(currency);
                     }
@@ -59,8 +59,31 @@ function patchAllReportComponents() {
     } catch (e) {}
 }
 
-// Intentar parchear inmediatamente y periódicamente al inicio
-patchAllReportComponents();
+// Inyección y listener dinámico en el DOM como seguro de vida visual
+function setupDynamicDomWatcher() {
+    document.addEventListener("click", async (e) => {
+        const target = e.target.closest(".l10n_ve_currency_menu_item");
+        if (target) {
+            e.preventDefault();
+            const currency = target.getAttribute("data-currency") || "bs";
+            // Buscar la instancia activa del reporte en OWL o disparar reload
+            const filterEl = target.closest(".o_account_reports_filters") || document.querySelector(".o_account_reports_filters");
+            if (filterEl && window.__owl__) {
+                const node = filterEl.__owl__ || target.closest(".o_account_reports_page")?.__owl__;
+                if (node && node.component) {
+                    const ctrl = node.component.controller || node.component;
+                    if (ctrl && typeof ctrl.setL10nVeCurrency === "function") {
+                        await ctrl.setL10nVeCurrency(currency);
+                        return;
+                    }
+                }
+            }
+        }
+    });
+}
 
-const intervalId = setInterval(patchAllReportComponents, 400);
-setTimeout(() => clearInterval(intervalId), 12000);
+patchReportComponents();
+setupDynamicDomWatcher();
+
+const intervalId = setInterval(patchReportComponents, 500);
+setTimeout(() => clearInterval(intervalId), 15000);
