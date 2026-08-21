@@ -16,23 +16,30 @@ class ProductTemplate(models.Model):
     l10n_ve_list_price_usd = fields.Float(
         string='Precio de Venta ($)',
         compute='_compute_ve_product_prices',
+        inverse='_inverse_ve_list_price_usd',
         digits=(18, 2),
-        help='Precio de venta de referencia en Dólares (USD).',
+        help='Precio de venta de referencia en Dólares (USD). Puedes editar este campo directamente.',
     )
     l10n_ve_list_price_bs = fields.Monetary(
         string='Precio de Venta (Bs)',
         currency_field='l10n_ve_currency_bs_id',
         compute='_compute_ve_product_prices',
+        inverse='_inverse_ve_list_price_bs',
+        help='Precio de venta en Bolívares (Bs). Puedes editar este campo directamente.',
     )
     l10n_ve_standard_price_bs = fields.Monetary(
         string='Costo (Bs)',
         currency_field='l10n_ve_currency_bs_id',
         compute='_compute_ve_product_prices',
+        inverse='_inverse_ve_standard_price_bs',
+        help='Costo en Bolívares (Bs). Puedes editar este campo directamente.',
     )
     l10n_ve_standard_price_usd = fields.Float(
         string='Costo ($)',
         compute='_compute_ve_product_prices',
+        inverse='_inverse_ve_standard_price_usd',
         digits=(18, 2),
+        help='Costo en Dólares (USD). Puedes editar este campo directamente.',
     )
     l10n_ve_replacement_cost_usd = fields.Float(
         string='Costo Reposición ($)',
@@ -78,6 +85,62 @@ class ProductTemplate(models.Model):
                 template.l10n_ve_list_price_bs = round(template.list_price * rate, 2)
                 template.l10n_ve_standard_price_usd = template.standard_price
                 template.l10n_ve_standard_price_bs = round(template.standard_price * rate, 2)
+
+    def _inverse_ve_list_price_usd(self):
+        for template in self:
+            company = template.company_id or self.env.company
+            rate = company.get_current_bcv_rate() if hasattr(company, 'get_current_bcv_rate') else 60.0
+            if not rate:
+                rate = 60.0
+            bs_currency = company.l10n_ve_currency_bs_id if hasattr(company, 'l10n_ve_currency_bs_id') else None
+            is_bs = (company.currency_id == bs_currency) if bs_currency else False
+
+            if is_bs:
+                template.list_price = round(template.l10n_ve_list_price_usd * rate, 2)
+            else:
+                template.list_price = template.l10n_ve_list_price_usd
+
+    def _inverse_ve_list_price_bs(self):
+        for template in self:
+            company = template.company_id or self.env.company
+            rate = company.get_current_bcv_rate() if hasattr(company, 'get_current_bcv_rate') else 60.0
+            if not rate:
+                rate = 60.0
+            bs_currency = company.l10n_ve_currency_bs_id if hasattr(company, 'l10n_ve_currency_bs_id') else None
+            is_bs = (company.currency_id == bs_currency) if bs_currency else False
+
+            if is_bs:
+                template.list_price = template.l10n_ve_list_price_bs
+            else:
+                template.list_price = round(template.l10n_ve_list_price_bs / rate, 2) if rate else 0.0
+
+    def _inverse_ve_standard_price_usd(self):
+        for template in self:
+            company = template.company_id or self.env.company
+            rate = company.get_current_bcv_rate() if hasattr(company, 'get_current_bcv_rate') else 60.0
+            if not rate:
+                rate = 60.0
+            bs_currency = company.l10n_ve_currency_bs_id if hasattr(company, 'l10n_ve_currency_bs_id') else None
+            is_bs = (company.currency_id == bs_currency) if bs_currency else False
+
+            if is_bs:
+                template.standard_price = round(template.l10n_ve_standard_price_usd * rate, 2)
+            else:
+                template.standard_price = template.l10n_ve_standard_price_usd
+
+    def _inverse_ve_standard_price_bs(self):
+        for template in self:
+            company = template.company_id or self.env.company
+            rate = company.get_current_bcv_rate() if hasattr(company, 'get_current_bcv_rate') else 60.0
+            if not rate:
+                rate = 60.0
+            bs_currency = company.l10n_ve_currency_bs_id if hasattr(company, 'l10n_ve_currency_bs_id') else None
+            is_bs = (company.currency_id == bs_currency) if bs_currency else False
+
+            if is_bs:
+                template.standard_price = template.l10n_ve_standard_price_bs
+            else:
+                template.standard_price = round(template.l10n_ve_standard_price_bs / rate, 2) if rate else 0.0
 
     @api.depends('list_price', 'standard_price', 'l10n_ve_list_price_usd', 'l10n_ve_standard_price_usd')
     def _compute_ve_profit_margin(self):
