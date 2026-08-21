@@ -1,27 +1,26 @@
 # -*- coding: utf-8 -*-
 """
-Venezuela360: Balance General Bimoneda ($ / Bs.F)
-===================================================
+Venezuela360: Reportes Financieros Bimoneda ($ / Bs.F)
+======================================================
 Hereda account.report de Odoo Enterprise para agregar:
 
-  1. Botón [💵 Moneda: Bs.F] / [💵 Moneda: $] en la barra del Balance General.
-  2. Conversión automática de todos los valores monetarios según la moneda elegida.
-  3. Tasa de cambio BCV leída en tiempo real desde l10n_ve.exchange.rate.
+  1. Selector interactivo [💱 Moneda: Bs.F] / [💱 Moneda: $] en la barra de filtros.
+  2. Conversión dinámica de todos los valores monetarios según la tasa BCV a la fecha del reporte.
+  3. Soporte para TODOS los reportes financieros:
+     - Balance General (Balance Sheet)
+     - Estado de Resultados (Profit and Loss)
+     - Estado de Flujo de Efectivo (Cash Flow)
+     - Libro Mayor (General Ledger)
+     - Balance de Comprobación (Trial Balance)
+     - Resumen Ejecutivo y demás reportes de account.report.
 
 ARQUITECTURA:
 ─────────────────────────────────────────────────────────────────
-  • Moneda PRINCIPAL: USD   (company.currency_id = USD)
-  • Moneda SECUNDARIA: Bs.F (VES/VEF)
-  • Los valores internos de Odoo están en USD (moneda base).
-  • Modo 'bs'  → multiplica por tasa BCV → muestra en Bs.F
-  • Modo 'usd' → muestra el valor tal cual en USD ($)
-
-INTEGRACIÓN ENTERPRISE:
-  • options['buttons'] → lista de botones nativos que Enterprise renderiza
-    en la barra superior del reporte financiero.
-  • action_switch_l10n_ve_currency(options) → retorna dict con las nuevas
-    options (NO ir.actions.client); Enterprise recarga el reporte con ellas.
-  • _format_value() → intercepta el formateador nativo y aplica conversión.
+  • Moneda PRINCIPAL de la empresa: USD (company.currency_id = USD)
+  • Moneda SECUNDARIA: Bs.F (VES / VEF)
+  • Los importes internos de Odoo se calculan en USD (moneda base).
+  • Modo 'bs'  → Multiplica por tasa BCV de la fecha de corte → Formatea como 'X.XXX,XX Bs.F'
+  • Modo 'usd' → Muestra los valores directamente en USD ($)
 ─────────────────────────────────────────────────────────────────
 
 Autor: JeanPerozo / Nubelco
@@ -31,7 +30,7 @@ from odoo import models, fields, api, _
 
 _logger = logging.getLogger(__name__)
 
-# Fallback de tasa BCV si no hay registros en la BD (se actualiza al cargar)
+# Fallback de tasa BCV por defecto si no existen registros previos
 _FALLBACK_RATE = 779.9522
 
 
@@ -39,104 +38,83 @@ class AccountReport(models.Model):
     _inherit = 'account.report'
 
     # ─────────────────────────────────────────────────────────────────────────
-    # OPCIONES DEL REPORTE: inyección del selector bimoneda
+    # OPCIONES DEL REPORTE: Inyección del selector bimoneda
     # ─────────────────────────────────────────────────────────────────────────
 
     def get_options(self, previous_options=None):
         """
-        Override de get_options para inyectar el botón bimoneda.
-
-        Enterprise llama este método cada vez que recarga el reporte.
-        'previous_options' contiene las opciones de la carga anterior,
-        lo que nos permite persistir la moneda seleccionada entre recargas.
+        Inyecta las opciones de moneda dual en el diccionario de opciones del reporte.
+        Persiste la selección del usuario (USD o Bs.F) entre recargas.
         """
         options = super().get_options(previous_options)
 
-        # ── Leer moneda seleccionada (persiste entre recargas via previous_options)
-        selected_currency = 'usd'   # Moneda principal = USD por defecto
+        # Determinar moneda activa (por defecto 'bs' para visualización venezolana en Bs.F o 'usd')
+        selected_currency = 'bs'
         if previous_options and isinstance(previous_options, dict):
             prev_val = previous_options.get('l10n_ve_currency')
             if prev_val in ('usd', 'bs'):
                 selected_currency = prev_val
 
-        # ── Inyectar claves bimoneda en el diccionario de opciones
-        options['l10n_ve_currency']       = selected_currency
-        options['l10n_ve_currency_label'] = '$' if selected_currency == 'usd' else 'Bs.F'
-        options['l10n_ve_badge_label']    = '$ USD' if selected_currency == 'usd' else 'Bs.F'
+        # Claves de opciones para control en Python y en OWL
+        options['l10n_ve_currency'] = selected_currency
+        options['l10n_ve_currency_label'] = 'Bs.F' if selected_currency == 'bs' else '$'
+        options['l10n_ve_badge_label'] = 'En .Bs.F' if selected_currency == 'bs' else 'En $'
         options['filter_l10n_ve_currency'] = True
 
-        # ── Agregar botón nativo a la barra del reporte ──────────────────────
-        # Enterprise renderiza la lista options['buttons'] como botones de acción.
-        # Cada item: {'name': str, 'action': 'method_name', 'sequence': int}
-        # Al hacer clic, Enterprise llama:
-        #   account.report.browse(id).method_name(options)  → retorna new_options
+        # Botón nativo de respaldo en options['buttons'] (aparece en la barra de acciones)
         buttons = list(options.get('buttons') or [])
-
-        # Eliminar botón previo de moneda para evitar duplicados en recargas
         buttons = [
             b for b in buttons
             if not (isinstance(b, dict) and b.get('action') == 'action_switch_l10n_ve_currency')
         ]
 
-        # Etiqueta del botón: muestra la moneda ACTIVA y al hacer clic cambia a la otra
-        if selected_currency == 'usd':
-            btn_label = '💵 Moneda: $ (cambiar a Bs.F)'
+        if selected_currency == 'bs':
+            btn_label = '💱 Moneda: Bs.F (Ver en $)'
         else:
-            btn_label = '💵 Moneda: Bs.F (cambiar a $)'
+            btn_label = '💱 Moneda: $ (Ver en Bs.F)'
 
-        # sequence=1 → aparece primero, antes de los botones de PDF/XLSX
         buttons.insert(0, {
             'name': btn_label,
             'action': 'action_switch_l10n_ve_currency',
             'sequence': 1,
         })
-
         options['buttons'] = buttons
+
         return options
 
     # ─────────────────────────────────────────────────────────────────────────
-    # ACCIÓN DEL BOTÓN: toggle de moneda
+    # ACCIÓN NATIVA: Conmutar moneda
     # ─────────────────────────────────────────────────────────────────────────
 
     def action_switch_l10n_ve_currency(self, options):
         """
-        Toggle entre USD y Bs.F en el reporte activo.
-
-        Enterprise llama este método cuando el usuario hace clic en el botón.
-        IMPORTANTE: debe retornar un dict con las nuevas opciones (NO ir.actions.client).
-        Enterprise detecta el retorno y recarga el reporte con las nuevas opciones.
+        Conmuta la moneda activa entre 'usd' y 'bs' y retorna el diccionario
+        de opciones actualizado para recargar el reporte en Enterprise.
         """
         self.ensure_one()
-
-        current  = (options or {}).get('l10n_ve_currency', 'usd')
-        new_curr = 'bs' if current == 'usd' else 'usd'
+        current = (options or {}).get('l10n_ve_currency', 'bs')
+        new_curr = 'usd' if current == 'bs' else 'bs'
 
         new_options = dict(options or {})
-        new_options['l10n_ve_currency']        = new_curr
-        new_options['l10n_ve_currency_label']  = '$' if new_curr == 'usd' else 'Bs.F'
-        new_options['l10n_ve_badge_label']     = '$ USD' if new_curr == 'usd' else 'Bs.F'
+        new_options['l10n_ve_currency'] = new_curr
+        new_options['l10n_ve_currency_label'] = 'Bs.F' if new_curr == 'bs' else '$'
+        new_options['l10n_ve_badge_label'] = 'En .Bs.F' if new_curr == 'bs' else 'En $'
         new_options['filter_l10n_ve_currency'] = True
 
         _logger.info(
-            '[Venezuela360] Balance General: moneda cambiada %s → %s',
-            current, new_curr
+            '[Venezuela360] Reporte %s: Moneda conmutada %s → %s',
+            self.name, current, new_curr
         )
         return new_options
 
     # ─────────────────────────────────────────────────────────────────────────
-    # FORMATEADOR DE VALORES: conversión USD ↔ Bs.F
+    # FORMATEADOR DE VALORES MONETARIOS (USD ↔ Bs.F)
     # ─────────────────────────────────────────────────────────────────────────
 
-    def _format_value(self, options, value, figure_type, blank_if_zero=False, currency=None):
+    def _format_value(self, options, value, figure_type, *args, **kwargs):
         """
-        Override del formateador nativo de Enterprise.
-
-        Los valores internos del Balance General están en USD (moneda base).
-        Si el usuario eligió ver en Bs.F → multiplicamos por la tasa BCV.
-        Si eligió USD → mostramos directamente en $.
-
-        Nota: Solo intercedemos con figure_type == 'monetary'. El resto
-        (porcentajes, enteros, etc.) lo maneja el super() sin cambios.
+        Intercepta el formateo monetario de celdas para aplicar la conversión a tasa BCV.
+        Firma compatible con todas las versiones y variantes de Odoo 19 (*args, **kwargs).
         """
         try:
             if (options
@@ -144,76 +122,65 @@ class AccountReport(models.Model):
                     and figure_type == 'monetary'
                     and isinstance(value, (int, float))):
 
-                ve_currency = options.get('l10n_ve_currency', 'usd')
+                ve_currency = options.get('l10n_ve_currency', 'bs')
 
-                if ve_currency == 'usd':
-                    # Valores internos ya están en USD → formatear con símbolo $
-                    fmt = self._ve_format_number(value)
-                    return f'$ {fmt}'
-
-                elif ve_currency == 'bs':
-                    # Convertir USD → Bs.F usando tasa BCV oficial
-                    date_to = (options.get('date') or {}).get('date_to') \
-                              or str(fields.Date.context_today(self))
-                    rate    = self._get_bcv_rate(date_to)
-                    val_bs  = round(value * rate, 2)
-                    fmt     = self._ve_format_number(val_bs)
+                if ve_currency == 'bs':
+                    # Obtener fecha de corte del reporte
+                    date_to = (options.get('date') or {}).get('date_to') or str(fields.Date.context_today(self))
+                    rate = self._get_bcv_rate(date_to)
+                    val_bs = round(value * rate, 2)
+                    fmt = self._ve_format_number(val_bs)
                     return f'{fmt} Bs.F'
+
+                elif ve_currency == 'usd':
+                    fmt = self._ve_format_number(value)
+                    return f'{fmt} $'
 
         except Exception as e:
             _logger.warning('[Venezuela360] _format_value error: %s', e)
 
-        # Fallback: comportamiento nativo de Enterprise
-        try:
-            return super()._format_value(
-                options, value, figure_type,
-                blank_if_zero=blank_if_zero, currency=currency
-            )
-        except TypeError:
-            # Algunas versiones de Enterprise no tienen el parámetro 'currency'
-            return super()._format_value(
-                options, value, figure_type, blank_if_zero=blank_if_zero
-            )
+        # Fallback al comportamiento nativo de Odoo
+        return super()._format_value(options, value, figure_type, *args, **kwargs)
 
     # ─────────────────────────────────────────────────────────────────────────
-    # HELPERS INTERNOS
+    # HELPERS Y CONSULTA DE TASA BCV
     # ─────────────────────────────────────────────────────────────────────────
 
     def _ve_format_number(self, value):
         """
-        Formatea un número con separadores venezolanos:
-        Punto (.) para miles, coma (,) para decimales.
-        Ejemplo: 1234567.89 → '1.234.567,89'
+        Formatea números con estándar venezolano:
+        Separador de miles: punto (.)
+        Separador de decimales: coma (,)
+        Ejemplo: 29284126.27 → '29.284.126,27'
+                 -93664550.95 → '-93.664.550,95'
         """
-        # Formato con separadores ingleses → invertir separadores
-        formatted = f'{abs(value):,.2f}'                # '1,234,567.89'
-        formatted = formatted.replace(',', 'X')         # '1X234X567.89'
-        formatted = formatted.replace('.', ',')         # '1X234X567,89'
-        formatted = formatted.replace('X', '.')         # '1.234.567,89'
+        formatted = f'{abs(value):,.2f}'
+        formatted = formatted.replace(',', 'X').replace('.', ',').replace('X', '.')
         return f'-{formatted}' if value < 0 else formatted
 
     def _get_bcv_rate(self, date_to):
         """
-        Obtiene la tasa BCV oficial (Bs/USD) para una fecha dada.
-        Lee desde l10n_ve.exchange.rate (tabla propia de Venezuela360).
-
-        Fallback en cascada:
-          1. l10n_ve.exchange.rate para la fecha exacta o anterior
-          2. res.currency.rate (moneda nativa Odoo) para VES/VEF
-          3. Constante FALLBACK global (_FALLBACK_RATE)
+        Obtiene la tasa oficial BCV (Bs/USD) para la fecha de corte del reporte.
+        Búsqueda jerárquica:
+          1. l10n_ve.exchange.rate para fecha <= date_to y compañía activa.
+          2. res.currency.rate nativo para VES.
+          3. Tasa actual de la compañía.
+          4. Fallback seguro _FALLBACK_RATE.
         """
         try:
-            # ── Fuente 1: tabla histórica Venezuela360 ────────────────────────
+            company_id = self.env.company.id
+
+            # Fuente 1: Histórico l10n_ve.exchange.rate
             rate_rec = self.env['l10n_ve.exchange.rate'].search([
                 ('date', '<=', date_to),
                 ('active', '=', True),
-                ('company_id', '=', self.env.company.id),
-            ], order='date desc', limit=1)
+                ('company_id', '=', company_id),
+            ], order='date desc, id desc', limit=1)
 
-            if rate_rec and rate_rec.rate > 1:
+            if rate_rec and rate_rec.rate > 0:
                 return rate_rec.rate
 
-            # ── Fuente 2: res.currency.rate (motor nativo Odoo) ──────────────
+            # Fuente 2: res.currency.rate
             CurrencyModel = self.env['res.currency'].with_context(active_test=False)
             ves = (
                 CurrencyModel.search([('name', '=', 'VES')], limit=1)
@@ -223,20 +190,20 @@ class AccountReport(models.Model):
                 odoo_rate_rec = self.env['res.currency.rate'].search([
                     ('currency_id', '=', ves.id),
                     ('name', '<=', date_to),
-                    ('company_id', '=', self.env.company.id),
-                ], order='name desc', limit=1)
+                    ('company_id', 'in', [company_id, False]),
+                ], order='name desc, id desc', limit=1)
 
                 if odoo_rate_rec and odoo_rate_rec.rate > 0:
                     rate = odoo_rate_rec.rate
-                    # Si la moneda base es USD, rate ya es Bs/USD directamente
-                    # Si es < 1, entonces es la inversa (USD/Bs) y la invertimos
-                    return rate if rate > 1 else (1.0 / rate)
+                    return rate if rate > 1.0 else (1.0 / rate)
+
+            # Fuente 3: Tasa de compañía
+            if hasattr(self.env.company, 'get_current_bcv_rate'):
+                comp_rate = self.env.company.get_current_bcv_rate()
+                if comp_rate and comp_rate > 0:
+                    return comp_rate
 
         except Exception as e:
             _logger.warning('[Venezuela360] _get_bcv_rate error: %s', e)
 
-        # ── Fuente 3: fallback constante ──────────────────────────────────────
-        _logger.warning(
-            '[Venezuela360] _get_bcv_rate: usando fallback %.4f Bs/USD', _FALLBACK_RATE
-        )
         return _FALLBACK_RATE

@@ -1,93 +1,35 @@
 /** @odoo-module **/
 /**
- * Venezuela360: Selector Bimoneda [💵 Moneda: Bs.F / $]
- * =======================================================
- * Inyecta el dropdown de moneda en la barra superior de reportes financieros
- * de Odoo Enterprise usando el registry de filtros de account_reports.
+ * Venezuela360: Selector Bimoneda [💱 Moneda: Bs.F / $] en Reportes Financieros
+ * ==============================================================================
+ * Conecta el selector de moneda interactivo con el controlador AccountReport
+ * de Odoo Enterprise, permitiendo alternar al instante entre Bs.F y USD.
  *
  * Autor: JeanPerozo / Nubelco
  */
 
 import { patch } from "@web/core/utils/patch";
-import { registry } from "@web/core/registry";
-import { Component, xml } from "@odoo/owl";
 
-// ── Componente del Botón Desplegable de Moneda ──────────────────────────────
-class L10nVeCurrencyFilter extends Component {
-    static template = xml`
-        <div t-if="props.options and props.options.filter_l10n_ve_currency"
-             class="btn-group dropdown ms-1">
-            <button class="btn btn-outline-primary dropdown-toggle px-2 py-1"
-                    style="font-size: 12px;"
-                    data-bs-toggle="dropdown"
-                    aria-expanded="false">
-                <i class="fa fa-exchange me-1"/>
-                Moneda:
-                <strong t-attf-style="color: {{ props.options.l10n_ve_currency === 'usd' ? '#dc3545' : '#198754' }};">
-                    <t t-out="props.options.l10n_ve_currency === 'usd' ? '$' : 'Bs.F'"/>
-                </strong>
-            </button>
-            <ul class="dropdown-menu dropdown-menu-end shadow">
-                <li class="dropdown-item-text fw-bold text-muted small">Seleccionar moneda</li>
-                <li><hr class="dropdown-divider m-0"/></li>
-                <li>
-                    <a class="dropdown-item d-flex align-items-center gap-2"
-                       href="#"
-                       t-on-click.prevent="() => props.setCurrency('bs')">
-                        <i t-att-class="props.options.l10n_ve_currency !== 'usd' ? 'fa fa-check text-success' : 'fa fa-circle-o text-muted'"/>
-                        <span>Bs.F (Bolívares)</span>
-                    </a>
-                </li>
-                <li>
-                    <a class="dropdown-item d-flex align-items-center gap-2"
-                       href="#"
-                       t-on-click.prevent="() => props.setCurrency('usd')">
-                        <i t-att-class="props.options.l10n_ve_currency === 'usd' ? 'fa fa-check text-success' : 'fa fa-circle-o text-muted'"/>
-                        <span>$ (Dólares USD)</span>
-                    </a>
-                </li>
-            </ul>
-        </div>
-        <span t-if="props.options and props.options.l10n_ve_badge_label"
-              class="badge rounded-pill ms-1"
-              t-attf-style="background-color: {{ props.options.l10n_ve_currency === 'usd' ? '#dc3545' : '#198754' }}; font-size: 11px;">
-            <t t-out="props.options.l10n_ve_badge_label"/>
-        </span>
-    `;
-
-    static props = {
-        options: Object,
-        setCurrency: Function,
-    };
+// Intentar importar AccountReport si está disponible en el bundle
+let AccountReportComponent = null;
+try {
+    const mod = odoo.loader.modules.get("@account_reports/components/account_report/account_report");
+    if (mod && mod.AccountReport) {
+        AccountReportComponent = mod.AccountReport;
+    }
+} catch (e) {
+    // Si no está cargado inmediatamente, se parcheará en diferido
 }
 
-// ── Patch sobre el Controlador de Reportes Contables ─────────────────────────
-// Intentar parchear dinámicamente el controlador de Enterprise
-function tryPatchAccountReport() {
-    const reportMod = registry.category("main_components")?.content || {};
+function applyReportPatch(AccountReportClass) {
+    if (!AccountReportClass || AccountReportClass._l10n_ve_patched) {
+        return;
+    }
+    AccountReportClass._l10n_ve_patched = true;
 
-    // Buscar el módulo account_reports en el loader
-    const moduleName = "@account_reports/components/account_report/account_report";
-    if (!odoo.__DEBUG__?.services && !window.__owl__) return;
-
-    // Acceder al módulo vía loader de Odoo
-    const loaderGet = (name) => {
-        try {
-            return odoo.loader.modules.get(name);
-        } catch {
-            return null;
-        }
-    };
-
-    const mod = loaderGet(moduleName);
-    if (!mod) return;
-
-    const { AccountReport } = mod;
-    if (!AccountReport) return;
-
-    patch(AccountReport.prototype, {
+    patch(AccountReportClass.prototype, {
         /**
-         * Cambia la moneda del reporte recargando con las nuevas opciones.
+         * Cambia la moneda activa del reporte ('bs' o 'usd') y solicita la recarga.
          */
         async setL10nVeCurrency(currency) {
             if (!this.options || this.options.l10n_ve_currency === currency) {
@@ -96,19 +38,34 @@ function tryPatchAccountReport() {
             const newOptions = {
                 ...this.options,
                 l10n_ve_currency: currency,
+                l10n_ve_currency_label: currency === 'bs' ? 'Bs.F' : '$',
+                l10n_ve_badge_label: currency === 'bs' ? 'En .Bs.F' : 'En $',
             };
-            if (this.reload) {
+
+            if (typeof this.reload === "function") {
                 await this.reload({ options: newOptions });
-            } else if (this.updateOptions) {
+            } else if (typeof this.updateOptions === "function") {
                 await this.updateOptions(newOptions);
+            } else if (this.controller && typeof this.controller.reload === "function") {
+                await this.controller.reload({ options: newOptions });
             }
         },
     });
 }
 
-// Ejecutar después de que OWL y los módulos estén listos
-if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", () => setTimeout(tryPatchAccountReport, 500));
+if (AccountReportComponent) {
+    applyReportPatch(AccountReportComponent);
 } else {
-    setTimeout(tryPatchAccountReport, 500);
+    // Escuchar cuando se carguen los módulos OWL en frontend
+    const checkInterval = setInterval(() => {
+        try {
+            const mod = odoo.loader.modules.get("@account_reports/components/account_report/account_report");
+            if (mod && mod.AccountReport) {
+                applyReportPatch(mod.AccountReport);
+                clearInterval(checkInterval);
+            }
+        } catch (e) {}
+    }, 300);
+
+    setTimeout(() => clearInterval(checkInterval), 10000);
 }
