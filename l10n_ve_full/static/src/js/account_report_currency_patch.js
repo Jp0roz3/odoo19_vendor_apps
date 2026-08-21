@@ -6,10 +6,10 @@
  * de Odoo Enterprise, permitiendo alternar al instante entre USD y Bs.F.
  *
  * Soporte Integral para TODOS los Reportes Contables y Financieros de Odoo 19:
+ *   - Libro Mayor (General Ledger)
  *   - Balance General (Balance Sheet)
  *   - Estado de Resultados / Ganancias y Pérdidas (Profit and Loss)
  *   - Estado de Flujo de Efectivo (Cash Flow)
- *   - Libro Mayor (General Ledger)
  *   - Balance de Comprobación (Trial Balance)
  *   - Libro Diario (Journal Report)
  *   - Libro Mayor de Socios (Partner Ledger)
@@ -24,9 +24,11 @@
 
 import { patch } from "@web/core/utils/patch";
 
-// Moneda inicial por defecto: USD ($)
+// Estado global de moneda y tasa
 let currentSelectedCurrency = "usd";
 let currentBcvRate = 779.9522;
+let isTransforming = false;
+let observerDebounce = null;
 let tableObserver = null;
 
 // Limpiar cualquier clave corrupta en sessionStorage
@@ -69,12 +71,12 @@ function parseVeNumber(str) {
     if (!str) return null;
     let clean = str.replace(/Bs\.F|\$|EUR|\s/g, "").trim();
     if (!clean) return null;
-    const isNeg = clean.startsWith("-") || clean.startsWith("(");
+    const isNeg = clean.startsWith("-") || clean.startsWith("(") || str.includes("-");
     clean = clean.replace(/[\(\)-]/g, "").trim();
     clean = clean.replace(/\./g, "").replace(/,/g, ".");
     const val = parseFloat(clean);
     if (isNaN(val)) return null;
-    return isNeg ? -val : val;
+    return isNeg ? -Math.abs(val) : Math.abs(val);
 }
 
 // Formatear número con estándar venezolano: 2339.86 -> "2.339,86"
@@ -89,8 +91,11 @@ function formatVeNumber(num) {
     return isNeg ? `-${res}` : res;
 }
 
-// Transformación directa e instantánea de todas las celdas numéricas de la tabla
+// Transformación directa e instantánea de todas las celdas numéricas de la tabla (con protección anti-bucle)
 function transformReportTableCells(currency) {
+    if (isTransforming) return;
+    isTransforming = true;
+
     try {
         const rate = extractBcvRate();
         const tables = document.querySelectorAll(
@@ -102,16 +107,23 @@ function transformReportTableCells(currency) {
                 "td, th, span.o_account_report_column_value, div.o_account_report_column_value"
             );
             cells.forEach(cell => {
-                // Evitar celdas que son títulos de cuentas o encabezados con texto puro
-                if (cell.children.length > 2) return;
+                // Evitar celdas complejas con tablas anidadas
+                if (cell.querySelector("table")) return;
+
                 const txt = cell.textContent.trim();
                 if (!txt) return;
 
+                // Ignorar encabezados de texto puro (Fecha, Contacto, Moneda, Diario, Cuenta, etc.)
+                if (/^(fecha|contacto|moneda|diario|cuenta|partner|date|journal|account|name)$/i.test(txt)) return;
+
                 // Capturar el valor base en USD en el primer parseo
                 if (!cell.hasAttribute("data-original-usd")) {
-                    const parsed = parseVeNumber(txt);
-                    if (parsed !== null && (txt.match(/^-?[\d\.,]+$/) || txt.includes("$") || txt.includes("Bs.F"))) {
-                        cell.setAttribute("data-original-usd", parsed.toString());
+                    const isMonetaryPattern = /^-?[\$\s]*[\d\.,]+[\s\$Bs\.F]*$/.test(txt);
+                    if (isMonetaryPattern) {
+                        const parsed = parseVeNumber(txt);
+                        if (parsed !== null) {
+                            cell.setAttribute("data-original-usd", parsed.toString());
+                        }
                     }
                 }
 
@@ -122,29 +134,53 @@ function transformReportTableCells(currency) {
                             const bsVal = Math.round(usdVal * rate * 100) / 100;
                             cell.textContent = `${formatVeNumber(bsVal)} Bs.F`;
                         } else {
-                            cell.textContent = `${formatVeNumber(usdVal)} $`;
+                            cell.textContent = `$ ${formatVeNumber(usdVal)}`;
                         }
                     }
                 }
             });
         });
 
-        // Observar dinámicamente cuando el usuario despliega o expande cuentas hijas (unfold)
-        const reportBody = document.querySelector(".o_account_reports_body, .o_account_report, .o_content");
-        if (reportBody && !tableObserver) {
-            tableObserver = new MutationObserver(() => {
-                if (currentSelectedCurrency === "bs") {
-                    transformReportTableCells("bs");
-                }
-            });
-            tableObserver.observe(reportBody, { childList: true, subtree: true });
-        }
+        // Configurar observador dinámico seguro para filas desplegadas (unfold)
+        setupSafeTableObserver();
+
     } catch (e) {
         console.warn("[Venezuela360] transformReportTableCells error:", e);
+    } finally {
+        setTimeout(() => {
+            isTransforming = false;
+        }, 60);
     }
 }
 
-// Ejecutar recarga del reporte de forma segura y sincronizada
+// Observador seguro sin bucles de mutación
+function setupSafeTableObserver() {
+    if (tableObserver) return;
+    const reportBody = document.querySelector(".o_account_reports_body, .o_account_report, .o_content");
+    if (!reportBody) return;
+
+    tableObserver = new MutationObserver((mutations) => {
+        if (isTransforming) return;
+
+        // Solo disparar si se agregaron nuevos nodos HTML de filas/celdas
+        const hasNewRowElements = mutations.some(m => 
+            m.type === "childList" && 
+            m.addedNodes.length > 0 && 
+            Array.from(m.addedNodes).some(n => n.nodeType === 1 && (n.tagName === "TR" || n.tagName === "TD" || n.querySelector?.("td")))
+        );
+
+        if (hasNewRowElements && currentSelectedCurrency === "bs") {
+            if (observerDebounce) clearTimeout(observerDebounce);
+            observerDebounce = setTimeout(() => {
+                transformReportTableCells("bs");
+            }, 80);
+        }
+    });
+
+    tableObserver.observe(reportBody, { childList: true, subtree: true });
+}
+
+// Ejecutar recarga del reporte de forma segura y no bloqueante
 async function triggerReportReload(reportComp, currency) {
     currentSelectedCurrency = currency;
     cleanCorruptedSessionStorage();
@@ -187,7 +223,7 @@ async function triggerReportReload(reportComp, currency) {
                 }
             }
         } catch (eA) {
-            console.warn("[Venezuela360] ORM direct reload fallback:", eA);
+            console.warn("[Venezuela360] ORM reload notice:", eA);
         }
     }
 }
