@@ -86,6 +86,15 @@ class ResPartner(models.Model):
         string='Parroquia',
     )
 
+    @api.model
+    def default_get(self, fields_list):
+        res = super().default_get(fields_list)
+        if 'country_id' in fields_list and not res.get('country_id'):
+            ve_country = self.env.ref('base.ve', raise_if_not_found=False)
+            if ve_country:
+                res['country_id'] = ve_country.id
+        return res
+
     @api.onchange('state_id')
     def _onchange_native_state_id(self):
         """Sincroniza el estado nativo de Odoo con el catálogo de estados de Venezuela y filtra municipios."""
@@ -109,10 +118,16 @@ class ResPartner(models.Model):
             if self.l10n_ve_municipality_id.state_id:
                 self.l10n_ve_state_id = self.l10n_ve_municipality_id.state_id
                 st = self.env['res.country.state'].search([
+                    ('country_id.code', '=', 'VE'),
+                    ('name', 'ilike', self.l10n_ve_municipality_id.state_id.name)
+                ], limit=1) or self.env['res.country.state'].search([
                     ('name', 'ilike', self.l10n_ve_municipality_id.state_id.name)
                 ], limit=1)
                 if st:
                     self.state_id = st
+                ve_country = self.env.ref('base.ve', raise_if_not_found=False)
+                if ve_country and not self.country_id:
+                    self.country_id = ve_country
             if self.l10n_ve_parish_id and self.l10n_ve_parish_id.municipality_id != self.l10n_ve_municipality_id:
                 self.l10n_ve_parish_id = False
             return {'domain': {'l10n_ve_parish_id': [('municipality_id', '=', self.l10n_ve_municipality_id.id)]}}
@@ -126,10 +141,16 @@ class ResPartner(models.Model):
             if self.l10n_ve_municipality_id.state_id:
                 self.l10n_ve_state_id = self.l10n_ve_municipality_id.state_id
                 st = self.env['res.country.state'].search([
+                    ('country_id.code', '=', 'VE'),
+                    ('name', 'ilike', self.l10n_ve_municipality_id.state_id.name)
+                ], limit=1) or self.env['res.country.state'].search([
                     ('name', 'ilike', self.l10n_ve_municipality_id.state_id.name)
                 ], limit=1)
                 if st:
                     self.state_id = st
+                ve_country = self.env.ref('base.ve', raise_if_not_found=False)
+                if ve_country and not self.country_id:
+                    self.country_id = ve_country
 
     # ------------------------------------------------------------------
     # Régimen fiscal de ISLR

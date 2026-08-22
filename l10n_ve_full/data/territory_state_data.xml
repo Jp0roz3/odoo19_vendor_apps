@@ -1,6 +1,132 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- 24 Estados de Venezuela -->
+    <!-- ================================================================ -->
+    <!-- 1. ESTADOS NATIVOS DE VENEZUELA (res.country.state para base.ve)  -->
+    <!-- ================================================================ -->
+    <record id="ve_res_state_am" model="res.country.state">
+        <field name="name">Amazonas</field>
+        <field name="code">AM</field>
+        <field name="country_id" ref="base.ve"/>
+    </record>
+    <record id="ve_res_state_an" model="res.country.state">
+        <field name="name">Anzoátegui</field>
+        <field name="code">AN</field>
+        <field name="country_id" ref="base.ve"/>
+    </record>
+    <record id="ve_res_state_ap" model="res.country.state">
+        <field name="name">Apure</field>
+        <field name="code">AP</field>
+        <field name="country_id" ref="base.ve"/>
+    </record>
+    <record id="ve_res_state_ar" model="res.country.state">
+        <field name="name">Aragua</field>
+        <field name="code">AR</field>
+        <field name="country_id" ref="base.ve"/>
+    </record>
+    <record id="ve_res_state_ba" model="res.country.state">
+        <field name="name">Barinas</field>
+        <field name="code">BA</field>
+        <field name="country_id" ref="base.ve"/>
+    </record>
+    <record id="ve_res_state_bo" model="res.country.state">
+        <field name="name">Bolívar</field>
+        <field name="code">BO</field>
+        <field name="country_id" ref="base.ve"/>
+    </record>
+    <record id="ve_res_state_ca" model="res.country.state">
+        <field name="name">Carabobo</field>
+        <field name="code">CA</field>
+        <field name="country_id" ref="base.ve"/>
+    </record>
+    <record id="ve_res_state_co" model="res.country.state">
+        <field name="name">Cojedes</field>
+        <field name="code">CO</field>
+        <field name="country_id" ref="base.ve"/>
+    </record>
+    <record id="ve_res_state_da" model="res.country.state">
+        <field name="name">Delta Amacuro</field>
+        <field name="code">DA</field>
+        <field name="country_id" ref="base.ve"/>
+    </record>
+    <record id="ve_res_state_dc" model="res.country.state">
+        <field name="name">Distrito Capital</field>
+        <field name="code">DC</field>
+        <field name="country_id" ref="base.ve"/>
+    </record>
+    <record id="ve_res_state_fa" model="res.country.state">
+        <field name="name">Falcón</field>
+        <field name="code">FA</field>
+        <field name="country_id" ref="base.ve"/>
+    </record>
+    <record id="ve_res_state_gu" model="res.country.state">
+        <field name="name">Guárico</field>
+        <field name="code">GU</field>
+        <field name="country_id" ref="base.ve"/>
+    </record>
+    <record id="ve_res_state_la" model="res.country.state">
+        <field name="name">Lara</field>
+        <field name="code">LA</field>
+        <field name="country_id" ref="base.ve"/>
+    </record>
+    <record id="ve_res_state_me" model="res.country.state">
+        <field name="name">Mérida</field>
+        <field name="code">ME</field>
+        <field name="country_id" ref="base.ve"/>
+    </record>
+    <record id="ve_res_state_mi" model="res.country.state">
+        <field name="name">Miranda</field>
+        <field name="code">MI</field>
+        <field name="country_id" ref="base.ve"/>
+    </record>
+    <record id="ve_res_state_mo" model="res.country.state">
+        <field name="name">Monagas</field>
+        <field name="code">MO</field>
+        <field name="country_id" ref="base.ve"/>
+    </record>
+    <record id="ve_res_state_ne" model="res.country.state">
+        <field name="name">Nueva Esparta</field>
+        <field name="code">NE</field>
+        <field name="country_id" ref="base.ve"/>
+    </record>
+    <record id="ve_res_state_po" model="res.country.state">
+        <field name="name">Portuguesa</field>
+        <field name="code">PO</field>
+        <field name="country_id" ref="base.ve"/>
+    </record>
+    <record id="ve_res_state_su" model="res.country.state">
+        <field name="name">Sucre</field>
+        <field name="code">SU</field>
+        <field name="country_id" ref="base.ve"/>
+    </record>
+    <record id="ve_res_state_ta" model="res.country.state">
+        <field name="name">Táchira</field>
+        <field name="code">TA</field>
+        <field name="country_id" ref="base.ve"/>
+    </record>
+    <record id="ve_res_state_tr" model="res.country.state">
+        <field name="name">Trujillo</field>
+        <field name="code">TR</field>
+        <field name="country_id" ref="base.ve"/>
+    </record>
+    <record id="ve_res_state_va" model="res.country.state">
+        <field name="name">La Guaira (Vargas)</field>
+        <field name="code">VA</field>
+        <field name="country_id" ref="base.ve"/>
+    </record>
+    <record id="ve_res_state_ya" model="res.country.state">
+        <field name="name">Yaracuy</field>
+        <field name="code">YA</field>
+        <field name="country_id" ref="base.ve"/>
+    </record>
+    <record id="ve_res_state_zu" model="res.country.state">
+        <field name="name">Zulia</field>
+        <field name="code">ZU</field>
+        <field name="country_id" ref="base.ve"/>
+    </record>
+
+    <!-- ================================================================ -->
+    <!-- 2. ESTADOS l10n_ve.state                                         -->
+    <!-- ================================================================ -->
     <record id="ve_state_amazonas" model="l10n_ve.state">
         <field name="name">Amazonas</field>
         <field name="code">VE-Z</field>
@@ -98,7 +224,9 @@
         <field name="code">VE-V</field>
     </record>
 
-    <!-- Municipios y Parroquias de Venezuela -->
+    <!-- ================================================================ -->
+    <!-- 3. MUNICIPIOS Y PARROQUIAS                                       -->
+    <!-- ================================================================ -->
     <record id="ve_mun_am_atures" model="l10n_ve.municipality">
         <field name="name">Atures (Puerto Ayacucho)</field>
         <field name="code">AM-ATU</field>
