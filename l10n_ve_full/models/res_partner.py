@@ -80,17 +80,15 @@ class ResPartner(models.Model):
     l10n_ve_municipality_id = fields.Many2one(
         comodel_name='l10n_ve.municipality',
         string='Municipio',
-        domain="[('state_id', '=', l10n_ve_state_id)]",
     )
     l10n_ve_parish_id = fields.Many2one(
         comodel_name='l10n_ve.parish',
         string='Parroquia',
-        domain="[('municipality_id', '=', l10n_ve_municipality_id)]",
     )
 
     @api.onchange('state_id')
     def _onchange_native_state_id(self):
-        """Sincroniza el estado nativo de Odoo con el catálogo de estados de Venezuela."""
+        """Sincroniza el estado nativo de Odoo con el catálogo de estados de Venezuela y filtra municipios."""
         if self.state_id:
             ve_state = self.env['l10n_ve.state'].search([
                 '|', ('name', 'ilike', self.state_id.name),
@@ -98,15 +96,35 @@ class ResPartner(models.Model):
             ], limit=1)
             if ve_state:
                 self.l10n_ve_state_id = ve_state
-        else:
-            self.l10n_ve_state_id = False
+                if self.l10n_ve_municipality_id and self.l10n_ve_municipality_id.state_id != ve_state:
+                    self.l10n_ve_municipality_id = False
+                    self.l10n_ve_parish_id = False
+                return {'domain': {'l10n_ve_municipality_id': [('state_id', '=', ve_state.id)]}}
+        return {'domain': {'l10n_ve_municipality_id': []}}
 
     @api.onchange('l10n_ve_municipality_id')
     def _onchange_l10n_ve_municipality_id(self):
-        """Al seleccionar un municipio, autocompleta el estado correspondiente."""
-        if self.l10n_ve_municipality_id and self.l10n_ve_municipality_id.state_id:
-            self.l10n_ve_state_id = self.l10n_ve_municipality_id.state_id
-            if not self.state_id:
+        """Al seleccionar un municipio, autocompleta el estado correspondiente y filtra parroquias."""
+        if self.l10n_ve_municipality_id:
+            if self.l10n_ve_municipality_id.state_id:
+                self.l10n_ve_state_id = self.l10n_ve_municipality_id.state_id
+                st = self.env['res.country.state'].search([
+                    ('name', 'ilike', self.l10n_ve_municipality_id.state_id.name)
+                ], limit=1)
+                if st:
+                    self.state_id = st
+            if self.l10n_ve_parish_id and self.l10n_ve_parish_id.municipality_id != self.l10n_ve_municipality_id:
+                self.l10n_ve_parish_id = False
+            return {'domain': {'l10n_ve_parish_id': [('municipality_id', '=', self.l10n_ve_municipality_id.id)]}}
+        return {'domain': {'l10n_ve_parish_id': []}}
+
+    @api.onchange('l10n_ve_parish_id')
+    def _onchange_l10n_ve_parish_id(self):
+        """Al seleccionar una parroquia, autocompleta municipio y estado."""
+        if self.l10n_ve_parish_id and self.l10n_ve_parish_id.municipality_id:
+            self.l10n_ve_municipality_id = self.l10n_ve_parish_id.municipality_id
+            if self.l10n_ve_municipality_id.state_id:
+                self.l10n_ve_state_id = self.l10n_ve_municipality_id.state_id
                 st = self.env['res.country.state'].search([
                     ('name', 'ilike', self.l10n_ve_municipality_id.state_id.name)
                 ], limit=1)

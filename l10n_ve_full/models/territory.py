@@ -147,6 +147,14 @@ class L10nVeParish(models.Model):
     )
     active = fields.Boolean(default=True)
 
+    @api.depends('name', 'municipality_id.name')
+    def _compute_display_name(self):
+        for rec in self:
+            if rec.municipality_id:
+                rec.display_name = f"{rec.name} ({rec.municipality_id.name})"
+            else:
+                rec.display_name = rec.name
+
     def name_get(self):
         return [
             (rec.id, f'{rec.municipality_id.name} / {rec.name}' if rec.municipality_id else rec.name)
