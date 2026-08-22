@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Wizard Reporte Patente Municipal -->
+    <record id="view_municipal_tax_wizard_form" model="ir.ui.view">
+        <field name="name">l10n_ve.municipal.tax.wizard.form</field>
+        <field name="model">l10n_ve.municipal.tax.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Reporte de Patente Municipal (Actividades Económicas)">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                        </group>
+                        <group>
+                            <field name="date_from"/>
+                            <field name="date_to"/>
+                        </group>
+                    </group>
+                </sheet>
+                <footer>
+                    <button name="action_print_report" string="Imprimir Reporte" type="object" class="btn-primary"/>
+                    <button string="Cancelar" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_municipal_tax_wizard" model="ir.actions.act_window">
+        <field name="name">Reporte de Patente Municipal</field>
+        <field name="res_model">l10n_ve.municipal.tax.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+    <!-- Wizard Reporte ARCV -->
+    <record id="view_arcv_report_wizard_form" model="ir.ui.view">
+        <field name="name">l10n_ve.arcv.report.wizard.form</field>
+        <field name="model">l10n_ve.arcv.report.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Comprobante Anual de Retenciones de ISLR (AR-CV)">
+                <sheet>
+                    <div class="alert alert-info" role="alert">
+                        <strong>Comprobante Oficial AR-CV:</strong> Emite la relación anual de retenciones de ISLR acumuladas para el proveedor seleccionado.
+                    </div>
+                    <group>
+                        <group>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                            <field name="partner_id" options="{'no_create': True}"/>
+                        </group>
+                        <group>
+                            <field name="fiscal_year"/>
+                        </group>
+                    </group>
+                </sheet>
+                <footer>
+                    <button name="action_print_arcv" string="Generar Comprobante ARCV" type="object" class="btn-primary"/>
+                    <button string="Cancelar" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_arcv_report_wizard" model="ir.actions.act_window">
+        <field name="name">Reporte ARCV</field>
+        <field name="res_model">l10n_ve.arcv.report.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+    <!-- Wizard Libro de Inventario -->
+    <record id="view_inventory_book_wizard_form" model="ir.ui.view">
+        <field name="name">l10n_ve.inventory.book.wizard.form</field>
+        <field name="model">l10n_ve.inventory.book.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Reporte de Libro de Inventario Valorado">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                            <field name="date_to"/>
+                        </group>
+                        <group>
+                            <field name="category_ids" widget="many2many_tags"/>
+                        </group>
+                    </group>
+                </sheet>
+                <footer>
+                    <button name="action_print_inventory_book" string="Generar Libro de Inventario" type="object" class="btn-primary"/>
+                    <button string="Cancelar" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_inventory_book_wizard" model="ir.actions.act_window">
+        <field name="name">Libro de Inventario</field>
+        <field name="res_model">l10n_ve.inventory.book.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+    <!-- Wizard Diferencial Cambiario en Ventas -->
+    <record id="view_rate_difference_wizard_form" model="ir.ui.view">
+        <field name="name">l10n_ve.rate.difference.wizard.form</field>
+        <field name="model">l10n_ve.rate.difference.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Reporte de Diferencial Cambiario en Ventas vs Compras">
+                <sheet>
+                    <div class="alert alert-info" role="alert">
+                        <strong>Diferencial Cambiario:</strong> Compara la tasa de compra del producto vs la tasa de venta al cliente para calcular la ganancia o pérdida por tasa de cambio.
+                    </div>
+                    <group>
+                        <group>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                        </group>
+                        <group>
+                            <field name="date_from"/>
+                            <field name="date_to"/>
+                        </group>
+                    </group>
+                </sheet>
+                <footer>
+                    <button name="action_generate_report" string="Ver Diferencial Cambiario" type="object" class="btn-primary"/>
+                    <button string="Cancelar" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_rate_difference_wizard" model="ir.actions.act_window">
+        <field name="name">Diferencial Cambiario en Ventas</field>
+        <field name="res_model">l10n_ve.rate.difference.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+</odoo>

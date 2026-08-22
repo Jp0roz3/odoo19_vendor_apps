@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Extensión de Formularios de Transferencias/Albaranes para Guías de Despacho SENIAT -->
+    <record id="view_picking_form_l10n_ve_delivery_guide" model="ir.ui.view">
+        <field name="name">stock.picking.form.l10n_ve.delivery.guide</field>
+        <field name="model">stock.picking</field>
+        <field name="inherit_id" ref="stock.view_picking_form"/>
+        <field name="arch" type="xml">
+            <!-- Botón Asignar Número de Control en Encabezado -->
+            <xpath expr="//header" position="inside">
+                <button name="action_assign_delivery_guide_control"
+                        string="Asignar N° Control Guía"
+                        type="object"
+                        class="btn-secondary"
+                        invisible="state == 'draft' or l10n_ve_control_number"/>
+            </xpath>
+
+            <!-- Pestaña Guía de Despacho SENIAT (Providencia 00071) -->
+            <xpath expr="//notebook" position="inside">
+                <page string="Guía de Despacho SENIAT" name="l10n_ve_delivery_guide_tab">
+                    <group>
+                        <group string="Control Fiscal SENIAT (Providencia 00071)">
+                            <field name="l10n_ve_is_delivery_guide"/>
+                            <field name="l10n_ve_delivery_guide_number"/>
+                            <field name="l10n_ve_control_number"/>
+                            <field name="l10n_ve_transport_reason"/>
+                            <field name="l10n_ve_transport_route"/>
+                        </group>
+                        <group string="Datos del Transporte y Conductor">
+                            <field name="l10n_ve_driver_name"/>
+                            <field name="l10n_ve_driver_vat"/>
+                            <field name="l10n_ve_vehicle_plate"/>
+                            <field name="l10n_ve_vehicle_model"/>
+                        </group>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+</odoo>

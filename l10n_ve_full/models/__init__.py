@@ -23,7 +23,9 @@ from . import res_config_settings  # extensión de ajustes (relaciona campos de 
 from . import account_journal      # extensión del diario (dashboard bimoneda dual)
 from . import product_template     # extensión de productos (precios duales Bs/USD)
 from . import account_report       # extensión de reportes contables bimoneda dual
+from . import control_number_sequence  # gestión de talonarios y secuencias de control fiscal
 
-# Importar extensión de ventas únicamente si el módulo de ventas de Odoo está presente
-if 'odoo.addons.sale' in sys.modules:
-    from . import sale_order
+# Extensiones opcionales
+from . import sale_order
+from . import purchase_order
+from . import stock_picking

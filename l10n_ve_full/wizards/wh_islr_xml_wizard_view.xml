@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_wh_islr_xml_wizard_form" model="ir.ui.view">
+        <field name="name">l10n_ve.wh.islr.xml.wizard.form</field>
+        <field name="model">l10n_ve.wh.islr.xml.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Generar XML Retenciones ISLR (SENIAT)">
+                <sheet>
+                    <div class="alert alert-info" role="alert">
+                        <strong>Estructura Oficial SENIAT v1.0:</strong> Este asistente genera el archivo <code>.xml</code> de retenciones de ISLR conforme al esquema XSD oficial exigido por el portal del SENIAT.
+                    </div>
+                    <group invisible="state == 'done'">
+                        <group>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                        </group>
+                        <group>
+                            <field name="date_from"/>
+                            <field name="date_to"/>
+                        </group>
+                    </group>
+                    <div invisible="state != 'done'" class="text-center p-3">
+                        <h4><i class="fa fa-check-circle text-success me-2"/>¡Archivo XML de Retenciones ISLR generado con éxito!</h4>
+                        <p class="text-muted">Descarga el archivo para su declaración y carga en el portal del SENIAT:</p>
+                        <div class="mt-3">
+                            <field name="xml_file" filename="xml_filename" widget="binary"/>
+                        </div>
+                    </div>
+                </sheet>
+                <footer>
+                    <button name="action_generate_xml" string="Generar Archivo XML" type="object" class="btn-primary" invisible="state == 'done'"/>
+                    <button string="Cerrar" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_wh_islr_xml_wizard" model="ir.actions.act_window">
+        <field name="name">Retenciones XML de ISLR</field>
+        <field name="res_model">l10n_ve.wh.islr.xml.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+</odoo>

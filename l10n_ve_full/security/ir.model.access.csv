@@ -34,3 +34,11 @@ access_account_fiscal_book_wizard_user,account.fiscal.book.wizard user,model_acc
 access_account_wh_iva_wizard_user,account.wh.iva.wizard user,model_account_wh_iva_wizard,l10n_ve_full.group_l10n_ve_manager,1,1,1,1
 access_account_wh_islr_wizard_user,account.wh.islr.wizard user,model_account_wh_islr_wizard,l10n_ve_full.group_l10n_ve_manager,1,1,1,1
 access_account_wh_municipal_wizard_user,account.wh.municipal.wizard user,model_account_wh_municipal_wizard,l10n_ve_full.group_l10n_ve_manager,1,1,1,1
+access_control_sequence_user,l10n_ve.control.sequence user,model_l10n_ve_control_sequence,l10n_ve_full.group_l10n_ve_user,1,0,0,0
+access_control_sequence_admin,l10n_ve.control.sequence admin,model_l10n_ve_control_sequence,l10n_ve_full.group_l10n_ve_admin,1,1,1,1
+access_wh_iva_txt_wizard_user,l10n_ve.wh.iva.txt.wizard user,model_l10n_ve_wh_iva_txt_wizard,l10n_ve_full.group_l10n_ve_user,1,1,1,1
+access_wh_islr_xml_wizard_user,l10n_ve.wh.islr.xml.wizard user,model_l10n_ve_wh_islr_xml_wizard,l10n_ve_full.group_l10n_ve_user,1,1,1,1
+access_municipal_tax_wizard_user,l10n_ve.municipal.tax.wizard user,model_l10n_ve_municipal_tax_wizard,l10n_ve_full.group_l10n_ve_user,1,1,1,1
+access_arcv_report_wizard_user,l10n_ve.arcv.report.wizard user,model_l10n_ve_arcv_report_wizard,l10n_ve_full.group_l10n_ve_user,1,1,1,1
+access_inventory_book_wizard_user,l10n_ve.inventory.book.wizard user,model_l10n_ve_inventory_book_wizard,l10n_ve_full.group_l10n_ve_user,1,1,1,1
+access_rate_difference_wizard_user,l10n_ve.rate.difference.wizard user,model_l10n_ve_rate_difference_wizard,l10n_ve_full.group_l10n_ve_user,1,1,1,1

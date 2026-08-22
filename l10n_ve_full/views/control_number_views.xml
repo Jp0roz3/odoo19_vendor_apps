@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Vista Lista de Talonarios y Secuencias de Control Fiscal -->
+    <record id="view_control_sequence_tree" model="ir.ui.view">
+        <field name="name">l10n_ve.control.sequence.tree</field>
+        <field name="model">l10n_ve.control.sequence</field>
+        <field name="arch" type="xml">
+            <list string="Talonarios y Control Fiscal">
+                <field name="name"/>
+                <field name="document_type"/>
+                <field name="emission_type"/>
+                <field name="prefix"/>
+                <field name="range_from"/>
+                <field name="range_to"/>
+                <field name="current_number"/>
+                <field name="company_id" groups="base.group_multi_company"/>
+                <field name="active"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Vista Formulario de Talonarios de Control Fiscal -->
+    <record id="view_control_sequence_form" model="ir.ui.view">
+        <field name="name">l10n_ve.control.sequence.form</field>
+        <field name="model">l10n_ve.control.sequence</field>
+        <field name="arch" type="xml">
+            <form string="Talonario de Control Fiscal SENIAT">
+                <sheet>
+                    <div class="oe_title">
+                        <label for="name" string="Nombre del Talonario / Rango"/>
+                        <h1><field name="name" placeholder="Ej: Talonario Facturas Forma Libre 2026"/></h1>
+                    </div>
+                    <group>
+                        <group string="Configuración de Secuencia">
+                            <field name="company_id" groups="base.group_multi_company"/>
+                            <field name="document_type"/>
+                            <field name="emission_type"/>
+                            <field name="active"/>
+                        </group>
+                        <group string="Rango de Números de Control">
+                            <field name="prefix"/>
+                            <field name="range_from"/>
+                            <field name="range_to"/>
+                            <field name="current_number"/>
+                        </group>
+                    </group>
+                    <group string="Datos de la Imprenta Digital / Autorizada">
+                        <group>
+                            <field name="printer_name"/>
+                            <field name="printer_vat"/>
+                        </group>
+                        <group>
+                            <field name="seniat_authorization_number"/>
+                            <field name="authorization_date"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_control_sequence" model="ir.actions.act_window">
+        <field name="name">Números de Control Fiscal</field>
+        <field name="res_model">l10n_ve.control.sequence</field>
+        <field name="view_mode">list,form</field>
+    </record>
+</odoo>

@@ -3,12 +3,14 @@
 Venezuela360: Extensión de account.move
 =========================================
 Añade a todas las facturas, notas de crédito/débito y asientos:
-- Tasa BCV histórica vinculada al documento
+- Selector de tipo de tasa: Tasa Oficial BCV, Tasa Personalizada o Acuerdo Comercial
+- Tasa BCV / Personalizada histórica vinculada al documento
+- Propagación automática de tasas desde ventas y compras
 - Montos en Bs y en USD con equivalencia automática
+- Botón para emisión de Notas de Débito
 - Referencia a la Unidad Tributaria vigente en la fecha
 - Estado de retenciones (IVA, ISLR, Municipal)
-- Número de documento fiscal venezolano
-- Visibilidad completa de doble moneda en pantalla y reportes
+- Número de documento fiscal y control venezolano (00-XXXXXXXX)
 
 Autor: JeanPerozo / Nubelco
 """
@@ -39,15 +41,33 @@ class AccountMove(models.Model):
     ], string='Medio de Emisión', default='free_format', help='Medio de emisión del documento fiscal.')
 
     # ------------------------------------------------------------------
+    # Tipo de Tasa de Cambio y Tasa Aplicada (Requerimiento 1)
+    # ------------------------------------------------------------------
+    l10n_ve_rate_type = fields.Selection([
+        ('bcv', 'Tasa Oficial BCV'),
+        ('custom', 'Tasa Personalizada'),
+        ('commercial', 'Acuerdo Comercial'),
+    ], string='Tipo de Tasa de Cambio', default='bcv', copy=True, tracking=True,
+       help='Selecciona si el documento usará la tasa oficial BCV del día, una tasa personalizada o un acuerdo comercial.')
+
+    l10n_ve_rate_applied = fields.Float(
+        string='Tasa Aplicada (Bs/USD)',
+        digits=(18, 6),
+        compute='_compute_ve_rate_applied',
+        inverse='_inverse_ve_rate_applied',
+        store=True,
+        copy=True,
+        tracking=True,
+        help='Tasa de cambio efectiva utilizada para las conversiones del documento.',
+    )
+
+    # ------------------------------------------------------------------
     # Tasa de cambio BCV
     # ------------------------------------------------------------------
     l10n_ve_exchange_rate_id = fields.Many2one(
         comodel_name='l10n_ve.exchange.rate',
         string='Tasa BCV del Documento',
-        help=(
-            'Tasa oficial BCV usada para la conversión BS/USD en este documento. '
-            'Se asigna automáticamente desde el histórico de tasas al confirmar la fecha.'
-        ),
+        help='Tasa oficial BCV usada para la conversión BS/USD en este documento.',
         copy=False,
         tracking=True,
     )
@@ -57,7 +77,7 @@ class AccountMove(models.Model):
         compute='_compute_ve_rate',
         store=True,
         copy=False,
-        help='Valor numérico de la tasa BCV usada. Calculado desde l10n_ve_exchange_rate_id.',
+        help='Valor numérico de la tasa BCV oficial.',
     )
     l10n_ve_rate_date = fields.Date(
         string='Fecha de Tasa BCV',
@@ -199,7 +219,7 @@ class AccountMove(models.Model):
     )
 
     # ------------------------------------------------------------------
-    # Documento fiscal venezolano
+    # Documento fiscal venezolano y Control SENIAT
     # ------------------------------------------------------------------
     l10n_ve_fiscal_number = fields.Char(
         string='Número Fiscal (SENIAT)',
@@ -285,7 +305,23 @@ class AccountMove(models.Model):
     )
 
     # ------------------------------------------------------------------
-    # Compute: tasa de cambio desde registro histórico
+    # Compute: Tasa Aplicada (BCV vs Personalizada vs Comercial)
+    # ------------------------------------------------------------------
+    @api.depends('l10n_ve_rate_type', 'l10n_ve_rate', 'l10n_ve_exchange_rate_id',
+                 'invoice_date', 'date', 'company_id')
+    def _compute_ve_rate_applied(self):
+        for move in self:
+            if move.l10n_ve_rate_type == 'bcv' or not move.l10n_ve_rate_applied:
+                move.l10n_ve_rate_applied = move.l10n_ve_rate or 1.0
+
+    def _inverse_ve_rate_applied(self):
+        for move in self:
+            # Si el usuario edita manualmente la tasa aplicada, el tipo pasa a personalizada si era bcv
+            if move.l10n_ve_rate_type == 'bcv' and move.l10n_ve_rate_applied != move.l10n_ve_rate:
+                move.l10n_ve_rate_type = 'custom'
+
+    # ------------------------------------------------------------------
+    # Compute: tasa de cambio desde registro histórico BCV
     # ------------------------------------------------------------------
     @api.depends('l10n_ve_exchange_rate_id', 'l10n_ve_exchange_rate_id.rate',
                  'invoice_date', 'date', 'company_id')
@@ -306,7 +342,7 @@ class AccountMove(models.Model):
 
             rate_val = rate_rec.rate if rate_rec and rate_rec.rate > 0 else 0.0
             if not rate_val or rate_val == 1.0:
-                rate_val = move.company_id.get_current_bcv_rate() or 775.3356
+                rate_val = move.company_id.get_current_bcv_rate() or 779.9522
 
             move.l10n_ve_rate = rate_val
             move.l10n_ve_rate_date = rate_rec.date if rate_rec else doc_date
@@ -314,15 +350,14 @@ class AccountMove(models.Model):
                 self.env['l10n_ve.exchange.rate']._fields['source'].selection
             ).get(rate_rec.source if rate_rec else 'bcv', 'BCV')
 
-
     # ------------------------------------------------------------------
-    # Compute: montos duales BS/USD
+    # Compute: montos duales BS/USD con tasa aplicada
     # ------------------------------------------------------------------
     @api.depends('amount_untaxed', 'amount_tax', 'amount_total',
-                 'l10n_ve_rate', 'currency_id', 'company_id.l10n_ve_currency_bs_id')
+                 'l10n_ve_rate_applied', 'l10n_ve_rate', 'currency_id', 'company_id.l10n_ve_currency_bs_id')
     def _compute_ve_amounts(self):
         for move in self:
-            rate = move.l10n_ve_rate
+            rate = move.l10n_ve_rate_applied or move.l10n_ve_rate or 1.0
             bs_currency = move.company_id.l10n_ve_currency_bs_id
             # Si el documento ya está en Bs, no convertir
             if move.currency_id == bs_currency and bs_currency:
@@ -333,7 +368,7 @@ class AccountMove(models.Model):
                 move.l10n_ve_amount_tax_usd = round(move.amount_tax / rate, 4) if rate else 0.0
                 move.l10n_ve_amount_total_usd = round(move.amount_total / rate, 4) if rate else 0.0
             else:
-                # Documento en USD → convertir a Bs
+                # Documento en USD → convertir a Bs con tasa aplicada
                 move.l10n_ve_amount_untaxed_usd = move.amount_untaxed
                 move.l10n_ve_amount_tax_usd = move.amount_tax
                 move.l10n_ve_amount_total_usd = move.amount_total
@@ -371,10 +406,11 @@ class AccountMove(models.Model):
     # Compute: totales de retención en Bs y USD
     # ------------------------------------------------------------------
     @api.depends('l10n_ve_wh_iva_ids.amount_bs', 'l10n_ve_wh_iva_ids.state',
-                 'l10n_ve_wh_islr_ids.amount_bs', 'l10n_ve_wh_municipal_ids.amount_bs')
+                 'l10n_ve_wh_islr_ids.amount_bs', 'l10n_ve_wh_municipal_ids.amount_bs',
+                 'l10n_ve_rate_applied', 'l10n_ve_rate')
     def _compute_wh_totals(self):
         for move in self:
-            rate = move.l10n_ve_rate or 1.0
+            rate = move.l10n_ve_rate_applied or move.l10n_ve_rate or 1.0
             wh_iva_bs = sum(
                 wh.amount_bs for wh in move.l10n_ve_wh_iva_ids if wh.state != 'cancel'
             )
@@ -386,6 +422,39 @@ class AccountMove(models.Model):
             move.l10n_ve_wh_municipal_total_bs = sum(
                 wh.amount_bs for wh in move.l10n_ve_wh_municipal_ids if wh.state != 'cancel'
             )
+
+    # ------------------------------------------------------------------
+    # Emisión de Nota de Débito (Requerimiento 8)
+    # ------------------------------------------------------------------
+    def action_create_debit_note(self):
+        """Abre el wizard o crea una Nota de Débito vinculada a esta factura."""
+        self.ensure_one()
+        action = self.env.ref('account.action_view_account_move_debit_note', raise_if_not_found=False)
+        if action:
+            res = action.read()[0]
+            res['context'] = {
+                'default_move_ids': [(6, 0, [self.id])],
+                'default_move_type': 'out_invoice' if self.move_type == 'out_invoice' else 'in_invoice',
+            }
+            return res
+
+        # Fallback de creación directa de Nota de Débito
+        debit_move = self.copy({
+            'move_type': self.move_type,
+            'debit_origin_id': self.id if hasattr(self, 'debit_origin_id') else False,
+            'ref': _('Nota de Débito para: %s') % (self.name or ''),
+            'invoice_date': fields.Date.context_today(self),
+            'date': fields.Date.context_today(self),
+            'l10n_ve_rate_type': self.l10n_ve_rate_type,
+            'l10n_ve_rate_applied': self.l10n_ve_rate_applied,
+        })
+        return {
+            'type': 'ir.actions.act_window',
+            'name': _('Nota de Débito'),
+            'res_model': 'account.move',
+            'view_mode': 'form',
+            'res_id': debit_move.id,
+        }
 
     # ------------------------------------------------------------------
     # Override: al confirmar la factura, asignar tasa BCV si no está puesta
@@ -403,11 +472,18 @@ class AccountMove(models.Model):
                     else:
                         _logger.warning(
                             'Venezuela360: No se encontró tasa BCV para fecha %s '
-                            'en compañía %s. Asigne la tasa manualmente.',
-                            doc_date, move.company_id.name
+                            'en compañía %s.', doc_date, move.company_id.name
                         )
-        return super().action_post()
+            # Asignar número de control fiscal automático si no existe
+            if move.company_id.l10n_ve_active and not move.l10n_ve_control_number and move.l10n_ve_requires_control:
+                seq = self.env['ir.sequence'].search([
+                    ('code', '=', 'l10n_ve.control_number'),
+                    ('company_id', 'in', [move.company_id.id, False])
+                ], limit=1)
+                if seq:
+                    move.l10n_ve_control_number = seq.next_by_id()
 
+        return super().action_post()
 
     # ------------------------------------------------------------------
     # Acciones de botones stat
@@ -483,16 +559,17 @@ class AccountMove(models.Model):
                 move.l10n_ve_dual_currency_name = 'Bs.'
                 move.l10n_ve_ref_currency_label = 'Bolívares'
 
-    @api.depends('amount_untaxed', 'amount_tax', 'amount_total', 'amount_residual', 'l10n_ve_rate', 'currency_id', 'company_id.l10n_ve_currency_bs_id')
+    @api.depends('amount_untaxed', 'amount_tax', 'amount_total', 'amount_residual',
+                 'l10n_ve_rate_applied', 'l10n_ve_rate', 'currency_id', 'company_id.l10n_ve_currency_bs_id')
     def _compute_ve_dual_totals(self):
         for move in self:
-            rate = move.l10n_ve_rate or 1.0
+            rate = move.l10n_ve_rate_applied or move.l10n_ve_rate or 1.0
             bs_currency = move.company_id.l10n_ve_currency_bs_id
             is_bs = (move.currency_id == bs_currency) or (move.currency_id.name in ['VES', 'VEF', 'VEB'])
             move.l10n_ve_is_usd_document = not is_bs
 
             if is_bs:
-                # Document in Bs -> Ref totals in USD (divide by rate)
+                # Documento en Bs -> Totales ref en USD
                 move.l10n_ve_untaxed_ref = round(move.amount_untaxed / rate, 2) if rate else 0.0
                 move.l10n_ve_tax_ref = round(move.amount_tax / rate, 2) if rate else 0.0
                 move.l10n_ve_total_ref = round(move.amount_total / rate, 2) if rate else 0.0
@@ -504,7 +581,7 @@ class AccountMove(models.Model):
                 move.l10n_ve_total_bs = move.amount_total
                 move.l10n_ve_residual_bs = move.amount_residual
             else:
-                # Document in USD -> Ref totals in Bs (multiply by rate)
+                # Documento en USD -> Totales en Bs con tasa aplicada
                 move.l10n_ve_untaxed_ref = round(move.amount_untaxed, 2)
                 move.l10n_ve_tax_ref = round(move.amount_tax, 2)
                 move.l10n_ve_total_ref = round(move.amount_total, 2)
@@ -575,11 +652,12 @@ class AccountMoveLine(models.Model):
     )
 
     @api.depends('price_unit', 'price_subtotal', 'debit', 'credit', 'amount_residual',
-                 'move_id.l10n_ve_rate', 'move_id.currency_id', 'company_id.currency_id', 'company_id.l10n_ve_currency_bs_id')
+                 'move_id.l10n_ve_rate_applied', 'move_id.l10n_ve_rate',
+                 'move_id.currency_id', 'company_id.currency_id', 'company_id.l10n_ve_currency_bs_id')
     def _compute_ve_line_usd(self):
         for line in self:
             move = line.move_id
-            rate = move.l10n_ve_rate or 1.0
+            rate = move.l10n_ve_rate_applied or move.l10n_ve_rate or 1.0
             line.l10n_ve_rate_display = rate
 
             bs_currency = line.company_id.l10n_ve_currency_bs_id
@@ -596,19 +674,14 @@ class AccountMoveLine(models.Model):
 
             # Débito / Crédito en USD y Bs
             if comp_currency == bs_currency or comp_currency.name in ['VES', 'VEF', 'VEB']:
-                # Moneda de la empresa es Bs.
                 line.l10n_ve_debit_bs = line.debit
                 line.l10n_ve_credit_bs = line.credit
                 line.l10n_ve_debit_usd = round(line.debit / rate, 2) if rate else 0.0
                 line.l10n_ve_credit_usd = round(line.credit / rate, 2) if rate else 0.0
                 line.l10n_ve_amount_residual_bs = line.amount_residual
             else:
-                # Moneda de la empresa es USD
                 line.l10n_ve_debit_usd = line.debit
                 line.l10n_ve_credit_usd = line.credit
                 line.l10n_ve_debit_bs = round(line.debit * rate, 2)
                 line.l10n_ve_credit_bs = round(line.credit * rate, 2)
                 line.l10n_ve_amount_residual_bs = round(line.amount_residual * rate, 2)
-
-
-

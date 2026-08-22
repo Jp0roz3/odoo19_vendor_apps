@@ -3,16 +3,21 @@
     <!--
         Venezuela360: Extensión de Vista de Productos para Precios y Costos Duales
         ==========================================================================
-        Coincidencia exacta con Fotos 2 y 3 compartidas por el usuario:
-          - Formulario:
-            - Precio de Venta (Bs / USD)
-            - Costo (Bs / USD)
+        Estructuración limpia en 2 columnas equilibradas:
+          - Columna 1 (Precios y Venta):
+            - Precio de Venta ($)
+            - Precio de Venta (Bs)
+            - Impuestos de venta
+            - Referencia interna
+            - Código de barras
+          - Columna 2 (Costos y Márgenes):
+            - Costo ($)
+            - Costo (Bs)
             - Margen Ganancia (%)
             - Costo Reposición ($)
-            - Pestaña: Retención ISLR (Concepto de Retención SENIAT)
-          - Kanban:
-            - Precio: XX,XX Bs.
-            - Precio $: $ XX,XX (en texto ROJO 🔴)
+            - Impuestos de compra
+            - Categoría
+          - Pestaña: Retención ISLR (Concepto de Retención SENIAT)
     -->
 
     <!-- Extensión del Formulario de Productos (product.template_form_view) -->
@@ -22,7 +27,7 @@
         <field name="inherit_id" ref="product.product_template_form_view"/>
         <field name="arch" type="xml">
 
-            <!-- Ocultar label y div nativos de Precio de Venta (Imagen 2) -->
+            <!-- Ocultar label y div nativos de Precio de Venta -->
             <xpath expr="//label[@for='list_price']" position="attributes">
                 <attribute name="invisible">1</attribute>
             </xpath>
@@ -30,12 +35,12 @@
                 <attribute name="invisible">1</attribute>
             </xpath>
             <xpath expr="//div[@name='list_price_uom']" position="after">
-                <field name="l10n_ve_list_price_usd" string="Precio de Venta ($)" readonly="0"/>
-                <field name="l10n_ve_list_price_bs" string="Precio de Venta (Bs)" widget="monetary" options="{'currency_field': 'l10n_ve_currency_bs_id'}" readonly="0"/>
+                <field name="l10n_ve_list_price_usd" string="Precio de Venta ($)"/>
+                <field name="l10n_ve_list_price_bs" string="Precio de Venta (Bs)" widget="monetary" options="{'currency_field': 'l10n_ve_currency_bs_id'}"/>
                 <field name="l10n_ve_currency_bs_id" invisible="1"/>
             </xpath>
 
-            <!-- Ocultar label y div nativos de Costo (Imagen 3) -->
+            <!-- Ocultar label y div nativos de Costo -->
             <xpath expr="//label[@for='standard_price']" position="attributes">
                 <attribute name="invisible">1</attribute>
             </xpath>
@@ -43,9 +48,9 @@
                 <attribute name="invisible">1</attribute>
             </xpath>
             <xpath expr="//div[@name='standard_price_uom']" position="after">
-                <field name="l10n_ve_standard_price_usd" string="Costo ($)" readonly="0"/>
-                <field name="l10n_ve_standard_price_bs" string="Costo (Bs)" widget="monetary" options="{'currency_field': 'l10n_ve_currency_bs_id'}" readonly="0"/>
-                <field name="l10n_ve_profit_margin" string="Margen Ganancia (%)" readonly="0"/>
+                <field name="l10n_ve_standard_price_usd" string="Costo ($)"/>
+                <field name="l10n_ve_standard_price_bs" string="Costo (Bs)" widget="monetary" options="{'currency_field': 'l10n_ve_currency_bs_id'}"/>
+                <field name="l10n_ve_profit_margin" string="Margen Ganancia (%)"/>
                 <field name="l10n_ve_replacement_cost_usd" string="Costo Reposición ($)"/>
             </xpath>
 
@@ -78,7 +83,7 @@
         </field>
     </record>
 
-    <!-- Vista Kanban de Productos: Precio en Bs. y Precio $ en ROJO 🔴 (Coincidencia Exacta Foto 3) -->
+    <!-- Vista Kanban de Productos: Precio en Bs. y Precio $ en ROJO 🔴 -->
     <record id="product_template_kanban_view_l10n_ve_dual" model="ir.ui.view">
         <field name="name">product.template.kanban.l10n_ve.dual</field>
         <field name="model">product.template</field>

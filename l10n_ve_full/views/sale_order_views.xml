@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Extensión del Formulario de Pedidos de Venta (sale.order) -->
+    <record id="view_order_form_l10n_ve_dual" model="ir.ui.view">
+        <field name="name">sale.order.form.l10n_ve.dual</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="arch" type="xml">
+            <!-- Selector de Tipo de Tasa en Encabezado (Requerimiento 1) -->
+            <xpath expr="//field[@name='payment_term_id']" position="after">
+                <field name="l10n_ve_rate_type" widget="radio" options="{'horizontal': true}"/>
+                <field name="l10n_ve_rate_applied" string="Tasa BCV Aplicada" digits="[18, 6]"/>
+            </xpath>
+
+            <!-- Totales Referenciales en Bolívares (Requerimiento 2) -->
+            <xpath expr="//field[@name='tax_totals']" position="after">
+                <div invisible="not l10n_ve_is_usd_order" class="w-100 p-2 bg-light border rounded mt-2">
+                    <div class="d-flex justify-content-between align-items-center mb-1 pb-1 border-bottom">
+                        <span class="text-muted small fw-bold">Tasa Aplicada:</span>
+                        <span class="fw-bold text-primary"><field name="l10n_ve_rate_applied" digits="[18,4]" readonly="1" nolabel="1"/> Bs/$</span>
+                    </div>
+                    <table class="table table-sm table-borderless text-end w-100 mb-0">
+                        <tr>
+                            <td class="text-start text-muted py-1"><strong>Subtotal Bs.:</strong></td>
+                            <td class="text-end fw-bold py-1"><field name="l10n_ve_untaxed_bs" nolabel="1"/> Bs.F</td>
+                        </tr>
+                        <tr>
+                            <td class="text-start text-muted py-1"><strong>Impuestos Bs.:</strong></td>
+                            <td class="text-end fw-bold py-1"><field name="l10n_ve_tax_bs" nolabel="1"/> Bs.F</td>
+                        </tr>
+                        <tr class="border-top">
+                            <td class="text-start py-1"><strong>Total Bs.:</strong></td>
+                            <td class="text-end fw-bold py-1 fs-5 text-primary"><field name="l10n_ve_total_bs" nolabel="1"/> Bs.F</td>
+                        </tr>
+                    </table>
+                </div>
+            </xpath>
+        </field>
+    </record>
+</odoo>

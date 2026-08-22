@@ -1,40 +1,36 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'Venezuela360: Localización Completa',
-    'version': '19.0.1.1.0',
+    'version': '19.0.1.2.0',
     'category': 'Accounting/Localizations',
     'summary': (
         'Localización fiscal, contable y tributaria completa para Venezuela: '
-        'retenciones IVA/ISLR/Municipal, libros fiscales, Unidad Tributaria histórica, '
-        'territorialidad (estados/municipios/parroquias), doble moneda BS/USD con tasa BCV.'
+        'retenciones IVA/ISLR/Municipal, reportes SENIAT (TXT IVA, XML ISLR, ARCV, Patente), '
+        'libros fiscales, Unidad Tributaria histórica, territorialidad, '
+        'doble moneda BS/USD con tasa BCV / Personalizada / Comercial y Guías de Despacho.'
     ),
     'description': """
 Venezuela360: Localización Completa
 =====================================
-Módulo de localización venezolana integral para Odoo 19, desarrollado con estándares de producción.
+Módulo de localización venezolana integral para Odoo 19 Enterprise y Community.
 
 Funcionalidades principales:
 -----------------------------
-- 💱 **Tasa BCV histórica**: Registro diario, trazabilidad completa, visible en todos los documentos.
-- 💰 **Contabilidad Dual BS/USD**: Facturas, asientos, pagos y reportes con equivalencia automática.
-- 🧾 **Retención de IVA**: Cálculo automático (75% / 100%), comprobante PDF, libro de retenciones.
-- 📊 **Retención de ISLR**: Por concepto/tabla SENIAT, cálculo por sustraendo o UT, comprobante PDF.
-- 🏛️ **Retención Municipal**: Por actividad económica y municipio, exportable.
-- 📚 **Libros Fiscales**: Compras y ventas con exportación PDF / Excel / TXT / XML.
-- 📐 **Unidad Tributaria Histórica**: Valor vigente por fecha, usado en cálculo de retenciones.
-- 🗺️ **Territorialidad Venezolana**: 24 estados, municipios, parroquias vinculadas a contactos y fiscal.
-- 🔢 **Numeración Fiscal**: Control de correlativo y documentos fiscales por compañía.
-- ⚙️ **Multi-compañía**: Configuración independiente por empresa con soporte de múltiples monedas.
-
-Compatibilidad:
----------------
-- Odoo 19 Community & Enterprise
-- Python 3.12+
-- PostgreSQL 15+
+- 💱 **Tasa BCV y Multi-Tasa**: Tasa Oficial BCV, Tasa Personalizada y Acuerdo Comercial en Ventas, Compras y Facturas con propagación automática.
+- 💰 **Contabilidad Dual BS/USD**: Facturas, pedidos, asientos, pagos y reportes con equivalencia y totales en moneda referencial.
+- 🧾 **Retención de IVA**: Cálculo automático (75% / 100%), comprobante PDF y generador de archivo TXT reglamentario SENIAT de 14 campos.
+- 📊 **Retención de ISLR**: Por concepto/tabla SENIAT, comprobante PDF y generador de archivo XML oficial SENIAT v1.0.
+- 📜 **Reporte AR-CV**: Comprobante anual acumulado de retenciones de ISLR para beneficiarios.
+- 🏛️ **Patente Municipal (IAE)**: Retenciones por clasificador de actividad económica municipal y reporte para alcaldías.
+- 📦 **Guías de Despacho**: Formato oficial SENIAT según Providencia Administrativa 00071 con número de control y transportista.
+- 📑 **Factura Forma Libre**: Formato legal pre-impreso y digital con número de control, datos de imprenta y desglose dual.
+- 🔴 **Notas de Débito**: Emisión directa de notas de débito de cliente y proveedor.
+- 📚 **Libros Fiscales e Inventario**: Libros de compras, ventas y libro de inventario y balances valorado.
+- 📈 **Diferencial Cambiario**: Reporte de ganancia/pérdida cambiaria en inventario y ventas.
+- 🔢 **Talonarios y Control Fiscal**: Gestión de secuencias de control (00-XXXXXXXX) y datos de imprenta autorizada.
+- 🗺️ **Territorialidad Venezolana**: 24 estados, municipios y parroquias.
 
 Autor: JeanPerozo / Nubelco
-Sitio web: https://www.nubelco.com
-Soporte: soporte@nubelco.com
     """,
     'author': 'JeanPerozo / Nubelco',
     'website': 'https://www.nubelco.com',
@@ -44,6 +40,9 @@ Soporte: soporte@nubelco.com
         'account',
         'mail',
         'product',
+        'sale',
+        'purchase',
+        'stock',
     ],
     'data': [
         # Seguridad
@@ -61,8 +60,9 @@ Soporte: soporte@nubelco.com
         # Vistas: configuración
         'views/res_config_settings_views.xml',
 
-        # Vistas: tasa BCV
+        # Vistas: tasa BCV y control
         'views/exchange_rate_views.xml',
+        'views/control_number_views.xml',
 
         # Vistas: Unidad Tributaria
         'views/ut_history_views.xml',
@@ -74,12 +74,15 @@ Soporte: soporte@nubelco.com
         'views/res_partner_views.xml',
         'views/product_views.xml',
 
-        # Vistas: documentos contables
+        # Vistas: documentos contables y comerciales
         'views/account_move_views.xml',
         'views/account_payment_views.xml',
         'views/account_tax_views.xml',
         'views/account_journal_dashboard_views.xml',
         'views/account_report_bimoneda_views.xml',
+        'views/sale_order_views.xml',
+        'views/purchase_order_views.xml',
+        'views/stock_picking_views.xml',
 
         # Vistas: retenciones
         'views/withholding_iva_views.xml',
@@ -95,12 +98,18 @@ Soporte: soporte@nubelco.com
         'wizards/wh_iva_wizard_view.xml',
         'wizards/wh_islr_wizard_view.xml',
         'wizards/wh_municipal_wizard_view.xml',
+        'wizards/wh_iva_txt_wizard_view.xml',
+        'wizards/wh_islr_xml_wizard_view.xml',
+        'wizards/other_seniat_wizards_view.xml',
 
-        # Reportes
+        # Reportes QWeb
         'reports/report_wh_iva.xml',
         'reports/report_wh_islr.xml',
         'reports/report_wh_municipal.xml',
         'reports/report_fiscal_book.xml',
+        'reports/report_invoice_forma_libre.xml',
+        'reports/report_delivery_guide.xml',
+        'reports/report_arcv.xml',
 
         # Menús y acciones (siempre al final)
         'views/menuitems.xml',
