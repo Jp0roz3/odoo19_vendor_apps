@@ -2,12 +2,12 @@
 /**
  * Venezuela360: Selector Bimoneda [💵 Moneda: $ / Bs.F] en Reportes Financieros
  * ==============================================================================
- * Conecta el selector de moneda interactivo con los reportes contables:
- *   - Balance General (Balance Sheet)
- *   - Estado de Resultados / Ganancias y Pérdidas (Profit and Loss)
- *   - Estado de Flujo de Efectivo (Cash Flow)
- *   - Resumen Ejecutivo (Executive Summary)
- *   - Declaración Fiscal / Reporte de Impuestos (Tax Report)
+ * Conecta el selector de moneda interactivo con los 5 Reportes Contables autorizados:
+ *   1. Balance General (Balance Sheet)
+ *   2. Estado de Resultados / Ganancias y Pérdidas (Profit and Loss)
+ *   3. Estado de Flujo de Efectivo (Cash Flow)
+ *   4. Resumen Ejecutivo (Executive Summary)
+ *   5. Declaración Fiscal / Reporte de Impuestos (Tax Report)
  *
  * Moneda Principal por Defecto: Dólares ($ / USD)
  * Moneda Secundaria Bimoneda: Bolívares (Bs.F) a Tasa Oficial BCV
@@ -59,13 +59,13 @@ function extractBcvRate() {
     return currentBcvRate;
 }
 
-// Formateador estándar de moneda venezolana e internacional
+// Formateador estándar de moneda venezolana e internacional (Separador de miles punto, decimal coma)
 function formatNumberVE(value) {
     if (isNaN(value)) return "0,00";
+    const sign = value < 0 ? "-" : "";
     const parts = Math.abs(value).toFixed(2).split(".");
     parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-    const formatted = parts.join(",");
-    return value < 0 ? `-${formatted}` : formatted;
+    return `${sign}${parts[0]},${parts[1]}`;
 }
 
 // Transformar celdas de la tabla del reporte activo
@@ -75,22 +75,34 @@ function transformReportTableCells(currency) {
 
     try {
         const rate = extractBcvRate();
-        const table = document.querySelector(".o_account_reports_table, .o_account_report_table, table.o_report_table");
-        if (!table) {
+        
+        // Seleccionar todas las celdas de tabla en el cuerpo del reporte
+        const cells = document.querySelectorAll(
+            ".o_account_reports_page td, .o_account_reports_body td, .o_account_report td, table.o_report_table td, .o_content table td, td.number, td.text-end, td.o_account_report_column_value, .o_account_report_cell_value"
+        );
+
+        if (!cells || cells.length === 0) {
             isTransforming = false;
             return;
         }
 
-        const cells = table.querySelectorAll("td.number, td.o_account_report_cell, td.o_account_reports_domain_cell, span.o_account_report_column_value, .o_account_report_cell_value");
-
         cells.forEach((cell) => {
-            if (cell.classList.contains("o_account_report_name")) return;
+            // Ignorar la columna izquierda (nombre de cuenta / etiqueta)
+            if (cell.classList.contains("o_account_report_name") || cell.classList.contains("o_account_report_line_name")) return;
+            
+            // Ignorar celdas que son solo iconos o botones sin dígitos
+            const rawText = (cell.textContent || "").trim();
+            if (!/\d/.test(rawText)) return;
 
             let origVal = cell.getAttribute("data-original-usd-val");
-            const text = (cell.textContent || "").trim();
 
             if (origVal === null) {
-                const cleanStr = text.replace(/[\$\s]/g, "").replace(/\./g, "").replace(/,/g, ".");
+                // Parsear formato europeo/venezolano: ej: "2.152,00" -> 2152.00, "-2.342,29" -> -2342.29
+                const cleanStr = rawText
+                    .replace(/[^\d\.,\-]/g, "")
+                    .replace(/\.(?=\d{3})/g, "")
+                    .replace(/,/g, ".");
+
                 const num = parseFloat(cleanStr);
                 if (!isNaN(num)) {
                     origVal = String(num);
@@ -106,6 +118,9 @@ function transformReportTableCells(currency) {
                         const inBs = baseUSD * rate;
                         cell.innerText = formatNumberVE(inBs);
                         cell.style.fontWeight = "bold";
+                        if (baseUSD < 0) {
+                            cell.style.color = "#dc3545";
+                        }
                     } else {
                         const origHTML = cell.getAttribute("data-original-usd-html");
                         if (origHTML) {
@@ -114,6 +129,9 @@ function transformReportTableCells(currency) {
                             cell.innerText = formatNumberVE(baseUSD);
                         }
                         cell.style.fontWeight = "";
+                        if (baseUSD >= 0) {
+                            cell.style.color = "";
+                        }
                     }
                 }
             }
@@ -128,7 +146,7 @@ function transformReportTableCells(currency) {
 // Observador continuo para formatear nuevas filas que se expandan (Lazy Loading / Cuentas Hijas)
 function setupTableObserver() {
     if (tableObserver) return;
-    const table = document.querySelector(".o_account_reports_table, .o_account_report_table, .o_account_reports_body");
+    const table = document.querySelector(".o_account_reports_table, .o_account_report_table, .o_account_reports_body, .o_account_reports_page, .o_content");
     if (!table) return;
 
     tableObserver = new MutationObserver((mutations) => {
@@ -137,7 +155,7 @@ function setupTableObserver() {
         for (const mut of mutations) {
             if (mut.addedNodes.length > 0) {
                 for (const node of mut.addedNodes) {
-                    if (node.nodeType === 1 && (node.tagName === "TR" || node.querySelector?.("td.number, td.o_account_report_cell"))) {
+                    if (node.nodeType === 1 && (node.tagName === "TR" || node.querySelector?.("td"))) {
                         shouldTransform = true;
                         break;
                     }
@@ -146,54 +164,15 @@ function setupTableObserver() {
             if (shouldTransform) break;
         }
 
-        if (shouldTransform) {
+        if (shouldTransform && currentSelectedCurrency === "bs") {
             clearTimeout(observerDebounce);
             observerDebounce = setTimeout(() => {
-                transformReportTableCells(currentSelectedCurrency);
+                transformReportTableCells("bs");
             }, 60);
         }
     });
 
     tableObserver.observe(table, { childList: true, subtree: true });
-}
-
-// Recargar el reporte llamando al backend
-async function triggerReportReload(reportComp, currency) {
-    if (!reportComp) return;
-
-    const options = reportComp.options || reportComp.props?.options || {};
-    options.l10n_ve_currency = currency;
-    options.l10n_ve_rate = extractBcvRate();
-
-    const reportId = reportComp.props?.reportId 
-        || reportComp.props?.action?.context?.report_id 
-        || options.report_id 
-        || reportComp.reportId;
-
-    if (reportComp.env?.services?.orm && reportId) {
-        try {
-            const info = await reportComp.env.services.orm.call(
-                "account.report",
-                "get_report_information",
-                [reportId, options]
-            );
-            if (info && info.lines) {
-                if (reportComp.controller) {
-                    reportComp.controller.lines = info.lines;
-                    reportComp.controller.options = info.options || options;
-                }
-                reportComp.lines = info.lines;
-                reportComp.options = info.options || options;
-
-                if (typeof reportComp.render === "function") {
-                    reportComp.render(true);
-                    setTimeout(() => transformReportTableCells(currency), 50);
-                }
-            }
-        } catch (eA) {
-            console.warn("[Venezuela360] ORM reload notice:", eA);
-        }
-    }
 }
 
 // Parchear componentes de reportes contables para capturar la instancia activa
@@ -210,7 +189,8 @@ function ensureAccountReportPatched() {
                     window.__activeAccountReport = this;
                 },
                 async setL10nVeCurrency(currency) {
-                    await triggerReportReload(this, currency);
+                    currentSelectedCurrency = currency;
+                    transformReportTableCells(currency);
                 },
             });
         }
@@ -232,12 +212,13 @@ function injectCurrencyWidgetToDOM() {
         if (!cp) return;
 
         const cpText = (cp.textContent || "").toLowerCase();
-        const docText = (document.querySelector(".o_account_reports_page, .o_account_reports_body")?.textContent || "").toLowerCase();
+        const docText = (document.querySelector(".o_account_reports_page, .o_account_reports_body, .o_content")?.textContent || "").toLowerCase();
         const isFinancialReport = cpText.includes("pdf") 
             || cpText.includes("xlsx")
             || cpText.includes("balance")
             || cpText.includes("resultados")
             || cpText.includes("ganancias")
+            || cpText.includes("pérdidas")
             || cpText.includes("flujo")
             || cpText.includes("mayor")
             || cpText.includes("ejecutivo")
@@ -339,7 +320,7 @@ function injectCurrencyWidgetToDOM() {
         });
 
         widget.querySelectorAll("[data-curr]").forEach((item) => {
-            item.addEventListener("click", async (e) => {
+            item.addEventListener("click", (e) => {
                 e.preventDefault();
                 e.stopPropagation();
                 menu.style.display = "none";
@@ -365,22 +346,6 @@ function injectCurrencyWidgetToDOM() {
 
                 // Transformar inmediatamente todos los valores en pantalla
                 transformReportTableCells(chosen);
-
-                // Obtener la instancia activa del reporte y sincronizar con el backend
-                let activeReport = window.__activeAccountReport;
-                if (!activeReport) {
-                    const reportNodes = document.querySelectorAll(".o_account_reports_body, .o_account_report, .o_content, .o_action_manager");
-                    for (const node of reportNodes) {
-                        if (node.__owl__ && node.__owl__.component) {
-                            activeReport = node.__owl__.component;
-                            break;
-                        }
-                    }
-                }
-
-                if (activeReport) {
-                    await triggerReportReload(activeReport, chosen);
-                }
             });
         });
 
