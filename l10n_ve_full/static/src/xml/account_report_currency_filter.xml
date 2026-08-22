@@ -10,21 +10,21 @@
                 <i class="fa fa-money me-1" style="color: #0d6efd;"/>
                 <span>Moneda:</span>
                 <span class="ms-1 fw-bold" style="color: #dc3545;">
-                    <t t-if="props and props.options and props.options.l10n_ve_currency === 'usd'">$</t>
+                    <t t-if="props?.options?.l10n_ve_currency === 'usd'">$</t>
                     <t t-else="">Bs.F</t>
                 </span>
             </button>
             <ul class="dropdown-menu dropdown-menu-end shadow" style="min-width: 140px; position: absolute; z-index: 1050;">
                 <li>
                     <a class="dropdown-item d-flex align-items-center gap-2 py-2" href="#" data-currency="bs">
-                        <i t-if="!props or !props.options or props.options.l10n_ve_currency !== 'usd'" class="fa fa-check text-success me-1"/>
+                        <i t-if="props?.options?.l10n_ve_currency !== 'usd'" class="fa fa-check text-success me-1"/>
                         <i t-else="" class="fa fa-fw me-1"/>
                         <span class="fw-bold">Bs.F</span>
                     </a>
                 </li>
                 <li>
                     <a class="dropdown-item d-flex align-items-center gap-2 py-2" href="#" data-currency="usd">
-                        <i t-if="props and props.options and props.options.l10n_ve_currency === 'usd'" class="fa fa-check text-success me-1"/>
+                        <i t-if="props?.options?.l10n_ve_currency === 'usd'" class="fa fa-check text-success me-1"/>
                         <i t-else="" class="fa fa-fw me-1"/>
                         <span class="fw-bold">$</span>
                     </a>
@@ -33,7 +33,7 @@
         </div>
         <span class="badge rounded-pill align-self-center ms-1 me-1 l10n_ve_currency_badge"
               style="background-color: #f1f3f5; color: #495057; font-weight: 600; padding: 6px 10px; font-size: 12px; border: 1px solid #ced4da; display: inline-block;">
-            <t t-if="props and props.options and props.options.l10n_ve_currency === 'usd'">En .$</t>
+            <t t-if="props?.options?.l10n_ve_currency === 'usd'">En .$</t>
             <t t-else="">En .Bs.F</t>
         </span>
     </t>

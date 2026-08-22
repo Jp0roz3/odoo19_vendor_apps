@@ -20,7 +20,7 @@
             <span class="fw-semibold" style="color: #f8c200;">BCV:</span>
 
             <!-- Tasa actual -->
-            <span t-if="!state.loading and !state.error"
+            <span t-if="isLoaded"
                   class="fw-bold"
                   style="color: #ffffff; letter-spacing: 0.3px;">
                 <t t-out="state.rate"/> <span style="color: #adb5bd; font-weight: 400; font-size: 0.78rem;">Bs/$</span>
@@ -34,7 +34,7 @@
             </span>
 
             <!-- Estado: error / sin datos en BD -->
-            <span t-if="!state.loading and state.error"
+            <span t-if="hasError"
                   class="fw-bold"
                   style="color: #dc3545; font-size: 0.78rem;"
                   title="Sin tasa BCV registrada. Haz clic para sincronizar.">

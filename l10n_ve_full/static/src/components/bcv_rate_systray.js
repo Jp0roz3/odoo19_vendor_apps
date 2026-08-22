@@ -36,6 +36,14 @@ export class BcvRateSystray extends Component {
         });
     }
 
+    get isLoaded() {
+        return !this.state.loading && !this.state.error;
+    }
+
+    get hasError() {
+        return !this.state.loading && this.state.error;
+    }
+
     /**
      * Carga la tasa BCV más reciente desde l10n_ve.exchange.rate en la BD.
      * La tasa está en Bs/USD (ej: 779.9522).
