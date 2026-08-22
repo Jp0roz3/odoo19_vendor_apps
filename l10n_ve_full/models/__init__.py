@@ -26,6 +26,10 @@ from . import account_report       # extensión de reportes contables bimoneda d
 from . import control_number_sequence  # gestión de talonarios y secuencias de control fiscal
 
 # Extensiones opcionales
-from . import sale_order
-from . import purchase_order
-from . import stock_picking
+if 'odoo.addons.sale' in sys.modules:
+    from . import sale_order
+if 'odoo.addons.purchase' in sys.modules:
+    from . import purchase_order
+if 'odoo.addons.stock' in sys.modules:
+    from . import stock_picking
+

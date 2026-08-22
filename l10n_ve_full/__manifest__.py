@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'Venezuela360: Localización Completa',
-    'version': '19.0.1.2.0',
+    'version': '19.0.1.3.0',
     'category': 'Accounting/Localizations',
     'summary': (
         'Localización fiscal, contable y tributaria completa para Venezuela: '
         'retenciones IVA/ISLR/Municipal, reportes SENIAT (TXT IVA, XML ISLR, ARCV, Patente), '
         'libros fiscales, Unidad Tributaria histórica, territorialidad, '
-        'doble moneda BS/USD con tasa BCV / Personalizada / Comercial y Guías de Despacho.'
+        'doble moneda BS/USD con tasa BCV / Personalizada / Comercial.'
     ),
     'description': """
 Venezuela360: Localización Completa
@@ -16,13 +16,12 @@ Módulo de localización venezolana integral para Odoo 19 Enterprise y Community
 
 Funcionalidades principales:
 -----------------------------
-- 💱 **Tasa BCV y Multi-Tasa**: Tasa Oficial BCV, Tasa Personalizada y Acuerdo Comercial en Ventas, Compras y Facturas con propagación automática.
-- 💰 **Contabilidad Dual BS/USD**: Facturas, pedidos, asientos, pagos y reportes con equivalencia y totales en moneda referencial.
+- 💱 **Tasa BCV y Multi-Tasa**: Tasa Oficial BCV, Tasa Personalizada y Acuerdo Comercial en Facturas y Asientos con cálculo dual.
+- 💰 **Contabilidad Dual BS/USD**: Facturas, asientos, pagos y reportes con equivalencia y totales en moneda referencial.
 - 🧾 **Retención de IVA**: Cálculo automático (75% / 100%), comprobante PDF y generador de archivo TXT reglamentario SENIAT de 14 campos.
 - 📊 **Retención de ISLR**: Por concepto/tabla SENIAT, comprobante PDF y generador de archivo XML oficial SENIAT v1.0.
 - 📜 **Reporte AR-CV**: Comprobante anual acumulado de retenciones de ISLR para beneficiarios.
 - 🏛️ **Patente Municipal (IAE)**: Retenciones por clasificador de actividad económica municipal y reporte para alcaldías.
-- 📦 **Guías de Despacho**: Formato oficial SENIAT según Providencia Administrativa 00071 con número de control y transportista.
 - 📑 **Factura Forma Libre**: Formato legal pre-impreso y digital con número de control, datos de imprenta y desglose dual.
 - 🔴 **Notas de Débito**: Emisión directa de notas de débito de cliente y proveedor.
 - 📚 **Libros Fiscales e Inventario**: Libros de compras, ventas y libro de inventario y balances valorado.
@@ -40,9 +39,6 @@ Autor: JeanPerozo / Nubelco
         'account',
         'mail',
         'product',
-        'sale',
-        'purchase',
-        'stock',
     ],
     'data': [
         # Seguridad
@@ -74,15 +70,12 @@ Autor: JeanPerozo / Nubelco
         'views/res_partner_views.xml',
         'views/product_views.xml',
 
-        # Vistas: documentos contables y comerciales
+        # Vistas: documentos contables
         'views/account_move_views.xml',
         'views/account_payment_views.xml',
         'views/account_tax_views.xml',
         'views/account_journal_dashboard_views.xml',
         'views/account_report_bimoneda_views.xml',
-        'views/sale_order_views.xml',
-        'views/purchase_order_views.xml',
-        'views/stock_picking_views.xml',
 
         # Vistas: retenciones
         'views/withholding_iva_views.xml',
@@ -108,7 +101,6 @@ Autor: JeanPerozo / Nubelco
         'reports/report_wh_municipal.xml',
         'reports/report_fiscal_book.xml',
         'reports/report_invoice_forma_libre.xml',
-        'reports/report_delivery_guide.xml',
         'reports/report_arcv.xml',
 
         # Menús y acciones (siempre al final)
