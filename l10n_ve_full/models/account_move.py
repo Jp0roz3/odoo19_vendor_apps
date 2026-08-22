@@ -315,9 +315,9 @@ class AccountMove(models.Model):
 
     def _inverse_ve_rate_applied(self):
         for move in self:
-            # Si el usuario edita manualmente la tasa aplicada, el tipo pasa a personalizada si era bcv
+            # Si el usuario edita manualmente la tasa aplicada, el tipo pasa a comercial si era bcv
             if move.l10n_ve_rate_type == 'bcv' and move.l10n_ve_rate_applied != move.l10n_ve_rate:
-                move.l10n_ve_rate_type = 'custom'
+                move.l10n_ve_rate_type = 'commercial'
 
     # ------------------------------------------------------------------
     # Compute: tasa de cambio desde registro histórico BCV
