@@ -175,19 +175,41 @@
     </record>
 
     <!-- Acciones de Ventana para Libros Fiscales -->
-    <record id="action_account_fiscal_book_purchase" model="ir.actions.act_window">
-        <field name="name">Libro de Compra</field>
+    <record id="action_fiscal_book_purchase" model="ir.actions.act_window">
+        <field name="name">Libro Fiscal de Compra</field>
         <field name="res_model">account.fiscal.book</field>
         <field name="view_mode">list,form</field>
         <field name="domain">[('book_type', '=', 'purchase')]</field>
         <field name="context">{'default_book_type': 'purchase'}</field>
     </record>
 
-    <record id="action_account_fiscal_book_sale" model="ir.actions.act_window">
-        <field name="name">Libro de Venta</field>
+    <record id="action_account_fiscal_book_purchase" model="ir.actions.act_window">
+        <field name="name">Libro Fiscal de Compra</field>
+        <field name="res_model">account.fiscal.book</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('book_type', '=', 'purchase')]</field>
+        <field name="context">{'default_book_type': 'purchase'}</field>
+    </record>
+
+    <record id="action_fiscal_book_sale" model="ir.actions.act_window">
+        <field name="name">Libro Fiscal de Venta</field>
         <field name="res_model">account.fiscal.book</field>
         <field name="view_mode">list,form</field>
         <field name="domain">[('book_type', '=', 'sale')]</field>
         <field name="context">{'default_book_type': 'sale'}</field>
+    </record>
+
+    <record id="action_account_fiscal_book_sale" model="ir.actions.act_window">
+        <field name="name">Libro Fiscal de Venta</field>
+        <field name="res_model">account.fiscal.book</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('book_type', '=', 'sale')]</field>
+        <field name="context">{'default_book_type': 'sale'}</field>
+    </record>
+
+    <record id="action_account_fiscal_book" model="ir.actions.act_window">
+        <field name="name">Libros Fiscales</field>
+        <field name="res_model">account.fiscal.book</field>
+        <field name="view_mode">list,form</field>
     </record>
 </odoo>

@@ -66,96 +66,77 @@
     <menuitem id="menu_l10n_ve_seniat_reports_root"
               name="Reportes del Seniat"
               parent="account.menu_finance_reports"
-              sequence="45"
-              groups="l10n_ve_full.group_l10n_ve_user"/>
+              sequence="45"/>
 
-    <!-- 1. Generador TXT IVA -->
+    <!-- 1. Libro Fiscal de Compra -->
+    <menuitem id="menu_fiscal_book_purchase_report"
+              name="Libro Fiscal de Compra"
+              parent="menu_l10n_ve_seniat_reports_root"
+              action="action_account_fiscal_book_purchase"
+              sequence="5"/>
+
+    <!-- 2. Libro Fiscal de Venta -->
+    <menuitem id="menu_fiscal_book_sale_report"
+              name="Libro Fiscal de Venta"
+              parent="menu_l10n_ve_seniat_reports_root"
+              action="action_account_fiscal_book_sale"
+              sequence="6"/>
+
+    <!-- 3. Generador TXT IVA -->
     <menuitem id="menu_report_wh_iva_txt"
               name="Generar TXT IVA"
               parent="menu_l10n_ve_seniat_reports_root"
               action="action_wh_iva_txt_wizard"
-              sequence="10"
-              groups="l10n_ve_full.group_l10n_ve_user"/>
+              sequence="10"/>
 
-    <!-- 2. Generador XML ISLR -->
+    <!-- 4. Generador XML ISLR -->
     <menuitem id="menu_report_wh_islr_xml"
               name="Generar archivo XML"
               parent="menu_l10n_ve_seniat_reports_root"
               action="action_wh_islr_xml_wizard"
-              sequence="20"
-              groups="l10n_ve_full.group_l10n_ve_user"/>
+              sequence="20"/>
 
-    <!-- 3. Listado Retención IVA -->
+    <!-- 5. Listado Retención IVA -->
     <menuitem id="menu_report_wh_iva_list"
               name="Listado Retención IVA"
               parent="menu_l10n_ve_seniat_reports_root"
               action="action_account_wh_iva"
-              sequence="25"
-              groups="l10n_ve_full.group_l10n_ve_user"/>
+              sequence="25"/>
 
-    <!-- 4. Listado Retención ISLR -->
+    <!-- 6. Listado Retención ISLR -->
     <menuitem id="menu_report_wh_islr_list"
               name="Listado Retención ISLR"
               parent="menu_l10n_ve_seniat_reports_root"
               action="action_account_wh_islr"
-              sequence="26"
-              groups="l10n_ve_full.group_l10n_ve_user"/>
-
-    <!-- 5. Libro Fiscal de Compra -->
-    <menuitem id="menu_fiscal_book_purchase_report"
-              name="Libro Fiscal de Compra"
-              parent="menu_l10n_ve_seniat_reports_root"
-              action="action_fiscal_book_purchase"
-              sequence="30"
-              groups="l10n_ve_full.group_l10n_ve_user"/>
-
-    <!-- 6. Libro Fiscal de Venta -->
-    <menuitem id="menu_fiscal_book_sale_report"
-              name="Libro Fiscal de Venta"
-              parent="menu_l10n_ve_seniat_reports_root"
-              action="action_fiscal_book_sale"
-              sequence="40"
-              groups="l10n_ve_full.group_l10n_ve_user"/>
+              sequence="26"/>
 
     <!-- 7. Libro de Inventario -->
     <menuitem id="menu_report_inventory_book"
               name="Libro de Inventario"
               parent="menu_l10n_ve_seniat_reports_root"
               action="action_inventory_book_wizard"
-              sequence="50"
-              groups="l10n_ve_full.group_l10n_ve_user"/>
+              sequence="30"/>
 
-    <!-- 8. Resumen de ventas y compras -->
-    <menuitem id="menu_fiscal_book_all_report"
-              name="Resumen de ventas y compras"
-              parent="menu_l10n_ve_seniat_reports_root"
-              action="action_account_fiscal_book"
-              sequence="60"
-              groups="l10n_ve_full.group_l10n_ve_user"/>
-
-    <!-- 9. Reporte ARCV -->
+    <!-- 8. Reporte ARCV -->
     <menuitem id="menu_report_arcv"
               name="Reporte ARCV"
               parent="menu_l10n_ve_seniat_reports_root"
               action="action_arcv_report_wizard"
-              sequence="70"
-              groups="l10n_ve_full.group_l10n_ve_user"/>
+              sequence="40"/>
 
-    <!-- 10. Reporte de Patente Municipal (IAE) -->
+    <!-- 9. Reporte de Patente Municipal (IAE) -->
     <menuitem id="menu_report_municipal_tax"
               name="Reporte de Patente Municipal"
               parent="menu_l10n_ve_seniat_reports_root"
               action="action_municipal_tax_wizard"
-              sequence="80"
-              groups="l10n_ve_full.group_l10n_ve_user"/>
+              sequence="50"/>
 
-    <!-- 11. Diferencial Cambiario en Ventas -->
+    <!-- 10. Diferencial Cambiario en Ventas -->
     <menuitem id="menu_report_rate_difference"
               name="Diferencial Cambiario en Ventas"
               parent="menu_l10n_ve_seniat_reports_root"
               action="action_rate_difference_wizard"
-              sequence="90"
-              groups="l10n_ve_full.group_l10n_ve_user"/>
+              sequence="60"/>
 
 
     <!-- ── 4. ACCESOS EN EL MENÚ "CONTABILIDAD" ────────────────────── -->
