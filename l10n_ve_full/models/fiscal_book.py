@@ -334,6 +334,10 @@ class AccountFiscalBook(models.Model):
         self.ensure_one()
         self.state = 'draft'
 
+    def action_print_summary(self):
+        """Abre el asistente de impresión para formato resumido."""
+        return self.action_print_book_wizard()
+
     # ------------------------------------------------------------------
     # Generador de archivo Excel (.xlsx) idéntico a la muestra del cliente
     # ------------------------------------------------------------------
