@@ -178,7 +178,8 @@ class AccountBankStatementLine(models.Model):
     @api.depends('amount', 'l10n_ve_rate', 'currency_id', 'journal_id')
     def _compute_ve_statement_usd(self):
         for st_line in self:
-            rate = st_line.l10n_ve_rate or st_line.company_id.get_current_bcv_rate() or 779.9522
+            company = getattr(st_line, 'company_id', False) or getattr(st_line.journal_id, 'company_id', False) or self.env.company
+            rate = st_line.l10n_ve_rate or (company.get_current_bcv_rate() if hasattr(company, 'get_current_bcv_rate') else 779.9522) or 779.9522
             is_bs = st_line.currency_id and st_line.currency_id.name in ['VES', 'VEF', 'VEB']
             if is_bs and rate:
                 st_line.l10n_ve_amount_usd = round(st_line.amount / rate, 2)

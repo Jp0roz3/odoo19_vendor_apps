@@ -654,7 +654,6 @@ class AccountMoveLine(models.Model):
 
     @api.depends('price_unit', 'price_subtotal', 'debit', 'credit', 'amount_residual',
                  'move_id.l10n_ve_rate_applied', 'move_id.l10n_ve_rate',
-                 'move_id.payment_id.l10n_ve_rate',
                  'move_id.currency_id', 'company_id.currency_id', 'company_id.l10n_ve_currency_bs_id')
     def _compute_ve_line_usd(self):
         for line in self:
