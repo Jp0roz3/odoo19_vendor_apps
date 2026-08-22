@@ -25,11 +25,7 @@ from . import product_template     # extensión de productos (precios duales Bs/
 from . import account_report       # extensión de reportes contables bimoneda dual
 from . import control_number_sequence  # gestión de talonarios y secuencias de control fiscal
 
-# Extensiones opcionales
-if 'odoo.addons.sale' in sys.modules:
-    from . import sale_order
-if 'odoo.addons.purchase' in sys.modules:
-    from . import purchase_order
-if 'odoo.addons.stock' in sys.modules:
-    from . import stock_picking
+from . import sale_order
+from . import purchase_order
+from . import stock_picking
 

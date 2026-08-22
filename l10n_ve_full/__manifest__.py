@@ -39,6 +39,9 @@ Autor: JeanPerozo / Nubelco
         'account',
         'mail',
         'product',
+        'sale',
+        'purchase',
+        'stock',
     ],
     'data': [
         # Seguridad
@@ -77,6 +80,11 @@ Autor: JeanPerozo / Nubelco
         'views/account_journal_dashboard_views.xml',
         'views/account_report_bimoneda_views.xml',
 
+        # Vistas: ventas, compras y almacén
+        'views/sale_order_views.xml',
+        'views/purchase_order_views.xml',
+        'views/stock_picking_views.xml',
+
         # Vistas: retenciones
         'views/withholding_iva_views.xml',
         'views/withholding_islr_views.xml',
@@ -101,6 +109,7 @@ Autor: JeanPerozo / Nubelco
         'reports/report_wh_municipal.xml',
         'reports/report_fiscal_book.xml',
         'reports/report_invoice_forma_libre.xml',
+        'reports/report_delivery_guide.xml',
         'reports/report_arcv.xml',
         'reports/report_inventory_book.xml',
 
