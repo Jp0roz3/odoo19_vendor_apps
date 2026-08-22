@@ -35,13 +35,6 @@
                             <field name="l10n_ve_municipal_rate" string="Tasa Ret. Municipal (%)"/>
                         </group>
                     </group>
-                    <group string="Ubicación Territorial Venezolana">
-                        <group>
-                            <field name="l10n_ve_state_id" string="Estado"/>
-                            <field name="l10n_ve_municipality_id" string="Municipio"/>
-                            <field name="l10n_ve_parish_id" string="Parroquia"/>
-                        </group>
-                    </group>
                 </page>
             </xpath>
         </field>

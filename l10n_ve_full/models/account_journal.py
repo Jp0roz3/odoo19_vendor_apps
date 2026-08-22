@@ -159,3 +159,29 @@ class AccountJournal(models.Model):
             data['l10n_ve_dual_active'] = True
 
         return dashboard_data
+
+
+class AccountBankStatementLine(models.Model):
+    _inherit = 'account.bank.statement.line'
+
+    l10n_ve_rate = fields.Float(
+        string='Tasa Transacción (Bs/USD)',
+        digits=(18, 6),
+        help='Tasa de cambio aplicada a la transacción bancaria.',
+    )
+    l10n_ve_amount_usd = fields.Float(
+        string='Importe ($)',
+        compute='_compute_ve_statement_usd',
+        digits=(18, 2),
+    )
+
+    @api.depends('amount', 'l10n_ve_rate', 'currency_id', 'journal_id')
+    def _compute_ve_statement_usd(self):
+        for st_line in self:
+            rate = st_line.l10n_ve_rate or st_line.company_id.get_current_bcv_rate() or 779.9522
+            is_bs = st_line.currency_id and st_line.currency_id.name in ['VES', 'VEF', 'VEB']
+            if is_bs and rate:
+                st_line.l10n_ve_amount_usd = round(st_line.amount / rate, 2)
+            else:
+                st_line.l10n_ve_amount_usd = st_line.amount
+

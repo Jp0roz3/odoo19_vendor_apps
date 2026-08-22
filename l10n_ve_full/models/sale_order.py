@@ -112,3 +112,61 @@ class SaleOrder(models.Model):
                 'l10n_ve_rate_applied': self.l10n_ve_rate_applied or self.l10n_ve_rate,
             })
         return invoice_vals
+
+
+class SaleOrderLine(models.Model):
+    _inherit = 'sale.order.line'
+
+    l10n_ve_price_unit_usd = fields.Float(
+        string='Precio Ref. ($)',
+        compute='_compute_ve_sale_line_duals',
+        digits=(18, 2),
+    )
+    l10n_ve_price_subtotal_bs = fields.Float(
+        string='Subtotal (Bs)',
+        compute='_compute_ve_sale_line_duals',
+        digits=(18, 2),
+    )
+
+    @api.depends('price_unit', 'price_subtotal', 'order_id.currency_id', 'order_id.l10n_ve_rate_applied')
+    def _compute_ve_sale_line_duals(self):
+        for line in self:
+            rate = line.order_id.l10n_ve_rate_applied or line.order_id.l10n_ve_rate or 1.0
+            is_bs = line.order_id.currency_id and line.order_id.currency_id.name in ['VES', 'VEF', 'VEB']
+            if is_bs:
+                line.l10n_ve_price_unit_usd = round(line.price_unit / rate, 2) if rate else 0.0
+                line.l10n_ve_price_subtotal_bs = line.price_subtotal
+            else:
+                line.l10n_ve_price_unit_usd = line.price_unit
+                line.l10n_ve_price_subtotal_bs = round(line.price_subtotal * rate, 2)
+
+    def _get_display_price(self):
+        """Garantiza que al seleccionar un producto en cotizaciones en USD, use el precio en USD sin dividir por la tasa."""
+        order = self.order_id
+        is_usd = order.currency_id and order.currency_id.name in ['USD', '$']
+        if is_usd and self.product_id:
+            usd_price = getattr(self.product_id, 'l10n_ve_list_price_usd', 0.0) or self.product_id.lst_price
+            if usd_price > 0:
+                return usd_price
+        return super()._get_display_price()
+
+    @api.onchange('product_id')
+    def _onchange_product_id_ve_sale_price(self):
+        """Asigna de inmediato el precio unitario correcto al seleccionar el producto en la cotización."""
+        for line in self:
+            if not line.product_id:
+                continue
+            order = line.order_id
+            is_usd = order.currency_id and order.currency_id.name in ['USD', '$']
+            is_bs = order.currency_id and order.currency_id.name in ['VES', 'VEF', 'VEB']
+
+            if is_usd:
+                usd_price = getattr(line.product_id, 'l10n_ve_list_price_usd', 0.0) or line.product_id.lst_price
+                if usd_price > 0:
+                    line.price_unit = usd_price
+            elif is_bs:
+                rate = order.l10n_ve_rate_applied or order.l10n_ve_rate or order.company_id.get_current_bcv_rate() or 779.9522
+                usd_price = getattr(line.product_id, 'l10n_ve_list_price_usd', 0.0) or line.product_id.lst_price
+                if usd_price > 0:
+                    line.price_unit = round(usd_price * rate, 2)
+

@@ -114,3 +114,51 @@ class PurchaseOrder(models.Model):
                     'l10n_ve_rate_applied': order.l10n_ve_rate_applied or order.l10n_ve_rate,
                 })
         return res
+
+
+class PurchaseOrderLine(models.Model):
+    _inherit = 'purchase.order.line'
+
+    l10n_ve_price_unit_usd = fields.Float(
+        string='Costo Ref. ($)',
+        compute='_compute_ve_purchase_line_duals',
+        digits=(18, 2),
+    )
+    l10n_ve_price_subtotal_bs = fields.Float(
+        string='Subtotal (Bs)',
+        compute='_compute_ve_purchase_line_duals',
+        digits=(18, 2),
+    )
+
+    @api.depends('price_unit', 'price_subtotal', 'order_id.currency_id', 'order_id.l10n_ve_rate_applied')
+    def _compute_ve_purchase_line_duals(self):
+        for line in self:
+            rate = line.order_id.l10n_ve_rate_applied or line.order_id.l10n_ve_rate or 1.0
+            is_bs = line.order_id.currency_id and line.order_id.currency_id.name in ['VES', 'VEF', 'VEB']
+            if is_bs:
+                line.l10n_ve_price_unit_usd = round(line.price_unit / rate, 2) if rate else 0.0
+                line.l10n_ve_price_subtotal_bs = line.price_subtotal
+            else:
+                line.l10n_ve_price_unit_usd = line.price_unit
+                line.l10n_ve_price_subtotal_bs = round(line.price_subtotal * rate, 2)
+
+    @api.onchange('product_id')
+    def _onchange_product_id_ve_purchase_price(self):
+        """Asigna de inmediato el costo unitario correcto al seleccionar el producto en compras."""
+        for line in self:
+            if not line.product_id:
+                continue
+            order = line.order_id
+            is_usd = order.currency_id and order.currency_id.name in ['USD', '$']
+            is_bs = order.currency_id and order.currency_id.name in ['VES', 'VEF', 'VEB']
+
+            if is_usd:
+                cost_usd = getattr(line.product_id, 'l10n_ve_standard_price_usd', 0.0) or line.product_id.standard_price
+                if cost_usd > 0:
+                    line.price_unit = cost_usd
+            elif is_bs:
+                rate = order.l10n_ve_rate_applied or order.l10n_ve_rate or order.company_id.get_current_bcv_rate() or 779.9522
+                cost_usd = getattr(line.product_id, 'l10n_ve_standard_price_usd', 0.0) or line.product_id.standard_price
+                if cost_usd > 0:
+                    line.price_unit = round(cost_usd * rate, 2)
+
