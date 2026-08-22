@@ -107,14 +107,7 @@ Autor: JeanPerozo / Nubelco
         # Menús y acciones (siempre al final)
         'views/menuitems.xml',
     ],
-    'assets': {
-        'web.assets_backend': [
-            'l10n_ve_full/static/src/css/l10n_ve.css',
-            'l10n_ve_full/static/src/components/bcv_rate_systray.js',
-            'l10n_ve_full/static/src/components/bcv_rate_systray.xml',
-            'l10n_ve_full/static/src/js/account_report_currency_patch.js',
-        ],
-    },
+    'assets': {},
     'installable': True,
     'application': True,
     'auto_install': False,
