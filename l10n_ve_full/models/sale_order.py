@@ -19,10 +19,9 @@ class SaleOrder(models.Model):
     # ------------------------------------------------------------------
     l10n_ve_rate_type = fields.Selection([
         ('bcv', 'Tasa Oficial BCV'),
-        ('custom', 'Tasa Personalizada'),
         ('commercial', 'Acuerdo Comercial'),
     ], string='Tipo de Tasa de Cambio', default='bcv', copy=True, tracking=True,
-       help='Selecciona si la cotización usará la tasa oficial BCV del día, una tasa personalizada o un acuerdo comercial.')
+       help='Selecciona si la cotización usará la tasa oficial BCV del día o un acuerdo comercial.')
 
     l10n_ve_rate_applied = fields.Float(
         string='Tasa Aplicada (Bs/USD)',
@@ -100,7 +99,7 @@ class SaleOrder(models.Model):
     def _inverse_ve_sale_rate_applied(self):
         for order in self:
             if order.l10n_ve_rate_type == 'bcv' and order.l10n_ve_rate_applied != order.l10n_ve_rate:
-                order.l10n_ve_rate_type = 'custom'
+                order.l10n_ve_rate_type = 'commercial'
 
     # ------------------------------------------------------------------
     # Propagación de tasa de cambio a la factura (Requerimiento 1)

@@ -13,6 +13,12 @@
                 <field name="l10n_ve_rif_type" invisible="1"/>
             </xpath>
 
+            <!-- Ubicación Territorial Venezolana en la dirección estándar -->
+            <xpath expr="//div[hasclass('o_address_format')]" position="inside">
+                <field name="l10n_ve_municipality_id" placeholder="Municipio" class="o_address_city"/>
+                <field name="l10n_ve_parish_id" placeholder="Parroquia" class="o_address_city"/>
+            </xpath>
+
             <!-- Pestaña Datos Fiscales Venezuela -->
             <xpath expr="//notebook" position="inside">
                 <page string="Datos Fiscales Venezuela" name="l10n_ve_fiscal_partner">

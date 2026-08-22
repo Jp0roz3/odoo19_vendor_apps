@@ -45,10 +45,9 @@ class AccountMove(models.Model):
     # ------------------------------------------------------------------
     l10n_ve_rate_type = fields.Selection([
         ('bcv', 'Tasa Oficial BCV'),
-        ('custom', 'Tasa Personalizada'),
         ('commercial', 'Acuerdo Comercial'),
     ], string='Tipo de Tasa de Cambio', default='bcv', copy=True, tracking=True,
-       help='Selecciona si el documento usará la tasa oficial BCV del día, una tasa personalizada o un acuerdo comercial.')
+       help='Selecciona si el documento usará la tasa oficial BCV del día o un acuerdo comercial.')
 
     l10n_ve_rate_applied = fields.Float(
         string='Tasa Aplicada (Bs/USD)',
@@ -439,15 +438,17 @@ class AccountMove(models.Model):
             return res
 
         # Fallback de creación directa de Nota de Débito
-        debit_move = self.copy({
+        copy_vals = {
             'move_type': self.move_type,
-            'debit_origin_id': self.id if hasattr(self, 'debit_origin_id') else False,
             'ref': _('Nota de Débito para: %s') % (self.name or ''),
             'invoice_date': fields.Date.context_today(self),
             'date': fields.Date.context_today(self),
             'l10n_ve_rate_type': self.l10n_ve_rate_type,
             'l10n_ve_rate_applied': self.l10n_ve_rate_applied,
-        })
+        }
+        if 'debit_origin_id' in self._fields:
+            copy_vals['debit_origin_id'] = self.id
+        debit_move = self.copy(copy_vals)
         return {
             'type': 'ir.actions.act_window',
             'name': _('Nota de Débito'),

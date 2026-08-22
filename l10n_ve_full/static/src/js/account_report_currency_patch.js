@@ -257,21 +257,15 @@ function injectCurrencyWidgetToDOM() {
 
         ensureAccountReportPatched();
 
+        // Guard: Nunca inyectar en vistas de formulario (ej: account.journal, account.move form)
+        if (document.querySelector(".o_form_view, .o_form_editable")) return;
+
         const cp = document.querySelector(".o_control_panel");
         if (!cp) return;
 
-        const cpText = cp.textContent || "";
-        const isFinancialReport = cpText.includes("PDF") 
-            || cpText.includes("XLSX")
-            || cpText.includes("Balance")
-            || cpText.includes("Resultados")
-            || cpText.includes("flujo")
-            || cpText.includes("Mayor")
-            || cpText.includes("Diario")
-            || cpText.includes("Socios")
-            || cpText.includes("Ejecutivo")
-            || cpText.includes("Antigüedad")
-            || document.querySelector(".o_account_reports_body, .o_account_report, .o_account_reports_table, .o_account_reports_page");
+        const isFinancialReport = document.querySelector(
+            ".o_account_reports_body, .o_account_report, .o_account_reports_table, .o_account_reports_page, .o_account_report_page, .o_account_report_summary"
+        ) || (cp.querySelector(".o_account_reports_filters") !== null);
 
         if (!isFinancialReport) return;
 

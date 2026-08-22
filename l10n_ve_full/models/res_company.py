@@ -54,7 +54,7 @@ class ResCompany(models.Model):
     l10n_ve_rif_clean = fields.Char(
         string='RIF (sin formato)',
         compute='_compute_rif_clean',
-        store=True,
+        store=False,
     )
     l10n_ve_contributor_type = fields.Selection([
         ('ordinary',    'Contribuyente Ordinario'),

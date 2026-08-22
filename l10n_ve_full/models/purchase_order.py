@@ -19,10 +19,9 @@ class PurchaseOrder(models.Model):
     # ------------------------------------------------------------------
     l10n_ve_rate_type = fields.Selection([
         ('bcv', 'Tasa Oficial BCV'),
-        ('custom', 'Tasa Personalizada'),
         ('commercial', 'Acuerdo Comercial'),
     ], string='Tipo de Tasa de Cambio', default='bcv', copy=True, tracking=True,
-       help='Selecciona si el pedido de compra usará la tasa oficial BCV del día, una tasa personalizada o un acuerdo comercial.')
+       help='Selecciona si el pedido de compra usará la tasa oficial BCV del día o un acuerdo comercial.')
 
     l10n_ve_rate_applied = fields.Float(
         string='Tasa Aplicada (Bs/USD)',
@@ -100,13 +99,13 @@ class PurchaseOrder(models.Model):
     def _inverse_ve_purchase_rate_applied(self):
         for order in self:
             if order.l10n_ve_rate_type == 'bcv' and order.l10n_ve_rate_applied != order.l10n_ve_rate:
-                order.l10n_ve_rate_type = 'custom'
+                order.l10n_ve_rate_type = 'commercial'
 
     # ------------------------------------------------------------------
     # Propagación de tasa de cambio a la factura de proveedor (Requerimiento 1)
     # ------------------------------------------------------------------
-    def action_create_invoice(self):
-        res = super().action_create_invoice()
+    def action_create_invoice(self, *args, **kwargs):
+        res = super().action_create_invoice(*args, **kwargs)
         # Actualizar las facturas creadas con la tasa de la orden de compra
         for order in self:
             for invoice in order.invoice_ids.filtered(lambda inv: inv.state == 'draft'):

@@ -51,7 +51,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr t-foreach="doc.move_ids_without_package" t-as="move">
+                        <tr t-foreach="doc.move_ids" t-as="move">
                             <td class="text-center"><span t-esc="move_index + 1"/></td>
                             <td><span t-field="move.product_id.default_code"/></td>
                             <td><span t-field="move.product_id.name"/></td>

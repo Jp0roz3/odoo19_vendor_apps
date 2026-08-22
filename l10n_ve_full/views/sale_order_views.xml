@@ -8,8 +8,8 @@
         <field name="arch" type="xml">
             <!-- Selector de Tipo de Tasa en Encabezado (Requerimiento 1) -->
             <xpath expr="//field[@name='payment_term_id']" position="after">
-                <field name="l10n_ve_rate_type" widget="radio" options="{'horizontal': true}"/>
-                <field name="l10n_ve_rate_applied" string="Tasa BCV Aplicada" digits="[18, 6]"/>
+                <field name="l10n_ve_rate_type" widget="radio" options="{'horizontal': true}" readonly="state not in ('draft', 'sent')"/>
+                <field name="l10n_ve_rate_applied" string="Tasa Aplicada (Bs/USD)" digits="[18, 6]" readonly="l10n_ve_rate_type == 'bcv' or state not in ('draft', 'sent')"/>
             </xpath>
 
             <!-- Totales Referenciales en Bolívares al lado izquierdo de los totales en Dólares -->
