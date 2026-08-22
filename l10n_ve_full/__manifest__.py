@@ -102,6 +102,7 @@ Autor: JeanPerozo / Nubelco
         'reports/report_fiscal_book.xml',
         'reports/report_invoice_forma_libre.xml',
         'reports/report_arcv.xml',
+        'reports/report_inventory_book.xml',
 
         # Menús y acciones (siempre al final)
         'views/menuitems.xml',

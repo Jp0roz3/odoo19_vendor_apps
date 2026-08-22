@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Plantilla Oficial de Libro de Inventario Valorado (SENIAT / Código de Comercio) -->
+    <template id="report_inventory_book_document">
+        <t t-call="web.external_layout">
+            <t t-set="doc" t-value="doc.with_context(lang=doc.company_id.partner_id.lang)" />
+            <t t-set="data" t-value="doc._get_inventory_lines()" />
+            <div class="page" style="font-family: Arial, sans-serif; font-size: 11px;">
+                <!-- Encabezado del Libro de Inventario -->
+                <div class="text-center pb-2 mb-3 border-bottom">
+                    <h3 class="fw-bold mb-1" style="color: #1e3a8a;">LIBRO DE INVENTARIO Y BALANCES VALORADO</h3>
+                    <p class="text-muted small mb-0">Conforme a las disposiciones del Código de Comercio y la Normativa Tributaria SENIAT</p>
+                </div>
+
+                <!-- Información de la Empresa y Fecha de Corte -->
+                <div class="row p-2 mb-3 bg-light rounded border">
+                    <div class="col-7 border-end">
+                        <p class="mb-1"><strong>Razón Social:</strong> <span t-field="doc.company_id.name"/></p>
+                        <p class="mb-1"><strong>RIF:</strong> <span t-field="doc.company_id.l10n_ve_rif"/></p>
+                        <p class="mb-0"><strong>Domicilio Fiscal:</strong> <span t-field="doc.company_id.street"/></p>
+                    </div>
+                    <div class="col-5 text-end">
+                        <p class="mb-1"><strong>Fecha de Corte:</strong> <span t-field="doc.date_to"/></p>
+                        <p class="mb-1"><strong>Tasa BCV de Valuación:</strong> <span class="fw-bold" t-esc="'%.4f' % data['rate']"/> Bs/$</p>
+                        <p class="mb-0"><strong>Total de Ítems:</strong> <span t-esc="len(data['lines'])"/></p>
+                    </div>
+                </div>
+
+                <!-- Tabla de Existencias e Inventario Valorado -->
+                <table class="table table-sm table-bordered align-middle mb-4" style="font-size: 10.5px;">
+                    <thead class="table-dark text-center">
+                        <tr>
+                            <th style="width: 4%;">#</th>
+                            <th style="width: 12%;">Código</th>
+                            <th style="width: 32%;">Descripción del Producto</th>
+                            <th style="width: 12%;">Categoría</th>
+                            <th style="width: 8%;">Existencia</th>
+                            <th style="width: 8%;">Costo ($)</th>
+                            <th style="width: 12%;">Costo (Bs.)</th>
+                            <th style="width: 12%;">Total ($)</th>
+                            <th style="width: 12%;">Total Valorado (Bs.)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <t t-set="idx" t-value="1"/>
+                        <tr t-foreach="data['lines']" t-as="l">
+                            <td class="text-center"><span t-esc="idx"/></td>
+                            <td class="text-center"><span t-esc="l['code']"/></td>
+                            <td><span t-esc="l['name']"/></td>
+                            <td><span t-esc="l['category']"/></td>
+                            <td class="text-end fw-bold"><span t-esc="'%.2f' % l['qty']"/> <span class="small text-muted" t-esc="l['uom']"/></td>
+                            <td class="text-end">$ <span t-esc="'%.2f' % l['cost_usd']"/></td>
+                            <td class="text-end"><span t-esc="'{:,.2f}'.format(l['cost_bs']).replace(',', 'X').replace('.', ',').replace('X', '.')"/></td>
+                            <td class="text-end fw-bold">$ <span t-esc="'%.2f' % l['total_usd']"/></td>
+                            <td class="text-end fw-bold text-primary"><span t-esc="'{:,.2f}'.format(l['total_bs']).replace(',', 'X').replace('.', ',').replace('X', '.')"/> Bs</td>
+                            <t t-set="idx" t-value="idx + 1"/>
+                        </tr>
+                        <tr t-if="not data['lines']">
+                            <td colspan="9" class="text-center text-muted py-3">No se encontraron existencias o productos en las categorías seleccionadas.</td>
+                        </tr>
+                    </tbody>
+                    <tfoot class="table-light fw-bold">
+                        <tr style="background: #f8fafc; font-size: 11px;">
+                            <td colspan="4" class="text-end">TOTALES GENERALES DEL INVENTARIO:</td>
+                            <td class="text-end"><span t-esc="'%.2f' % data['total_qty']"/></td>
+                            <td colspan="2" class="text-end">VALORACIÓN TOTAL:</td>
+                            <td class="text-end text-success">$ <span t-esc="'%.2f' % data['total_usd']"/></td>
+                            <td class="text-end text-primary" style="font-size: 12px;"><span t-esc="'{:,.2f}'.format(data['total_bs']).replace(',', 'X').replace('.', ',').replace('X', '.')"/> Bs.F</td>
+                        </tr>
+                    </tfoot>
+                </table>
+
+                <!-- Firmas de Responsabilidad Legal -->
+                <div class="row pt-5 mt-4 text-center">
+                    <div class="col-6">
+                        <div class="border-top pt-2">
+                            <strong>Preparado por:</strong><br/>
+                            <span class="text-muted small">Responsable de Inventario / Almacén</span>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="border-top pt-2">
+                            <strong>Aprobado por:</strong><br/>
+                            <span class="text-muted small">Contador Público Colegiado / C.P.C.</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pie Legal SENIAT -->
+                <div class="row pt-4 text-muted small text-center">
+                    <div class="col-12">
+                        <p class="mb-0">Libro generado conforme a las Normas Internacionales de Contabilidad (NIC 2 / Inventarios) y Providencias Administrativas del SENIAT.</p>
+                    </div>
+                </div>
+            </div>
+        </t>
+    </template>
+
+    <template id="report_inventory_book">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="doc">
+                <t t-call="l10n_ve_full.report_inventory_book_document"/>
+            </t>
+        </t>
+    </template>
+
+    <record id="action_report_inventory_book" model="ir.actions.report">
+        <field name="name">Libro de Inventario Valorado</field>
+        <field name="model">l10n_ve.inventory.book.wizard</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">l10n_ve_full.report_inventory_book</field>
+        <field name="report_file">l10n_ve_full.report_inventory_book</field>
+        <field name="print_report_name">'Libro_Inventario_%s' % (object.date_to or '')</field>
+        <field name="binding_model_id" ref="model_l10n_ve_inventory_book_wizard"/>
+        <field name="binding_type">report</field>
+    </record>
+</odoo>
