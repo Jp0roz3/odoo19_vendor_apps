@@ -12,7 +12,7 @@
                 <field name="l10n_ve_rate_applied" string="Tasa BCV Aplicada" digits="[18, 6]"/>
             </xpath>
 
-            <!-- Totales Referenciales en Bolívares Integrados Limpios (Imagen 1) -->
+            <!-- Totales Referenciales en Bolívares al lado izquierdo de los totales en Dólares -->
             <xpath expr="//field[@name='tax_totals']/parent::group" position="before">
                 <group class="oe_subtotal_footer" invisible="not l10n_ve_is_usd_order">
                     <field name="l10n_ve_untaxed_bs" string="Base imponible Bs." readonly="1"/>

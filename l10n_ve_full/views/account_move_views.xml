@@ -5,7 +5,7 @@
          Añade pestaña "Venezuela360" en facturas con dual BS/USD,
          tasa BCV / Personalizada / Comercial, campos fiscales,
          botón para emisión de Notas de Débito,
-         y totales bimoneda integrados perfectamente con el estilo nativo.
+         y totales bimoneda integrados: Bolívares (Izq) y Dólares (Der).
     ================================================================ -->
 
     <!-- Botones y Acciones en Encabezado de Factura -->
@@ -100,25 +100,20 @@
                 </page>
             </xpath>
 
-            <!-- Totales Bimoneda Duales Integrados (Coincidencia Exacta Imagen 1) -->
+            <!-- Totales Bimoneda Duales Integrados: Bolívares (Izq) y Dólares (Der) -->
             <xpath expr="//field[@name='narration']/parent::group" position="attributes">
                 <attribute name="colspan">4</attribute>
             </xpath>
             <xpath expr="//field[@name='narration']/parent::group" position="after">
-                <group colspan="4" invisible="not l10n_ve_localization">
-                    <!-- Si la Factura está en USD -> Mostrar bloque nativo en Bolívares (Imagen 1) -->
-                    <group class="oe_subtotal_footer" invisible="not l10n_ve_is_usd_document">
-                        <field name="l10n_ve_amount_untaxed_bs" string="Base imponible Bs." widget="monetary" options="{'currency_field': 'l10n_ve_currency_bs_id'}" readonly="1"/>
-                        <field name="l10n_ve_amount_tax_bs" string="Impuestos Bs." widget="monetary" options="{'currency_field': 'l10n_ve_currency_bs_id'}" readonly="1"/>
-                        <field name="l10n_ve_amount_total_bs" string="Total Bs." widget="monetary" options="{'currency_field': 'l10n_ve_currency_bs_id'}" readonly="1" class="oe_subtotal_footer_separator"/>
-                    </group>
+                <!-- Columna Central/Izquierda de Totales: Bolívares (Bs.F) -->
+                <group colspan="4" class="oe_subtotal_footer" invisible="not l10n_ve_localization">
+                    <field name="l10n_ve_amount_untaxed_bs" string="Base imponible Bs." widget="monetary" options="{'currency_field': 'l10n_ve_currency_bs_id'}" readonly="1" invisible="not l10n_ve_is_usd_document"/>
+                    <field name="l10n_ve_amount_tax_bs" string="Impuestos Bs." widget="monetary" options="{'currency_field': 'l10n_ve_currency_bs_id'}" readonly="1" invisible="not l10n_ve_is_usd_document"/>
+                    <field name="l10n_ve_amount_total_bs" string="Total Bs." widget="monetary" options="{'currency_field': 'l10n_ve_currency_bs_id'}" readonly="1" class="oe_subtotal_footer_separator" invisible="not l10n_ve_is_usd_document"/>
 
-                    <!-- Si la Factura está en Bs -> Mostrar bloque nativo de Referencia en Dólares -->
-                    <group class="oe_subtotal_footer" invisible="l10n_ve_is_usd_document">
-                        <field name="l10n_ve_untaxed_ref" string="Base imponible Ref." widget="monetary" options="{'currency_field': 'l10n_ve_dual_ref_currency_id'}" readonly="1"/>
-                        <field name="l10n_ve_tax_ref" string="Impuestos Ref." widget="monetary" options="{'currency_field': 'l10n_ve_dual_ref_currency_id'}" readonly="1"/>
-                        <field name="l10n_ve_total_ref" string="Total Ref." widget="monetary" options="{'currency_field': 'l10n_ve_dual_ref_currency_id'}" readonly="1" class="oe_subtotal_footer_separator"/>
-                    </group>
+                    <field name="l10n_ve_untaxed_ref" string="Base imponible Ref." widget="monetary" options="{'currency_field': 'l10n_ve_dual_ref_currency_id'}" readonly="1" invisible="l10n_ve_is_usd_document"/>
+                    <field name="l10n_ve_tax_ref" string="Impuestos Ref." widget="monetary" options="{'currency_field': 'l10n_ve_dual_ref_currency_id'}" readonly="1" invisible="l10n_ve_is_usd_document"/>
+                    <field name="l10n_ve_total_ref" string="Total Ref." widget="monetary" options="{'currency_field': 'l10n_ve_dual_ref_currency_id'}" readonly="1" class="oe_subtotal_footer_separator" invisible="l10n_ve_is_usd_document"/>
                 </group>
             </xpath>
         </field>
