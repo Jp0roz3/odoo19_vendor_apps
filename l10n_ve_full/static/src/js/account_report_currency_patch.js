@@ -59,13 +59,20 @@ function extractBcvRate() {
     return currentBcvRate;
 }
 
-// Formateador estándar de moneda venezolana e internacional (Separador de miles punto, decimal coma)
-function formatNumberVE(value) {
-    if (isNaN(value)) return "0,00";
-    const sign = value < 0 ? "-" : "";
-    const parts = Math.abs(value).toFixed(2).split(".");
+// Formateador estándar con símbolo de moneda ($ para USD, Bs. para Bolívares)
+function formatNumberWithSymbol(value, currency) {
+    if (isNaN(value)) return currency === "bs" ? "Bs. 0,00" : "$ 0,00";
+    const isNeg = value < 0;
+    const absVal = Math.abs(value);
+    const parts = absVal.toFixed(2).split(".");
     parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-    return `${sign}${parts[0]},${parts[1]}`;
+    const numFormatted = `${parts[0]},${parts[1]}`;
+
+    if (currency === "bs") {
+        return isNeg ? `-Bs. ${numFormatted}` : `Bs. ${numFormatted}`;
+    } else {
+        return isNeg ? `-$ ${numFormatted}` : `$ ${numFormatted}`;
+    }
 }
 
 // Transformar celdas de la tabla del reporte activo
@@ -97,7 +104,7 @@ function transformReportTableCells(currency) {
             let origVal = cell.getAttribute("data-original-usd-val");
 
             if (origVal === null) {
-                // Parsear formato europeo/venezolano: ej: "2.152,00" -> 2152.00, "-2.342,29" -> -2342.29
+                // Parsear formato: ej: "2.152,00", "$ 2.152,00", "-2.342,29"
                 const cleanStr = rawText
                     .replace(/[^\d\.,\-]/g, "")
                     .replace(/\.(?=\d{3})/g, "")
@@ -116,20 +123,17 @@ function transformReportTableCells(currency) {
                 if (!isNaN(baseUSD)) {
                     if (currency === "bs") {
                         const inBs = baseUSD * rate;
-                        cell.innerText = formatNumberVE(inBs);
+                        cell.innerText = formatNumberWithSymbol(inBs, "bs");
                         cell.style.fontWeight = "bold";
                         if (baseUSD < 0) {
                             cell.style.color = "#dc3545";
                         }
                     } else {
-                        const origHTML = cell.getAttribute("data-original-usd-html");
-                        if (origHTML) {
-                            cell.innerHTML = origHTML;
-                        } else {
-                            cell.innerText = formatNumberVE(baseUSD);
-                        }
+                        cell.innerText = formatNumberWithSymbol(baseUSD, "usd");
                         cell.style.fontWeight = "";
-                        if (baseUSD >= 0) {
+                        if (baseUSD < 0) {
+                            cell.style.color = "#dc3545";
+                        } else {
                             cell.style.color = "";
                         }
                     }
