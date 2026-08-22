@@ -144,9 +144,16 @@ class L10nVeParish(models.Model):
         index=True,
     )
     state_id = fields.Many2one(
-        comodel_name='l10n_ve.state',
+        comodel_name='res.country.state',
         string='Estado',
         related='municipality_id.state_id',
+        store=True,
+        readonly=True,
+    )
+    l10n_ve_state_id = fields.Many2one(
+        comodel_name='l10n_ve.state',
+        string='Estado VE',
+        related='municipality_id.l10n_ve_state_id',
         store=True,
         readonly=True,
     )
