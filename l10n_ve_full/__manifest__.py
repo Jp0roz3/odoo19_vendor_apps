@@ -122,7 +122,6 @@ Autor: JeanPerozo / Nubelco
             'l10n_ve_full/static/src/components/bcv_rate_systray.js',
             'l10n_ve_full/static/src/components/bcv_rate_systray.xml',
             'l10n_ve_full/static/src/js/account_report_currency_patch.js',
-            'l10n_ve_full/static/src/xml/account_report_currency_filter.xml',
         ],
     },
     'installable': True,

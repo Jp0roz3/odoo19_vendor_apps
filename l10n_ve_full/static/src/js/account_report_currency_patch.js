@@ -12,11 +12,6 @@
  * Moneda Principal por Defecto: Dólares ($ / USD)
  * Moneda Secundaria Bimoneda: Bolívares (Bs.F) a Tasa Oficial BCV
  *
- * Autor: JeanPerozo / Nubelco
- */
-
-import { patch } from "@web/core/utils/patch";
-
 // Estado global de moneda y tasa
 let currentSelectedCurrency = "usd";
 let currentBcvRate = 779.9522;
