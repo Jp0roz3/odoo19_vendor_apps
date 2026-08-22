@@ -226,10 +226,10 @@ class ResCompany(models.Model):
     # ------------------------------------------------------------------
     # Compute
     # ------------------------------------------------------------------
-    @api.depends('l10n_ve_rif', 'partner_id.vat', 'partner_id.l10n_ve_rif')
+    @api.depends('l10n_ve_rif', 'vat')
     def _compute_rif_clean(self):
         for company in self:
-            rif = company.l10n_ve_rif or company.partner_id.l10n_ve_rif or company.partner_id.vat or company.vat or ''
+            rif = company.l10n_ve_rif or company.vat or ''
             company.l10n_ve_rif_clean = re.sub(r'[^A-Za-z0-9]', '', rif).upper()
 
     def _compute_current_ut(self):
