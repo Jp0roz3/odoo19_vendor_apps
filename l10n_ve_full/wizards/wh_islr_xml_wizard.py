@@ -66,7 +66,13 @@ class WhIslrXmlWizard(models.TransientModel):
         """Genera el archivo XML reglamentario de retenciones de ISLR para el SENIAT."""
         self.ensure_one()
         company = self.company_id
-        agent_rif = (company.l10n_ve_rif_clean or company.vat or '').replace('-', '').strip().upper()
+        agent_rif = (
+            getattr(company, 'l10n_ve_rif_clean', False) or
+            company.l10n_ve_rif or
+            company.partner_id.l10n_ve_rif or
+            company.partner_id.vat or
+            company.vat or ''
+        ).replace('-', '').replace(' ', '').strip().upper()
         if not agent_rif:
             raise UserError(_('La compañía no tiene configurado un RIF válido para el SENIAT.'))
 
@@ -91,7 +97,11 @@ class WhIslrXmlWizard(models.TransientModel):
 
         for ret in retentions:
             move = ret.move_id
-            supplier_rif = (ret.partner_id.l10n_ve_rif_clean or ret.partner_id.vat or '').replace('-', '').strip().upper()
+            supplier_rif = (
+                getattr(ret.partner_id, 'l10n_ve_rif_clean', False) or
+                ret.partner_id.l10n_ve_rif or
+                ret.partner_id.vat or ''
+            ).replace('-', '').replace(' ', '').strip().upper()
             inv_number = (move.name or '').replace('/', '').replace('-', '')[-10:] or '00000001'
             ctrl_number = (move.l10n_ve_control_number or '').replace('-', '').strip() or '00000001'
             op_date = (move.invoice_date or ret.date).strftime('%d/%m/%Y')

@@ -93,7 +93,13 @@ class WhIvaTxtWizard(models.TransientModel):
         """Genera el archivo plano TXT con los 14 campos reglamentarios del SENIAT."""
         self.ensure_one()
         company = self.company_id
-        agent_rif = (company.l10n_ve_rif_clean or company.vat or '').replace('-', '').strip().upper()
+        agent_rif = (
+            getattr(company, 'l10n_ve_rif_clean', False) or
+            company.l10n_ve_rif or
+            company.partner_id.l10n_ve_rif or
+            company.partner_id.vat or
+            company.vat or ''
+        ).replace('-', '').replace(' ', '').strip().upper()
         if not agent_rif:
             raise UserError(_('La compañía no tiene configurado un RIF válido para el SENIAT.'))
 
@@ -115,7 +121,11 @@ class WhIvaTxtWizard(models.TransientModel):
 
         for ret in retentions:
             move = ret.move_id
-            supplier_rif = (ret.partner_id.l10n_ve_rif_clean or ret.partner_id.vat or '').replace('-', '').strip().upper()
+            supplier_rif = (
+                getattr(ret.partner_id, 'l10n_ve_rif_clean', False) or
+                ret.partner_id.l10n_ve_rif or
+                ret.partner_id.vat or ''
+            ).replace('-', '').replace(' ', '').strip().upper()
             invoice_date = (move.invoice_date or ret.date).strftime('%Y-%m-%d')
             op_type = 'C'  # Compras
 

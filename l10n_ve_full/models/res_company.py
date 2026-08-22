@@ -9,6 +9,7 @@ parámetros de retención y la UT activa.
 Autor: JeanPerozo / Nubelco
 """
 from odoo import models, fields, api, _
+import re
 
 
 class ResCompany(models.Model):
@@ -47,8 +48,13 @@ class ResCompany(models.Model):
     # ------------------------------------------------------------------
     l10n_ve_rif = fields.Char(
         string='RIF',
-        size=12,
+        size=15,
         help='Registro de Información Fiscal. Ej: J-12345678-9',
+    )
+    l10n_ve_rif_clean = fields.Char(
+        string='RIF (sin formato)',
+        compute='_compute_rif_clean',
+        store=True,
     )
     l10n_ve_contributor_type = fields.Selection([
         ('ordinary',    'Contribuyente Ordinario'),
@@ -220,6 +226,12 @@ class ResCompany(models.Model):
     # ------------------------------------------------------------------
     # Compute
     # ------------------------------------------------------------------
+    @api.depends('l10n_ve_rif', 'partner_id.vat', 'partner_id.l10n_ve_rif')
+    def _compute_rif_clean(self):
+        for company in self:
+            rif = company.l10n_ve_rif or company.partner_id.l10n_ve_rif or company.partner_id.vat or company.vat or ''
+            company.l10n_ve_rif_clean = re.sub(r'[^A-Za-z0-9]', '', rif).upper()
+
     def _compute_current_ut(self):
         today = fields.Date.context_today(self)
         for company in self:
