@@ -1,2 +1,137 @@
 <?xml version="1.0" encoding="utf-8"?>
-<odoo><!-- report_fiscal_book.xml: content merged into report_wh_municipal.xml --></odoo>
+<odoo>
+    <!-- ================================================================
+         REPORTE OFICIAL SENIAT: LIBRO FISCAL (COMPRAS Y VENTAS)
+    ================================================================ -->
+    <record id="paperformat_fiscal_book_landscape" model="report.paperformat">
+        <field name="name">Formato Papel Libro Fiscal Horizontal</field>
+        <field name="default" eval="True"/>
+        <field name="format">A4</field>
+        <field name="orientation">Landscape</field>
+        <field name="margin_top">15</field>
+        <field name="margin_bottom">15</field>
+        <field name="margin_left">10</field>
+        <field name="margin_right">10</field>
+        <field name="header_line" eval="False"/>
+        <field name="header_spacing">10</field>
+        <field name="dpi">90</field>
+    </record>
+
+    <record id="action_report_fiscal_book" model="ir.actions.report">
+        <field name="name">Libro Fiscal SENIAT (PDF)</field>
+        <field name="model">account.fiscal.book</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">l10n_ve_full.report_fiscal_book_template</field>
+        <field name="report_file">l10n_ve_full.report_fiscal_book_template</field>
+        <field name="paperformat_id" ref="l10n_ve_full.paperformat_fiscal_book_landscape"/>
+        <field name="binding_model_id" ref="model_account_fiscal_book"/>
+        <field name="binding_type">report</field>
+    </record>
+
+    <template id="report_fiscal_book_template">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="doc">
+                <div class="page" style="font-family: Arial, sans-serif; font-size: 8px; color: #000;">
+                    
+                    <!-- ENCABEZADO FISCAL OFICIAL -->
+                    <table style="width: 100%; margin-bottom: 12px; border-bottom: 2px solid #000; padding-bottom: 5px;">
+                        <tr>
+                            <td style="width: 60%; vertical-align: top;">
+                                <strong style="font-size: 13px; text-transform: uppercase;"><t t-esc="doc.company_id.name"/></strong><br/>
+                                <strong style="font-size: 10px;">RIF: <t t-esc="doc.company_id.l10n_ve_rif or doc.company_id.vat or 'J-00000000-0'"/></strong><br/>
+                                <span style="font-size: 9px;"><t t-esc="doc.company_id.partner_id.contact_address or ''"/></span>
+                            </td>
+                            <td style="width: 40%; text-align: right; vertical-align: top;">
+                                <h2 style="margin: 0; font-size: 14px; font-weight: bold; text-transform: uppercase; color: #1e3a8a;">
+                                    <t t-if="doc.book_type == 'purchase'">LIBRO DE COMPRAS</t>
+                                    <t t-else="">LIBRO DE VENTAS</t>
+                                </h2>
+                                <div style="font-size: 9px; font-weight: bold; margin-top: 3px;">
+                                    PERÍODO: DESDE <span t-esc="doc.date_from" t-options="{'widget': 'date'}"/> HASTA <span t-esc="doc.date_to" t-options="{'widget': 'date'}"/>
+                                </div>
+                                <div style="font-size: 8px; color: #555;">
+                                    (Valores expresados en Bolívares - Bs.)
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+
+                    <!-- TABLA PRINCIPAL DE LÍNEAS FISCALES -->
+                    <table class="table table-bordered table-sm" style="width: 100%; border-collapse: collapse; font-size: 7.5px; margin-bottom: 15px;">
+                        <thead style="background-color: #f1f5f9; text-align: center; font-weight: bold; border-top: 1px solid #000; border-bottom: 1px solid #000;">
+                            <tr>
+                                <th style="border: 1px solid #cbd5e1; padding: 3px;">N° Op</th>
+                                <th style="border: 1px solid #cbd5e1; padding: 3px;">Fecha</th>
+                                <th style="border: 1px solid #cbd5e1; padding: 3px;">RIF</th>
+                                <th style="border: 1px solid #cbd5e1; padding: 3px;">Nombre / Razón Social</th>
+                                <th style="border: 1px solid #cbd5e1; padding: 3px;">Tipo</th>
+                                <th style="border: 1px solid #cbd5e1; padding: 3px;">N° Factura</th>
+                                <th style="border: 1px solid #cbd5e1; padding: 3px;">N° Control</th>
+                                <th style="border: 1px solid #cbd5e1; padding: 3px;">Fact. Afectada</th>
+                                <th style="border: 1px solid #cbd5e1; padding: 3px;">Trans.</th>
+                                <th style="border: 1px solid #cbd5e1; padding: 3px;">Total con IVA</th>
+                                <th style="border: 1px solid #cbd5e1; padding: 3px;">Exento / SDCF</th>
+                                <th style="border: 1px solid #cbd5e1; padding: 3px;">Base Imp. (16%)</th>
+                                <th style="border: 1px solid #cbd5e1; padding: 3px;">IVA (16%)</th>
+                                <th style="border: 1px solid #cbd5e1; padding: 3px;">N° Comprobante</th>
+                                <th style="border: 1px solid #cbd5e1; padding: 3px;">IVA Retenido</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <t t-set="seq" t-value="1"/>
+                            <tr t-foreach="doc.line_ids" t-as="line" style="border-bottom: 1px solid #e2e8f0;">
+                                <td style="border: 1px solid #e2e8f0; text-align: center; padding: 2px;"><t t-esc="line.line_no or seq"/></td>
+                                <td style="border: 1px solid #e2e8f0; text-align: center; padding: 2px;"><span t-esc="line.date" t-options="{'widget': 'date'}"/></td>
+                                <td style="border: 1px solid #e2e8f0; padding: 2px;"><t t-esc="line.rif"/></td>
+                                <td style="border: 1px solid #e2e8f0; padding: 2px; max-width: 140px; overflow: hidden; white-space: nowrap;"><t t-esc="line.partner_name"/></td>
+                                <td style="border: 1px solid #e2e8f0; text-align: center; padding: 2px;"><t t-esc="line.partner_type or 'pjdo'"/></td>
+                                <td style="border: 1px solid #e2e8f0; text-align: center; padding: 2px;"><t t-esc="line.invoice_number"/></td>
+                                <td style="border: 1px solid #e2e8f0; text-align: center; padding: 2px;"><t t-esc="line.control_number"/></td>
+                                <td style="border: 1px solid #e2e8f0; text-align: center; padding: 2px;"><t t-esc="line.affected_invoice"/></td>
+                                <td style="border: 1px solid #e2e8f0; text-align: center; padding: 2px;"><t t-esc="line.transaction_type or '01-REG'"/></td>
+                                <td style="border: 1px solid #e2e8f0; text-align: right; padding: 2px;"><span t-esc="line.total_amount_bs" t-options="{'widget': 'monetary', 'display_currency': doc.currency_bs_id}"/></td>
+                                <td style="border: 1px solid #e2e8f0; text-align: right; padding: 2px;"><span t-esc="line.exempt_bs + line.sdcf_bs" t-options="{'widget': 'monetary', 'display_currency': doc.currency_bs_id}"/></td>
+                                <td style="border: 1px solid #e2e8f0; text-align: right; padding: 2px;"><span t-esc="line.base_general_bs" t-options="{'widget': 'monetary', 'display_currency': doc.currency_bs_id}"/></td>
+                                <td style="border: 1px solid #e2e8f0; text-align: right; padding: 2px;"><span t-esc="line.iva_general_bs" t-options="{'widget': 'monetary', 'display_currency': doc.currency_bs_id}"/></td>
+                                <td style="border: 1px solid #e2e8f0; text-align: center; padding: 2px;"><t t-esc="line.wh_voucher_number"/></td>
+                                <td style="border: 1px solid #e2e8f0; text-align: right; padding: 2px;"><span t-esc="line.wh_amount_bs" t-options="{'widget': 'monetary', 'display_currency': doc.currency_bs_id}"/></td>
+                                <t t-set="seq" t-value="seq + 1"/>
+                            </tr>
+                        </tbody>
+                        <tfoot style="background-color: #e2e8f0; font-weight: bold; border-top: 2px solid #000; border-bottom: 2px solid #000;">
+                            <tr>
+                                <td colspan="9" style="text-align: right; padding: 4px;">TOTALES GENERALES:</td>
+                                <td style="text-align: right; padding: 4px;"><span t-esc="doc.total_amount_bs" t-options="{'widget': 'monetary', 'display_currency': doc.currency_bs_id}"/></td>
+                                <td style="text-align: right; padding: 4px;"><span t-esc="doc.total_exempt_bs + doc.total_sdcf_bs" t-options="{'widget': 'monetary', 'display_currency': doc.currency_bs_id}"/></td>
+                                <td style="text-align: right; padding: 4px;"><span t-esc="doc.total_base_bs" t-options="{'widget': 'monetary', 'display_currency': doc.currency_bs_id}"/></td>
+                                <td style="text-align: right; padding: 4px;"><span t-esc="doc.total_iva_bs" t-options="{'widget': 'monetary', 'display_currency': doc.currency_bs_id}"/></td>
+                                <td style="text-align: center; padding: 4px;">-</td>
+                                <td style="text-align: right; padding: 4px;"><span t-esc="doc.total_wh_iva_bs" t-options="{'widget': 'monetary', 'display_currency': doc.currency_bs_id}"/></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+
+                    <!-- RESUMEN Y FIRMAS -->
+                    <table style="width: 100%; margin-top: 20px;">
+                        <tr>
+                            <td style="width: 45%; border: 1px solid #cbd5e1; padding: 8px; font-size: 8px; vertical-align: top;">
+                                <strong>RESUMEN DE OPERACIONES FISCALES:</strong><br/>
+                                • Total Base Imponible: <span t-esc="doc.total_base_bs" t-options="{'widget': 'monetary', 'display_currency': doc.currency_bs_id}"/><br/>
+                                • Total Impuesto Débito/Crédito: <span t-esc="doc.total_iva_bs" t-options="{'widget': 'monetary', 'display_currency': doc.currency_bs_id}"/><br/>
+                                • Total Retención de IVA: <span t-esc="doc.total_wh_iva_bs" t-options="{'widget': 'monetary', 'display_currency': doc.currency_bs_id}"/><br/>
+                            </td>
+                            <td style="width: 10%;"></td>
+                            <td style="width: 45%; text-align: center; vertical-align: bottom; font-size: 8px;">
+                                <div style="border-top: 1px solid #000; width: 80%; margin: auto; padding-top: 4px;">
+                                    <strong>REPRESENTANTE LEGAL / CONTADOR</strong><br/>
+                                    <span>Firma y Sello</span>
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+
+                </div>
+            </t>
+        </t>
+    </template>
+</odoo>

@@ -1,27 +1,41 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <record id="view_fiscal_book_wizard_form" model="ir.ui.view">
+    <!--
+        Venezuela360: Modal "Libro Fiscal" (account.fiscal.book.wizard.form)
+        ====================================================================
+        Coincidencia visual exacta con la Imagen 3 de referencia:
+          - Fecha de Inicio
+          - Tipo (Venta / Compra)
+          - Fecha Fin
+          - Botones: [Cancelar] [Imprimir PDF] [Imprimir XLSX]
+    -->
+    <record id="view_account_fiscal_book_wizard_form" model="ir.ui.view">
         <field name="name">account.fiscal.book.wizard.form</field>
         <field name="model">account.fiscal.book.wizard</field>
         <field name="arch" type="xml">
-            <form string="Generar Libro Fiscal">
-                <group>
-                    <field name="book_type"/>
-                    <field name="date_from"/>
-                    <field name="date_to"/>
-                    <field name="company_id" groups="base.group_multi_company"/>
-                    <field name="check_existing"/>
-                </group>
+            <form string="Libro Fiscal">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="date_from" string="Fecha de Inicio"/>
+                            <field name="book_type" string="Tipo"/>
+                            <field name="date_to" string="Fecha Fin"/>
+                            <field name="company_id" invisible="1"/>
+                            <field name="book_id" invisible="1"/>
+                        </group>
+                    </group>
+                </sheet>
                 <footer>
-                    <button name="action_generate_book" string="Generar Libro"
-                            type="object" class="btn-primary"/>
                     <button string="Cancelar" class="btn-secondary" special="cancel"/>
+                    <button name="action_print_pdf" string="Imprimir PDF" type="object" class="btn-primary"/>
+                    <button name="action_print_xlsx" string="Imprimir XLSX" type="object" class="btn-secondary"/>
                 </footer>
             </form>
         </field>
     </record>
-    <record id="action_fiscal_book_wizard" model="ir.actions.act_window">
-        <field name="name">Generar Libro Fiscal</field>
+
+    <record id="action_account_fiscal_book_wizard" model="ir.actions.act_window">
+        <field name="name">Libro Fiscal</field>
         <field name="res_model">account.fiscal.book.wizard</field>
         <field name="view_mode">form</field>
         <field name="target">new</field>
