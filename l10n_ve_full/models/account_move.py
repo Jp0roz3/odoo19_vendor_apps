@@ -686,3 +686,66 @@ class AccountMoveLine(models.Model):
                 line.l10n_ve_debit_bs = round(line.debit * rate, 2)
                 line.l10n_ve_credit_bs = round(line.credit * rate, 2)
                 line.l10n_ve_amount_residual_bs = round(line.amount_residual * rate, 2)
+
+    def _get_computed_price_unit(self):
+        """Asegura que el precio unitario en facturas en USD use el precio real en USD sin dividir por la tasa."""
+        self.ensure_one()
+        if not self.product_id:
+            return super()._get_computed_price_unit()
+
+        move = self.move_id
+        is_usd = move.currency_id and move.currency_id.name in ['USD', '$']
+        is_bs = move.currency_id and move.currency_id.name in ['VES', 'VEF', 'VEB']
+
+        if is_usd:
+            if move.is_sale_document(include_receipts=True):
+                usd_price = getattr(self.product_id, 'l10n_ve_list_price_usd', 0.0) or self.product_id.lst_price
+                if usd_price > 0:
+                    return usd_price
+            elif move.is_purchase_document(include_receipts=True):
+                cost_usd = getattr(self.product_id, 'l10n_ve_standard_price_usd', 0.0) or self.product_id.standard_price
+                if cost_usd > 0:
+                    return cost_usd
+
+        elif is_bs:
+            rate = move.l10n_ve_rate_applied or move.l10n_ve_rate or move.company_id.get_current_bcv_rate() or 779.9522
+            if move.is_sale_document(include_receipts=True):
+                usd_price = getattr(self.product_id, 'l10n_ve_list_price_usd', 0.0) or self.product_id.lst_price
+                if usd_price > 0:
+                    return round(usd_price * rate, 2)
+            elif move.is_purchase_document(include_receipts=True):
+                cost_usd = getattr(self.product_id, 'l10n_ve_standard_price_usd', 0.0) or self.product_id.standard_price
+                if cost_usd > 0:
+                    return round(cost_usd * rate, 2)
+
+        return super()._get_computed_price_unit()
+
+    @api.onchange('product_id')
+    def _onchange_product_id_ve_price_unit(self):
+        """Asigna inmediatamente el precio unitario correcto al seleccionar el producto en la vista de factura."""
+        for line in self:
+            if not line.product_id:
+                continue
+            move = line.move_id
+            is_usd = move.currency_id and move.currency_id.name in ['USD', '$']
+            is_bs = move.currency_id and move.currency_id.name in ['VES', 'VEF', 'VEB']
+
+            if is_usd:
+                if move.is_sale_document(include_receipts=True):
+                    usd_price = getattr(line.product_id, 'l10n_ve_list_price_usd', 0.0) or line.product_id.lst_price
+                    if usd_price > 0:
+                        line.price_unit = usd_price
+                elif move.is_purchase_document(include_receipts=True):
+                    cost_usd = getattr(line.product_id, 'l10n_ve_standard_price_usd', 0.0) or line.product_id.standard_price
+                    if cost_usd > 0:
+                        line.price_unit = cost_usd
+            elif is_bs:
+                rate = move.l10n_ve_rate_applied or move.l10n_ve_rate or move.company_id.get_current_bcv_rate() or 779.9522
+                if move.is_sale_document(include_receipts=True):
+                    usd_price = getattr(line.product_id, 'l10n_ve_list_price_usd', 0.0) or line.product_id.lst_price
+                    if usd_price > 0:
+                        line.price_unit = round(usd_price * rate, 2)
+                elif move.is_purchase_document(include_receipts=True):
+                    cost_usd = getattr(line.product_id, 'l10n_ve_standard_price_usd', 0.0) or line.product_id.standard_price
+                    if cost_usd > 0:
+                        line.price_unit = round(cost_usd * rate, 2)

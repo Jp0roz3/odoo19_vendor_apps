@@ -109,17 +109,24 @@ class AccountJournal(models.Model):
 
             # ── DIARIOS BANCO / EFECTIVO / TARJETA ──────────────────────
             elif journal.type in ('bank', 'cash', 'credit'):
+                journal_curr = journal.currency_id or company.currency_id
+                is_journal_usd = journal_curr and journal_curr.name in ['USD', '$']
+
                 journal_acc_id = journal.default_account_id.id if journal.default_account_id else False
                 if journal_acc_id:
                     acc_lines = self.env['account.move.line'].search([
                         ('account_id', '=', journal_acc_id),
                         ('parent_state', '=', 'posted'),
                     ])
-                    acc_bs = sum(l.l10n_ve_debit_bs - l.l10n_ve_credit_bs for l in acc_lines)
+                    if is_journal_usd:
+                        acc_usd = sum(l.debit - l.credit for l in acc_lines)
+                        acc_bs = round(acc_usd * rate_bcv, 2)
+                    else:
+                        acc_bs = sum(l.l10n_ve_debit_bs - l.l10n_ve_credit_bs for l in acc_lines) or sum(l.debit - l.credit for l in acc_lines)
+                        acc_usd = round(acc_bs / rate_bcv, 2) if rate_bcv else 0.0
                 else:
                     acc_bs = 0.0
-
-                acc_usd = round(acc_bs / rate_bcv, 2) if rate_bcv else 0.0
+                    acc_usd = 0.0
 
                 out_lines = self.env['account.move.line'].search([
                     ('journal_id', '=', journal.id),
@@ -127,10 +134,19 @@ class AccountJournal(models.Model):
                     ('full_reconcile_id', '=', False),
                     ('account_id.account_type', 'in', ['asset_receivable', 'liability_payable', 'asset_current', 'liability_current']),
                 ])
-                out_bs = sum(abs(l.l10n_ve_debit_bs - l.l10n_ve_credit_bs) for l in out_lines)
-                out_usd = round(out_bs / rate_bcv, 2) if rate_bcv else 0.0
+                if is_journal_usd:
+                    out_usd = sum(abs(l.debit - l.credit) for l in out_lines)
+                    out_bs = round(out_usd * rate_bcv, 2)
+                else:
+                    out_bs = sum(abs(l.l10n_ve_debit_bs - l.l10n_ve_credit_bs) for l in out_lines) or sum(abs(l.debit - l.credit) for l in out_lines)
+                    out_usd = round(out_bs / rate_bcv, 2) if rate_bcv else 0.0
 
-                last_bal_usd = round((journal.last_statement_id.balance_end_real if journal.last_statement_id else 0.0), 2)
+                if is_journal_usd:
+                    last_bal_usd = round((journal.last_statement_id.balance_end_real if journal.last_statement_id else 0.0), 2)
+                    last_bal_bs = round(last_bal_usd * rate_bcv, 2)
+                else:
+                    last_bal_bs = round((journal.last_statement_id.balance_end_real if journal.last_statement_id else 0.0), 2)
+                    last_bal_usd = round(last_bal_bs / rate_bcv, 2) if rate_bcv else 0.0
 
                 data['account_balance_usd'] = self._format_ve_usd(acc_usd)
                 data['outstanding_pay_balance_usd'] = self._format_ve_usd(out_usd)
@@ -138,10 +154,7 @@ class AccountJournal(models.Model):
 
                 data['account_balance_bs'] = self._format_ve_bs(acc_bs, symbol_bs)
                 data['outstanding_pay_balance_bs'] = self._format_ve_bs(out_bs, symbol_bs)
-                data['last_balance_bs'] = self._format_ve_bs(
-                    (journal.last_statement_id.balance_end_real if journal.last_statement_id else 0.0) * rate_bcv,
-                    symbol_bs
-                )
+                data['last_balance_bs'] = self._format_ve_bs(last_bal_bs, symbol_bs)
 
             data['l10n_ve_dual_active'] = True
 
