@@ -75,11 +75,16 @@ class L10nVeMunicipality(models.Model):
         help='Código fiscal del municipio ante el SENIAT.',
     )
     state_id = fields.Many2one(
-        comodel_name='l10n_ve.state',
+        comodel_name='res.country.state',
         string='Estado',
         required=True,
         ondelete='restrict',
         index=True,
+        domain="[('country_id.code', '=', 'VE')]",
+    )
+    l10n_ve_state_id = fields.Many2one(
+        comodel_name='l10n_ve.state',
+        string='Estado VE',
     )
     parish_ids = fields.One2many(
         comodel_name='l10n_ve.parish',

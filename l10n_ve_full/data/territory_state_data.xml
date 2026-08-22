@@ -230,7 +230,8 @@
     <record id="ve_mun_am_atures" model="l10n_ve.municipality">
         <field name="name">Atures (Puerto Ayacucho)</field>
         <field name="code">AM-ATU</field>
-        <field name="state_id" ref="ve_state_amazonas"/>
+        <field name="state_id" ref="ve_res_state_am"/>
+        <field name="l10n_ve_state_id" ref="ve_state_amazonas"/>
     </record>
     <record id="ve_mun_am_atures_parish_1" model="l10n_ve.parish">
         <field name="name">Fernando Girón Tovar</field>
@@ -251,7 +252,8 @@
     <record id="ve_mun_am_autana" model="l10n_ve.municipality">
         <field name="name">Autana</field>
         <field name="code">AM-AUT</field>
-        <field name="state_id" ref="ve_state_amazonas"/>
+        <field name="state_id" ref="ve_res_state_am"/>
+        <field name="l10n_ve_state_id" ref="ve_state_amazonas"/>
     </record>
     <record id="ve_mun_am_autana_parish_1" model="l10n_ve.parish">
         <field name="name">Isla Ratón</field>
@@ -276,7 +278,8 @@
     <record id="ve_mun_am_atabapo" model="l10n_ve.municipality">
         <field name="name">Atabapo</field>
         <field name="code">AM-ATA</field>
-        <field name="state_id" ref="ve_state_amazonas"/>
+        <field name="state_id" ref="ve_res_state_am"/>
+        <field name="l10n_ve_state_id" ref="ve_state_amazonas"/>
     </record>
     <record id="ve_mun_am_atabapo_parish_1" model="l10n_ve.parish">
         <field name="name">San Fernando de Atabapo</field>
@@ -297,7 +300,8 @@
     <record id="ve_mun_am_maroa" model="l10n_ve.municipality">
         <field name="name">Maroa</field>
         <field name="code">AM-MAR</field>
-        <field name="state_id" ref="ve_state_amazonas"/>
+        <field name="state_id" ref="ve_res_state_am"/>
+        <field name="l10n_ve_state_id" ref="ve_state_amazonas"/>
     </record>
     <record id="ve_mun_am_maroa_parish_1" model="l10n_ve.parish">
         <field name="name">Maroa</field>
@@ -314,7 +318,8 @@
     <record id="ve_mun_am_rio_negro" model="l10n_ve.municipality">
         <field name="name">Río Negro</field>
         <field name="code">AM-RNE</field>
-        <field name="state_id" ref="ve_state_amazonas"/>
+        <field name="state_id" ref="ve_res_state_am"/>
+        <field name="l10n_ve_state_id" ref="ve_state_amazonas"/>
     </record>
     <record id="ve_mun_am_rio_negro_parish_1" model="l10n_ve.parish">
         <field name="name">San Carlos de Río Negro</field>
@@ -335,7 +340,8 @@
     <record id="ve_mun_am_manapiare" model="l10n_ve.municipality">
         <field name="name">Manapiare</field>
         <field name="code">AM-MAN</field>
-        <field name="state_id" ref="ve_state_amazonas"/>
+        <field name="state_id" ref="ve_res_state_am"/>
+        <field name="l10n_ve_state_id" ref="ve_state_amazonas"/>
     </record>
     <record id="ve_mun_am_manapiare_parish_1" model="l10n_ve.parish">
         <field name="name">San Juan de Manapiare</field>
@@ -356,7 +362,8 @@
     <record id="ve_mun_am_alto_orinoco" model="l10n_ve.municipality">
         <field name="name">Alto Orinoco</field>
         <field name="code">AM-AOR</field>
-        <field name="state_id" ref="ve_state_amazonas"/>
+        <field name="state_id" ref="ve_res_state_am"/>
+        <field name="l10n_ve_state_id" ref="ve_state_amazonas"/>
     </record>
     <record id="ve_mun_am_alto_orinoco_parish_1" model="l10n_ve.parish">
         <field name="name">La Esmeralda</field>
@@ -381,7 +388,8 @@
     <record id="ve_mun_an_simon_bolivar" model="l10n_ve.municipality">
         <field name="name">Simón Bolívar (Barcelona)</field>
         <field name="code">AN-SBO</field>
-        <field name="state_id" ref="ve_state_anzoategui"/>
+        <field name="state_id" ref="ve_res_state_an"/>
+        <field name="l10n_ve_state_id" ref="ve_state_anzoategui"/>
     </record>
     <record id="ve_mun_an_simon_bolivar_parish_1" model="l10n_ve.parish">
         <field name="name">El Carmen</field>
@@ -410,7 +418,8 @@
     <record id="ve_mun_an_sotillo" model="l10n_ve.municipality">
         <field name="name">Juan Antonio Sotillo (Puerto La Cruz)</field>
         <field name="code">AN-SOT</field>
-        <field name="state_id" ref="ve_state_anzoategui"/>
+        <field name="state_id" ref="ve_res_state_an"/>
+        <field name="l10n_ve_state_id" ref="ve_state_anzoategui"/>
     </record>
     <record id="ve_mun_an_sotillo_parish_1" model="l10n_ve.parish">
         <field name="name">Puerto La Cruz</field>
@@ -423,7 +432,8 @@
     <record id="ve_mun_an_urbaneja" model="l10n_ve.municipality">
         <field name="name">Diego Bautista Urbaneja (Lechería)</field>
         <field name="code">AN-URB</field>
-        <field name="state_id" ref="ve_state_anzoategui"/>
+        <field name="state_id" ref="ve_res_state_an"/>
+        <field name="l10n_ve_state_id" ref="ve_state_anzoategui"/>
     </record>
     <record id="ve_mun_an_urbaneja_parish_1" model="l10n_ve.parish">
         <field name="name">Lechería</field>
@@ -436,7 +446,8 @@
     <record id="ve_mun_an_guanta" model="l10n_ve.municipality">
         <field name="name">Guanta</field>
         <field name="code">AN-GUA</field>
-        <field name="state_id" ref="ve_state_anzoategui"/>
+        <field name="state_id" ref="ve_res_state_an"/>
+        <field name="l10n_ve_state_id" ref="ve_state_anzoategui"/>
     </record>
     <record id="ve_mun_an_guanta_parish_1" model="l10n_ve.parish">
         <field name="name">Guanta</field>
@@ -449,7 +460,8 @@
     <record id="ve_mun_an_anaco" model="l10n_ve.municipality">
         <field name="name">Anaco</field>
         <field name="code">AN-ANA</field>
-        <field name="state_id" ref="ve_state_anzoategui"/>
+        <field name="state_id" ref="ve_res_state_an"/>
+        <field name="l10n_ve_state_id" ref="ve_state_anzoategui"/>
     </record>
     <record id="ve_mun_an_anaco_parish_1" model="l10n_ve.parish">
         <field name="name">Anaco</field>
@@ -462,7 +474,8 @@
     <record id="ve_mun_an_simon_rodriguez" model="l10n_ve.municipality">
         <field name="name">Simón Rodríguez (El Tigre)</field>
         <field name="code">AN-SRO</field>
-        <field name="state_id" ref="ve_state_anzoategui"/>
+        <field name="state_id" ref="ve_res_state_an"/>
+        <field name="l10n_ve_state_id" ref="ve_state_anzoategui"/>
     </record>
     <record id="ve_mun_an_simon_rodriguez_parish_1" model="l10n_ve.parish">
         <field name="name">Edmundo Barrios</field>
@@ -475,7 +488,8 @@
     <record id="ve_mun_an_guanipa" model="l10n_ve.municipality">
         <field name="name">San José de Guanipa (El Tigrito)</field>
         <field name="code">AN-GNI</field>
-        <field name="state_id" ref="ve_state_anzoategui"/>
+        <field name="state_id" ref="ve_res_state_an"/>
+        <field name="l10n_ve_state_id" ref="ve_state_anzoategui"/>
     </record>
     <record id="ve_mun_an_guanipa_parish_1" model="l10n_ve.parish">
         <field name="name">San José de Guanipa</field>
@@ -484,7 +498,8 @@
     <record id="ve_mun_an_freites" model="l10n_ve.municipality">
         <field name="name">Pedro María Freites (Cantaura)</field>
         <field name="code">AN-FRE</field>
-        <field name="state_id" ref="ve_state_anzoategui"/>
+        <field name="state_id" ref="ve_res_state_an"/>
+        <field name="l10n_ve_state_id" ref="ve_state_anzoategui"/>
     </record>
     <record id="ve_mun_an_freites_parish_1" model="l10n_ve.parish">
         <field name="name">Cantaura</field>
@@ -505,7 +520,8 @@
     <record id="ve_mun_an_aragua" model="l10n_ve.municipality">
         <field name="name">Aragua</field>
         <field name="code">AN-ARA</field>
-        <field name="state_id" ref="ve_state_anzoategui"/>
+        <field name="state_id" ref="ve_res_state_an"/>
+        <field name="l10n_ve_state_id" ref="ve_state_anzoategui"/>
     </record>
     <record id="ve_mun_an_aragua_parish_1" model="l10n_ve.parish">
         <field name="name">Aragua de Barcelona</field>
@@ -518,7 +534,8 @@
     <record id="ve_mun_an_bruzual" model="l10n_ve.municipality">
         <field name="name">Manuel Ezequiel Bruzual (Clarines)</field>
         <field name="code">AN-BRU</field>
-        <field name="state_id" ref="ve_state_anzoategui"/>
+        <field name="state_id" ref="ve_res_state_an"/>
+        <field name="l10n_ve_state_id" ref="ve_state_anzoategui"/>
     </record>
     <record id="ve_mun_an_bruzual_parish_1" model="l10n_ve.parish">
         <field name="name">Clarines</field>
@@ -535,7 +552,8 @@
     <record id="ve_mun_an_pealver" model="l10n_ve.municipality">
         <field name="name">Fernando de Peñalver (Puerto Píritu)</field>
         <field name="code">AN-PEN</field>
-        <field name="state_id" ref="ve_state_anzoategui"/>
+        <field name="state_id" ref="ve_res_state_an"/>
+        <field name="l10n_ve_state_id" ref="ve_state_anzoategui"/>
     </record>
     <record id="ve_mun_an_pealver_parish_1" model="l10n_ve.parish">
         <field name="name">Puerto Píritu</field>
@@ -552,7 +570,8 @@
     <record id="ve_mun_an_piritu" model="l10n_ve.municipality">
         <field name="name">Píritu</field>
         <field name="code">AN-PIR</field>
-        <field name="state_id" ref="ve_state_anzoategui"/>
+        <field name="state_id" ref="ve_res_state_an"/>
+        <field name="l10n_ve_state_id" ref="ve_state_anzoategui"/>
     </record>
     <record id="ve_mun_an_piritu_parish_1" model="l10n_ve.parish">
         <field name="name">Píritu</field>
@@ -565,7 +584,8 @@
     <record id="ve_mun_an_carvajal" model="l10n_ve.municipality">
         <field name="name">San Juan de Capistrano (Boca de Uchire)</field>
         <field name="code">AN-CAP</field>
-        <field name="state_id" ref="ve_state_anzoategui"/>
+        <field name="state_id" ref="ve_res_state_an"/>
+        <field name="l10n_ve_state_id" ref="ve_state_anzoategui"/>
     </record>
     <record id="ve_mun_an_carvajal_parish_1" model="l10n_ve.parish">
         <field name="name">Boca de Uchire</field>
@@ -578,7 +598,8 @@
     <record id="ve_mun_an_libertad" model="l10n_ve.municipality">
         <field name="name">Libertad</field>
         <field name="code">AN-LIB</field>
-        <field name="state_id" ref="ve_state_anzoategui"/>
+        <field name="state_id" ref="ve_res_state_an"/>
+        <field name="l10n_ve_state_id" ref="ve_state_anzoategui"/>
     </record>
     <record id="ve_mun_an_libertad_parish_1" model="l10n_ve.parish">
         <field name="name">San Mateo</field>
@@ -595,7 +616,8 @@
     <record id="ve_mun_an_mcgregor" model="l10n_ve.municipality">
         <field name="name">Sir Arthur McGregor</field>
         <field name="code">AN-MCG</field>
-        <field name="state_id" ref="ve_state_anzoategui"/>
+        <field name="state_id" ref="ve_res_state_an"/>
+        <field name="l10n_ve_state_id" ref="ve_state_anzoategui"/>
     </record>
     <record id="ve_mun_an_mcgregor_parish_1" model="l10n_ve.parish">
         <field name="name">El Chaparro</field>
@@ -608,7 +630,8 @@
     <record id="ve_mun_an_miranda" model="l10n_ve.municipality">
         <field name="name">Francisco de Miranda (Pariaguán)</field>
         <field name="code">AN-MIR</field>
-        <field name="state_id" ref="ve_state_anzoategui"/>
+        <field name="state_id" ref="ve_res_state_an"/>
+        <field name="l10n_ve_state_id" ref="ve_state_anzoategui"/>
     </record>
     <record id="ve_mun_an_miranda_parish_1" model="l10n_ve.parish">
         <field name="name">Pariaguán</field>
@@ -629,7 +652,8 @@
     <record id="ve_mun_an_monagas" model="l10n_ve.municipality">
         <field name="name">José Gregorio Monagas (Mapire)</field>
         <field name="code">AN-MON</field>
-        <field name="state_id" ref="ve_state_anzoategui"/>
+        <field name="state_id" ref="ve_res_state_an"/>
+        <field name="l10n_ve_state_id" ref="ve_state_anzoategui"/>
     </record>
     <record id="ve_mun_an_monagas_parish_1" model="l10n_ve.parish">
         <field name="name">Mapire</field>
@@ -658,7 +682,8 @@
     <record id="ve_mun_an_independencia" model="l10n_ve.municipality">
         <field name="name">Independencia (Soledad)</field>
         <field name="code">AN-IND</field>
-        <field name="state_id" ref="ve_state_anzoategui"/>
+        <field name="state_id" ref="ve_res_state_an"/>
+        <field name="l10n_ve_state_id" ref="ve_state_anzoategui"/>
     </record>
     <record id="ve_mun_an_independencia_parish_1" model="l10n_ve.parish">
         <field name="name">Mamo</field>
@@ -671,7 +696,8 @@
     <record id="ve_mun_an_santa_ana" model="l10n_ve.municipality">
         <field name="name">Santa Ana</field>
         <field name="code">AN-SAN</field>
-        <field name="state_id" ref="ve_state_anzoategui"/>
+        <field name="state_id" ref="ve_res_state_an"/>
+        <field name="l10n_ve_state_id" ref="ve_state_anzoategui"/>
     </record>
     <record id="ve_mun_an_santa_ana_parish_1" model="l10n_ve.parish">
         <field name="name">Santa Ana</field>
@@ -684,7 +710,8 @@
     <record id="ve_mun_an_cajigal" model="l10n_ve.municipality">
         <field name="name">Juan Manuel Cajigal (Onoto)</field>
         <field name="code">AN-CAJ</field>
-        <field name="state_id" ref="ve_state_anzoategui"/>
+        <field name="state_id" ref="ve_res_state_an"/>
+        <field name="l10n_ve_state_id" ref="ve_state_anzoategui"/>
     </record>
     <record id="ve_mun_an_cajigal_parish_1" model="l10n_ve.parish">
         <field name="name">Onoto</field>
@@ -697,7 +724,8 @@
     <record id="ve_mun_ap_san_fernando" model="l10n_ve.municipality">
         <field name="name">San Fernando (San Fernando de Apure)</field>
         <field name="code">AP-SFE</field>
-        <field name="state_id" ref="ve_state_apure"/>
+        <field name="state_id" ref="ve_res_state_ap"/>
+        <field name="l10n_ve_state_id" ref="ve_state_apure"/>
     </record>
     <record id="ve_mun_ap_san_fernando_parish_1" model="l10n_ve.parish">
         <field name="name">San Fernando</field>
@@ -718,7 +746,8 @@
     <record id="ve_mun_ap_achaguas" model="l10n_ve.municipality">
         <field name="name">Achaguas</field>
         <field name="code">AP-ACH</field>
-        <field name="state_id" ref="ve_state_apure"/>
+        <field name="state_id" ref="ve_res_state_ap"/>
+        <field name="l10n_ve_state_id" ref="ve_state_apure"/>
     </record>
     <record id="ve_mun_ap_achaguas_parish_1" model="l10n_ve.parish">
         <field name="name">Achaguas</field>
@@ -747,7 +776,8 @@
     <record id="ve_mun_ap_biruaca" model="l10n_ve.municipality">
         <field name="name">Biruaca</field>
         <field name="code">AP-BIR</field>
-        <field name="state_id" ref="ve_state_apure"/>
+        <field name="state_id" ref="ve_res_state_ap"/>
+        <field name="l10n_ve_state_id" ref="ve_state_apure"/>
     </record>
     <record id="ve_mun_ap_biruaca_parish_1" model="l10n_ve.parish">
         <field name="name">Biruaca</field>
@@ -756,7 +786,8 @@
     <record id="ve_mun_ap_munoz" model="l10n_ve.municipality">
         <field name="name">Muñoz (Bruzual)</field>
         <field name="code">AP-MUN</field>
-        <field name="state_id" ref="ve_state_apure"/>
+        <field name="state_id" ref="ve_res_state_ap"/>
+        <field name="l10n_ve_state_id" ref="ve_state_apure"/>
     </record>
     <record id="ve_mun_ap_munoz_parish_1" model="l10n_ve.parish">
         <field name="name">Bruzual</field>
@@ -781,7 +812,8 @@
     <record id="ve_mun_ap_paez" model="l10n_ve.municipality">
         <field name="name">Páez (Guasdualito)</field>
         <field name="code">AP-PAE</field>
-        <field name="state_id" ref="ve_state_apure"/>
+        <field name="state_id" ref="ve_res_state_ap"/>
+        <field name="l10n_ve_state_id" ref="ve_state_apure"/>
     </record>
     <record id="ve_mun_ap_paez_parish_1" model="l10n_ve.parish">
         <field name="name">Guasdualito</field>
@@ -806,7 +838,8 @@
     <record id="ve_mun_ap_pedro_camejo" model="l10n_ve.municipality">
         <field name="name">Pedro Camejo (San Juan de Payara)</field>
         <field name="code">AP-PCA</field>
-        <field name="state_id" ref="ve_state_apure"/>
+        <field name="state_id" ref="ve_res_state_ap"/>
+        <field name="l10n_ve_state_id" ref="ve_state_apure"/>
     </record>
     <record id="ve_mun_ap_pedro_camejo_parish_1" model="l10n_ve.parish">
         <field name="name">San Juan de Payara</field>
@@ -823,7 +856,8 @@
     <record id="ve_mun_ap_romulo_gallegos" model="l10n_ve.municipality">
         <field name="name">Rómulo Gallegos (Elorza)</field>
         <field name="code">AP-RGA</field>
-        <field name="state_id" ref="ve_state_apure"/>
+        <field name="state_id" ref="ve_res_state_ap"/>
+        <field name="l10n_ve_state_id" ref="ve_state_apure"/>
     </record>
     <record id="ve_mun_ap_romulo_gallegos_parish_1" model="l10n_ve.parish">
         <field name="name">Elorza</field>
@@ -836,7 +870,8 @@
     <record id="ve_mun_ar_girardot" model="l10n_ve.municipality">
         <field name="name">Girardot (Maracay)</field>
         <field name="code">AR-GIR</field>
-        <field name="state_id" ref="ve_state_aragua"/>
+        <field name="state_id" ref="ve_res_state_ar"/>
+        <field name="l10n_ve_state_id" ref="ve_state_aragua"/>
     </record>
     <record id="ve_mun_ar_girardot_parish_1" model="l10n_ve.parish">
         <field name="name">Choroní</field>
@@ -873,7 +908,8 @@
     <record id="ve_mun_ar_santiago_marino" model="l10n_ve.municipality">
         <field name="name">Santiago Mariño (Turmero)</field>
         <field name="code">AR-SMA</field>
-        <field name="state_id" ref="ve_state_aragua"/>
+        <field name="state_id" ref="ve_res_state_ar"/>
+        <field name="l10n_ve_state_id" ref="ve_state_aragua"/>
     </record>
     <record id="ve_mun_ar_santiago_marino_parish_1" model="l10n_ve.parish">
         <field name="name">Turmero</field>
@@ -898,7 +934,8 @@
     <record id="ve_mun_ar_jose_felix_ribas" model="l10n_ve.municipality">
         <field name="name">José Félix Ribas (La Victoria)</field>
         <field name="code">AR-JFR</field>
-        <field name="state_id" ref="ve_state_aragua"/>
+        <field name="state_id" ref="ve_res_state_ar"/>
+        <field name="l10n_ve_state_id" ref="ve_state_aragua"/>
     </record>
     <record id="ve_mun_ar_jose_felix_ribas_parish_1" model="l10n_ve.parish">
         <field name="name">La Victoria</field>
@@ -923,7 +960,8 @@
     <record id="ve_mun_ar_mario_briceno" model="l10n_ve.municipality">
         <field name="name">Mario Briceño Iragorry (El Limón)</field>
         <field name="code">AR-MBI</field>
-        <field name="state_id" ref="ve_state_aragua"/>
+        <field name="state_id" ref="ve_res_state_ar"/>
+        <field name="l10n_ve_state_id" ref="ve_state_aragua"/>
     </record>
     <record id="ve_mun_ar_mario_briceno_parish_1" model="l10n_ve.parish">
         <field name="name">El Limón</field>
@@ -936,7 +974,8 @@
     <record id="ve_mun_ar_sucre" model="l10n_ve.municipality">
         <field name="name">Sucre (Cagua)</field>
         <field name="code">AR-SUC</field>
-        <field name="state_id" ref="ve_state_aragua"/>
+        <field name="state_id" ref="ve_res_state_ar"/>
+        <field name="l10n_ve_state_id" ref="ve_state_aragua"/>
     </record>
     <record id="ve_mun_ar_sucre_parish_1" model="l10n_ve.parish">
         <field name="name">Cagua</field>
@@ -949,7 +988,8 @@
     <record id="ve_mun_ar_zamora" model="l10n_ve.municipality">
         <field name="name">Zamora (Villa de Cura)</field>
         <field name="code">AR-ZAM</field>
-        <field name="state_id" ref="ve_state_aragua"/>
+        <field name="state_id" ref="ve_res_state_ar"/>
+        <field name="l10n_ve_state_id" ref="ve_state_aragua"/>
     </record>
     <record id="ve_mun_ar_zamora_parish_1" model="l10n_ve.parish">
         <field name="name">Villa de Cura</field>
@@ -974,7 +1014,8 @@
     <record id="ve_mun_ar_libertador" model="l10n_ve.municipality">
         <field name="name">Libertador (Palo Negro)</field>
         <field name="code">AR-LIB</field>
-        <field name="state_id" ref="ve_state_aragua"/>
+        <field name="state_id" ref="ve_res_state_ar"/>
+        <field name="l10n_ve_state_id" ref="ve_state_aragua"/>
     </record>
     <record id="ve_mun_ar_libertador_parish_1" model="l10n_ve.parish">
         <field name="name">Palo Negro</field>
@@ -987,7 +1028,8 @@
     <record id="ve_mun_ar_jose_angel_lamas" model="l10n_ve.municipality">
         <field name="name">José Ángel Lamas (Santa Cruz)</field>
         <field name="code">AR-JAL</field>
-        <field name="state_id" ref="ve_state_aragua"/>
+        <field name="state_id" ref="ve_res_state_ar"/>
+        <field name="l10n_ve_state_id" ref="ve_state_aragua"/>
     </record>
     <record id="ve_mun_ar_jose_angel_lamas_parish_1" model="l10n_ve.parish">
         <field name="name">Santa Cruz</field>
@@ -996,7 +1038,8 @@
     <record id="ve_mun_ar_bolivar" model="l10n_ve.municipality">
         <field name="name">Bolívar (San Mateo)</field>
         <field name="code">AR-BOL</field>
-        <field name="state_id" ref="ve_state_aragua"/>
+        <field name="state_id" ref="ve_res_state_ar"/>
+        <field name="l10n_ve_state_id" ref="ve_state_aragua"/>
     </record>
     <record id="ve_mun_ar_bolivar_parish_1" model="l10n_ve.parish">
         <field name="name">San Mateo</field>
@@ -1005,7 +1048,8 @@
     <record id="ve_mun_ar_santos_michelena" model="l10n_ve.municipality">
         <field name="name">Santos Michelena (Las Tejerías)</field>
         <field name="code">AR-SMI</field>
-        <field name="state_id" ref="ve_state_aragua"/>
+        <field name="state_id" ref="ve_res_state_ar"/>
+        <field name="l10n_ve_state_id" ref="ve_state_aragua"/>
     </record>
     <record id="ve_mun_ar_santos_michelena_parish_1" model="l10n_ve.parish">
         <field name="name">Las Tejerías</field>
@@ -1018,7 +1062,8 @@
     <record id="ve_mun_ar_tovar" model="l10n_ve.municipality">
         <field name="name">Tovar (Colonia Tovar)</field>
         <field name="code">AR-TOV</field>
-        <field name="state_id" ref="ve_state_aragua"/>
+        <field name="state_id" ref="ve_res_state_ar"/>
+        <field name="l10n_ve_state_id" ref="ve_state_aragua"/>
     </record>
     <record id="ve_mun_ar_tovar_parish_1" model="l10n_ve.parish">
         <field name="name">Colonia Tovar</field>
@@ -1027,7 +1072,8 @@
     <record id="ve_mun_ar_jose_rafael_revenga" model="l10n_ve.municipality">
         <field name="name">José Rafael Revenga (El Consejo)</field>
         <field name="code">AR-JRR</field>
-        <field name="state_id" ref="ve_state_aragua"/>
+        <field name="state_id" ref="ve_res_state_ar"/>
+        <field name="l10n_ve_state_id" ref="ve_state_aragua"/>
     </record>
     <record id="ve_mun_ar_jose_rafael_revenga_parish_1" model="l10n_ve.parish">
         <field name="name">El Consejo</field>
@@ -1036,7 +1082,8 @@
     <record id="ve_mun_ar_san_sebastian" model="l10n_ve.municipality">
         <field name="name">San Sebastián</field>
         <field name="code">AR-SSE</field>
-        <field name="state_id" ref="ve_state_aragua"/>
+        <field name="state_id" ref="ve_res_state_ar"/>
+        <field name="l10n_ve_state_id" ref="ve_state_aragua"/>
     </record>
     <record id="ve_mun_ar_san_sebastian_parish_1" model="l10n_ve.parish">
         <field name="name">San Sebastián</field>
@@ -1045,7 +1092,8 @@
     <record id="ve_mun_ar_san_casimiro" model="l10n_ve.municipality">
         <field name="name">San Casimiro</field>
         <field name="code">AR-SCA</field>
-        <field name="state_id" ref="ve_state_aragua"/>
+        <field name="state_id" ref="ve_res_state_ar"/>
+        <field name="l10n_ve_state_id" ref="ve_state_aragua"/>
     </record>
     <record id="ve_mun_ar_san_casimiro_parish_1" model="l10n_ve.parish">
         <field name="name">San Casimiro</field>
@@ -1066,7 +1114,8 @@
     <record id="ve_mun_ar_urdaneta" model="l10n_ve.municipality">
         <field name="name">Urdaneta (Barbacoas)</field>
         <field name="code">AR-URD</field>
-        <field name="state_id" ref="ve_state_aragua"/>
+        <field name="state_id" ref="ve_res_state_ar"/>
+        <field name="l10n_ve_state_id" ref="ve_state_aragua"/>
     </record>
     <record id="ve_mun_ar_urdaneta_parish_1" model="l10n_ve.parish">
         <field name="name">Barbacoas</field>
@@ -1087,7 +1136,8 @@
     <record id="ve_mun_ar_camatagua" model="l10n_ve.municipality">
         <field name="name">Camatagua</field>
         <field name="code">AR-CAM</field>
-        <field name="state_id" ref="ve_state_aragua"/>
+        <field name="state_id" ref="ve_res_state_ar"/>
+        <field name="l10n_ve_state_id" ref="ve_state_aragua"/>
     </record>
     <record id="ve_mun_ar_camatagua_parish_1" model="l10n_ve.parish">
         <field name="name">Camatagua</field>
@@ -1100,7 +1150,8 @@
     <record id="ve_mun_ar_florencio_tovar" model="l10n_ve.municipality">
         <field name="name">Francisco Linares Alcántara (Santa Rita)</field>
         <field name="code">AR-FLA</field>
-        <field name="state_id" ref="ve_state_aragua"/>
+        <field name="state_id" ref="ve_res_state_ar"/>
+        <field name="l10n_ve_state_id" ref="ve_state_aragua"/>
     </record>
     <record id="ve_mun_ar_florencio_tovar_parish_1" model="l10n_ve.parish">
         <field name="name">Santa Rita</field>
@@ -1117,7 +1168,8 @@
     <record id="ve_mun_ar_costa_oro" model="l10n_ve.municipality">
         <field name="name">Ocumare de la Costa de Oro</field>
         <field name="code">AR-OCO</field>
-        <field name="state_id" ref="ve_state_aragua"/>
+        <field name="state_id" ref="ve_res_state_ar"/>
+        <field name="l10n_ve_state_id" ref="ve_state_aragua"/>
     </record>
     <record id="ve_mun_ar_costa_oro_parish_1" model="l10n_ve.parish">
         <field name="name">Ocumare de la Costa</field>
@@ -1126,7 +1178,8 @@
     <record id="ve_mun_ba_barinas" model="l10n_ve.municipality">
         <field name="name">Barinas</field>
         <field name="code">BA-BAR</field>
-        <field name="state_id" ref="ve_state_barinas"/>
+        <field name="state_id" ref="ve_res_state_ba"/>
+        <field name="l10n_ve_state_id" ref="ve_state_barinas"/>
     </record>
     <record id="ve_mun_ba_barinas_parish_1" model="l10n_ve.parish">
         <field name="name">Barinas</field>
@@ -1187,7 +1240,8 @@
     <record id="ve_mun_ba_alberto_arvelo" model="l10n_ve.municipality">
         <field name="name">Alberto Arvelo Torrealba (Sabaneta)</field>
         <field name="code">BA-AAT</field>
-        <field name="state_id" ref="ve_state_barinas"/>
+        <field name="state_id" ref="ve_res_state_ba"/>
+        <field name="l10n_ve_state_id" ref="ve_state_barinas"/>
     </record>
     <record id="ve_mun_ba_alberto_arvelo_parish_1" model="l10n_ve.parish">
         <field name="name">Sabaneta</field>
@@ -1200,7 +1254,8 @@
     <record id="ve_mun_ba_antonio_jose_sucre" model="l10n_ve.municipality">
         <field name="name">Antonio José de Sucre (Socopó)</field>
         <field name="code">BA-AJS</field>
-        <field name="state_id" ref="ve_state_barinas"/>
+        <field name="state_id" ref="ve_res_state_ba"/>
+        <field name="l10n_ve_state_id" ref="ve_state_barinas"/>
     </record>
     <record id="ve_mun_ba_antonio_jose_sucre_parish_1" model="l10n_ve.parish">
         <field name="name">Socopó</field>
@@ -1217,7 +1272,8 @@
     <record id="ve_mun_ba_arismendi" model="l10n_ve.municipality">
         <field name="name">Arismendi</field>
         <field name="code">BA-ARI</field>
-        <field name="state_id" ref="ve_state_barinas"/>
+        <field name="state_id" ref="ve_res_state_ba"/>
+        <field name="l10n_ve_state_id" ref="ve_state_barinas"/>
     </record>
     <record id="ve_mun_ba_arismendi_parish_1" model="l10n_ve.parish">
         <field name="name">Arismendi</field>
@@ -1238,7 +1294,8 @@
     <record id="ve_mun_ba_bolivar" model="l10n_ve.municipality">
         <field name="name">Bolívar (Barinitas)</field>
         <field name="code">BA-BOL</field>
-        <field name="state_id" ref="ve_state_barinas"/>
+        <field name="state_id" ref="ve_res_state_ba"/>
+        <field name="l10n_ve_state_id" ref="ve_state_barinas"/>
     </record>
     <record id="ve_mun_ba_bolivar_parish_1" model="l10n_ve.parish">
         <field name="name">Barinitas</field>
@@ -1255,7 +1312,8 @@
     <record id="ve_mun_ba_cruz_paredes" model="l10n_ve.municipality">
         <field name="name">Cruz Paredes (Barrancas)</field>
         <field name="code">BA-CPA</field>
-        <field name="state_id" ref="ve_state_barinas"/>
+        <field name="state_id" ref="ve_res_state_ba"/>
+        <field name="l10n_ve_state_id" ref="ve_state_barinas"/>
     </record>
     <record id="ve_mun_ba_cruz_paredes_parish_1" model="l10n_ve.parish">
         <field name="name">Barrancas</field>
@@ -1272,7 +1330,8 @@
     <record id="ve_mun_ba_ezequiel_zamora" model="l10n_ve.municipality">
         <field name="name">Ezequiel Zamora (Santa Bárbara)</field>
         <field name="code">BA-EZA</field>
-        <field name="state_id" ref="ve_state_barinas"/>
+        <field name="state_id" ref="ve_res_state_ba"/>
+        <field name="l10n_ve_state_id" ref="ve_state_barinas"/>
     </record>
     <record id="ve_mun_ba_ezequiel_zamora_parish_1" model="l10n_ve.parish">
         <field name="name">Santa Bárbara</field>
@@ -1293,7 +1352,8 @@
     <record id="ve_mun_ba_obispo" model="l10n_ve.municipality">
         <field name="name">Obispos</field>
         <field name="code">BA-OBI</field>
-        <field name="state_id" ref="ve_state_barinas"/>
+        <field name="state_id" ref="ve_res_state_ba"/>
+        <field name="l10n_ve_state_id" ref="ve_state_barinas"/>
     </record>
     <record id="ve_mun_ba_obispo_parish_1" model="l10n_ve.parish">
         <field name="name">Obispos</field>
@@ -1314,7 +1374,8 @@
     <record id="ve_mun_ba_pedraza" model="l10n_ve.municipality">
         <field name="name">Pedraza (Ciudad Bolivia)</field>
         <field name="code">BA-PED</field>
-        <field name="state_id" ref="ve_state_barinas"/>
+        <field name="state_id" ref="ve_res_state_ba"/>
+        <field name="l10n_ve_state_id" ref="ve_state_barinas"/>
     </record>
     <record id="ve_mun_ba_pedraza_parish_1" model="l10n_ve.parish">
         <field name="name">Ciudad Bolivia</field>
@@ -1335,7 +1396,8 @@
     <record id="ve_mun_ba_rojas" model="l10n_ve.municipality">
         <field name="name">Rojas (Libertad)</field>
         <field name="code">BA-ROJ</field>
-        <field name="state_id" ref="ve_state_barinas"/>
+        <field name="state_id" ref="ve_res_state_ba"/>
+        <field name="l10n_ve_state_id" ref="ve_state_barinas"/>
     </record>
     <record id="ve_mun_ba_rojas_parish_1" model="l10n_ve.parish">
         <field name="name">Libertad</field>
@@ -1356,7 +1418,8 @@
     <record id="ve_mun_ba_sosa" model="l10n_ve.municipality">
         <field name="name">Sosa (Ciudad de Nutrias)</field>
         <field name="code">BA-SOS</field>
-        <field name="state_id" ref="ve_state_barinas"/>
+        <field name="state_id" ref="ve_res_state_ba"/>
+        <field name="l10n_ve_state_id" ref="ve_state_barinas"/>
     </record>
     <record id="ve_mun_ba_sosa_parish_1" model="l10n_ve.parish">
         <field name="name">Ciudad de Nutrias</field>
@@ -1377,7 +1440,8 @@
     <record id="ve_mun_ba_andres_eloy_blanco" model="l10n_ve.municipality">
         <field name="name">Andrés Eloy Blanco (El Cantón)</field>
         <field name="code">BA-AEB</field>
-        <field name="state_id" ref="ve_state_barinas"/>
+        <field name="state_id" ref="ve_res_state_ba"/>
+        <field name="l10n_ve_state_id" ref="ve_state_barinas"/>
     </record>
     <record id="ve_mun_ba_andres_eloy_blanco_parish_1" model="l10n_ve.parish">
         <field name="name">El Cantón</field>
@@ -1394,7 +1458,8 @@
     <record id="ve_mun_bo_caroni" model="l10n_ve.municipality">
         <field name="name">Caroní (Ciudad Guayana / Puerto Ordaz)</field>
         <field name="code">BO-CAR</field>
-        <field name="state_id" ref="ve_state_bolivar"/>
+        <field name="state_id" ref="ve_res_state_bo"/>
+        <field name="l10n_ve_state_id" ref="ve_state_bolivar"/>
     </record>
     <record id="ve_mun_bo_caroni_parish_1" model="l10n_ve.parish">
         <field name="name">Cachamay</field>
@@ -1443,7 +1508,8 @@
     <record id="ve_mun_bo_angostura_del_orinoco" model="l10n_ve.municipality">
         <field name="name">Angostura del Orinoco (Ciudad Bolívar)</field>
         <field name="code">BO-ANG</field>
-        <field name="state_id" ref="ve_state_bolivar"/>
+        <field name="state_id" ref="ve_res_state_bo"/>
+        <field name="l10n_ve_state_id" ref="ve_state_bolivar"/>
     </record>
     <record id="ve_mun_bo_angostura_del_orinoco_parish_1" model="l10n_ve.parish">
         <field name="name">Catedral</field>
@@ -1484,7 +1550,8 @@
     <record id="ve_mun_bo_piar" model="l10n_ve.municipality">
         <field name="name">Piar (Upata)</field>
         <field name="code">BO-PIA</field>
-        <field name="state_id" ref="ve_state_bolivar"/>
+        <field name="state_id" ref="ve_res_state_bo"/>
+        <field name="l10n_ve_state_id" ref="ve_state_bolivar"/>
     </record>
     <record id="ve_mun_bo_piar_parish_1" model="l10n_ve.parish">
         <field name="name">Upata</field>
@@ -1501,7 +1568,8 @@
     <record id="ve_mun_bo_cedeno" model="l10n_ve.municipality">
         <field name="name">Cedeño (Caicara del Orinoco)</field>
         <field name="code">BO-CED</field>
-        <field name="state_id" ref="ve_state_bolivar"/>
+        <field name="state_id" ref="ve_res_state_bo"/>
+        <field name="l10n_ve_state_id" ref="ve_state_bolivar"/>
     </record>
     <record id="ve_mun_bo_cedeno_parish_1" model="l10n_ve.parish">
         <field name="name">Caicara del Orinoco</field>
@@ -1530,7 +1598,8 @@
     <record id="ve_mun_bo_el_callao" model="l10n_ve.municipality">
         <field name="name">El Callao</field>
         <field name="code">BO-ECA</field>
-        <field name="state_id" ref="ve_state_bolivar"/>
+        <field name="state_id" ref="ve_res_state_bo"/>
+        <field name="l10n_ve_state_id" ref="ve_state_bolivar"/>
     </record>
     <record id="ve_mun_bo_el_callao_parish_1" model="l10n_ve.parish">
         <field name="name">El Callao</field>
@@ -1539,7 +1608,8 @@
     <record id="ve_mun_bo_gran_sabana" model="l10n_ve.municipality">
         <field name="name">Gran Sabana (Santa Elena de Uairén)</field>
         <field name="code">BO-GSA</field>
-        <field name="state_id" ref="ve_state_bolivar"/>
+        <field name="state_id" ref="ve_res_state_bo"/>
+        <field name="l10n_ve_state_id" ref="ve_state_bolivar"/>
     </record>
     <record id="ve_mun_bo_gran_sabana_parish_1" model="l10n_ve.parish">
         <field name="name">Santa Elena de Uairén</field>
@@ -1552,7 +1622,8 @@
     <record id="ve_mun_bo_rofcio" model="l10n_ve.municipality">
         <field name="name">Roscio (Guasipati)</field>
         <field name="code">BO-ROS</field>
-        <field name="state_id" ref="ve_state_bolivar"/>
+        <field name="state_id" ref="ve_res_state_bo"/>
+        <field name="l10n_ve_state_id" ref="ve_state_bolivar"/>
     </record>
     <record id="ve_mun_bo_rofcio_parish_1" model="l10n_ve.parish">
         <field name="name">Guasipati</field>
@@ -1565,7 +1636,8 @@
     <record id="ve_mun_bo_sifontes" model="l10n_ve.municipality">
         <field name="name">Sifontes (Tumeremo)</field>
         <field name="code">BO-SIF</field>
-        <field name="state_id" ref="ve_state_bolivar"/>
+        <field name="state_id" ref="ve_res_state_bo"/>
+        <field name="l10n_ve_state_id" ref="ve_state_bolivar"/>
     </record>
     <record id="ve_mun_bo_sifontes_parish_1" model="l10n_ve.parish">
         <field name="name">Tumeremo</field>
@@ -1582,7 +1654,8 @@
     <record id="ve_mun_bo_sucre" model="l10n_ve.municipality">
         <field name="name">Sucre (Maripa)</field>
         <field name="code">BO-SUC</field>
-        <field name="state_id" ref="ve_state_bolivar"/>
+        <field name="state_id" ref="ve_res_state_bo"/>
+        <field name="l10n_ve_state_id" ref="ve_state_bolivar"/>
     </record>
     <record id="ve_mun_bo_sucre_parish_1" model="l10n_ve.parish">
         <field name="name">Maripa</field>
@@ -1607,7 +1680,8 @@
     <record id="ve_mun_bo_padre_pedro_chien" model="l10n_ve.municipality">
         <field name="name">Padre Pedro Chien (El Palmar)</field>
         <field name="code">BO-PPC</field>
-        <field name="state_id" ref="ve_state_bolivar"/>
+        <field name="state_id" ref="ve_res_state_bo"/>
+        <field name="l10n_ve_state_id" ref="ve_state_bolivar"/>
     </record>
     <record id="ve_mun_bo_padre_pedro_chien_parish_1" model="l10n_ve.parish">
         <field name="name">El Palmar</field>
@@ -1616,7 +1690,8 @@
     <record id="ve_mun_bo_angostura_raul_leoni" model="l10n_ve.municipality">
         <field name="name">Angostura (Ciudad Piar)</field>
         <field name="code">BO-RLE</field>
-        <field name="state_id" ref="ve_state_bolivar"/>
+        <field name="state_id" ref="ve_res_state_bo"/>
+        <field name="l10n_ve_state_id" ref="ve_state_bolivar"/>
     </record>
     <record id="ve_mun_bo_angostura_raul_leoni_parish_1" model="l10n_ve.parish">
         <field name="name">Ciudad Piar</field>
@@ -1637,7 +1712,8 @@
     <record id="ve_mun_ca_valencia" model="l10n_ve.municipality">
         <field name="name">Valencia</field>
         <field name="code">CA-VAL</field>
-        <field name="state_id" ref="ve_state_carabobo"/>
+        <field name="state_id" ref="ve_res_state_ca"/>
+        <field name="l10n_ve_state_id" ref="ve_state_carabobo"/>
     </record>
     <record id="ve_mun_ca_valencia_parish_1" model="l10n_ve.parish">
         <field name="name">Candelaria</field>
@@ -1678,7 +1754,8 @@
     <record id="ve_mun_ca_puerto_cabello" model="l10n_ve.municipality">
         <field name="name">Puerto Cabello</field>
         <field name="code">CA-PCA</field>
-        <field name="state_id" ref="ve_state_carabobo"/>
+        <field name="state_id" ref="ve_res_state_ca"/>
+        <field name="l10n_ve_state_id" ref="ve_state_carabobo"/>
     </record>
     <record id="ve_mun_ca_puerto_cabello_parish_1" model="l10n_ve.parish">
         <field name="name">Bartolomé Salom</field>
@@ -1715,7 +1792,8 @@
     <record id="ve_mun_ca_guacara" model="l10n_ve.municipality">
         <field name="name">Guacara</field>
         <field name="code">CA-GUA</field>
-        <field name="state_id" ref="ve_state_carabobo"/>
+        <field name="state_id" ref="ve_res_state_ca"/>
+        <field name="l10n_ve_state_id" ref="ve_state_carabobo"/>
     </record>
     <record id="ve_mun_ca_guacara_parish_1" model="l10n_ve.parish">
         <field name="name">Guacara</field>
@@ -1732,7 +1810,8 @@
     <record id="ve_mun_ca_naguanagua" model="l10n_ve.municipality">
         <field name="name">Naguanagua</field>
         <field name="code">CA-NAG</field>
-        <field name="state_id" ref="ve_state_carabobo"/>
+        <field name="state_id" ref="ve_res_state_ca"/>
+        <field name="l10n_ve_state_id" ref="ve_state_carabobo"/>
     </record>
     <record id="ve_mun_ca_naguanagua_parish_1" model="l10n_ve.parish">
         <field name="name">Naguanagua</field>
@@ -1741,7 +1820,8 @@
     <record id="ve_mun_ca_san_diego" model="l10n_ve.municipality">
         <field name="name">San Diego</field>
         <field name="code">CA-SDI</field>
-        <field name="state_id" ref="ve_state_carabobo"/>
+        <field name="state_id" ref="ve_res_state_ca"/>
+        <field name="l10n_ve_state_id" ref="ve_state_carabobo"/>
     </record>
     <record id="ve_mun_ca_san_diego_parish_1" model="l10n_ve.parish">
         <field name="name">San Diego</field>
@@ -1750,7 +1830,8 @@
     <record id="ve_mun_ca_los_guayos" model="l10n_ve.municipality">
         <field name="name">Los Guayos</field>
         <field name="code">CA-LGU</field>
-        <field name="state_id" ref="ve_state_carabobo"/>
+        <field name="state_id" ref="ve_res_state_ca"/>
+        <field name="l10n_ve_state_id" ref="ve_state_carabobo"/>
     </record>
     <record id="ve_mun_ca_los_guayos_parish_1" model="l10n_ve.parish">
         <field name="name">Los Guayos</field>
@@ -1759,7 +1840,8 @@
     <record id="ve_mun_ca_libertador" model="l10n_ve.municipality">
         <field name="name">Libertador (Tocuyito)</field>
         <field name="code">CA-LIB</field>
-        <field name="state_id" ref="ve_state_carabobo"/>
+        <field name="state_id" ref="ve_res_state_ca"/>
+        <field name="l10n_ve_state_id" ref="ve_state_carabobo"/>
     </record>
     <record id="ve_mun_ca_libertador_parish_1" model="l10n_ve.parish">
         <field name="name">Tocuyito</field>
@@ -1772,7 +1854,8 @@
     <record id="ve_mun_ca_juan_jose_mora" model="l10n_ve.municipality">
         <field name="name">Juan José Mora (Morón)</field>
         <field name="code">CA-JJM</field>
-        <field name="state_id" ref="ve_state_carabobo"/>
+        <field name="state_id" ref="ve_res_state_ca"/>
+        <field name="l10n_ve_state_id" ref="ve_state_carabobo"/>
     </record>
     <record id="ve_mun_ca_juan_jose_mora_parish_1" model="l10n_ve.parish">
         <field name="name">Morón</field>
@@ -1785,7 +1868,8 @@
     <record id="ve_mun_ca_bejuma" model="l10n_ve.municipality">
         <field name="name">Bejuma</field>
         <field name="code">CA-BEJ</field>
-        <field name="state_id" ref="ve_state_carabobo"/>
+        <field name="state_id" ref="ve_res_state_ca"/>
+        <field name="l10n_ve_state_id" ref="ve_state_carabobo"/>
     </record>
     <record id="ve_mun_ca_bejuma_parish_1" model="l10n_ve.parish">
         <field name="name">Bejuma</field>
@@ -1802,7 +1886,8 @@
     <record id="ve_mun_ca_carlos_arvelo" model="l10n_ve.municipality">
         <field name="name">Carlos Arvelo (Güigüe)</field>
         <field name="code">CA-CAR</field>
-        <field name="state_id" ref="ve_state_carabobo"/>
+        <field name="state_id" ref="ve_res_state_ca"/>
+        <field name="l10n_ve_state_id" ref="ve_state_carabobo"/>
     </record>
     <record id="ve_mun_ca_carlos_arvelo_parish_1" model="l10n_ve.parish">
         <field name="name">Güigüe</field>
@@ -1819,7 +1904,8 @@
     <record id="ve_mun_ca_diego_ibarra" model="l10n_ve.municipality">
         <field name="name">Diego Ibarra (Mariara)</field>
         <field name="code">CA-DIB</field>
-        <field name="state_id" ref="ve_state_carabobo"/>
+        <field name="state_id" ref="ve_res_state_ca"/>
+        <field name="l10n_ve_state_id" ref="ve_state_carabobo"/>
     </record>
     <record id="ve_mun_ca_diego_ibarra_parish_1" model="l10n_ve.parish">
         <field name="name">Mariara</field>
@@ -1832,7 +1918,8 @@
     <record id="ve_mun_ca_miranda" model="l10n_ve.municipality">
         <field name="name">Miranda</field>
         <field name="code">CA-MIR</field>
-        <field name="state_id" ref="ve_state_carabobo"/>
+        <field name="state_id" ref="ve_res_state_ca"/>
+        <field name="l10n_ve_state_id" ref="ve_state_carabobo"/>
     </record>
     <record id="ve_mun_ca_miranda_parish_1" model="l10n_ve.parish">
         <field name="name">Miranda</field>
@@ -1841,7 +1928,8 @@
     <record id="ve_mun_ca_montalban" model="l10n_ve.municipality">
         <field name="name">Montalbán</field>
         <field name="code">CA-MON</field>
-        <field name="state_id" ref="ve_state_carabobo"/>
+        <field name="state_id" ref="ve_res_state_ca"/>
+        <field name="l10n_ve_state_id" ref="ve_state_carabobo"/>
     </record>
     <record id="ve_mun_ca_montalban_parish_1" model="l10n_ve.parish">
         <field name="name">Montalbán</field>
@@ -1850,7 +1938,8 @@
     <record id="ve_mun_ca_san_joaquin" model="l10n_ve.municipality">
         <field name="name">San Joaquín</field>
         <field name="code">CA-SJO</field>
-        <field name="state_id" ref="ve_state_carabobo"/>
+        <field name="state_id" ref="ve_res_state_ca"/>
+        <field name="l10n_ve_state_id" ref="ve_state_carabobo"/>
     </record>
     <record id="ve_mun_ca_san_joaquin_parish_1" model="l10n_ve.parish">
         <field name="name">San Joaquín</field>
@@ -1859,7 +1948,8 @@
     <record id="ve_mun_co_ezequiel_zamora" model="l10n_ve.municipality">
         <field name="name">Ezequiel Zamora (San Carlos)</field>
         <field name="code">CO-EZA</field>
-        <field name="state_id" ref="ve_state_cojedes"/>
+        <field name="state_id" ref="ve_res_state_co"/>
+        <field name="l10n_ve_state_id" ref="ve_state_cojedes"/>
     </record>
     <record id="ve_mun_co_ezequiel_zamora_parish_1" model="l10n_ve.parish">
         <field name="name">San Carlos de Austria</field>
@@ -1876,7 +1966,8 @@
     <record id="ve_mun_co_tinaquillo" model="l10n_ve.municipality">
         <field name="name">Tinaquillo</field>
         <field name="code">CO-TIN</field>
-        <field name="state_id" ref="ve_state_cojedes"/>
+        <field name="state_id" ref="ve_res_state_co"/>
+        <field name="l10n_ve_state_id" ref="ve_state_cojedes"/>
     </record>
     <record id="ve_mun_co_tinaquillo_parish_1" model="l10n_ve.parish">
         <field name="name">Tinaquillo</field>
@@ -1885,7 +1976,8 @@
     <record id="ve_mun_co_tinaco" model="l10n_ve.municipality">
         <field name="name">Tinaco</field>
         <field name="code">CO-TCO</field>
-        <field name="state_id" ref="ve_state_cojedes"/>
+        <field name="state_id" ref="ve_res_state_co"/>
+        <field name="l10n_ve_state_id" ref="ve_state_cojedes"/>
     </record>
     <record id="ve_mun_co_tinaco_parish_1" model="l10n_ve.parish">
         <field name="name">Tinaco</field>
@@ -1894,7 +1986,8 @@
     <record id="ve_mun_co_anzoategui" model="l10n_ve.municipality">
         <field name="name">Anzoátegui (Cojedes)</field>
         <field name="code">CO-ANZ</field>
-        <field name="state_id" ref="ve_state_cojedes"/>
+        <field name="state_id" ref="ve_res_state_co"/>
+        <field name="l10n_ve_state_id" ref="ve_state_cojedes"/>
     </record>
     <record id="ve_mun_co_anzoategui_parish_1" model="l10n_ve.parish">
         <field name="name">Cojedes</field>
@@ -1907,7 +2000,8 @@
     <record id="ve_mun_co_pao" model="l10n_ve.municipality">
         <field name="name">El Pao de San Juan Bautista</field>
         <field name="code">CO-PAO</field>
-        <field name="state_id" ref="ve_state_cojedes"/>
+        <field name="state_id" ref="ve_res_state_co"/>
+        <field name="l10n_ve_state_id" ref="ve_state_cojedes"/>
     </record>
     <record id="ve_mun_co_pao_parish_1" model="l10n_ve.parish">
         <field name="name">El Pao</field>
@@ -1916,7 +2010,8 @@
     <record id="ve_mun_co_girardot" model="l10n_ve.municipality">
         <field name="name">Girardot (El Baúl)</field>
         <field name="code">CO-GIR</field>
-        <field name="state_id" ref="ve_state_cojedes"/>
+        <field name="state_id" ref="ve_res_state_co"/>
+        <field name="l10n_ve_state_id" ref="ve_state_cojedes"/>
     </record>
     <record id="ve_mun_co_girardot_parish_1" model="l10n_ve.parish">
         <field name="name">El Baúl</field>
@@ -1929,7 +2024,8 @@
     <record id="ve_mun_co_lima_blanco" model="l10n_ve.municipality">
         <field name="name">Lima Blanco (Macapo)</field>
         <field name="code">CO-LBL</field>
-        <field name="state_id" ref="ve_state_cojedes"/>
+        <field name="state_id" ref="ve_res_state_co"/>
+        <field name="l10n_ve_state_id" ref="ve_state_cojedes"/>
     </record>
     <record id="ve_mun_co_lima_blanco_parish_1" model="l10n_ve.parish">
         <field name="name">Macapo</field>
@@ -1942,7 +2038,8 @@
     <record id="ve_mun_co_ricaurte" model="l10n_ve.municipality">
         <field name="name">Ricaurte (Libertad)</field>
         <field name="code">CO-RIC</field>
-        <field name="state_id" ref="ve_state_cojedes"/>
+        <field name="state_id" ref="ve_res_state_co"/>
+        <field name="l10n_ve_state_id" ref="ve_state_cojedes"/>
     </record>
     <record id="ve_mun_co_ricaurte_parish_1" model="l10n_ve.parish">
         <field name="name">Libertad</field>
@@ -1955,7 +2052,8 @@
     <record id="ve_mun_co_romulo_gallegos" model="l10n_ve.municipality">
         <field name="name">Rómulo Gallegos (Las Vegas)</field>
         <field name="code">CO-RGA</field>
-        <field name="state_id" ref="ve_state_cojedes"/>
+        <field name="state_id" ref="ve_res_state_co"/>
+        <field name="l10n_ve_state_id" ref="ve_state_cojedes"/>
     </record>
     <record id="ve_mun_co_romulo_gallegos_parish_1" model="l10n_ve.parish">
         <field name="name">Las Vegas</field>
@@ -1964,7 +2062,8 @@
     <record id="ve_mun_da_tucupita" model="l10n_ve.municipality">
         <field name="name">Tucupita</field>
         <field name="code">DA-TUC</field>
-        <field name="state_id" ref="ve_state_delta_amacuro"/>
+        <field name="state_id" ref="ve_res_state_da"/>
+        <field name="l10n_ve_state_id" ref="ve_state_delta_amacuro"/>
     </record>
     <record id="ve_mun_da_tucupita_parish_1" model="l10n_ve.parish">
         <field name="name">Tucupita</field>
@@ -2005,7 +2104,8 @@
     <record id="ve_mun_da_antonio_diaz" model="l10n_ve.municipality">
         <field name="name">Antonio Díaz (Curiapo)</field>
         <field name="code">DA-ADI</field>
-        <field name="state_id" ref="ve_state_delta_amacuro"/>
+        <field name="state_id" ref="ve_res_state_da"/>
+        <field name="l10n_ve_state_id" ref="ve_state_delta_amacuro"/>
     </record>
     <record id="ve_mun_da_antonio_diaz_parish_1" model="l10n_ve.parish">
         <field name="name">Curiapo</field>
@@ -2034,7 +2134,8 @@
     <record id="ve_mun_da_casacoima" model="l10n_ve.municipality">
         <field name="name">Casacoima (Sierra Imataca)</field>
         <field name="code">DA-CAS</field>
-        <field name="state_id" ref="ve_state_delta_amacuro"/>
+        <field name="state_id" ref="ve_res_state_da"/>
+        <field name="l10n_ve_state_id" ref="ve_state_delta_amacuro"/>
     </record>
     <record id="ve_mun_da_casacoima_parish_1" model="l10n_ve.parish">
         <field name="name">Sierra Imataca</field>
@@ -2059,7 +2160,8 @@
     <record id="ve_mun_da_pedernales" model="l10n_ve.municipality">
         <field name="name">Pedernales</field>
         <field name="code">DA-PED</field>
-        <field name="state_id" ref="ve_state_delta_amacuro"/>
+        <field name="state_id" ref="ve_res_state_da"/>
+        <field name="l10n_ve_state_id" ref="ve_state_delta_amacuro"/>
     </record>
     <record id="ve_mun_da_pedernales_parish_1" model="l10n_ve.parish">
         <field name="name">Pedernales</field>
@@ -2072,7 +2174,8 @@
     <record id="ve_mun_dc_libertador" model="l10n_ve.municipality">
         <field name="name">Libertador (Caracas)</field>
         <field name="code">DC-LIB</field>
-        <field name="state_id" ref="ve_state_distrito_capital"/>
+        <field name="state_id" ref="ve_res_state_dc"/>
+        <field name="l10n_ve_state_id" ref="ve_state_distrito_capital"/>
     </record>
     <record id="ve_mun_dc_libertador_parish_1" model="l10n_ve.parish">
         <field name="name">Altagracia</field>
@@ -2165,7 +2268,8 @@
     <record id="ve_mun_fa_miranda" model="l10n_ve.municipality">
         <field name="name">Miranda (Coro)</field>
         <field name="code">FA-MIR</field>
-        <field name="state_id" ref="ve_state_falcon"/>
+        <field name="state_id" ref="ve_res_state_fa"/>
+        <field name="l10n_ve_state_id" ref="ve_state_falcon"/>
     </record>
     <record id="ve_mun_fa_miranda_parish_1" model="l10n_ve.parish">
         <field name="name">Santa Ana</field>
@@ -2198,7 +2302,8 @@
     <record id="ve_mun_fa_carirubana" model="l10n_ve.municipality">
         <field name="name">Carirubana (Punto Fijo)</field>
         <field name="code">FA-CAR</field>
-        <field name="state_id" ref="ve_state_falcon"/>
+        <field name="state_id" ref="ve_res_state_fa"/>
+        <field name="l10n_ve_state_id" ref="ve_state_falcon"/>
     </record>
     <record id="ve_mun_fa_carirubana_parish_1" model="l10n_ve.parish">
         <field name="name">Carirubana</field>
@@ -2219,7 +2324,8 @@
     <record id="ve_mun_fa_los_taques" model="l10n_ve.municipality">
         <field name="name">Los Taques (Judibana)</field>
         <field name="code">FA-LTA</field>
-        <field name="state_id" ref="ve_state_falcon"/>
+        <field name="state_id" ref="ve_res_state_fa"/>
+        <field name="l10n_ve_state_id" ref="ve_state_falcon"/>
     </record>
     <record id="ve_mun_fa_los_taques_parish_1" model="l10n_ve.parish">
         <field name="name">Los Taques</field>
@@ -2232,7 +2338,8 @@
     <record id="ve_mun_fa_falcon" model="l10n_ve.municipality">
         <field name="name">Falcón (Pueblo Nuevo)</field>
         <field name="code">FA-FAL</field>
-        <field name="state_id" ref="ve_state_falcon"/>
+        <field name="state_id" ref="ve_res_state_fa"/>
+        <field name="l10n_ve_state_id" ref="ve_state_falcon"/>
     </record>
     <record id="ve_mun_fa_falcon_parish_1" model="l10n_ve.parish">
         <field name="name">Pueblo Nuevo</field>
@@ -2265,7 +2372,8 @@
     <record id="ve_mun_fa_silva" model="l10n_ve.municipality">
         <field name="name">José Laurencio Silva (Tucacas)</field>
         <field name="code">FA-SIL</field>
-        <field name="state_id" ref="ve_state_falcon"/>
+        <field name="state_id" ref="ve_res_state_fa"/>
+        <field name="l10n_ve_state_id" ref="ve_state_falcon"/>
     </record>
     <record id="ve_mun_fa_silva_parish_1" model="l10n_ve.parish">
         <field name="name">Tucacas</field>
@@ -2278,7 +2386,8 @@
     <record id="ve_mun_fa_monsenor_iturriza" model="l10n_ve.municipality">
         <field name="name">Monseñor Iturriza (Chichiriviche)</field>
         <field name="code">FA-MIT</field>
-        <field name="state_id" ref="ve_state_falcon"/>
+        <field name="state_id" ref="ve_res_state_fa"/>
+        <field name="l10n_ve_state_id" ref="ve_state_falcon"/>
     </record>
     <record id="ve_mun_fa_monsenor_iturriza_parish_1" model="l10n_ve.parish">
         <field name="name">Chichiriviche</field>
@@ -2295,7 +2404,8 @@
     <record id="ve_mun_fa_colina" model="l10n_ve.municipality">
         <field name="name">Colina (La Vela de Coro)</field>
         <field name="code">FA-COL</field>
-        <field name="state_id" ref="ve_state_falcon"/>
+        <field name="state_id" ref="ve_res_state_fa"/>
+        <field name="l10n_ve_state_id" ref="ve_state_falcon"/>
     </record>
     <record id="ve_mun_fa_colina_parish_1" model="l10n_ve.parish">
         <field name="name">La Vela de Coro</field>
@@ -2320,7 +2430,8 @@
     <record id="ve_mun_fa_dabajuro" model="l10n_ve.municipality">
         <field name="name">Dabajuro</field>
         <field name="code">FA-DAB</field>
-        <field name="state_id" ref="ve_state_falcon"/>
+        <field name="state_id" ref="ve_res_state_fa"/>
+        <field name="l10n_ve_state_id" ref="ve_state_falcon"/>
     </record>
     <record id="ve_mun_fa_dabajuro_parish_1" model="l10n_ve.parish">
         <field name="name">Dabajuro</field>
@@ -2329,7 +2440,8 @@
     <record id="ve_mun_fa_mauroa" model="l10n_ve.municipality">
         <field name="name">Mauroa (Mene de Mauroa)</field>
         <field name="code">FA-MAU</field>
-        <field name="state_id" ref="ve_state_falcon"/>
+        <field name="state_id" ref="ve_res_state_fa"/>
+        <field name="l10n_ve_state_id" ref="ve_state_falcon"/>
     </record>
     <record id="ve_mun_fa_mauroa_parish_1" model="l10n_ve.parish">
         <field name="name">Mene de Mauroa</field>
@@ -2346,7 +2458,8 @@
     <record id="ve_mun_fa_acosta" model="l10n_ve.municipality">
         <field name="name">Acosta (San Juan de los Cayos)</field>
         <field name="code">FA-ACO</field>
-        <field name="state_id" ref="ve_state_falcon"/>
+        <field name="state_id" ref="ve_res_state_fa"/>
+        <field name="l10n_ve_state_id" ref="ve_state_falcon"/>
     </record>
     <record id="ve_mun_fa_acosta_parish_1" model="l10n_ve.parish">
         <field name="name">San Juan de los Cayos</field>
@@ -2367,7 +2480,8 @@
     <record id="ve_mun_fa_bolivar" model="l10n_ve.municipality">
         <field name="name">Bolívar (San Luis)</field>
         <field name="code">FA-BOL</field>
-        <field name="state_id" ref="ve_state_falcon"/>
+        <field name="state_id" ref="ve_res_state_fa"/>
+        <field name="l10n_ve_state_id" ref="ve_state_falcon"/>
     </record>
     <record id="ve_mun_fa_bolivar_parish_1" model="l10n_ve.parish">
         <field name="name">San Luis</field>
@@ -2384,7 +2498,8 @@
     <record id="ve_mun_fa_buchivacoa" model="l10n_ve.municipality">
         <field name="name">Buchivacoa (Capatárida)</field>
         <field name="code">FA-BUC</field>
-        <field name="state_id" ref="ve_state_falcon"/>
+        <field name="state_id" ref="ve_res_state_fa"/>
+        <field name="l10n_ve_state_id" ref="ve_state_falcon"/>
     </record>
     <record id="ve_mun_fa_buchivacoa_parish_1" model="l10n_ve.parish">
         <field name="name">Capatárida</field>
@@ -2413,7 +2528,8 @@
     <record id="ve_mun_fa_cacique_manare" model="l10n_ve.municipality">
         <field name="name">Cacique Manaure (Yaracal)</field>
         <field name="code">FA-CMA</field>
-        <field name="state_id" ref="ve_state_falcon"/>
+        <field name="state_id" ref="ve_res_state_fa"/>
+        <field name="l10n_ve_state_id" ref="ve_state_falcon"/>
     </record>
     <record id="ve_mun_fa_cacique_manare_parish_1" model="l10n_ve.parish">
         <field name="name">Cacique Manaure</field>
@@ -2422,7 +2538,8 @@
     <record id="ve_mun_fa_democracia" model="l10n_ve.municipality">
         <field name="name">Democracia (Pedregal)</field>
         <field name="code">FA-DEM</field>
-        <field name="state_id" ref="ve_state_falcon"/>
+        <field name="state_id" ref="ve_res_state_fa"/>
+        <field name="l10n_ve_state_id" ref="ve_state_falcon"/>
     </record>
     <record id="ve_mun_fa_democracia_parish_1" model="l10n_ve.parish">
         <field name="name">Pedregal</field>
@@ -2447,7 +2564,8 @@
     <record id="ve_mun_fa_federacion" model="l10n_ve.municipality">
         <field name="name">Federación (Churuguara)</field>
         <field name="code">FA-FED</field>
-        <field name="state_id" ref="ve_state_falcon"/>
+        <field name="state_id" ref="ve_res_state_fa"/>
+        <field name="l10n_ve_state_id" ref="ve_state_falcon"/>
     </record>
     <record id="ve_mun_fa_federacion_parish_1" model="l10n_ve.parish">
         <field name="name">Churuguara</field>
@@ -2472,7 +2590,8 @@
     <record id="ve_mun_fa_jacura" model="l10n_ve.municipality">
         <field name="name">Jacura</field>
         <field name="code">FA-JAC</field>
-        <field name="state_id" ref="ve_state_falcon"/>
+        <field name="state_id" ref="ve_res_state_fa"/>
+        <field name="l10n_ve_state_id" ref="ve_state_falcon"/>
     </record>
     <record id="ve_mun_fa_jacura_parish_1" model="l10n_ve.parish">
         <field name="name">Jacura</field>
@@ -2489,7 +2608,8 @@
     <record id="ve_mun_fa_palmasola" model="l10n_ve.municipality">
         <field name="name">Palmasola</field>
         <field name="code">FA-PAL</field>
-        <field name="state_id" ref="ve_state_falcon"/>
+        <field name="state_id" ref="ve_res_state_fa"/>
+        <field name="l10n_ve_state_id" ref="ve_state_falcon"/>
     </record>
     <record id="ve_mun_fa_palmasola_parish_1" model="l10n_ve.parish">
         <field name="name">Palmasola</field>
@@ -2498,7 +2618,8 @@
     <record id="ve_mun_fa_petit" model="l10n_ve.municipality">
         <field name="name">Petit (Cabure)</field>
         <field name="code">FA-PET</field>
-        <field name="state_id" ref="ve_state_falcon"/>
+        <field name="state_id" ref="ve_res_state_fa"/>
+        <field name="l10n_ve_state_id" ref="ve_state_falcon"/>
     </record>
     <record id="ve_mun_fa_petit_parish_1" model="l10n_ve.parish">
         <field name="name">Cabure</field>
@@ -2515,7 +2636,8 @@
     <record id="ve_mun_fa_piritu" model="l10n_ve.municipality">
         <field name="name">Píritu</field>
         <field name="code">FA-PIR</field>
-        <field name="state_id" ref="ve_state_falcon"/>
+        <field name="state_id" ref="ve_res_state_fa"/>
+        <field name="l10n_ve_state_id" ref="ve_state_falcon"/>
     </record>
     <record id="ve_mun_fa_piritu_parish_1" model="l10n_ve.parish">
         <field name="name">Píritu</field>
@@ -2528,7 +2650,8 @@
     <record id="ve_mun_fa_san_francisco" model="l10n_ve.municipality">
         <field name="name">San Francisco (Mirimire)</field>
         <field name="code">FA-SFR</field>
-        <field name="state_id" ref="ve_state_falcon"/>
+        <field name="state_id" ref="ve_res_state_fa"/>
+        <field name="l10n_ve_state_id" ref="ve_state_falcon"/>
     </record>
     <record id="ve_mun_fa_san_francisco_parish_1" model="l10n_ve.parish">
         <field name="name">Mirimire</field>
@@ -2537,7 +2660,8 @@
     <record id="ve_mun_fa_sucre" model="l10n_ve.municipality">
         <field name="name">Sucre (La Cruz de Taratara)</field>
         <field name="code">FA-SUC</field>
-        <field name="state_id" ref="ve_state_falcon"/>
+        <field name="state_id" ref="ve_res_state_fa"/>
+        <field name="l10n_ve_state_id" ref="ve_state_falcon"/>
     </record>
     <record id="ve_mun_fa_sucre_parish_1" model="l10n_ve.parish">
         <field name="name">La Cruz de Taratara</field>
@@ -2550,7 +2674,8 @@
     <record id="ve_mun_fa_tocopero" model="l10n_ve.municipality">
         <field name="name">Tocópero</field>
         <field name="code">FA-TOC</field>
-        <field name="state_id" ref="ve_state_falcon"/>
+        <field name="state_id" ref="ve_res_state_fa"/>
+        <field name="l10n_ve_state_id" ref="ve_state_falcon"/>
     </record>
     <record id="ve_mun_fa_tocopero_parish_1" model="l10n_ve.parish">
         <field name="name">Tocópero</field>
@@ -2559,7 +2684,8 @@
     <record id="ve_mun_fa_union" model="l10n_ve.municipality">
         <field name="name">Unión (Santa Cruz de Bucaral)</field>
         <field name="code">FA-UNI</field>
-        <field name="state_id" ref="ve_state_falcon"/>
+        <field name="state_id" ref="ve_res_state_fa"/>
+        <field name="l10n_ve_state_id" ref="ve_state_falcon"/>
     </record>
     <record id="ve_mun_fa_union_parish_1" model="l10n_ve.parish">
         <field name="name">Santa Cruz de Bucaral</field>
@@ -2576,7 +2702,8 @@
     <record id="ve_mun_fa_uruma" model="l10n_ve.municipality">
         <field name="name">Urumaco</field>
         <field name="code">FA-URU</field>
-        <field name="state_id" ref="ve_state_falcon"/>
+        <field name="state_id" ref="ve_res_state_fa"/>
+        <field name="l10n_ve_state_id" ref="ve_state_falcon"/>
     </record>
     <record id="ve_mun_fa_uruma_parish_1" model="l10n_ve.parish">
         <field name="name">Urumaco</field>
@@ -2589,7 +2716,8 @@
     <record id="ve_mun_fa_zazárida" model="l10n_ve.municipality">
         <field name="name">Zamora (Puerto Cumarebo)</field>
         <field name="code">FA-ZAM</field>
-        <field name="state_id" ref="ve_state_falcon"/>
+        <field name="state_id" ref="ve_res_state_fa"/>
+        <field name="l10n_ve_state_id" ref="ve_state_falcon"/>
     </record>
     <record id="ve_mun_fa_zazárida_parish_1" model="l10n_ve.parish">
         <field name="name">Puerto Cumarebo</field>
@@ -2614,7 +2742,8 @@
     <record id="ve_mun_gu_juan_german_roscio" model="l10n_ve.municipality">
         <field name="name">Juan Germán Roscio (San Juan de los Morros)</field>
         <field name="code">GU-JGR</field>
-        <field name="state_id" ref="ve_state_guarico"/>
+        <field name="state_id" ref="ve_res_state_gu"/>
+        <field name="l10n_ve_state_id" ref="ve_state_guarico"/>
     </record>
     <record id="ve_mun_gu_juan_german_roscio_parish_1" model="l10n_ve.parish">
         <field name="name">San Juan de los Morros</field>
@@ -2631,7 +2760,8 @@
     <record id="ve_mun_gu_francisco_de_miranda" model="l10n_ve.municipality">
         <field name="name">Francisco de Miranda (Calabozo)</field>
         <field name="code">GU-FMI</field>
-        <field name="state_id" ref="ve_state_guarico"/>
+        <field name="state_id" ref="ve_res_state_gu"/>
+        <field name="l10n_ve_state_id" ref="ve_state_guarico"/>
     </record>
     <record id="ve_mun_gu_francisco_de_miranda_parish_1" model="l10n_ve.parish">
         <field name="name">Calabozo</field>
@@ -2652,7 +2782,8 @@
     <record id="ve_mun_gu_leonardo_infante" model="l10n_ve.municipality">
         <field name="name">Leonardo Infante (Valle de la Pascua)</field>
         <field name="code">GU-LIN</field>
-        <field name="state_id" ref="ve_state_guarico"/>
+        <field name="state_id" ref="ve_res_state_gu"/>
+        <field name="l10n_ve_state_id" ref="ve_state_guarico"/>
     </record>
     <record id="ve_mun_gu_leonardo_infante_parish_1" model="l10n_ve.parish">
         <field name="name">Valle de la Pascua</field>
@@ -2665,7 +2796,8 @@
     <record id="ve_mun_gu_zaraza" model="l10n_ve.municipality">
         <field name="name">Pedro Zaraza (Zaraza)</field>
         <field name="code">GU-ZAR</field>
-        <field name="state_id" ref="ve_state_guarico"/>
+        <field name="state_id" ref="ve_res_state_gu"/>
+        <field name="l10n_ve_state_id" ref="ve_state_guarico"/>
     </record>
     <record id="ve_mun_gu_zaraza_parish_1" model="l10n_ve.parish">
         <field name="name">Zaraza</field>
@@ -2678,7 +2810,8 @@
     <record id="ve_mun_gu_monagas" model="l10n_ve.municipality">
         <field name="name">José Tadeo Monagas (Altagracia de Orituco)</field>
         <field name="code">GU-MON</field>
-        <field name="state_id" ref="ve_state_guarico"/>
+        <field name="state_id" ref="ve_res_state_gu"/>
+        <field name="l10n_ve_state_id" ref="ve_state_guarico"/>
     </record>
     <record id="ve_mun_gu_monagas_parish_1" model="l10n_ve.parish">
         <field name="name">Altagracia de Orituco</field>
@@ -2711,7 +2844,8 @@
     <record id="ve_mun_gu_ribas" model="l10n_ve.municipality">
         <field name="name">José Félix Ribas (Tucupido)</field>
         <field name="code">GU-RIB</field>
-        <field name="state_id" ref="ve_state_guarico"/>
+        <field name="state_id" ref="ve_res_state_gu"/>
+        <field name="l10n_ve_state_id" ref="ve_state_guarico"/>
     </record>
     <record id="ve_mun_gu_ribas_parish_1" model="l10n_ve.parish">
         <field name="name">Tucupido</field>
@@ -2724,7 +2858,8 @@
     <record id="ve_mun_gu_el_socorro" model="l10n_ve.municipality">
         <field name="name">El Socorro</field>
         <field name="code">GU-SOC</field>
-        <field name="state_id" ref="ve_state_guarico"/>
+        <field name="state_id" ref="ve_res_state_gu"/>
+        <field name="l10n_ve_state_id" ref="ve_state_guarico"/>
     </record>
     <record id="ve_mun_gu_el_socorro_parish_1" model="l10n_ve.parish">
         <field name="name">El Socorro</field>
@@ -2733,7 +2868,8 @@
     <record id="ve_mun_gu_esteros_de_camaguan" model="l10n_ve.municipality">
         <field name="name">Esteros de Camaguán (Camaguán)</field>
         <field name="code">GU-CAM</field>
-        <field name="state_id" ref="ve_state_guarico"/>
+        <field name="state_id" ref="ve_res_state_gu"/>
+        <field name="l10n_ve_state_id" ref="ve_state_guarico"/>
     </record>
     <record id="ve_mun_gu_esteros_de_camaguan_parish_1" model="l10n_ve.parish">
         <field name="name">Camaguán</field>
@@ -2750,7 +2886,8 @@
     <record id="ve_mun_gu_chaguaramas" model="l10n_ve.municipality">
         <field name="name">Chaguaramas</field>
         <field name="code">GU-CHA</field>
-        <field name="state_id" ref="ve_state_guarico"/>
+        <field name="state_id" ref="ve_res_state_gu"/>
+        <field name="l10n_ve_state_id" ref="ve_state_guarico"/>
     </record>
     <record id="ve_mun_gu_chaguaramas_parish_1" model="l10n_ve.parish">
         <field name="name">Chaguaramas</field>
@@ -2759,7 +2896,8 @@
     <record id="ve_mun_gu_san_jeronimo_de_guayabal" model="l10n_ve.municipality">
         <field name="name">San Jerónimo de Guayabal (Guayabal)</field>
         <field name="code">GU-GUA</field>
-        <field name="state_id" ref="ve_state_guarico"/>
+        <field name="state_id" ref="ve_res_state_gu"/>
+        <field name="l10n_ve_state_id" ref="ve_state_guarico"/>
     </record>
     <record id="ve_mun_gu_san_jeronimo_de_guayabal_parish_1" model="l10n_ve.parish">
         <field name="name">Guayabal</field>
@@ -2772,7 +2910,8 @@
     <record id="ve_mun_gu_julian_mellado" model="l10n_ve.municipality">
         <field name="name">Julián Mellado (El Sombrero)</field>
         <field name="code">GU-MEL</field>
-        <field name="state_id" ref="ve_state_guarico"/>
+        <field name="state_id" ref="ve_res_state_gu"/>
+        <field name="l10n_ve_state_id" ref="ve_state_guarico"/>
     </record>
     <record id="ve_mun_gu_julian_mellado_parish_1" model="l10n_ve.parish">
         <field name="name">El Sombrero</field>
@@ -2785,7 +2924,8 @@
     <record id="ve_mun_gu_las_mercedes" model="l10n_ve.municipality">
         <field name="name">Las Mercedes</field>
         <field name="code">GU-MER</field>
-        <field name="state_id" ref="ve_state_guarico"/>
+        <field name="state_id" ref="ve_res_state_gu"/>
+        <field name="l10n_ve_state_id" ref="ve_state_guarico"/>
     </record>
     <record id="ve_mun_gu_las_mercedes_parish_1" model="l10n_ve.parish">
         <field name="name">Las Mercedes</field>
@@ -2802,7 +2942,8 @@
     <record id="ve_mun_gu_ortiz" model="l10n_ve.municipality">
         <field name="name">Ortiz</field>
         <field name="code">GU-ORT</field>
-        <field name="state_id" ref="ve_state_guarico"/>
+        <field name="state_id" ref="ve_res_state_gu"/>
+        <field name="l10n_ve_state_id" ref="ve_state_guarico"/>
     </record>
     <record id="ve_mun_gu_ortiz_parish_1" model="l10n_ve.parish">
         <field name="name">Ortiz</field>
@@ -2823,7 +2964,8 @@
     <record id="ve_mun_gu_san_jose_de_guaribe" model="l10n_ve.municipality">
         <field name="name">San José de Guaribe</field>
         <field name="code">GU-SJG</field>
-        <field name="state_id" ref="ve_state_guarico"/>
+        <field name="state_id" ref="ve_res_state_gu"/>
+        <field name="l10n_ve_state_id" ref="ve_state_guarico"/>
     </record>
     <record id="ve_mun_gu_san_jose_de_guaribe_parish_1" model="l10n_ve.parish">
         <field name="name">San José de Guaribe</field>
@@ -2832,7 +2974,8 @@
     <record id="ve_mun_gu_santa_maria_de_ipire" model="l10n_ve.municipality">
         <field name="name">Santa María de Ipire</field>
         <field name="code">GU-SMI</field>
-        <field name="state_id" ref="ve_state_guarico"/>
+        <field name="state_id" ref="ve_res_state_gu"/>
+        <field name="l10n_ve_state_id" ref="ve_state_guarico"/>
     </record>
     <record id="ve_mun_gu_santa_maria_de_ipire_parish_1" model="l10n_ve.parish">
         <field name="name">Santa María de Ipire</field>
@@ -2845,7 +2988,8 @@
     <record id="ve_mun_la_iribarren" model="l10n_ve.municipality">
         <field name="name">Iribarren (Barquisimeto)</field>
         <field name="code">LA-IRI</field>
-        <field name="state_id" ref="ve_state_lara"/>
+        <field name="state_id" ref="ve_res_state_la"/>
+        <field name="l10n_ve_state_id" ref="ve_state_lara"/>
     </record>
     <record id="ve_mun_la_iribarren_parish_1" model="l10n_ve.parish">
         <field name="name">Catedral</field>
@@ -2890,7 +3034,8 @@
     <record id="ve_mun_la_palavecino" model="l10n_ve.municipality">
         <field name="name">Palavecino (Cabudare)</field>
         <field name="code">LA-PAL</field>
-        <field name="state_id" ref="ve_state_lara"/>
+        <field name="state_id" ref="ve_res_state_la"/>
+        <field name="l10n_ve_state_id" ref="ve_state_lara"/>
     </record>
     <record id="ve_mun_la_palavecino_parish_1" model="l10n_ve.parish">
         <field name="name">Cabudare</field>
@@ -2907,7 +3052,8 @@
     <record id="ve_mun_la_torres" model="l10n_ve.municipality">
         <field name="name">Torres (Carora)</field>
         <field name="code">LA-TOR</field>
-        <field name="state_id" ref="ve_state_lara"/>
+        <field name="state_id" ref="ve_res_state_la"/>
+        <field name="l10n_ve_state_id" ref="ve_state_lara"/>
     </record>
     <record id="ve_mun_la_torres_parish_1" model="l10n_ve.parish">
         <field name="name">Trinidad Samuel</field>
@@ -2980,7 +3126,8 @@
     <record id="ve_mun_la_moran" model="l10n_ve.municipality">
         <field name="name">Morán (El Tocuyo)</field>
         <field name="code">LA-MOR</field>
-        <field name="state_id" ref="ve_state_lara"/>
+        <field name="state_id" ref="ve_res_state_la"/>
+        <field name="l10n_ve_state_id" ref="ve_state_lara"/>
     </record>
     <record id="ve_mun_la_moran_parish_1" model="l10n_ve.parish">
         <field name="name">Bolívar</field>
@@ -3017,7 +3164,8 @@
     <record id="ve_mun_la_jimenez" model="l10n_ve.municipality">
         <field name="name">Jiménez (Quíbor)</field>
         <field name="code">LA-JIM</field>
-        <field name="state_id" ref="ve_state_lara"/>
+        <field name="state_id" ref="ve_res_state_la"/>
+        <field name="l10n_ve_state_id" ref="ve_state_lara"/>
     </record>
     <record id="ve_mun_la_jimenez_parish_1" model="l10n_ve.parish">
         <field name="name">Juan Bautista Rodríguez</field>
@@ -3054,7 +3202,8 @@
     <record id="ve_mun_la_crespo" model="l10n_ve.municipality">
         <field name="name">Crespo (Duaca)</field>
         <field name="code">LA-CRE</field>
-        <field name="state_id" ref="ve_state_lara"/>
+        <field name="state_id" ref="ve_res_state_la"/>
+        <field name="l10n_ve_state_id" ref="ve_state_lara"/>
     </record>
     <record id="ve_mun_la_crespo_parish_1" model="l10n_ve.parish">
         <field name="name">Freitez</field>
@@ -3067,7 +3216,8 @@
     <record id="ve_mun_la_andres_eloy_blanco" model="l10n_ve.municipality">
         <field name="name">Andrés Eloy Blanco (Sanare)</field>
         <field name="code">LA-AEB</field>
-        <field name="state_id" ref="ve_state_lara"/>
+        <field name="state_id" ref="ve_res_state_la"/>
+        <field name="l10n_ve_state_id" ref="ve_state_lara"/>
     </record>
     <record id="ve_mun_la_andres_eloy_blanco_parish_1" model="l10n_ve.parish">
         <field name="name">Pío Tamayo</field>
@@ -3084,7 +3234,8 @@
     <record id="ve_mun_la_urdaneta" model="l10n_ve.municipality">
         <field name="name">Urdaneta (Siquisique)</field>
         <field name="code">LA-URD</field>
-        <field name="state_id" ref="ve_state_lara"/>
+        <field name="state_id" ref="ve_res_state_la"/>
+        <field name="l10n_ve_state_id" ref="ve_state_lara"/>
     </record>
     <record id="ve_mun_la_urdaneta_parish_1" model="l10n_ve.parish">
         <field name="name">Siquisique</field>
@@ -3105,7 +3256,8 @@
     <record id="ve_mun_la_simon_planas" model="l10n_ve.municipality">
         <field name="name">Simón Planas (Sarare)</field>
         <field name="code">LA-SPL</field>
-        <field name="state_id" ref="ve_state_lara"/>
+        <field name="state_id" ref="ve_res_state_la"/>
+        <field name="l10n_ve_state_id" ref="ve_state_lara"/>
     </record>
     <record id="ve_mun_la_simon_planas_parish_1" model="l10n_ve.parish">
         <field name="name">Sarare</field>
@@ -3122,7 +3274,8 @@
     <record id="ve_mun_me_libertador" model="l10n_ve.municipality">
         <field name="name">Libertador (Mérida)</field>
         <field name="code">ME-LIB</field>
-        <field name="state_id" ref="ve_state_merida"/>
+        <field name="state_id" ref="ve_res_state_me"/>
+        <field name="l10n_ve_state_id" ref="ve_state_merida"/>
     </record>
     <record id="ve_mun_me_libertador_parish_1" model="l10n_ve.parish">
         <field name="name">Antonio Spinetti Dini</field>
@@ -3187,7 +3340,8 @@
     <record id="ve_mun_me_alberto_adriani" model="l10n_ve.municipality">
         <field name="name">Alberto Adriani (El Vigía)</field>
         <field name="code">ME-AAD</field>
-        <field name="state_id" ref="ve_state_merida"/>
+        <field name="state_id" ref="ve_res_state_me"/>
+        <field name="l10n_ve_state_id" ref="ve_state_merida"/>
     </record>
     <record id="ve_mun_me_alberto_adriani_parish_1" model="l10n_ve.parish">
         <field name="name">Presidente Betancourt</field>
@@ -3220,7 +3374,8 @@
     <record id="ve_mun_me_campo_elias" model="l10n_ve.municipality">
         <field name="name">Campo Elías (Ejido)</field>
         <field name="code">ME-CEL</field>
-        <field name="state_id" ref="ve_state_merida"/>
+        <field name="state_id" ref="ve_res_state_me"/>
+        <field name="l10n_ve_state_id" ref="ve_state_merida"/>
     </record>
     <record id="ve_mun_me_campo_elias_parish_1" model="l10n_ve.parish">
         <field name="name">Matriz</field>
@@ -3253,7 +3408,8 @@
     <record id="ve_mun_me_tovar" model="l10n_ve.municipality">
         <field name="name">Tovar</field>
         <field name="code">ME-TOV</field>
-        <field name="state_id" ref="ve_state_merida"/>
+        <field name="state_id" ref="ve_res_state_me"/>
+        <field name="l10n_ve_state_id" ref="ve_state_merida"/>
     </record>
     <record id="ve_mun_me_tovar_parish_1" model="l10n_ve.parish">
         <field name="name">Tovar</field>
@@ -3274,7 +3430,8 @@
     <record id="ve_mun_me_sucre" model="l10n_ve.municipality">
         <field name="name">Sucre (Lagunillas)</field>
         <field name="code">ME-SUC</field>
-        <field name="state_id" ref="ve_state_merida"/>
+        <field name="state_id" ref="ve_res_state_me"/>
+        <field name="l10n_ve_state_id" ref="ve_state_merida"/>
     </record>
     <record id="ve_mun_me_sucre_parish_1" model="l10n_ve.parish">
         <field name="name">Lagunillas</field>
@@ -3299,7 +3456,8 @@
     <record id="ve_mun_me_rangel" model="l10n_ve.municipality">
         <field name="name">Rangel (Mucuchíes)</field>
         <field name="code">ME-RAN</field>
-        <field name="state_id" ref="ve_state_merida"/>
+        <field name="state_id" ref="ve_res_state_me"/>
+        <field name="l10n_ve_state_id" ref="ve_state_merida"/>
     </record>
     <record id="ve_mun_me_rangel_parish_1" model="l10n_ve.parish">
         <field name="name">Mucuchíes</field>
@@ -3324,7 +3482,8 @@
     <record id="ve_mun_me_santos_marquina" model="l10n_ve.municipality">
         <field name="name">Santos Marquina (Tabay)</field>
         <field name="code">ME-SMA</field>
-        <field name="state_id" ref="ve_state_merida"/>
+        <field name="state_id" ref="ve_res_state_me"/>
+        <field name="l10n_ve_state_id" ref="ve_state_merida"/>
     </record>
     <record id="ve_mun_me_santos_marquina_parish_1" model="l10n_ve.parish">
         <field name="name">Tabay</field>
@@ -3333,7 +3492,8 @@
     <record id="ve_mun_mi_sucre" model="l10n_ve.municipality">
         <field name="name">Sucre (Petare)</field>
         <field name="code">MI-SUC</field>
-        <field name="state_id" ref="ve_state_miranda"/>
+        <field name="state_id" ref="ve_res_state_mi"/>
+        <field name="l10n_ve_state_id" ref="ve_state_miranda"/>
     </record>
     <record id="ve_mun_mi_sucre_parish_1" model="l10n_ve.parish">
         <field name="name">Petare</field>
@@ -3358,7 +3518,8 @@
     <record id="ve_mun_mi_baruta" model="l10n_ve.municipality">
         <field name="name">Baruta</field>
         <field name="code">MI-BAR</field>
-        <field name="state_id" ref="ve_state_miranda"/>
+        <field name="state_id" ref="ve_res_state_mi"/>
+        <field name="l10n_ve_state_id" ref="ve_state_miranda"/>
     </record>
     <record id="ve_mun_mi_baruta_parish_1" model="l10n_ve.parish">
         <field name="name">Baruta</field>
@@ -3375,7 +3536,8 @@
     <record id="ve_mun_mi_chacao" model="l10n_ve.municipality">
         <field name="name">Chacao</field>
         <field name="code">MI-CHA</field>
-        <field name="state_id" ref="ve_state_miranda"/>
+        <field name="state_id" ref="ve_res_state_mi"/>
+        <field name="l10n_ve_state_id" ref="ve_state_miranda"/>
     </record>
     <record id="ve_mun_mi_chacao_parish_1" model="l10n_ve.parish">
         <field name="name">Chacao</field>
@@ -3384,7 +3546,8 @@
     <record id="ve_mun_mi_el_hatillo" model="l10n_ve.municipality">
         <field name="name">El Hatillo</field>
         <field name="code">MI-HAT</field>
-        <field name="state_id" ref="ve_state_miranda"/>
+        <field name="state_id" ref="ve_res_state_mi"/>
+        <field name="l10n_ve_state_id" ref="ve_state_miranda"/>
     </record>
     <record id="ve_mun_mi_el_hatillo_parish_1" model="l10n_ve.parish">
         <field name="name">El Hatillo</field>
@@ -3393,7 +3556,8 @@
     <record id="ve_mun_mi_guaicaipuro" model="l10n_ve.municipality">
         <field name="name">Guaicaipuro (Los Teques)</field>
         <field name="code">MI-GUA</field>
-        <field name="state_id" ref="ve_state_miranda"/>
+        <field name="state_id" ref="ve_res_state_mi"/>
+        <field name="l10n_ve_state_id" ref="ve_state_miranda"/>
     </record>
     <record id="ve_mun_mi_guaicaipuro_parish_1" model="l10n_ve.parish">
         <field name="name">Los Teques</field>
@@ -3426,7 +3590,8 @@
     <record id="ve_mun_mi_los_salias" model="l10n_ve.municipality">
         <field name="name">Los Salias (San Antonio de los Altos)</field>
         <field name="code">MI-LSA</field>
-        <field name="state_id" ref="ve_state_miranda"/>
+        <field name="state_id" ref="ve_res_state_mi"/>
+        <field name="l10n_ve_state_id" ref="ve_state_miranda"/>
     </record>
     <record id="ve_mun_mi_los_salias_parish_1" model="l10n_ve.parish">
         <field name="name">San Antonio de los Altos</field>
@@ -3435,7 +3600,8 @@
     <record id="ve_mun_mi_carrizal" model="l10n_ve.municipality">
         <field name="name">Carrizal</field>
         <field name="code">MI-CAR</field>
-        <field name="state_id" ref="ve_state_miranda"/>
+        <field name="state_id" ref="ve_res_state_mi"/>
+        <field name="l10n_ve_state_id" ref="ve_state_miranda"/>
     </record>
     <record id="ve_mun_mi_carrizal_parish_1" model="l10n_ve.parish">
         <field name="name">Carrizal</field>
@@ -3444,7 +3610,8 @@
     <record id="ve_mun_mi_plaza" model="l10n_ve.municipality">
         <field name="name">Plaza (Guarenas)</field>
         <field name="code">MI-PLA</field>
-        <field name="state_id" ref="ve_state_miranda"/>
+        <field name="state_id" ref="ve_res_state_mi"/>
+        <field name="l10n_ve_state_id" ref="ve_state_miranda"/>
     </record>
     <record id="ve_mun_mi_plaza_parish_1" model="l10n_ve.parish">
         <field name="name">Guarenas</field>
@@ -3453,7 +3620,8 @@
     <record id="ve_mun_mi_zamora" model="l10n_ve.municipality">
         <field name="name">Zamora (Guatire)</field>
         <field name="code">MI-ZAM</field>
-        <field name="state_id" ref="ve_state_miranda"/>
+        <field name="state_id" ref="ve_res_state_mi"/>
+        <field name="l10n_ve_state_id" ref="ve_state_miranda"/>
     </record>
     <record id="ve_mun_mi_zamora_parish_1" model="l10n_ve.parish">
         <field name="name">Guatire</field>
@@ -3466,7 +3634,8 @@
     <record id="ve_mun_mi_urdaneta" model="l10n_ve.municipality">
         <field name="name">Urdaneta (Cúa)</field>
         <field name="code">MI-URD</field>
-        <field name="state_id" ref="ve_state_miranda"/>
+        <field name="state_id" ref="ve_res_state_mi"/>
+        <field name="l10n_ve_state_id" ref="ve_state_miranda"/>
     </record>
     <record id="ve_mun_mi_urdaneta_parish_1" model="l10n_ve.parish">
         <field name="name">Cúa</field>
@@ -3479,7 +3648,8 @@
     <record id="ve_mun_mi_tomas_lander" model="l10n_ve.municipality">
         <field name="name">Tomás Lander (Ocumare del Tuy)</field>
         <field name="code">MI-TLA</field>
-        <field name="state_id" ref="ve_state_miranda"/>
+        <field name="state_id" ref="ve_res_state_mi"/>
+        <field name="l10n_ve_state_id" ref="ve_state_miranda"/>
     </record>
     <record id="ve_mun_mi_tomas_lander_parish_1" model="l10n_ve.parish">
         <field name="name">Ocumare del Tuy</field>
@@ -3496,7 +3666,8 @@
     <record id="ve_mun_mi_cristobal_rojas" model="l10n_ve.municipality">
         <field name="name">Cristóbal Rojas (Charallave)</field>
         <field name="code">MI-CRO</field>
-        <field name="state_id" ref="ve_state_miranda"/>
+        <field name="state_id" ref="ve_res_state_mi"/>
+        <field name="l10n_ve_state_id" ref="ve_state_miranda"/>
     </record>
     <record id="ve_mun_mi_cristobal_rojas_parish_1" model="l10n_ve.parish">
         <field name="name">Charallave</field>
@@ -3509,7 +3680,8 @@
     <record id="ve_mun_mi_independencia" model="l10n_ve.municipality">
         <field name="name">Independencia (Santa Teresa del Tuy)</field>
         <field name="code">MI-IND</field>
-        <field name="state_id" ref="ve_state_miranda"/>
+        <field name="state_id" ref="ve_res_state_mi"/>
+        <field name="l10n_ve_state_id" ref="ve_state_miranda"/>
     </record>
     <record id="ve_mun_mi_independencia_parish_1" model="l10n_ve.parish">
         <field name="name">Santa Teresa del Tuy</field>
@@ -3522,7 +3694,8 @@
     <record id="ve_mun_mi_paz_castillo" model="l10n_ve.municipality">
         <field name="name">Paz Castillo (Santa Lucía)</field>
         <field name="code">MI-PCA</field>
-        <field name="state_id" ref="ve_state_miranda"/>
+        <field name="state_id" ref="ve_res_state_mi"/>
+        <field name="l10n_ve_state_id" ref="ve_state_miranda"/>
     </record>
     <record id="ve_mun_mi_paz_castillo_parish_1" model="l10n_ve.parish">
         <field name="name">Santa Lucía</field>
@@ -3531,7 +3704,8 @@
     <record id="ve_mun_mi_simon_bolivar" model="l10n_ve.municipality">
         <field name="name">Simón Bolívar (San Francisco de Yare)</field>
         <field name="code">MI-SBO</field>
-        <field name="state_id" ref="ve_state_miranda"/>
+        <field name="state_id" ref="ve_res_state_mi"/>
+        <field name="l10n_ve_state_id" ref="ve_state_miranda"/>
     </record>
     <record id="ve_mun_mi_simon_bolivar_parish_1" model="l10n_ve.parish">
         <field name="name">San Francisco de Yare</field>
@@ -3544,7 +3718,8 @@
     <record id="ve_mun_mi_brion" model="l10n_ve.municipality">
         <field name="name">Brión (Higuerote)</field>
         <field name="code">MI-BRI</field>
-        <field name="state_id" ref="ve_state_miranda"/>
+        <field name="state_id" ref="ve_res_state_mi"/>
+        <field name="l10n_ve_state_id" ref="ve_state_miranda"/>
     </record>
     <record id="ve_mun_mi_brion_parish_1" model="l10n_ve.parish">
         <field name="name">Higuerote</field>
@@ -3561,7 +3736,8 @@
     <record id="ve_mun_mi_buróz" model="l10n_ve.municipality">
         <field name="name">Buroz (Mamporal)</field>
         <field name="code">MI-BUR</field>
-        <field name="state_id" ref="ve_state_miranda"/>
+        <field name="state_id" ref="ve_res_state_mi"/>
+        <field name="l10n_ve_state_id" ref="ve_state_miranda"/>
     </record>
     <record id="ve_mun_mi_buróz_parish_1" model="l10n_ve.parish">
         <field name="name">Mamporal</field>
@@ -3570,7 +3746,8 @@
     <record id="ve_mun_mi_paez" model="l10n_ve.municipality">
         <field name="name">Páez (Río Chico)</field>
         <field name="code">MI-PAE</field>
-        <field name="state_id" ref="ve_state_miranda"/>
+        <field name="state_id" ref="ve_res_state_mi"/>
+        <field name="l10n_ve_state_id" ref="ve_state_miranda"/>
     </record>
     <record id="ve_mun_mi_paez_parish_1" model="l10n_ve.parish">
         <field name="name">Río Chico</field>
@@ -3595,7 +3772,8 @@
     <record id="ve_mun_mi_andres_bello" model="l10n_ve.municipality">
         <field name="name">Andrés Bello (San José de Barlovento)</field>
         <field name="code">MI-ABE</field>
-        <field name="state_id" ref="ve_state_miranda"/>
+        <field name="state_id" ref="ve_res_state_mi"/>
+        <field name="l10n_ve_state_id" ref="ve_state_miranda"/>
     </record>
     <record id="ve_mun_mi_andres_bello_parish_1" model="l10n_ve.parish">
         <field name="name">San José de Barlovento</field>
@@ -3608,7 +3786,8 @@
     <record id="ve_mun_mi_pedro_gual" model="l10n_ve.municipality">
         <field name="name">Pedro Gual (Cúpira)</field>
         <field name="code">MI-PGU</field>
-        <field name="state_id" ref="ve_state_miranda"/>
+        <field name="state_id" ref="ve_res_state_mi"/>
+        <field name="l10n_ve_state_id" ref="ve_state_miranda"/>
     </record>
     <record id="ve_mun_mi_pedro_gual_parish_1" model="l10n_ve.parish">
         <field name="name">Cúpira</field>
@@ -3621,7 +3800,8 @@
     <record id="ve_mun_mi_acevedo" model="l10n_ve.municipality">
         <field name="name">Acevedo (Caucagua)</field>
         <field name="code">MI-ACE</field>
-        <field name="state_id" ref="ve_state_miranda"/>
+        <field name="state_id" ref="ve_res_state_mi"/>
+        <field name="l10n_ve_state_id" ref="ve_state_miranda"/>
     </record>
     <record id="ve_mun_mi_acevedo_parish_1" model="l10n_ve.parish">
         <field name="name">Caucagua</field>
@@ -3658,7 +3838,8 @@
     <record id="ve_mun_mo_maturin" model="l10n_ve.municipality">
         <field name="name">Maturín</field>
         <field name="code">MO-MAT</field>
-        <field name="state_id" ref="ve_state_monagas"/>
+        <field name="state_id" ref="ve_res_state_mo"/>
+        <field name="l10n_ve_state_id" ref="ve_state_monagas"/>
     </record>
     <record id="ve_mun_mo_maturin_parish_1" model="l10n_ve.parish">
         <field name="name">Alto de los Godos</field>
@@ -3703,7 +3884,8 @@
     <record id="ve_mun_mo_ezequiel_zamora" model="l10n_ve.municipality">
         <field name="name">Ezequiel Zamora (Punta de Mata)</field>
         <field name="code">MO-EZA</field>
-        <field name="state_id" ref="ve_state_monagas"/>
+        <field name="state_id" ref="ve_res_state_mo"/>
+        <field name="l10n_ve_state_id" ref="ve_state_monagas"/>
     </record>
     <record id="ve_mun_mo_ezequiel_zamora_parish_1" model="l10n_ve.parish">
         <field name="name">Punta de Mata</field>
@@ -3716,7 +3898,8 @@
     <record id="ve_mun_mo_bolivar" model="l10n_ve.municipality">
         <field name="name">Bolívar (Caripito)</field>
         <field name="code">MO-BOL</field>
-        <field name="state_id" ref="ve_state_monagas"/>
+        <field name="state_id" ref="ve_res_state_mo"/>
+        <field name="l10n_ve_state_id" ref="ve_state_monagas"/>
     </record>
     <record id="ve_mun_mo_bolivar_parish_1" model="l10n_ve.parish">
         <field name="name">Caripito</field>
@@ -3725,7 +3908,8 @@
     <record id="ve_mun_mo_caripito" model="l10n_ve.municipality">
         <field name="name">Caripe</field>
         <field name="code">MO-CAR</field>
-        <field name="state_id" ref="ve_state_monagas"/>
+        <field name="state_id" ref="ve_res_state_mo"/>
+        <field name="l10n_ve_state_id" ref="ve_state_monagas"/>
     </record>
     <record id="ve_mun_mo_caripito_parish_1" model="l10n_ve.parish">
         <field name="name">Caripe</field>
@@ -3754,7 +3938,8 @@
     <record id="ve_mun_mo_acosta" model="l10n_ve.municipality">
         <field name="name">Acosta (San Antonio de Capayacuar)</field>
         <field name="code">MO-ACO</field>
-        <field name="state_id" ref="ve_state_monagas"/>
+        <field name="state_id" ref="ve_res_state_mo"/>
+        <field name="l10n_ve_state_id" ref="ve_state_monagas"/>
     </record>
     <record id="ve_mun_mo_acosta_parish_1" model="l10n_ve.parish">
         <field name="name">San Antonio de Capayacuar</field>
@@ -3767,7 +3952,8 @@
     <record id="ve_mun_mo_aguasay" model="l10n_ve.municipality">
         <field name="name">Aguasay</field>
         <field name="code">MO-AGU</field>
-        <field name="state_id" ref="ve_state_monagas"/>
+        <field name="state_id" ref="ve_res_state_mo"/>
+        <field name="l10n_ve_state_id" ref="ve_state_monagas"/>
     </record>
     <record id="ve_mun_mo_aguasay_parish_1" model="l10n_ve.parish">
         <field name="name">Aguasay</field>
@@ -3776,7 +3962,8 @@
     <record id="ve_mun_mo_cedeno" model="l10n_ve.municipality">
         <field name="name">Cedeño (Caicara de Maturín)</field>
         <field name="code">MO-CED</field>
-        <field name="state_id" ref="ve_state_monagas"/>
+        <field name="state_id" ref="ve_res_state_mo"/>
+        <field name="l10n_ve_state_id" ref="ve_state_monagas"/>
     </record>
     <record id="ve_mun_mo_cedeno_parish_1" model="l10n_ve.parish">
         <field name="name">Caicara de Maturín</field>
@@ -3797,7 +3984,8 @@
     <record id="ve_mun_mo_libertad" model="l10n_ve.municipality">
         <field name="name">Libertador (Temblador)</field>
         <field name="code">MO-LIB</field>
-        <field name="state_id" ref="ve_state_monagas"/>
+        <field name="state_id" ref="ve_res_state_mo"/>
+        <field name="l10n_ve_state_id" ref="ve_state_monagas"/>
     </record>
     <record id="ve_mun_mo_libertad_parish_1" model="l10n_ve.parish">
         <field name="name">Temblador</field>
@@ -3818,7 +4006,8 @@
     <record id="ve_mun_mo_piar" model="l10n_ve.municipality">
         <field name="name">Piar (Aragua de Maturín)</field>
         <field name="code">MO-PIA</field>
-        <field name="state_id" ref="ve_state_monagas"/>
+        <field name="state_id" ref="ve_res_state_mo"/>
+        <field name="l10n_ve_state_id" ref="ve_state_monagas"/>
     </record>
     <record id="ve_mun_mo_piar_parish_1" model="l10n_ve.parish">
         <field name="name">Aragua de Maturín</field>
@@ -3851,7 +4040,8 @@
     <record id="ve_mun_mo_punceres" model="l10n_ve.municipality">
         <field name="name">Punceres (Quiriquire)</field>
         <field name="code">MO-PUN</field>
-        <field name="state_id" ref="ve_state_monagas"/>
+        <field name="state_id" ref="ve_res_state_mo"/>
+        <field name="l10n_ve_state_id" ref="ve_state_monagas"/>
     </record>
     <record id="ve_mun_mo_punceres_parish_1" model="l10n_ve.parish">
         <field name="name">Quiriquire</field>
@@ -3864,7 +4054,8 @@
     <record id="ve_mun_mo_santa_barbara" model="l10n_ve.municipality">
         <field name="name">Santa Bárbara</field>
         <field name="code">MO-SBA</field>
-        <field name="state_id" ref="ve_state_monagas"/>
+        <field name="state_id" ref="ve_res_state_mo"/>
+        <field name="l10n_ve_state_id" ref="ve_state_monagas"/>
     </record>
     <record id="ve_mun_mo_santa_barbara_parish_1" model="l10n_ve.parish">
         <field name="name">Santa Bárbara</field>
@@ -3873,7 +4064,8 @@
     <record id="ve_mun_mo_sotillo" model="l10n_ve.municipality">
         <field name="name">Sotillo (Barrancas del Orinoco)</field>
         <field name="code">MO-SOT</field>
-        <field name="state_id" ref="ve_state_monagas"/>
+        <field name="state_id" ref="ve_res_state_mo"/>
+        <field name="l10n_ve_state_id" ref="ve_state_monagas"/>
     </record>
     <record id="ve_mun_mo_sotillo_parish_1" model="l10n_ve.parish">
         <field name="name">Barrancas del Orinoco</field>
@@ -3886,7 +4078,8 @@
     <record id="ve_mun_mo_uracoa" model="l10n_ve.municipality">
         <field name="name">Uracoa</field>
         <field name="code">MO-URA</field>
-        <field name="state_id" ref="ve_state_monagas"/>
+        <field name="state_id" ref="ve_res_state_mo"/>
+        <field name="l10n_ve_state_id" ref="ve_state_monagas"/>
     </record>
     <record id="ve_mun_mo_uracoa_parish_1" model="l10n_ve.parish">
         <field name="name">Uracoa</field>
@@ -3895,7 +4088,8 @@
     <record id="ve_mun_ne_mariño" model="l10n_ve.municipality">
         <field name="name">Mariño (Porlamar)</field>
         <field name="code">NE-MAR</field>
-        <field name="state_id" ref="ve_state_nueva_esparta"/>
+        <field name="state_id" ref="ve_res_state_ne"/>
+        <field name="l10n_ve_state_id" ref="ve_state_nueva_esparta"/>
     </record>
     <record id="ve_mun_ne_mariño_parish_1" model="l10n_ve.parish">
         <field name="name">Porlamar</field>
@@ -3904,7 +4098,8 @@
     <record id="ve_mun_ne_maneiro" model="l10n_ve.municipality">
         <field name="name">Maneiro (Pampatar)</field>
         <field name="code">NE-MAN</field>
-        <field name="state_id" ref="ve_state_nueva_esparta"/>
+        <field name="state_id" ref="ve_res_state_ne"/>
+        <field name="l10n_ve_state_id" ref="ve_state_nueva_esparta"/>
     </record>
     <record id="ve_mun_ne_maneiro_parish_1" model="l10n_ve.parish">
         <field name="name">Pampatar</field>
@@ -3917,7 +4112,8 @@
     <record id="ve_mun_ne_garcia" model="l10n_ve.municipality">
         <field name="name">García (El Valle del Espíritu Santo)</field>
         <field name="code">NE-GAR</field>
-        <field name="state_id" ref="ve_state_nueva_esparta"/>
+        <field name="state_id" ref="ve_res_state_ne"/>
+        <field name="l10n_ve_state_id" ref="ve_state_nueva_esparta"/>
     </record>
     <record id="ve_mun_ne_garcia_parish_1" model="l10n_ve.parish">
         <field name="name">El Valle</field>
@@ -3930,7 +4126,8 @@
     <record id="ve_mun_ne_arismendi" model="l10n_ve.municipality">
         <field name="name">Arismendi (La Asunción)</field>
         <field name="code">NE-ARI</field>
-        <field name="state_id" ref="ve_state_nueva_esparta"/>
+        <field name="state_id" ref="ve_res_state_ne"/>
+        <field name="l10n_ve_state_id" ref="ve_state_nueva_esparta"/>
     </record>
     <record id="ve_mun_ne_arismendi_parish_1" model="l10n_ve.parish">
         <field name="name">La Asunción</field>
@@ -3939,7 +4136,8 @@
     <record id="ve_mun_ne_diaz" model="l10n_ve.municipality">
         <field name="name">Díaz (San Juan Bautista)</field>
         <field name="code">NE-DIA</field>
-        <field name="state_id" ref="ve_state_nueva_esparta"/>
+        <field name="state_id" ref="ve_res_state_ne"/>
+        <field name="l10n_ve_state_id" ref="ve_state_nueva_esparta"/>
     </record>
     <record id="ve_mun_ne_diaz_parish_1" model="l10n_ve.parish">
         <field name="name">San Juan Bautista</field>
@@ -3952,7 +4150,8 @@
     <record id="ve_mun_ne_gomez" model="l10n_ve.municipality">
         <field name="name">Gómez (Santa Ana)</field>
         <field name="code">NE-GOM</field>
-        <field name="state_id" ref="ve_state_nueva_esparta"/>
+        <field name="state_id" ref="ve_res_state_ne"/>
+        <field name="l10n_ve_state_id" ref="ve_state_nueva_esparta"/>
     </record>
     <record id="ve_mun_ne_gomez_parish_1" model="l10n_ve.parish">
         <field name="name">Santa Ana</field>
@@ -3977,7 +4176,8 @@
     <record id="ve_mun_ne_marcano" model="l10n_ve.municipality">
         <field name="name">Marcano (Juan Griego)</field>
         <field name="code">NE-MCO</field>
-        <field name="state_id" ref="ve_state_nueva_esparta"/>
+        <field name="state_id" ref="ve_res_state_ne"/>
+        <field name="l10n_ve_state_id" ref="ve_state_nueva_esparta"/>
     </record>
     <record id="ve_mun_ne_marcano_parish_1" model="l10n_ve.parish">
         <field name="name">Juan Griego</field>
@@ -3990,7 +4190,8 @@
     <record id="ve_mun_ne_antolin_del_campo" model="l10n_ve.municipality">
         <field name="name">Antolín del Campo (La Plaza de Paraguachí)</field>
         <field name="code">NE-ADC</field>
-        <field name="state_id" ref="ve_state_nueva_esparta"/>
+        <field name="state_id" ref="ve_res_state_ne"/>
+        <field name="l10n_ve_state_id" ref="ve_state_nueva_esparta"/>
     </record>
     <record id="ve_mun_ne_antolin_del_campo_parish_1" model="l10n_ve.parish">
         <field name="name">La Plaza de Paraguachí</field>
@@ -3999,7 +4200,8 @@
     <record id="ve_mun_ne_tubores" model="l10n_ve.municipality">
         <field name="name">Tubores (Punta de Piedras)</field>
         <field name="code">NE-TUB</field>
-        <field name="state_id" ref="ve_state_nueva_esparta"/>
+        <field name="state_id" ref="ve_res_state_ne"/>
+        <field name="l10n_ve_state_id" ref="ve_state_nueva_esparta"/>
     </record>
     <record id="ve_mun_ne_tubores_parish_1" model="l10n_ve.parish">
         <field name="name">Punta de Piedras</field>
@@ -4012,7 +4214,8 @@
     <record id="ve_mun_ne_peninsula_de_macanao" model="l10n_ve.municipality">
         <field name="name">Península de Macanao (Boca de Río)</field>
         <field name="code">NE-MAC</field>
-        <field name="state_id" ref="ve_state_nueva_esparta"/>
+        <field name="state_id" ref="ve_res_state_ne"/>
+        <field name="l10n_ve_state_id" ref="ve_state_nueva_esparta"/>
     </record>
     <record id="ve_mun_ne_peninsula_de_macanao_parish_1" model="l10n_ve.parish">
         <field name="name">Boca de Río</field>
@@ -4025,7 +4228,8 @@
     <record id="ve_mun_ne_villalba" model="l10n_ve.municipality">
         <field name="name">Villalba (San Pedro de Coche / Isla de Coche)</field>
         <field name="code">NE-VIL</field>
-        <field name="state_id" ref="ve_state_nueva_esparta"/>
+        <field name="state_id" ref="ve_res_state_ne"/>
+        <field name="l10n_ve_state_id" ref="ve_state_nueva_esparta"/>
     </record>
     <record id="ve_mun_ne_villalba_parish_1" model="l10n_ve.parish">
         <field name="name">San Pedro de Coche</field>
@@ -4038,7 +4242,8 @@
     <record id="ve_mun_po_paez" model="l10n_ve.municipality">
         <field name="name">Páez (Acarigua)</field>
         <field name="code">PO-PAE</field>
-        <field name="state_id" ref="ve_state_portuguesa"/>
+        <field name="state_id" ref="ve_res_state_po"/>
+        <field name="l10n_ve_state_id" ref="ve_state_portuguesa"/>
     </record>
     <record id="ve_mun_po_paez_parish_1" model="l10n_ve.parish">
         <field name="name">Acarigua</field>
@@ -4059,7 +4264,8 @@
     <record id="ve_mun_po_araure" model="l10n_ve.municipality">
         <field name="name">Araure</field>
         <field name="code">PO-ARA</field>
-        <field name="state_id" ref="ve_state_portuguesa"/>
+        <field name="state_id" ref="ve_res_state_po"/>
+        <field name="l10n_ve_state_id" ref="ve_state_portuguesa"/>
     </record>
     <record id="ve_mun_po_araure_parish_1" model="l10n_ve.parish">
         <field name="name">Araure</field>
@@ -4072,7 +4278,8 @@
     <record id="ve_mun_po_guanare" model="l10n_ve.municipality">
         <field name="name">Guanare</field>
         <field name="code">PO-GUA</field>
-        <field name="state_id" ref="ve_state_portuguesa"/>
+        <field name="state_id" ref="ve_res_state_po"/>
+        <field name="l10n_ve_state_id" ref="ve_state_portuguesa"/>
     </record>
     <record id="ve_mun_po_guanare_parish_1" model="l10n_ve.parish">
         <field name="name">Guanare</field>
@@ -4097,7 +4304,8 @@
     <record id="ve_mun_po_turen" model="l10n_ve.municipality">
         <field name="name">Turén (Villa Bruzual)</field>
         <field name="code">PO-TUR</field>
-        <field name="state_id" ref="ve_state_portuguesa"/>
+        <field name="state_id" ref="ve_res_state_po"/>
+        <field name="l10n_ve_state_id" ref="ve_state_portuguesa"/>
     </record>
     <record id="ve_mun_po_turen_parish_1" model="l10n_ve.parish">
         <field name="name">Villa Bruzual</field>
@@ -4118,7 +4326,8 @@
     <record id="ve_mun_po_esteller" model="l10n_ve.municipality">
         <field name="name">Esteller (Píritu)</field>
         <field name="code">PO-EST</field>
-        <field name="state_id" ref="ve_state_portuguesa"/>
+        <field name="state_id" ref="ve_res_state_po"/>
+        <field name="l10n_ve_state_id" ref="ve_state_portuguesa"/>
     </record>
     <record id="ve_mun_po_esteller_parish_1" model="l10n_ve.parish">
         <field name="name">Píritu</field>
@@ -4131,7 +4340,8 @@
     <record id="ve_mun_po_sucre" model="l10n_ve.municipality">
         <field name="name">Sucre (Biscucuy)</field>
         <field name="code">PO-SUC</field>
-        <field name="state_id" ref="ve_state_portuguesa"/>
+        <field name="state_id" ref="ve_res_state_po"/>
+        <field name="l10n_ve_state_id" ref="ve_state_portuguesa"/>
     </record>
     <record id="ve_mun_po_sucre_parish_1" model="l10n_ve.parish">
         <field name="name">Biscucuy</field>
@@ -4160,7 +4370,8 @@
     <record id="ve_mun_po_ospino" model="l10n_ve.municipality">
         <field name="name">Ospino</field>
         <field name="code">PO-OSP</field>
-        <field name="state_id" ref="ve_state_portuguesa"/>
+        <field name="state_id" ref="ve_res_state_po"/>
+        <field name="l10n_ve_state_id" ref="ve_state_portuguesa"/>
     </record>
     <record id="ve_mun_po_ospino_parish_1" model="l10n_ve.parish">
         <field name="name">Ospino</field>
@@ -4177,7 +4388,8 @@
     <record id="ve_mun_po_santa_rosalia" model="l10n_ve.municipality">
         <field name="name">Santa Rosalía (El Playón)</field>
         <field name="code">PO-SRO</field>
-        <field name="state_id" ref="ve_state_portuguesa"/>
+        <field name="state_id" ref="ve_res_state_po"/>
+        <field name="l10n_ve_state_id" ref="ve_state_portuguesa"/>
     </record>
     <record id="ve_mun_po_santa_rosalia_parish_1" model="l10n_ve.parish">
         <field name="name">El Playón</field>
@@ -4190,7 +4402,8 @@
     <record id="ve_mun_po_san_rafael_de_onoto" model="l10n_ve.municipality">
         <field name="name">San Rafael de Onoto</field>
         <field name="code">PO-SRO2</field>
-        <field name="state_id" ref="ve_state_portuguesa"/>
+        <field name="state_id" ref="ve_res_state_po"/>
+        <field name="l10n_ve_state_id" ref="ve_state_portuguesa"/>
     </record>
     <record id="ve_mun_po_san_rafael_de_onoto_parish_1" model="l10n_ve.parish">
         <field name="name">San Rafael de Onoto</field>
@@ -4207,7 +4420,8 @@
     <record id="ve_mun_po_san_genaro" model="l10n_ve.municipality">
         <field name="name">San Genaro de Boconoíto</field>
         <field name="code">PO-SGE</field>
-        <field name="state_id" ref="ve_state_portuguesa"/>
+        <field name="state_id" ref="ve_res_state_po"/>
+        <field name="l10n_ve_state_id" ref="ve_state_portuguesa"/>
     </record>
     <record id="ve_mun_po_san_genaro_parish_1" model="l10n_ve.parish">
         <field name="name">Boconoíto</field>
@@ -4220,7 +4434,8 @@
     <record id="ve_mun_po_papelon" model="l10n_ve.municipality">
         <field name="name">Papelón</field>
         <field name="code">PO-PAP</field>
-        <field name="state_id" ref="ve_state_portuguesa"/>
+        <field name="state_id" ref="ve_res_state_po"/>
+        <field name="l10n_ve_state_id" ref="ve_state_portuguesa"/>
     </record>
     <record id="ve_mun_po_papelon_parish_1" model="l10n_ve.parish">
         <field name="name">Papelón</field>
@@ -4233,7 +4448,8 @@
     <record id="ve_mun_po_monseor_jose_vicente_de_unda" model="l10n_ve.municipality">
         <field name="name">Monseñor José Vicente de Unda (Chabasquén)</field>
         <field name="code">PO-UND</field>
-        <field name="state_id" ref="ve_state_portuguesa"/>
+        <field name="state_id" ref="ve_res_state_po"/>
+        <field name="l10n_ve_state_id" ref="ve_state_portuguesa"/>
     </record>
     <record id="ve_mun_po_monseor_jose_vicente_de_unda_parish_1" model="l10n_ve.parish">
         <field name="name">Chabasquén</field>
@@ -4246,7 +4462,8 @@
     <record id="ve_mun_po_guanarito" model="l10n_ve.municipality">
         <field name="name">Guanarito</field>
         <field name="code">PO-GTO</field>
-        <field name="state_id" ref="ve_state_portuguesa"/>
+        <field name="state_id" ref="ve_res_state_po"/>
+        <field name="l10n_ve_state_id" ref="ve_state_portuguesa"/>
     </record>
     <record id="ve_mun_po_guanarito_parish_1" model="l10n_ve.parish">
         <field name="name">Guanarito</field>
@@ -4263,7 +4480,8 @@
     <record id="ve_mun_po_agua_blanca" model="l10n_ve.municipality">
         <field name="name">Agua Blanca</field>
         <field name="code">PO-ABL</field>
-        <field name="state_id" ref="ve_state_portuguesa"/>
+        <field name="state_id" ref="ve_res_state_po"/>
+        <field name="l10n_ve_state_id" ref="ve_state_portuguesa"/>
     </record>
     <record id="ve_mun_po_agua_blanca_parish_1" model="l10n_ve.parish">
         <field name="name">Agua Blanca</field>
@@ -4272,7 +4490,8 @@
     <record id="ve_mun_su_sucre" model="l10n_ve.municipality">
         <field name="name">Sucre (Cumaná)</field>
         <field name="code">SU-SUC</field>
-        <field name="state_id" ref="ve_state_sucre"/>
+        <field name="state_id" ref="ve_res_state_su"/>
+        <field name="l10n_ve_state_id" ref="ve_state_sucre"/>
     </record>
     <record id="ve_mun_su_sucre_parish_1" model="l10n_ve.parish">
         <field name="name">Altagracia</field>
@@ -4309,7 +4528,8 @@
     <record id="ve_mun_su_bermudez" model="l10n_ve.municipality">
         <field name="name">Bermúdez (Carúpano)</field>
         <field name="code">SU-BER</field>
-        <field name="state_id" ref="ve_state_sucre"/>
+        <field name="state_id" ref="ve_res_state_su"/>
+        <field name="l10n_ve_state_id" ref="ve_state_sucre"/>
     </record>
     <record id="ve_mun_su_bermudez_parish_1" model="l10n_ve.parish">
         <field name="name">Santa Catalina</field>
@@ -4334,7 +4554,8 @@
     <record id="ve_mun_su_arismendi" model="l10n_ve.municipality">
         <field name="name">Arismendi (Río Caribe)</field>
         <field name="code">SU-ARI</field>
-        <field name="state_id" ref="ve_state_sucre"/>
+        <field name="state_id" ref="ve_res_state_su"/>
+        <field name="l10n_ve_state_id" ref="ve_state_sucre"/>
     </record>
     <record id="ve_mun_su_arismendi_parish_1" model="l10n_ve.parish">
         <field name="name">Río Caribe</field>
@@ -4359,7 +4580,8 @@
     <record id="ve_mun_su_benitez" model="l10n_ve.municipality">
         <field name="name">Benítez (El Pilar)</field>
         <field name="code">SU-BEN</field>
-        <field name="state_id" ref="ve_state_sucre"/>
+        <field name="state_id" ref="ve_res_state_su"/>
+        <field name="l10n_ve_state_id" ref="ve_state_sucre"/>
     </record>
     <record id="ve_mun_su_benitez_parish_1" model="l10n_ve.parish">
         <field name="name">El Pilar</field>
@@ -4388,7 +4610,8 @@
     <record id="ve_mun_su_valdez" model="l10n_ve.municipality">
         <field name="name">Valdez (Güiria)</field>
         <field name="code">SU-VAL</field>
-        <field name="state_id" ref="ve_state_sucre"/>
+        <field name="state_id" ref="ve_res_state_su"/>
+        <field name="l10n_ve_state_id" ref="ve_state_sucre"/>
     </record>
     <record id="ve_mun_su_valdez_parish_1" model="l10n_ve.parish">
         <field name="name">Güiria</field>
@@ -4409,7 +4632,8 @@
     <record id="ve_mun_su_montes" model="l10n_ve.municipality">
         <field name="name">Montes (Cumanacoa)</field>
         <field name="code">SU-MON</field>
-        <field name="state_id" ref="ve_state_sucre"/>
+        <field name="state_id" ref="ve_res_state_su"/>
+        <field name="l10n_ve_state_id" ref="ve_state_sucre"/>
     </record>
     <record id="ve_mun_su_montes_parish_1" model="l10n_ve.parish">
         <field name="name">Cumanacoa</field>
@@ -4438,7 +4662,8 @@
     <record id="ve_mun_su_cruz_salmeron_acosta" model="l10n_ve.municipality">
         <field name="name">Cruz Salmerón Acosta (Araya)</field>
         <field name="code">SU-CSA</field>
-        <field name="state_id" ref="ve_state_sucre"/>
+        <field name="state_id" ref="ve_res_state_su"/>
+        <field name="l10n_ve_state_id" ref="ve_state_sucre"/>
     </record>
     <record id="ve_mun_su_cruz_salmeron_acosta_parish_1" model="l10n_ve.parish">
         <field name="name">Araya</field>
@@ -4455,7 +4680,8 @@
     <record id="ve_mun_su_mejia" model="l10n_ve.municipality">
         <field name="name">Mejía (San Antonio del Golfo)</field>
         <field name="code">SU-MEJ</field>
-        <field name="state_id" ref="ve_state_sucre"/>
+        <field name="state_id" ref="ve_res_state_su"/>
+        <field name="l10n_ve_state_id" ref="ve_state_sucre"/>
     </record>
     <record id="ve_mun_su_mejia_parish_1" model="l10n_ve.parish">
         <field name="name">San Antonio del Golfo</field>
@@ -4464,7 +4690,8 @@
     <record id="ve_mun_su_libertador" model="l10n_ve.municipality">
         <field name="name">Libertador (Tunapuy)</field>
         <field name="code">SU-LIB</field>
-        <field name="state_id" ref="ve_state_sucre"/>
+        <field name="state_id" ref="ve_res_state_su"/>
+        <field name="l10n_ve_state_id" ref="ve_state_sucre"/>
     </record>
     <record id="ve_mun_su_libertador_parish_1" model="l10n_ve.parish">
         <field name="name">Tunapuy</field>
@@ -4477,7 +4704,8 @@
     <record id="ve_mun_su_marino" model="l10n_ve.municipality">
         <field name="name">Mariño (Irapa)</field>
         <field name="code">SU-MAR</field>
-        <field name="state_id" ref="ve_state_sucre"/>
+        <field name="state_id" ref="ve_res_state_su"/>
+        <field name="l10n_ve_state_id" ref="ve_state_sucre"/>
     </record>
     <record id="ve_mun_su_marino_parish_1" model="l10n_ve.parish">
         <field name="name">Irapa</field>
@@ -4502,7 +4730,8 @@
     <record id="ve_mun_su_cajigal" model="l10n_ve.municipality">
         <field name="name">Cajigal (Yaguaraparo)</field>
         <field name="code">SU-CAJ</field>
-        <field name="state_id" ref="ve_state_sucre"/>
+        <field name="state_id" ref="ve_res_state_su"/>
+        <field name="l10n_ve_state_id" ref="ve_state_sucre"/>
     </record>
     <record id="ve_mun_su_cajigal_parish_1" model="l10n_ve.parish">
         <field name="name">Yaguaraparo</field>
@@ -4519,7 +4748,8 @@
     <record id="ve_mun_su_bolivar" model="l10n_ve.municipality">
         <field name="name">Bolívar (Marigüitar)</field>
         <field name="code">SU-BOL</field>
-        <field name="state_id" ref="ve_state_sucre"/>
+        <field name="state_id" ref="ve_res_state_su"/>
+        <field name="l10n_ve_state_id" ref="ve_state_sucre"/>
     </record>
     <record id="ve_mun_su_bolivar_parish_1" model="l10n_ve.parish">
         <field name="name">Marigüitar</field>
@@ -4528,7 +4758,8 @@
     <record id="ve_mun_su_andres_eloy_blanco" model="l10n_ve.municipality">
         <field name="name">Andrés Eloy Blanco (Casanay)</field>
         <field name="code">SU-AEB</field>
-        <field name="state_id" ref="ve_state_sucre"/>
+        <field name="state_id" ref="ve_res_state_su"/>
+        <field name="l10n_ve_state_id" ref="ve_state_sucre"/>
     </record>
     <record id="ve_mun_su_andres_eloy_blanco_parish_1" model="l10n_ve.parish">
         <field name="name">Casanay</field>
@@ -4541,7 +4772,8 @@
     <record id="ve_mun_su_andres_mata" model="l10n_ve.municipality">
         <field name="name">Andrés Mata (San José de Aerocuar)</field>
         <field name="code">SU-AMA</field>
-        <field name="state_id" ref="ve_state_sucre"/>
+        <field name="state_id" ref="ve_res_state_su"/>
+        <field name="l10n_ve_state_id" ref="ve_state_sucre"/>
     </record>
     <record id="ve_mun_su_andres_mata_parish_1" model="l10n_ve.parish">
         <field name="name">San José de Aerocuar</field>
@@ -4554,7 +4786,8 @@
     <record id="ve_mun_su_riberero" model="l10n_ve.municipality">
         <field name="name">Ribero (Cariaco)</field>
         <field name="code">SU-RIB</field>
-        <field name="state_id" ref="ve_state_sucre"/>
+        <field name="state_id" ref="ve_res_state_su"/>
+        <field name="l10n_ve_state_id" ref="ve_state_sucre"/>
     </record>
     <record id="ve_mun_su_riberero_parish_1" model="l10n_ve.parish">
         <field name="name">Cariaco</field>
@@ -4579,7 +4812,8 @@
     <record id="ve_mun_ta_san_cristobal" model="l10n_ve.municipality">
         <field name="name">San Cristóbal</field>
         <field name="code">TA-SCR</field>
-        <field name="state_id" ref="ve_state_tachira"/>
+        <field name="state_id" ref="ve_res_state_ta"/>
+        <field name="l10n_ve_state_id" ref="ve_state_tachira"/>
     </record>
     <record id="ve_mun_ta_san_cristobal_parish_1" model="l10n_ve.parish">
         <field name="name">La Concordia</field>
@@ -4604,7 +4838,8 @@
     <record id="ve_mun_ta_cardenas" model="l10n_ve.municipality">
         <field name="name">Cárdenas (Táriba)</field>
         <field name="code">TA-CAR</field>
-        <field name="state_id" ref="ve_state_tachira"/>
+        <field name="state_id" ref="ve_res_state_ta"/>
+        <field name="l10n_ve_state_id" ref="ve_state_tachira"/>
     </record>
     <record id="ve_mun_ta_cardenas_parish_1" model="l10n_ve.parish">
         <field name="name">Táriba</field>
@@ -4621,7 +4856,8 @@
     <record id="ve_mun_ta_bolivar" model="l10n_ve.municipality">
         <field name="name">Bolívar (San Antonio del Táchira)</field>
         <field name="code">TA-BOL</field>
-        <field name="state_id" ref="ve_state_tachira"/>
+        <field name="state_id" ref="ve_res_state_ta"/>
+        <field name="l10n_ve_state_id" ref="ve_state_tachira"/>
     </record>
     <record id="ve_mun_ta_bolivar_parish_1" model="l10n_ve.parish">
         <field name="name">San Antonio del Táchira</field>
@@ -4642,7 +4878,8 @@
     <record id="ve_mun_ta_pedro_maria_urena" model="l10n_ve.municipality">
         <field name="name">Pedro María Ureña (Ureña)</field>
         <field name="code">TA-PMU</field>
-        <field name="state_id" ref="ve_state_tachira"/>
+        <field name="state_id" ref="ve_res_state_ta"/>
+        <field name="l10n_ve_state_id" ref="ve_state_tachira"/>
     </record>
     <record id="ve_mun_ta_pedro_maria_urena_parish_1" model="l10n_ve.parish">
         <field name="name">Ureña</field>
@@ -4655,7 +4892,8 @@
     <record id="ve_mun_ta_junin" model="l10n_ve.municipality">
         <field name="name">Junín (Rubio)</field>
         <field name="code">TA-JUN</field>
-        <field name="state_id" ref="ve_state_tachira"/>
+        <field name="state_id" ref="ve_res_state_ta"/>
+        <field name="l10n_ve_state_id" ref="ve_state_tachira"/>
     </record>
     <record id="ve_mun_ta_junin_parish_1" model="l10n_ve.parish">
         <field name="name">Rubio</field>
@@ -4676,7 +4914,8 @@
     <record id="ve_mun_ta_garcia_de_hevia" model="l10n_ve.municipality">
         <field name="name">García de Hevia (La Fría)</field>
         <field name="code">TA-GDH</field>
-        <field name="state_id" ref="ve_state_tachira"/>
+        <field name="state_id" ref="ve_res_state_ta"/>
+        <field name="l10n_ve_state_id" ref="ve_state_tachira"/>
     </record>
     <record id="ve_mun_ta_garcia_de_hevia_parish_1" model="l10n_ve.parish">
         <field name="name">La Fría</field>
@@ -4693,7 +4932,8 @@
     <record id="ve_mun_ta_ayacucho" model="l10n_ve.municipality">
         <field name="name">Ayacucho (Colón)</field>
         <field name="code">TA-AYA</field>
-        <field name="state_id" ref="ve_state_tachira"/>
+        <field name="state_id" ref="ve_res_state_ta"/>
+        <field name="l10n_ve_state_id" ref="ve_state_tachira"/>
     </record>
     <record id="ve_mun_ta_ayacucho_parish_1" model="l10n_ve.parish">
         <field name="name">San Juan de Colón</field>
@@ -4710,7 +4950,8 @@
     <record id="ve_mun_ta_torbes" model="l10n_ve.municipality">
         <field name="name">Torbes (San Josecito)</field>
         <field name="code">TA-TOR</field>
-        <field name="state_id" ref="ve_state_tachira"/>
+        <field name="state_id" ref="ve_res_state_ta"/>
+        <field name="l10n_ve_state_id" ref="ve_state_tachira"/>
     </record>
     <record id="ve_mun_ta_torbes_parish_1" model="l10n_ve.parish">
         <field name="name">San Josecito</field>
@@ -4719,7 +4960,8 @@
     <record id="ve_mun_ta_guacimos" model="l10n_ve.municipality">
         <field name="name">Guásimos (Palmira)</field>
         <field name="code">TA-GUA</field>
-        <field name="state_id" ref="ve_state_tachira"/>
+        <field name="state_id" ref="ve_res_state_ta"/>
+        <field name="l10n_ve_state_id" ref="ve_state_tachira"/>
     </record>
     <record id="ve_mun_ta_guacimos_parish_1" model="l10n_ve.parish">
         <field name="name">Palmira</field>
@@ -4728,7 +4970,8 @@
     <record id="ve_mun_ta_cordoba" model="l10n_ve.municipality">
         <field name="name">Córdoba (Santa Ana)</field>
         <field name="code">TA-COR</field>
-        <field name="state_id" ref="ve_state_tachira"/>
+        <field name="state_id" ref="ve_res_state_ta"/>
+        <field name="l10n_ve_state_id" ref="ve_state_tachira"/>
     </record>
     <record id="ve_mun_ta_cordoba_parish_1" model="l10n_ve.parish">
         <field name="name">Santa Ana del Táchira</field>
@@ -4737,7 +4980,8 @@
     <record id="ve_mun_ta_andres_bello" model="l10n_ve.municipality">
         <field name="name">Andrés Bello (Cordero)</field>
         <field name="code">TA-ABE</field>
-        <field name="state_id" ref="ve_state_tachira"/>
+        <field name="state_id" ref="ve_res_state_ta"/>
+        <field name="l10n_ve_state_id" ref="ve_state_tachira"/>
     </record>
     <record id="ve_mun_ta_andres_bello_parish_1" model="l10n_ve.parish">
         <field name="name">Cordero</field>
@@ -4746,7 +4990,8 @@
     <record id="ve_mun_ta_independencia" model="l10n_ve.municipality">
         <field name="name">Independencia (Capacho Nuevo)</field>
         <field name="code">TA-IND</field>
-        <field name="state_id" ref="ve_state_tachira"/>
+        <field name="state_id" ref="ve_res_state_ta"/>
+        <field name="l10n_ve_state_id" ref="ve_state_tachira"/>
     </record>
     <record id="ve_mun_ta_independencia_parish_1" model="l10n_ve.parish">
         <field name="name">Capacho Nuevo</field>
@@ -4763,7 +5008,8 @@
     <record id="ve_mun_ta_libertad" model="l10n_ve.municipality">
         <field name="name">Libertad (Capacho Viejo)</field>
         <field name="code">TA-LIB</field>
-        <field name="state_id" ref="ve_state_tachira"/>
+        <field name="state_id" ref="ve_res_state_ta"/>
+        <field name="l10n_ve_state_id" ref="ve_state_tachira"/>
     </record>
     <record id="ve_mun_ta_libertad_parish_1" model="l10n_ve.parish">
         <field name="name">Capacho Viejo</field>
@@ -4780,7 +5026,8 @@
     <record id="ve_mun_ta_jauregui" model="l10n_ve.municipality">
         <field name="name">Jáuregui (La Grita)</field>
         <field name="code">TA-JAU</field>
-        <field name="state_id" ref="ve_state_tachira"/>
+        <field name="state_id" ref="ve_res_state_ta"/>
+        <field name="l10n_ve_state_id" ref="ve_state_tachira"/>
     </record>
     <record id="ve_mun_ta_jauregui_parish_1" model="l10n_ve.parish">
         <field name="name">La Grita</field>
@@ -4797,7 +5044,8 @@
     <record id="ve_mun_ta_lobatera" model="l10n_ve.municipality">
         <field name="name">Lobatera</field>
         <field name="code">TA-LOB</field>
-        <field name="state_id" ref="ve_state_tachira"/>
+        <field name="state_id" ref="ve_res_state_ta"/>
+        <field name="l10n_ve_state_id" ref="ve_state_tachira"/>
     </record>
     <record id="ve_mun_ta_lobatera_parish_1" model="l10n_ve.parish">
         <field name="name">Lobatera</field>
@@ -4810,7 +5058,8 @@
     <record id="ve_mun_ta_michelena" model="l10n_ve.municipality">
         <field name="name">Michelena</field>
         <field name="code">TA-MIC</field>
-        <field name="state_id" ref="ve_state_tachira"/>
+        <field name="state_id" ref="ve_res_state_ta"/>
+        <field name="l10n_ve_state_id" ref="ve_state_tachira"/>
     </record>
     <record id="ve_mun_ta_michelena_parish_1" model="l10n_ve.parish">
         <field name="name">Michelena</field>
@@ -4819,7 +5068,8 @@
     <record id="ve_mun_ta_panamericano" model="l10n_ve.municipality">
         <field name="name">Panamericano (Coloncito)</field>
         <field name="code">TA-PAN</field>
-        <field name="state_id" ref="ve_state_tachira"/>
+        <field name="state_id" ref="ve_res_state_ta"/>
+        <field name="l10n_ve_state_id" ref="ve_state_tachira"/>
     </record>
     <record id="ve_mun_ta_panamericano_parish_1" model="l10n_ve.parish">
         <field name="name">Coloncito</field>
@@ -4832,7 +5082,8 @@
     <record id="ve_mun_ta_samuel_dario_maldonado" model="l10n_ve.municipality">
         <field name="name">Samuel Darío Maldonado (La Tendida)</field>
         <field name="code">TA-SDM</field>
-        <field name="state_id" ref="ve_state_tachira"/>
+        <field name="state_id" ref="ve_res_state_ta"/>
+        <field name="l10n_ve_state_id" ref="ve_state_tachira"/>
     </record>
     <record id="ve_mun_ta_samuel_dario_maldonado_parish_1" model="l10n_ve.parish">
         <field name="name">La Tendida</field>
@@ -4849,7 +5100,8 @@
     <record id="ve_mun_ta_seboruco" model="l10n_ve.municipality">
         <field name="name">Seboruco</field>
         <field name="code">TA-SEB</field>
-        <field name="state_id" ref="ve_state_tachira"/>
+        <field name="state_id" ref="ve_res_state_ta"/>
+        <field name="l10n_ve_state_id" ref="ve_state_tachira"/>
     </record>
     <record id="ve_mun_ta_seboruco_parish_1" model="l10n_ve.parish">
         <field name="name">Seboruco</field>
@@ -4858,7 +5110,8 @@
     <record id="ve_mun_ta_simon_rodriguez" model="l10n_ve.municipality">
         <field name="name">Simón Rodríguez (San Simón)</field>
         <field name="code">TA-SRO</field>
-        <field name="state_id" ref="ve_state_tachira"/>
+        <field name="state_id" ref="ve_res_state_ta"/>
+        <field name="l10n_ve_state_id" ref="ve_state_tachira"/>
     </record>
     <record id="ve_mun_ta_simon_rodriguez_parish_1" model="l10n_ve.parish">
         <field name="name">San Simón</field>
@@ -4867,7 +5120,8 @@
     <record id="ve_mun_ta_sucre" model="l10n_ve.municipality">
         <field name="name">Sucre (Queniquea)</field>
         <field name="code">TA-SUC</field>
-        <field name="state_id" ref="ve_state_tachira"/>
+        <field name="state_id" ref="ve_res_state_ta"/>
+        <field name="l10n_ve_state_id" ref="ve_state_tachira"/>
     </record>
     <record id="ve_mun_ta_sucre_parish_1" model="l10n_ve.parish">
         <field name="name">Queniquea</field>
@@ -4884,7 +5138,8 @@
     <record id="ve_mun_ta_uribante" model="l10n_ve.municipality">
         <field name="name">Uribante (Pregonero)</field>
         <field name="code">TA-URI</field>
-        <field name="state_id" ref="ve_state_tachira"/>
+        <field name="state_id" ref="ve_res_state_ta"/>
+        <field name="l10n_ve_state_id" ref="ve_state_tachira"/>
     </record>
     <record id="ve_mun_ta_uribante_parish_1" model="l10n_ve.parish">
         <field name="name">Pregonero</field>
@@ -4905,7 +5160,8 @@
     <record id="ve_mun_ta_san_judas_tadeo" model="l10n_ve.municipality">
         <field name="name">San Judas Tadeo (Umuquena)</field>
         <field name="code">TA-SJT</field>
-        <field name="state_id" ref="ve_state_tachira"/>
+        <field name="state_id" ref="ve_res_state_ta"/>
+        <field name="l10n_ve_state_id" ref="ve_state_tachira"/>
     </record>
     <record id="ve_mun_ta_san_judas_tadeo_parish_1" model="l10n_ve.parish">
         <field name="name">Umuquena</field>
@@ -4914,7 +5170,8 @@
     <record id="ve_mun_tr_valera" model="l10n_ve.municipality">
         <field name="name">Valera</field>
         <field name="code">TR-VAL</field>
-        <field name="state_id" ref="ve_state_trujillo"/>
+        <field name="state_id" ref="ve_res_state_tr"/>
+        <field name="l10n_ve_state_id" ref="ve_state_trujillo"/>
     </record>
     <record id="ve_mun_tr_valera_parish_1" model="l10n_ve.parish">
         <field name="name">Valera</field>
@@ -4943,7 +5200,8 @@
     <record id="ve_mun_tr_trujillo" model="l10n_ve.municipality">
         <field name="name">Trujillo</field>
         <field name="code">TR-TRU</field>
-        <field name="state_id" ref="ve_state_trujillo"/>
+        <field name="state_id" ref="ve_res_state_tr"/>
+        <field name="l10n_ve_state_id" ref="ve_state_trujillo"/>
     </record>
     <record id="ve_mun_tr_trujillo_parish_1" model="l10n_ve.parish">
         <field name="name">Trujillo</field>
@@ -4976,7 +5234,8 @@
     <record id="ve_mun_tr_bocono" model="l10n_ve.municipality">
         <field name="name">Boconó</field>
         <field name="code">TR-BOC</field>
-        <field name="state_id" ref="ve_state_trujillo"/>
+        <field name="state_id" ref="ve_res_state_tr"/>
+        <field name="l10n_ve_state_id" ref="ve_state_trujillo"/>
     </record>
     <record id="ve_mun_tr_bocono_parish_1" model="l10n_ve.parish">
         <field name="name">Boconó</field>
@@ -5029,7 +5288,8 @@
     <record id="ve_mun_tr_rafael_rangel" model="l10n_ve.municipality">
         <field name="name">Rafael Rangel (Betijoque)</field>
         <field name="code">TR-RRA</field>
-        <field name="state_id" ref="ve_state_trujillo"/>
+        <field name="state_id" ref="ve_res_state_tr"/>
+        <field name="l10n_ve_state_id" ref="ve_state_trujillo"/>
     </record>
     <record id="ve_mun_tr_rafael_rangel_parish_1" model="l10n_ve.parish">
         <field name="name">Betijoque</field>
@@ -5050,7 +5310,8 @@
     <record id="ve_mun_tr_sucre" model="l10n_ve.municipality">
         <field name="name">Sucre (Sabana de Mendoza)</field>
         <field name="code">TR-SUC</field>
-        <field name="state_id" ref="ve_state_trujillo"/>
+        <field name="state_id" ref="ve_res_state_tr"/>
+        <field name="l10n_ve_state_id" ref="ve_state_trujillo"/>
     </record>
     <record id="ve_mun_tr_sucre_parish_1" model="l10n_ve.parish">
         <field name="name">Sabana de Mendoza</field>
@@ -5071,7 +5332,8 @@
     <record id="ve_mun_tr_carache" model="l10n_ve.municipality">
         <field name="name">Carache</field>
         <field name="code">TR-CAR</field>
-        <field name="state_id" ref="ve_state_trujillo"/>
+        <field name="state_id" ref="ve_res_state_tr"/>
+        <field name="l10n_ve_state_id" ref="ve_state_trujillo"/>
     </record>
     <record id="ve_mun_tr_carache_parish_1" model="l10n_ve.parish">
         <field name="name">Carache</field>
@@ -5096,7 +5358,8 @@
     <record id="ve_mun_tr_escuke" model="l10n_ve.municipality">
         <field name="name">Escuque</field>
         <field name="code">TR-ESC</field>
-        <field name="state_id" ref="ve_state_trujillo"/>
+        <field name="state_id" ref="ve_res_state_tr"/>
+        <field name="l10n_ve_state_id" ref="ve_state_trujillo"/>
     </record>
     <record id="ve_mun_tr_escuke_parish_1" model="l10n_ve.parish">
         <field name="name">Escuque</field>
@@ -5117,7 +5380,8 @@
     <record id="ve_mun_tr_candelaria" model="l10n_ve.municipality">
         <field name="name">Candelaria (Chejendé)</field>
         <field name="code">TR-CAN</field>
-        <field name="state_id" ref="ve_state_trujillo"/>
+        <field name="state_id" ref="ve_res_state_tr"/>
+        <field name="l10n_ve_state_id" ref="ve_state_trujillo"/>
     </record>
     <record id="ve_mun_tr_candelaria_parish_1" model="l10n_ve.parish">
         <field name="name">Chejendé</field>
@@ -5150,7 +5414,8 @@
     <record id="ve_mun_tr_la_ceiba" model="l10n_ve.municipality">
         <field name="name">La Ceiba (Santa Apolonia)</field>
         <field name="code">TR-LCE</field>
-        <field name="state_id" ref="ve_state_trujillo"/>
+        <field name="state_id" ref="ve_res_state_tr"/>
+        <field name="l10n_ve_state_id" ref="ve_state_trujillo"/>
     </record>
     <record id="ve_mun_tr_la_ceiba_parish_1" model="l10n_ve.parish">
         <field name="name">Santa Apolonia</field>
@@ -5171,7 +5436,8 @@
     <record id="ve_mun_tr_pampan" model="l10n_ve.municipality">
         <field name="name">Pampán</field>
         <field name="code">TR-PAM</field>
-        <field name="state_id" ref="ve_state_trujillo"/>
+        <field name="state_id" ref="ve_res_state_tr"/>
+        <field name="l10n_ve_state_id" ref="ve_state_trujillo"/>
     </record>
     <record id="ve_mun_tr_pampan_parish_1" model="l10n_ve.parish">
         <field name="name">Pampán</field>
@@ -5192,7 +5458,8 @@
     <record id="ve_mun_tr_pampanito" model="l10n_ve.municipality">
         <field name="name">Pampanito</field>
         <field name="code">TR-PMT</field>
-        <field name="state_id" ref="ve_state_trujillo"/>
+        <field name="state_id" ref="ve_res_state_tr"/>
+        <field name="l10n_ve_state_id" ref="ve_state_trujillo"/>
     </record>
     <record id="ve_mun_tr_pampanito_parish_1" model="l10n_ve.parish">
         <field name="name">Pampanito</field>
@@ -5209,7 +5476,8 @@
     <record id="ve_mun_tr_san_rafael_de_carvajal" model="l10n_ve.municipality">
         <field name="name">San Rafael de Carvajal</field>
         <field name="code">TR-SRC</field>
-        <field name="state_id" ref="ve_state_trujillo"/>
+        <field name="state_id" ref="ve_res_state_tr"/>
+        <field name="l10n_ve_state_id" ref="ve_state_trujillo"/>
     </record>
     <record id="ve_mun_tr_san_rafael_de_carvajal_parish_1" model="l10n_ve.parish">
         <field name="name">Carvajal</field>
@@ -5230,7 +5498,8 @@
     <record id="ve_mun_tr_urdaneta" model="l10n_ve.municipality">
         <field name="name">Urdaneta (La Quebrada)</field>
         <field name="code">TR-URD</field>
-        <field name="state_id" ref="ve_state_trujillo"/>
+        <field name="state_id" ref="ve_res_state_tr"/>
+        <field name="l10n_ve_state_id" ref="ve_state_trujillo"/>
     </record>
     <record id="ve_mun_tr_urdaneta_parish_1" model="l10n_ve.parish">
         <field name="name">La Quebrada</field>
@@ -5259,7 +5528,8 @@
     <record id="ve_mun_va_vargas" model="l10n_ve.municipality">
         <field name="name">Vargas (La Guaira)</field>
         <field name="code">VA-VAR</field>
-        <field name="state_id" ref="ve_state_vargas"/>
+        <field name="state_id" ref="ve_res_state_va"/>
+        <field name="l10n_ve_state_id" ref="ve_state_vargas"/>
     </record>
     <record id="ve_mun_va_vargas_parish_1" model="l10n_ve.parish">
         <field name="name">Caraballeda</field>
@@ -5308,7 +5578,8 @@
     <record id="ve_mun_ya_san_felipe" model="l10n_ve.municipality">
         <field name="name">San Felipe</field>
         <field name="code">YA-SFE</field>
-        <field name="state_id" ref="ve_state_yaracuy"/>
+        <field name="state_id" ref="ve_res_state_ya"/>
+        <field name="l10n_ve_state_id" ref="ve_state_yaracuy"/>
     </record>
     <record id="ve_mun_ya_san_felipe_parish_1" model="l10n_ve.parish">
         <field name="name">San Felipe</field>
@@ -5325,7 +5596,8 @@
     <record id="ve_mun_ya_independencia" model="l10n_ve.municipality">
         <field name="name">Independencia</field>
         <field name="code">YA-IND</field>
-        <field name="state_id" ref="ve_state_yaracuy"/>
+        <field name="state_id" ref="ve_res_state_ya"/>
+        <field name="l10n_ve_state_id" ref="ve_state_yaracuy"/>
     </record>
     <record id="ve_mun_ya_independencia_parish_1" model="l10n_ve.parish">
         <field name="name">Independencia</field>
@@ -5334,7 +5606,8 @@
     <record id="ve_mun_ya_peña" model="l10n_ve.municipality">
         <field name="name">Peña (Yaritagua)</field>
         <field name="code">YA-PEN</field>
-        <field name="state_id" ref="ve_state_yaracuy"/>
+        <field name="state_id" ref="ve_res_state_ya"/>
+        <field name="l10n_ve_state_id" ref="ve_state_yaracuy"/>
     </record>
     <record id="ve_mun_ya_peña_parish_1" model="l10n_ve.parish">
         <field name="name">Yaritagua</field>
@@ -5347,7 +5620,8 @@
     <record id="ve_mun_ya_bruzuál" model="l10n_ve.municipality">
         <field name="name">Bruzual (Chivacoa)</field>
         <field name="code">YA-BRU</field>
-        <field name="state_id" ref="ve_state_yaracuy"/>
+        <field name="state_id" ref="ve_res_state_ya"/>
+        <field name="l10n_ve_state_id" ref="ve_state_yaracuy"/>
     </record>
     <record id="ve_mun_ya_bruzuál_parish_1" model="l10n_ve.parish">
         <field name="name">Chivacoa</field>
@@ -5360,7 +5634,8 @@
     <record id="ve_mun_ya_nirgua" model="l10n_ve.municipality">
         <field name="name">Nirgua</field>
         <field name="code">YA-NIR</field>
-        <field name="state_id" ref="ve_state_yaracuy"/>
+        <field name="state_id" ref="ve_res_state_ya"/>
+        <field name="l10n_ve_state_id" ref="ve_state_yaracuy"/>
     </record>
     <record id="ve_mun_ya_nirgua_parish_1" model="l10n_ve.parish">
         <field name="name">Nirgua</field>
@@ -5377,7 +5652,8 @@
     <record id="ve_mun_ya_cocorote" model="l10n_ve.municipality">
         <field name="name">Cocorote</field>
         <field name="code">YA-COC</field>
-        <field name="state_id" ref="ve_state_yaracuy"/>
+        <field name="state_id" ref="ve_res_state_ya"/>
+        <field name="l10n_ve_state_id" ref="ve_state_yaracuy"/>
     </record>
     <record id="ve_mun_ya_cocorote_parish_1" model="l10n_ve.parish">
         <field name="name">Cocorote</field>
@@ -5386,7 +5662,8 @@
     <record id="ve_mun_ya_bolivar" model="l10n_ve.municipality">
         <field name="name">Bolívar (Aroa)</field>
         <field name="code">YA-BOL</field>
-        <field name="state_id" ref="ve_state_yaracuy"/>
+        <field name="state_id" ref="ve_res_state_ya"/>
+        <field name="l10n_ve_state_id" ref="ve_state_yaracuy"/>
     </record>
     <record id="ve_mun_ya_bolivar_parish_1" model="l10n_ve.parish">
         <field name="name">Aroa</field>
@@ -5395,7 +5672,8 @@
     <record id="ve_mun_ya_la_trinidad" model="l10n_ve.municipality">
         <field name="name">La Trinidad (Boraure)</field>
         <field name="code">YA-TRI</field>
-        <field name="state_id" ref="ve_state_yaracuy"/>
+        <field name="state_id" ref="ve_res_state_ya"/>
+        <field name="l10n_ve_state_id" ref="ve_state_yaracuy"/>
     </record>
     <record id="ve_mun_ya_la_trinidad_parish_1" model="l10n_ve.parish">
         <field name="name">Boraure</field>
@@ -5404,7 +5682,8 @@
     <record id="ve_mun_ya_manuel_monge" model="l10n_ve.municipality">
         <field name="name">Manuel Monge (Yumare)</field>
         <field name="code">YA-MMO</field>
-        <field name="state_id" ref="ve_state_yaracuy"/>
+        <field name="state_id" ref="ve_res_state_ya"/>
+        <field name="l10n_ve_state_id" ref="ve_state_yaracuy"/>
     </record>
     <record id="ve_mun_ya_manuel_monge_parish_1" model="l10n_ve.parish">
         <field name="name">Yumare</field>
@@ -5413,7 +5692,8 @@
     <record id="ve_mun_ya_paez" model="l10n_ve.municipality">
         <field name="name">Páez (Sabana de Parra)</field>
         <field name="code">YA-PAE</field>
-        <field name="state_id" ref="ve_state_yaracuy"/>
+        <field name="state_id" ref="ve_res_state_ya"/>
+        <field name="l10n_ve_state_id" ref="ve_state_yaracuy"/>
     </record>
     <record id="ve_mun_ya_paez_parish_1" model="l10n_ve.parish">
         <field name="name">Sabana de Parra</field>
@@ -5422,7 +5702,8 @@
     <record id="ve_mun_ya_sucre" model="l10n_ve.municipality">
         <field name="name">Sucre (Guama)</field>
         <field name="code">YA-SUC</field>
-        <field name="state_id" ref="ve_state_yaracuy"/>
+        <field name="state_id" ref="ve_res_state_ya"/>
+        <field name="l10n_ve_state_id" ref="ve_state_yaracuy"/>
     </record>
     <record id="ve_mun_ya_sucre_parish_1" model="l10n_ve.parish">
         <field name="name">Guama</field>
@@ -5431,7 +5712,8 @@
     <record id="ve_mun_ya_urachiche" model="l10n_ve.municipality">
         <field name="name">Urachiche</field>
         <field name="code">YA-URA</field>
-        <field name="state_id" ref="ve_state_yaracuy"/>
+        <field name="state_id" ref="ve_res_state_ya"/>
+        <field name="l10n_ve_state_id" ref="ve_state_yaracuy"/>
     </record>
     <record id="ve_mun_ya_urachiche_parish_1" model="l10n_ve.parish">
         <field name="name">Urachiche</field>
@@ -5440,7 +5722,8 @@
     <record id="ve_mun_ya_veroes" model="l10n_ve.municipality">
         <field name="name">Veroes (Farriar)</field>
         <field name="code">YA-VER</field>
-        <field name="state_id" ref="ve_state_yaracuy"/>
+        <field name="state_id" ref="ve_res_state_ya"/>
+        <field name="l10n_ve_state_id" ref="ve_state_yaracuy"/>
     </record>
     <record id="ve_mun_ya_veroes_parish_1" model="l10n_ve.parish">
         <field name="name">Farriar</field>
@@ -5453,7 +5736,8 @@
     <record id="ve_mun_ya_aristides_bastidas" model="l10n_ve.municipality">
         <field name="name">Arístides Bastidas (San Pablo)</field>
         <field name="code">YA-ABA</field>
-        <field name="state_id" ref="ve_state_yaracuy"/>
+        <field name="state_id" ref="ve_res_state_ya"/>
+        <field name="l10n_ve_state_id" ref="ve_state_yaracuy"/>
     </record>
     <record id="ve_mun_ya_aristides_bastidas_parish_1" model="l10n_ve.parish">
         <field name="name">San Pablo</field>
@@ -5462,7 +5746,8 @@
     <record id="ve_mun_zu_maracaibo" model="l10n_ve.municipality">
         <field name="name">Maracaibo</field>
         <field name="code">ZU-MAR</field>
-        <field name="state_id" ref="ve_state_zulia"/>
+        <field name="state_id" ref="ve_res_state_zu"/>
+        <field name="l10n_ve_state_id" ref="ve_state_zulia"/>
     </record>
     <record id="ve_mun_zu_maracaibo_parish_1" model="l10n_ve.parish">
         <field name="name">Bolívar</field>
@@ -5539,7 +5824,8 @@
     <record id="ve_mun_zu_san_francisco" model="l10n_ve.municipality">
         <field name="name">San Francisco</field>
         <field name="code">ZU-SFR</field>
-        <field name="state_id" ref="ve_state_zulia"/>
+        <field name="state_id" ref="ve_res_state_zu"/>
+        <field name="l10n_ve_state_id" ref="ve_state_zulia"/>
     </record>
     <record id="ve_mun_zu_san_francisco_parish_1" model="l10n_ve.parish">
         <field name="name">San Francisco</field>
@@ -5572,7 +5858,8 @@
     <record id="ve_mun_zu_cabimas" model="l10n_ve.municipality">
         <field name="name">Cabimas</field>
         <field name="code">ZU-CAB</field>
-        <field name="state_id" ref="ve_state_zulia"/>
+        <field name="state_id" ref="ve_res_state_zu"/>
+        <field name="l10n_ve_state_id" ref="ve_state_zulia"/>
     </record>
     <record id="ve_mun_zu_cabimas_parish_1" model="l10n_ve.parish">
         <field name="name">Ambrosio</field>
@@ -5613,7 +5900,8 @@
     <record id="ve_mun_zu_lagunillas" model="l10n_ve.municipality">
         <field name="name">Lagunillas (Ciudad Ojeda)</field>
         <field name="code">ZU-LAG</field>
-        <field name="state_id" ref="ve_state_zulia"/>
+        <field name="state_id" ref="ve_res_state_zu"/>
+        <field name="l10n_ve_state_id" ref="ve_state_zulia"/>
     </record>
     <record id="ve_mun_zu_lagunillas_parish_1" model="l10n_ve.parish">
         <field name="name">Alonso de Ojeda</field>
@@ -5638,7 +5926,8 @@
     <record id="ve_mun_zu_santa_rita" model="l10n_ve.municipality">
         <field name="name">Santa Rita</field>
         <field name="code">ZU-SRI</field>
-        <field name="state_id" ref="ve_state_zulia"/>
+        <field name="state_id" ref="ve_res_state_zu"/>
+        <field name="l10n_ve_state_id" ref="ve_state_zulia"/>
     </record>
     <record id="ve_mun_zu_santa_rita_parish_1" model="l10n_ve.parish">
         <field name="name">Santa Rita</field>
@@ -5659,7 +5948,8 @@
     <record id="ve_mun_zu_simon_bolivar" model="l10n_ve.municipality">
         <field name="name">Simón Bolívar (Tía Juana)</field>
         <field name="code">ZU-SBO</field>
-        <field name="state_id" ref="ve_state_zulia"/>
+        <field name="state_id" ref="ve_res_state_zu"/>
+        <field name="l10n_ve_state_id" ref="ve_state_zulia"/>
     </record>
     <record id="ve_mun_zu_simon_bolivar_parish_1" model="l10n_ve.parish">
         <field name="name">Rafael María Baralt</field>
@@ -5676,7 +5966,8 @@
     <record id="ve_mun_zu_valmore_rodriguez" model="l10n_ve.municipality">
         <field name="name">Valmore Rodríguez (Bachaquero)</field>
         <field name="code">ZU-VRO</field>
-        <field name="state_id" ref="ve_state_zulia"/>
+        <field name="state_id" ref="ve_res_state_zu"/>
+        <field name="l10n_ve_state_id" ref="ve_state_zulia"/>
     </record>
     <record id="ve_mun_zu_valmore_rodriguez_parish_1" model="l10n_ve.parish">
         <field name="name">Rafael Urdaneta</field>
@@ -5693,7 +5984,8 @@
     <record id="ve_mun_zu_baralt" model="l10n_ve.municipality">
         <field name="name">Baralt (San Timoteo)</field>
         <field name="code">ZU-BAR</field>
-        <field name="state_id" ref="ve_state_zulia"/>
+        <field name="state_id" ref="ve_res_state_zu"/>
+        <field name="l10n_ve_state_id" ref="ve_state_zulia"/>
     </record>
     <record id="ve_mun_zu_baralt_parish_1" model="l10n_ve.parish">
         <field name="name">San Timoteo</field>
@@ -5722,7 +6014,8 @@
     <record id="ve_mun_zu_colon" model="l10n_ve.municipality">
         <field name="name">Colón (San Carlos del Zulia)</field>
         <field name="code">ZU-COL</field>
-        <field name="state_id" ref="ve_state_zulia"/>
+        <field name="state_id" ref="ve_res_state_zu"/>
+        <field name="l10n_ve_state_id" ref="ve_state_zulia"/>
     </record>
     <record id="ve_mun_zu_colon_parish_1" model="l10n_ve.parish">
         <field name="name">San Carlos del Zulia</field>
@@ -5747,7 +6040,8 @@
     <record id="ve_mun_zu_mara" model="l10n_ve.municipality">
         <field name="name">Mara (San Rafael de El Moján)</field>
         <field name="code">ZU-MARA</field>
-        <field name="state_id" ref="ve_state_zulia"/>
+        <field name="state_id" ref="ve_res_state_zu"/>
+        <field name="l10n_ve_state_id" ref="ve_state_zulia"/>
     </record>
     <record id="ve_mun_zu_mara_parish_1" model="l10n_ve.parish">
         <field name="name">San Rafael de El Moján</field>
@@ -5780,7 +6074,8 @@
     <record id="ve_mun_zu_guajira" model="l10n_ve.municipality">
         <field name="name">Indígena Bolivariano Guajira (Sinamaica)</field>
         <field name="code">ZU-GUA</field>
-        <field name="state_id" ref="ve_state_zulia"/>
+        <field name="state_id" ref="ve_res_state_zu"/>
+        <field name="l10n_ve_state_id" ref="ve_state_zulia"/>
     </record>
     <record id="ve_mun_zu_guajira_parish_1" model="l10n_ve.parish">
         <field name="name">Sinamaica</field>
@@ -5801,7 +6096,8 @@
     <record id="ve_mun_zu_miranda" model="l10n_ve.municipality">
         <field name="name">Miranda (Los Puertos de Altagracia)</field>
         <field name="code">ZU-MIR</field>
-        <field name="state_id" ref="ve_state_zulia"/>
+        <field name="state_id" ref="ve_res_state_zu"/>
+        <field name="l10n_ve_state_id" ref="ve_state_zulia"/>
     </record>
     <record id="ve_mun_zu_miranda_parish_1" model="l10n_ve.parish">
         <field name="name">Altagracia</field>
@@ -5826,7 +6122,8 @@
     <record id="ve_mun_zu_rosario_de_perija" model="l10n_ve.municipality">
         <field name="name">Rosario de Perijá (La Villa del Rosario)</field>
         <field name="code">ZU-RPE</field>
-        <field name="state_id" ref="ve_state_zulia"/>
+        <field name="state_id" ref="ve_res_state_zu"/>
+        <field name="l10n_ve_state_id" ref="ve_state_zulia"/>
     </record>
     <record id="ve_mun_zu_rosario_de_perija_parish_1" model="l10n_ve.parish">
         <field name="name">El Rosario</field>
@@ -5843,7 +6140,8 @@
     <record id="ve_mun_zu_machiques_de_perija" model="l10n_ve.municipality">
         <field name="name">Machiques de Perijá</field>
         <field name="code">ZU-MPE</field>
-        <field name="state_id" ref="ve_state_zulia"/>
+        <field name="state_id" ref="ve_res_state_zu"/>
+        <field name="l10n_ve_state_id" ref="ve_state_zulia"/>
     </record>
     <record id="ve_mun_zu_machiques_de_perija_parish_1" model="l10n_ve.parish">
         <field name="name">Machiques</field>
@@ -5864,7 +6162,8 @@
     <record id="ve_mun_zu_catatumbo" model="l10n_ve.municipality">
         <field name="name">Catatumbo (Encontrados)</field>
         <field name="code">ZU-CAT</field>
-        <field name="state_id" ref="ve_state_zulia"/>
+        <field name="state_id" ref="ve_res_state_zu"/>
+        <field name="l10n_ve_state_id" ref="ve_state_zulia"/>
     </record>
     <record id="ve_mun_zu_catatumbo_parish_1" model="l10n_ve.parish">
         <field name="name">Encontrados</field>
@@ -5877,7 +6176,8 @@
     <record id="ve_mun_zu_francisco_javier_pulgar" model="l10n_ve.municipality">
         <field name="name">Francisco Javier Pulgar (Pueblo Nuevo El Chivo)</field>
         <field name="code">ZU-FJP</field>
-        <field name="state_id" ref="ve_state_zulia"/>
+        <field name="state_id" ref="ve_res_state_zu"/>
+        <field name="l10n_ve_state_id" ref="ve_state_zulia"/>
     </record>
     <record id="ve_mun_zu_francisco_javier_pulgar_parish_1" model="l10n_ve.parish">
         <field name="name">Simón Rodríguez</field>
@@ -5898,7 +6198,8 @@
     <record id="ve_mun_zu_jesus_enrique_lossada" model="l10n_ve.municipality">
         <field name="name">Jesús Enrique Lossada (La Concepción)</field>
         <field name="code">ZU-JEL</field>
-        <field name="state_id" ref="ve_state_zulia"/>
+        <field name="state_id" ref="ve_res_state_zu"/>
+        <field name="l10n_ve_state_id" ref="ve_state_zulia"/>
     </record>
     <record id="ve_mun_zu_jesus_enrique_lossada_parish_1" model="l10n_ve.parish">
         <field name="name">La Concepción</field>
@@ -5919,7 +6220,8 @@
     <record id="ve_mun_zu_jesus_maria_semprun" model="l10n_ve.municipality">
         <field name="name">Jesús María Semprún (Casigua El Cubo)</field>
         <field name="code">ZU-JMS</field>
-        <field name="state_id" ref="ve_state_zulia"/>
+        <field name="state_id" ref="ve_res_state_zu"/>
+        <field name="l10n_ve_state_id" ref="ve_state_zulia"/>
     </record>
     <record id="ve_mun_zu_jesus_maria_semprun_parish_1" model="l10n_ve.parish">
         <field name="name">Jesús María Semprún</field>
@@ -5932,7 +6234,8 @@
     <record id="ve_mun_zu_la_canada_de_urdaneta" model="l10n_ve.municipality">
         <field name="name">La Cañada de Urdaneta (Concepción)</field>
         <field name="code">ZU-LCU</field>
-        <field name="state_id" ref="ve_state_zulia"/>
+        <field name="state_id" ref="ve_res_state_zu"/>
+        <field name="l10n_ve_state_id" ref="ve_state_zulia"/>
     </record>
     <record id="ve_mun_zu_la_canada_de_urdaneta_parish_1" model="l10n_ve.parish">
         <field name="name">Concepción</field>
@@ -5957,7 +6260,8 @@
     <record id="ve_mun_zu_sucre" model="l10n_ve.municipality">
         <field name="name">Sucre (Bobures)</field>
         <field name="code">ZU-SUC</field>
-        <field name="state_id" ref="ve_state_zulia"/>
+        <field name="state_id" ref="ve_res_state_zu"/>
+        <field name="l10n_ve_state_id" ref="ve_state_zulia"/>
     </record>
     <record id="ve_mun_zu_sucre_parish_1" model="l10n_ve.parish">
         <field name="name">Bobures</field>

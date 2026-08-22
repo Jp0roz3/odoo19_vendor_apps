@@ -105,10 +105,10 @@ class ResPartner(models.Model):
             ], limit=1)
             if ve_state:
                 self.l10n_ve_state_id = ve_state
-                if self.l10n_ve_municipality_id and self.l10n_ve_municipality_id.state_id != ve_state:
-                    self.l10n_ve_municipality_id = False
-                    self.l10n_ve_parish_id = False
-                return {'domain': {'l10n_ve_municipality_id': [('state_id', '=', ve_state.id)]}}
+            if self.l10n_ve_municipality_id and self.l10n_ve_municipality_id.state_id != self.state_id:
+                self.l10n_ve_municipality_id = False
+                self.l10n_ve_parish_id = False
+            return {'domain': {'l10n_ve_municipality_id': [('state_id', '=', self.state_id.id)]}}
         return {'domain': {'l10n_ve_municipality_id': []}}
 
     @api.onchange('l10n_ve_municipality_id')
@@ -116,15 +116,9 @@ class ResPartner(models.Model):
         """Al seleccionar un municipio, autocompleta el estado correspondiente y filtra parroquias."""
         if self.l10n_ve_municipality_id:
             if self.l10n_ve_municipality_id.state_id:
-                self.l10n_ve_state_id = self.l10n_ve_municipality_id.state_id
-                st = self.env['res.country.state'].search([
-                    ('country_id.code', '=', 'VE'),
-                    ('name', 'ilike', self.l10n_ve_municipality_id.state_id.name)
-                ], limit=1) or self.env['res.country.state'].search([
-                    ('name', 'ilike', self.l10n_ve_municipality_id.state_id.name)
-                ], limit=1)
-                if st:
-                    self.state_id = st
+                self.state_id = self.l10n_ve_municipality_id.state_id
+                if self.l10n_ve_municipality_id.l10n_ve_state_id:
+                    self.l10n_ve_state_id = self.l10n_ve_municipality_id.l10n_ve_state_id
                 ve_country = self.env.ref('base.ve', raise_if_not_found=False)
                 if ve_country and not self.country_id:
                     self.country_id = ve_country
@@ -139,15 +133,9 @@ class ResPartner(models.Model):
         if self.l10n_ve_parish_id and self.l10n_ve_parish_id.municipality_id:
             self.l10n_ve_municipality_id = self.l10n_ve_parish_id.municipality_id
             if self.l10n_ve_municipality_id.state_id:
-                self.l10n_ve_state_id = self.l10n_ve_municipality_id.state_id
-                st = self.env['res.country.state'].search([
-                    ('country_id.code', '=', 'VE'),
-                    ('name', 'ilike', self.l10n_ve_municipality_id.state_id.name)
-                ], limit=1) or self.env['res.country.state'].search([
-                    ('name', 'ilike', self.l10n_ve_municipality_id.state_id.name)
-                ], limit=1)
-                if st:
-                    self.state_id = st
+                self.state_id = self.l10n_ve_municipality_id.state_id
+                if self.l10n_ve_municipality_id.l10n_ve_state_id:
+                    self.l10n_ve_state_id = self.l10n_ve_municipality_id.l10n_ve_state_id
                 ve_country = self.env.ref('base.ve', raise_if_not_found=False)
                 if ve_country and not self.country_id:
                     self.country_id = ve_country

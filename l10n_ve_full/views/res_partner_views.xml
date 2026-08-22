@@ -13,10 +13,10 @@
                 <field name="l10n_ve_rif_type" invisible="1"/>
             </xpath>
 
-            <!-- Ubicación Territorial Venezolana en la dirección estándar superior -->
+            <!-- Ubicación Territorial Venezolana en la dirección estándar superior con filtrado dinámico en cascada -->
             <xpath expr="//field[@name='city']" position="after">
-                <field name="l10n_ve_municipality_id" placeholder="Municipio" class="o_address_city" options="{'no_create_edit': True, 'no_open': True}"/>
-                <field name="l10n_ve_parish_id" placeholder="Parroquia" class="o_address_city" options="{'no_create_edit': True, 'no_open': True}"/>
+                <field name="l10n_ve_municipality_id" placeholder="Municipio" class="o_address_city" domain="[('state_id', '=?', state_id)]" options="{'no_create_edit': True, 'no_open': True}"/>
+                <field name="l10n_ve_parish_id" placeholder="Parroquia" class="o_address_city" domain="[('municipality_id', '=?', l10n_ve_municipality_id)]" options="{'no_create_edit': True, 'no_open': True}"/>
             </xpath>
 
             <!-- Pestaña Datos Fiscales Venezuela -->
