@@ -1,16 +1,16 @@
 /** @odoo-module **/
 /**
- * Venezuela360: Selector Bimoneda [💵 Moneda: Bs.F / $] en Reportes Financieros
+ * Venezuela360: Selector Bimoneda [💵 Moneda: $ / Bs.F] en Reportes Financieros
  * ==============================================================================
- * Conecta el selector de moneda interactivo con los 5 Reportes Contables autorizados:
- *   1. Balance General (Balance Sheet)
- *   2. Estado de Resultados / Ganancias y Pérdidas (Profit and Loss)
- *   3. Estado de Flujo de Efectivo (Cash Flow)
- *   4. Resumen Ejecutivo (Executive Summary)
- *   5. Declaración Fiscal / Reporte de Impuestos (Tax Report)
+ * Conecta el selector de moneda interactivo con los reportes contables:
+ *   - Balance General (Balance Sheet)
+ *   - Estado de Resultados / Ganancias y Pérdidas (Profit and Loss)
+ *   - Estado de Flujo de Efectivo (Cash Flow)
+ *   - Resumen Ejecutivo (Executive Summary)
+ *   - Declaración Fiscal / Reporte de Impuestos (Tax Report)
  *
- * Moneda Principal: Dólares ($ / USD)
- * Moneda Secundaria: Bolívares (Bs.F) a Tasa Oficial BCV
+ * Moneda Principal por Defecto: Dólares ($ / USD)
+ * Moneda Secundaria Bimoneda: Bolívares (Bs.F) a Tasa Oficial BCV
  *
  * Autor: JeanPerozo / Nubelco
  */
@@ -125,41 +125,75 @@ function transformReportTableCells(currency) {
     }
 }
 
-// Validar si estamos exactamente en uno de los 5 reportes autorizados
-function isAllowedFinancialReport() {
-    // Si estamos en un formulario estándar (ej: account.journal form, res.partner form) -> NO inyectar
-    if (document.querySelector(".o_form_view:not(.o_account_reports_page)")) {
-        const isTrueReport = document.querySelector(".o_account_reports_body, .o_account_report, .o_account_reports_table");
-        if (!isTrueReport) return false;
+// Observador continuo para formatear nuevas filas que se expandan (Lazy Loading / Cuentas Hijas)
+function setupTableObserver() {
+    if (tableObserver) return;
+    const table = document.querySelector(".o_account_reports_table, .o_account_report_table, .o_account_reports_body");
+    if (!table) return;
+
+    tableObserver = new MutationObserver((mutations) => {
+        if (isTransforming) return;
+        let shouldTransform = false;
+        for (const mut of mutations) {
+            if (mut.addedNodes.length > 0) {
+                for (const node of mut.addedNodes) {
+                    if (node.nodeType === 1 && (node.tagName === "TR" || node.querySelector?.("td.number, td.o_account_report_cell"))) {
+                        shouldTransform = true;
+                        break;
+                    }
+                }
+            }
+            if (shouldTransform) break;
+        }
+
+        if (shouldTransform) {
+            clearTimeout(observerDebounce);
+            observerDebounce = setTimeout(() => {
+                transformReportTableCells(currentSelectedCurrency);
+            }, 60);
+        }
+    });
+
+    tableObserver.observe(table, { childList: true, subtree: true });
+}
+
+// Recargar el reporte llamando al backend
+async function triggerReportReload(reportComp, currency) {
+    if (!reportComp) return;
+
+    const options = reportComp.options || reportComp.props?.options || {};
+    options.l10n_ve_currency = currency;
+    options.l10n_ve_rate = extractBcvRate();
+
+    const reportId = reportComp.props?.reportId 
+        || reportComp.props?.action?.context?.report_id 
+        || options.report_id 
+        || reportComp.reportId;
+
+    if (reportComp.env?.services?.orm && reportId) {
+        try {
+            const info = await reportComp.env.services.orm.call(
+                "account.report",
+                "get_report_information",
+                [reportId, options]
+            );
+            if (info && info.lines) {
+                if (reportComp.controller) {
+                    reportComp.controller.lines = info.lines;
+                    reportComp.controller.options = info.options || options;
+                }
+                reportComp.lines = info.lines;
+                reportComp.options = info.options || options;
+
+                if (typeof reportComp.render === "function") {
+                    reportComp.render(true);
+                    setTimeout(() => transformReportTableCells(currency), 50);
+                }
+            }
+        } catch (eA) {
+            console.warn("[Venezuela360] ORM reload notice:", eA);
+        }
     }
-
-    const cp = document.querySelector(".o_control_panel");
-    if (!cp) return false;
-
-    const cpText = (cp.textContent || "").toLowerCase();
-    const docText = (document.querySelector(".o_account_reports_page, .o_account_reports_body, .o_content")?.textContent || "").toLowerCase();
-    const combined = cpText + " " + docText;
-
-    const allowed = [
-        "balance general",
-        "balance sheet",
-        "estado de resultado",
-        "ganancias y pérdidas",
-        "pérdidas y ganancias",
-        "profit and loss",
-        "flujo de efectivo",
-        "cash flow",
-        "resumen ejecutivo",
-        "executive summary",
-        "declaración fiscal",
-        "reporte de impuestos",
-        "tax report"
-    ];
-
-    const hasAllowedKeyword = allowed.some(keyword => combined.includes(keyword));
-    const hasReportDOM = document.querySelector(".o_account_reports_body, .o_account_report, .o_account_reports_table, .o_account_reports_page, .o_account_report_page") !== null;
-
-    return hasAllowedKeyword && hasReportDOM;
 }
 
 // Parchear componentes de reportes contables para capturar la instancia activa
@@ -176,40 +210,53 @@ function ensureAccountReportPatched() {
                     window.__activeAccountReport = this;
                 },
                 async setL10nVeCurrency(currency) {
-                    currentSelectedCurrency = currency;
-                    transformReportTableCells(currency);
+                    await triggerReportReload(this, currency);
                 },
             });
         }
     } catch (e) {}
 }
 
-// Inyector de botón bimoneda en la barra de control de los 5 reportes autorizados
+// Inyector universal de botón bimoneda en la barra de control de reportes financieros
 function injectCurrencyWidgetToDOM() {
     try {
         if (typeof document === "undefined" || !document.body) return;
 
-        // Validar que estemos en uno de los 5 reportes autorizados
-        if (!isAllowedFinancialReport()) {
-            // Si salimos del reporte, remover cualquier widget residual
-            const existingWidget = document.querySelector(".l10n_ve_currency_widget");
-            if (existingWidget && !document.querySelector(".o_account_reports_body, .o_account_reports_table")) {
-                existingWidget.remove();
-            }
-            return;
+        // Guard: Nunca inyectar en vistas de formulario (ej: account.journal form, res.partner form)
+        if (document.querySelector(".o_form_view:not(.o_account_reports_page)")) {
+            const isTrueReport = document.querySelector(".o_account_reports_body, .o_account_report, .o_account_reports_table");
+            if (!isTrueReport) return;
         }
-
-        ensureAccountReportPatched();
 
         const cp = document.querySelector(".o_control_panel");
         if (!cp) return;
 
-        // Encontrar el contenedor de filtros en el header
+        const cpText = (cp.textContent || "").toLowerCase();
+        const docText = (document.querySelector(".o_account_reports_page, .o_account_reports_body")?.textContent || "").toLowerCase();
+        const isFinancialReport = cpText.includes("pdf") 
+            || cpText.includes("xlsx")
+            || cpText.includes("balance")
+            || cpText.includes("resultados")
+            || cpText.includes("ganancias")
+            || cpText.includes("flujo")
+            || cpText.includes("mayor")
+            || cpText.includes("ejecutivo")
+            || cpText.includes("fiscal")
+            || cpText.includes("impuestos")
+            || cpText.includes("asientos registrados")
+            || document.querySelector(".o_account_reports_body, .o_account_report, .o_account_reports_table, .o_account_reports_page");
+
+        if (!isFinancialReport) return;
+
+        ensureAccountReportPatched();
+        setupTableObserver();
+
+        // Encontrar el contenedor exacto de las píldoras de filtro en el header
         let filterTarget = null;
         const buttonsAndPills = cp.querySelectorAll("button, .btn, .badge, .dropdown, div");
         for (const el of buttonsAndPills) {
             const txt = el.textContent || "";
-            if (txt.includes("diarios") || txt.includes("Comparación") || txt.includes("Asientos") || txt.includes("Base de acumulación")) {
+            if (txt.includes("diarios") || txt.includes("Comparación") || txt.includes("Asientos") || txt.includes("Base de acumulación") || txt.includes("En .")) {
                 filterTarget = el.parentElement;
                 break;
             }
@@ -233,47 +280,50 @@ function injectCurrencyWidgetToDOM() {
             const label = widget.querySelector(".l10n_ve_curr_label");
             if (label) {
                 label.textContent = curr === "usd" ? "$" : "Bs.F";
-                label.style.color = curr === "usd" ? "#2563eb" : "#dc3545";
+                label.style.color = curr === "usd" ? "#212529" : "#dc3545";
             }
             const badge = widget.querySelector(".l10n_ve_badge");
             if (badge) badge.textContent = curr === "usd" ? "En .$" : "En .Bs.F";
 
-            const checkBs = widget.querySelector(".l10n_ve_check_bs");
-            const checkUsd = widget.querySelector(".l10n_ve_check_usd");
-            if (checkBs) checkBs.textContent = curr !== "usd" ? "✓" : "";
-            if (checkUsd) checkUsd.textContent = curr === "usd" ? "✓" : "";
+            widget.querySelectorAll("[data-curr]").forEach(el => {
+                const isThis = el.getAttribute("data-curr") === curr;
+                const icon = el.querySelector("i");
+                if (icon) icon.className = isThis ? "fa fa-check text-success me-1" : "fa fa-fw me-1";
+            });
             return;
         }
 
-        // Crear el widget idéntico a la Imagen 2 de Referencia
+        // Crear el widget con USD ($) seleccionado por defecto
         widget = document.createElement("div");
-        widget.className = "btn-group dropdown l10n_ve_currency_widget d-inline-flex align-items-center ms-1 me-1";
-        widget.style.cssText = "display: inline-flex !important; align-items: center; z-index: 1050; margin: 0 4px; vertical-align: middle;";
+        widget.className = "l10n_ve_currency_widget d-inline-flex align-items-center ms-1 me-1";
+        widget.style.cssText = "display: inline-flex !important; align-items: center; z-index: 1050; margin: 2px 4px; vertical-align: middle;";
 
         widget.innerHTML = `
-            <button class="btn btn-secondary dropdown-toggle l10n_ve_btn"
-                    type="button"
-                    style="display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; padding: 5px 12px; border: 1px solid #008784; background-color: #e6f4f1; color: #1f2937; border-radius: 4px; cursor: pointer;">
-                <span style="font-size: 14px;">💵</span>
-                <span>Moneda:</span>
-                <span class="l10n_ve_curr_label" style="color: ${curr === "usd" ? "#2563eb" : "#dc3545"}; font-weight: 800;">${curr === "usd" ? "$" : "Bs.F"}</span>
-            </button>
-            <ul class="dropdown-menu dropdown-menu-end shadow l10n_ve_menu" style="min-width: 140px; position: absolute; z-index: 1090; display: none; top: 100%; left: 0; background-color: #ffffff; border: 1px solid rgba(0,0,0,0.15); border-radius: 6px; padding: 6px 0; box-shadow: 0 10px 25px rgba(0,0,0,0.2);">
-                <li>
-                    <a class="dropdown-item d-flex align-items-center gap-2 py-2" href="#" data-curr="bs" style="cursor: pointer; color: #1f2937; font-weight: 600; padding: 8px 16px;">
-                        <span class="l10n_ve_check_bs" style="color: #059669; font-weight: bold; width: 16px;">${curr !== "usd" ? "✓" : ""}</span>
-                        <span>Bs.F</span>
-                    </a>
-                </li>
-                <li>
-                    <a class="dropdown-item d-flex align-items-center gap-2 py-2" href="#" data-curr="usd" style="cursor: pointer; color: #1f2937; font-weight: 600; padding: 8px 16px;">
-                        <span class="l10n_ve_check_usd" style="color: #059669; font-weight: bold; width: 16px;">${curr === "usd" ? "✓" : ""}</span>
-                        <span>$</span>
-                    </a>
-                </li>
-            </ul>
-            <span class="badge rounded-pill align-self-center ms-1 l10n_ve_badge"
-                  style="background-color: #f1f5f9; color: #334155; font-weight: 700; padding: 6px 12px; font-size: 12px; border: 1px solid #cbd5e1; border-radius: 50rem; display: inline-block;">
+            <div class="btn-group dropdown" style="position: relative; display: inline-flex;">
+                <button class="btn btn-secondary dropdown-toggle l10n_ve_btn"
+                        type="button"
+                        style="display: inline-flex; align-items: center; gap: 4px; font-size: 13px; font-weight: 500; padding: 4px 10px; border: 1px solid #ced4da; cursor: pointer; background-color: #ffffff; color: #212529; border-radius: 4px;">
+                    <i class="fa fa-money me-1" style="color: #0d6efd;"></i>
+                    <span>Moneda:</span>
+                    <span class="ms-1 fw-bold l10n_ve_curr_label" style="color: ${curr === "usd" ? "#212529" : "#dc3545"};">${curr === "usd" ? "$" : "Bs.F"}</span>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end shadow l10n_ve_menu" style="min-width: 140px; position: absolute; z-index: 1090; display: none; top: 100%; right: 0; background-color: #ffffff; border: 1px solid rgba(0,0,0,0.15); border-radius: 4px; box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.15);">
+                    <li>
+                        <a class="dropdown-item d-flex align-items-center gap-2 py-2" href="#" data-curr="usd" style="cursor: pointer; color: #212529;">
+                            <i class="fa ${curr === "usd" ? "fa-check text-success" : "fa-fw"} me-1"></i>
+                            <span class="fw-bold">$</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item d-flex align-items-center gap-2 py-2" href="#" data-curr="bs" style="cursor: pointer; color: #212529;">
+                            <i class="fa ${curr !== "usd" ? "fa-check text-success" : "fa-fw"} me-1"></i>
+                            <span class="fw-bold">Bs.F</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            <span class="badge rounded-pill align-self-center ms-1 me-1 l10n_ve_badge"
+                  style="background-color: #f1f3f5; color: #495057; font-weight: 600; padding: 6px 10px; font-size: 12px; border: 1px solid #ced4da; border-radius: 50rem; display: inline-block;">
                 ${curr === "usd" ? "En .$" : "En .Bs.F"}
             </span>
         `;
@@ -289,7 +339,7 @@ function injectCurrencyWidgetToDOM() {
         });
 
         widget.querySelectorAll("[data-curr]").forEach((item) => {
-            item.addEventListener("click", (e) => {
+            item.addEventListener("click", async (e) => {
                 e.preventDefault();
                 e.stopPropagation();
                 menu.style.display = "none";
@@ -302,18 +352,35 @@ function injectCurrencyWidgetToDOM() {
                 const label = widget.querySelector(".l10n_ve_curr_label");
                 if (label) {
                     label.textContent = chosen === "usd" ? "$" : "Bs.F";
-                    label.style.color = chosen === "usd" ? "#2563eb" : "#dc3545";
+                    label.style.color = chosen === "usd" ? "#212529" : "#dc3545";
                 }
                 const badge = widget.querySelector(".l10n_ve_badge");
                 if (badge) badge.textContent = chosen === "usd" ? "En .$" : "En .Bs.F";
 
-                const checkBs = widget.querySelector(".l10n_ve_check_bs");
-                const checkUsd = widget.querySelector(".l10n_ve_check_usd");
-                if (checkBs) checkBs.textContent = chosen !== "usd" ? "✓" : "";
-                if (checkUsd) checkUsd.textContent = chosen === "usd" ? "✓" : "";
+                widget.querySelectorAll("[data-curr]").forEach(el => {
+                    const isThis = el.getAttribute("data-curr") === chosen;
+                    const icon = el.querySelector("i");
+                    if (icon) icon.className = isThis ? "fa fa-check text-success me-1" : "fa fa-fw me-1";
+                });
 
-                // Transformar inmediatamente todos los valores de las celdas en pantalla
+                // Transformar inmediatamente todos los valores en pantalla
                 transformReportTableCells(chosen);
+
+                // Obtener la instancia activa del reporte y sincronizar con el backend
+                let activeReport = window.__activeAccountReport;
+                if (!activeReport) {
+                    const reportNodes = document.querySelectorAll(".o_account_reports_body, .o_account_report, .o_content, .o_action_manager");
+                    for (const node of reportNodes) {
+                        if (node.__owl__ && node.__owl__.component) {
+                            activeReport = node.__owl__.component;
+                            break;
+                        }
+                    }
+                }
+
+                if (activeReport) {
+                    await triggerReportReload(activeReport, chosen);
+                }
             });
         });
 
