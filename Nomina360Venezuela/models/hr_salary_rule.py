@@ -2,25 +2,17 @@
 from odoo import models, fields, api
 
 class HrSalaryRuleCategory(models.Model):
-    _name = 'hr.salary.rule.category'
-    _description = 'Categoría de Reglas Salariales'
+    _inherit = 'hr.salary.rule.category'
 
-    name = fields.Char(string="Nombre de Categoría", required=True)
-    code = fields.Char(string="Código", required=True)
+    code = fields.Char(string="Código")
 
 
 class HrPayrollStructure(models.Model):
-    _name = 'hr.payroll.structure'
-    _description = 'Estructura Salarial de Nómina'
-
-    name = fields.Char(string="Nombre de la Estructura", required=True)
-    code = fields.Char(string="Código")
-    rule_ids = fields.Many2many('hr.salary.rule', string="Reglas Salariales")
+    _inherit = 'hr.payroll.structure'
 
 
 class HrSalaryRule(models.Model):
-    _name = 'hr.salary.rule'
-    _description = 'Regla Salarial de Nómina Venezuela'
+    _inherit = 'hr.salary.rule'
     _order = 'sequence, id'
 
     name = fields.Char(string="Nombre de la Regla", required=True)

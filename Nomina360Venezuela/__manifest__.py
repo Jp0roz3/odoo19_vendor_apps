@@ -30,6 +30,8 @@ Soporte Comercial e Implementación: JeanPerozo / Nubelco (https://www.nubelco.c
     'images': ['static/description/banner.png'],
     'depends': [
         'hr',
+        'hr_contract',
+        'hr_payroll',
         'account',
         'contacts',
         'mail',
