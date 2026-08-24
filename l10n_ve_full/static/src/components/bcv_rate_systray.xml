@@ -1,44 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <templates xml:space="preserve">
     <t t-name="l10n_ve_full.BcvRateSystray">
-        <!--
-            Systray Venezuela360: Indicador Tasa BCV Oficial
-            =================================================
-            Moneda principal: USD
-            Muestra: 1 USD = XXX,XX Bs.F  (tasa BCV oficial)
-            Clic → sincroniza tasa BCV al instante desde la API oficial.
-        -->
-        <div class="o_bcv_rate_systray d-flex align-items-center me-3 text-nowrap"
-             title="Tasa BCV Oficial · Clic para sincronizar ahora"
-             style="font-size: 0.85rem; cursor: pointer; gap: 4px;"
+        <!-- Indicador de Tasa USD / BCV en la barra superior con el formato exacto de la referencia -->
+        <div class="o_bcv_rate_systray d-flex align-items-center me-2 text-nowrap"
+             title="Tasa de Cambio Oficial (USD/Bs.) · Clic para sincronizar"
+             style="cursor: pointer; font-size: 0.88rem; gap: 5px; padding: 2px 6px; user-select: none;"
              t-on-click="onClickSync">
 
-            <!-- Ícono de bandera Venezuela o dólar -->
-            <span style="font-size: 1rem;">🏦</span>
+            <!-- Icono de herramientas como en la imagen de referencia -->
+            <i class="fa fa-wrench" style="font-size: 0.95rem; opacity: 0.85;"/>
 
-            <!-- Etiqueta fija: moneda principal USD -->
-            <span class="fw-semibold" style="color: #f8c200;">BCV:</span>
-
-            <!-- Tasa actual -->
-            <span t-if="isLoaded"
-                  class="fw-bold"
-                  style="color: #ffffff; letter-spacing: 0.3px;">
-                <t t-out="state.rate"/> <span style="color: #adb5bd; font-weight: 400; font-size: 0.78rem;">Bs/$</span>
+            <!-- Formato exacto: USD: XXX.XXXX en negrita -->
+            <span t-if="isLoaded" class="fw-bold" style="letter-spacing: 0.3px;">
+                USD: <t t-out="state.rate"/>
             </span>
 
-            <!-- Estado: cargando -->
-            <span t-if="state.loading"
-                  class="fw-semibold"
-                  style="color: #adb5bd; font-size: 0.78rem;">
-                <i class="fa fa-spinner fa-spin me-1"/>Sincronizando...
+            <!-- Estado: cargando / sincronizando -->
+            <span t-if="state.loading" class="small opacity-75">
+                <i class="fa fa-spinner fa-spin me-1"/>
             </span>
 
-            <!-- Estado: error / sin datos en BD -->
-            <span t-if="hasError"
-                  class="fw-bold"
-                  style="color: #dc3545; font-size: 0.78rem;"
-                  title="Sin tasa BCV registrada. Haz clic para sincronizar.">
-                <i class="fa fa-exclamation-triangle me-1"/>Sin tasa · Clic p/ sincronizar
+            <!-- Estado: error / sin datos -->
+            <span t-if="hasError" class="text-danger small fw-bold" title="Sin tasa registrada">
+                USD: ---
             </span>
         </div>
     </t>
