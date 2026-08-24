@@ -101,6 +101,18 @@ class SaleOrder(models.Model):
             if order.l10n_ve_rate_type == 'bcv' and order.l10n_ve_rate_applied != order.l10n_ve_rate:
                 order.l10n_ve_rate_type = 'commercial'
 
+    @api.onchange('date_order', 'company_id')
+    def _onchange_date_order_ve_rate(self):
+        for order in self:
+            date = order.date_order or fields.Date.context_today(order)
+            rate_rec = self.env['l10n_ve.exchange.rate'].get_rate_for_date(date, company_id=order.company_id.id)
+            if not rate_rec or rate_rec.rate <= 0:
+                rate_rec = self.env['l10n_ve.exchange.rate'].get_latest_rate(company_id=order.company_id.id)
+            if rate_rec:
+                order.l10n_ve_rate = rate_rec.rate
+                if order.l10n_ve_rate_type == 'bcv':
+                    order.l10n_ve_rate_applied = rate_rec.rate
+
     # ------------------------------------------------------------------
     # Propagación de tasa de cambio a la factura (Requerimiento 1)
     # ------------------------------------------------------------------

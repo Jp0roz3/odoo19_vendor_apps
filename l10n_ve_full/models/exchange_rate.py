@@ -224,49 +224,36 @@ class L10nVeExchangeRate(models.Model):
     def get_rate_for_date(self, date, company_id=None, currency_from='USD', currency_to='VES'):
         """
         Obtiene la tasa histórica más reciente para una fecha dada.
-
-        Parámetros:
-            date        : datetime.date o string 'YYYY-MM-DD'
-            company_id  : int (ID de compañía). Si None, usa la compañía activa.
-            currency_from: str (código de moneda origen, default 'USD')
-            currency_to  : str (código de moneda destino, default 'VES'/'VEF'/'VEB')
-
-        Retorna:
-            l10n_ve.exchange.rate (record) o None si no hay tasa registrada.
+        Tolera cualquier variante de moneda VES/VEF/VEB y busca la tasa más reciente registrada.
         """
         company_id = company_id or self.env.company.id
+        curr_from_ids = self.env['res.currency'].search([('name', '=', currency_from)]).ids
+        curr_to_ids = self.env['res.currency'].search([('name', 'in', [currency_to, 'VES', 'VEF', 'VEB'])]).ids
 
-        # Buscar monedas por código — tolerante con VES / VEF / VEB
-        curr_from = self.env['res.currency'].search([('name', '=', currency_from)], limit=1)
-        curr_to = self.env['res.currency'].search([('name', 'in', [currency_to, 'VES', 'VEF', 'VEB'])], limit=1)
-
-        if not curr_from or not curr_to:
-            _logger.warning(
-                'l10n_ve.exchange.rate: No se encontraron monedas %s/%s en el sistema.',
-                currency_from, currency_to
-            )
-            return None
-
-        rate = self.search([
+        domain = [
             ('date', '<=', date),
-            ('company_id', '=', company_id),
-            ('currency_from_id', '=', curr_from.id),
-            ('currency_to_id', '=', curr_to.id),
             ('active', '=', True),
-        ], order='date desc', limit=1)
+        ]
+        if company_id:
+            domain.append(('company_id', 'in', [company_id, False]))
+        if curr_from_ids:
+            domain.append(('currency_from_id', 'in', curr_from_ids))
+        if curr_to_ids:
+            domain.append(('currency_to_id', 'in', curr_to_ids))
 
+        rate = self.search(domain, order='date desc, write_date desc, id desc', limit=1)
         if not rate:
-            _logger.warning(
-                'l10n_ve.exchange.rate: Sin tasa registrada para fecha %s, compañía %s.',
-                date, company_id
-            )
+            # Búsqueda fallback sin restricción de par de monedas
+            rate = self.search([
+                ('date', '<=', date),
+                ('active', '=', True),
+            ], order='date desc, write_date desc, id desc', limit=1)
         return rate or None
 
     @api.model
     def get_rate_value_for_date(self, date, company_id=None, currency_from='USD', currency_to='VES'):
         """
         Retorna directamente el valor float de la tasa (Bs/USD) para una fecha.
-        Si no existe tasa, retorna 0.0 y registra un warning.
         """
         rate_record = self.get_rate_for_date(date, company_id, currency_from, currency_to)
         return rate_record.rate if rate_record else 0.0
@@ -274,13 +261,6 @@ class L10nVeExchangeRate(models.Model):
     def convert_to_bs(self, amount_usd, date=None, company_id=None):
         """
         Convierte un monto USD a Bs usando la tasa histórica de la fecha dada.
-
-        Parámetros:
-            amount_usd : float
-            date       : datetime.date (default: hoy)
-            company_id : int
-        Retorna:
-            float (monto en Bs) o 0.0 si no hay tasa.
         """
         date = date or fields.Date.context_today(self)
         rate = self.get_rate_value_for_date(date, company_id)
@@ -296,12 +276,20 @@ class L10nVeExchangeRate(models.Model):
 
     @api.model
     def get_latest_rate(self, company_id=None):
-        """Retorna el registro de tasa más reciente (última tasa publicada)."""
+        """Retorna el registro de tasa más reciente (última tasa publicada activa)."""
         company_id = company_id or self.env.company.id
-        return self.search([
-            ('company_id', '=', company_id),
-            ('active', '=', True),
-        ], order='date desc', limit=1)
+        curr_to_ids = self.env['res.currency'].search([('name', 'in', ['VES', 'VEF', 'VEB'])]).ids
+
+        domain = [('active', '=', True)]
+        if company_id:
+            domain.append(('company_id', 'in', [company_id, False]))
+        if curr_to_ids:
+            domain.append(('currency_to_id', 'in', curr_to_ids))
+
+        rate = self.search(domain, order='date desc, write_date desc, id desc', limit=1)
+        if not rate:
+            rate = self.search([('active', '=', True)], order='date desc, write_date desc, id desc', limit=1)
+        return rate or None
 
     # ------------------------------------------------------------------
     # Sincronización Automática BCV (APIs + Cron)

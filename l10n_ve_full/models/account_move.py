@@ -349,6 +349,20 @@ class AccountMove(models.Model):
                 self.env['l10n_ve.exchange.rate']._fields['source'].selection
             ).get(rate_rec.source if rate_rec else 'bcv', 'BCV')
 
+    @api.onchange('invoice_date', 'date', 'company_id')
+    def _onchange_invoice_date_ve_rate(self):
+        for move in self:
+            doc_date = move.invoice_date or move.date or fields.Date.context_today(move)
+            rate_rec = self.env['l10n_ve.exchange.rate'].get_rate_for_date(doc_date, company_id=move.company_id.id)
+            if not rate_rec or rate_rec.rate <= 0:
+                rate_rec = self.env['l10n_ve.exchange.rate'].get_latest_rate(company_id=move.company_id.id)
+            if rate_rec:
+                move.l10n_ve_exchange_rate_id = rate_rec.id
+                move.l10n_ve_rate = rate_rec.rate
+                if move.l10n_ve_rate_type == 'bcv':
+                    move.l10n_ve_rate_applied = rate_rec.rate
+                move.l10n_ve_rate_date = rate_rec.date
+
     # ------------------------------------------------------------------
     # Compute: montos duales BS/USD con tasa aplicada
     # ------------------------------------------------------------------
