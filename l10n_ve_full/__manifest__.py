@@ -78,6 +78,7 @@ Autor: JeanPerozo / Nubelco
         'views/account_payment_views.xml',
         'views/account_tax_views.xml',
         'views/account_journal_dashboard_views.xml',
+        'views/account_bank_statement_views.xml',
         'views/account_report_bimoneda_views.xml',
 
         # Vistas: ventas, compras y almacén

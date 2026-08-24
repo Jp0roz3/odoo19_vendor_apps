@@ -2,12 +2,12 @@
 """
 Venezuela360: Extensión de Pagos y Registro de Pagos (account.payment & account.payment.register)
 ==================================================================================================
-Extiende el modal de pago "Pagar" en facturas para incorporar:
+Extiende el modal de pago "Pagar" en facturas y la gestión de pagos para incorporar:
   - Tasa de la Factura vs Tasa BCV vs Acuerdo Comercial (Editable)
   - Cálculo automático del monto a pagar en Bs en base al residual en USD
-  - Opción de Aplicar IGTF (3%) condicionado a monedas extranjeras
+  - Sincronización exacta de tasa y montos USD en apuntes contables y asientos
   - Generación de diferencial cambiario automático por conciliación
-  - Bloqueo readonly de IGTF en pagos confirmados.
+  - Opción de Aplicar IGTF (3%) condicionado a monedas extranjeras
 
 Autor: JeanPerozo / Nubelco
 """
@@ -82,6 +82,30 @@ class AccountPayment(models.Model):
                 pay.l10n_ve_igtf_amount = round(pay.amount * 0.03, 2)
             else:
                 pay.l10n_ve_igtf_amount = 0.0
+
+    def action_post(self):
+        """Al publicar el pago, propaga la tasa al asiento contable generado."""
+        res = super().action_post()
+        for pay in self:
+            if pay.move_id and pay.l10n_ve_rate:
+                pay.move_id.write({
+                    'l10n_ve_rate': pay.l10n_ve_rate,
+                    'l10n_ve_rate_applied': pay.l10n_ve_rate,
+                    'l10n_ve_rate_type': pay.l10n_ve_rate_type or 'bcv',
+                })
+        return res
+
+    def _synchronize_to_moves(self, changed_fields):
+        """Sincroniza la tasa del pago con el asiento contable."""
+        res = super()._synchronize_to_moves(changed_fields)
+        for pay in self:
+            if pay.move_id and pay.l10n_ve_rate:
+                pay.move_id.write({
+                    'l10n_ve_rate': pay.l10n_ve_rate,
+                    'l10n_ve_rate_applied': pay.l10n_ve_rate,
+                    'l10n_ve_rate_type': pay.l10n_ve_rate_type or 'bcv',
+                })
+        return res
 
 
 class AccountPaymentRegister(models.TransientModel):
@@ -190,7 +214,8 @@ class AccountPaymentRegister(models.TransientModel):
 
     def _create_payment_vals_from_wizard(self, batch_result):
         vals = super()._create_payment_vals_from_wizard(batch_result)
+        rate = self.l10n_ve_payment_rate or self.l10n_ve_current_rate or 779.9522
         vals['l10n_ve_rate_type'] = self.l10n_ve_rate_type
-        vals['l10n_ve_rate'] = self.l10n_ve_payment_rate or self.l10n_ve_current_rate or 779.9522
+        vals['l10n_ve_rate'] = rate
         vals['l10n_ve_apply_igtf'] = self.l10n_ve_apply_igtf
         return vals

@@ -172,6 +172,7 @@ class AccountBankStatementLine(models.Model):
     l10n_ve_amount_usd = fields.Float(
         string='Importe ($)',
         compute='_compute_ve_statement_usd',
+        store=True,
         digits=(18, 2),
     )
 
@@ -180,6 +181,8 @@ class AccountBankStatementLine(models.Model):
         for st_line in self:
             company = getattr(st_line, 'company_id', False) or getattr(st_line.journal_id, 'company_id', False) or self.env.company
             rate = st_line.l10n_ve_rate or (company.get_current_bcv_rate() if hasattr(company, 'get_current_bcv_rate') else 779.9522) or 779.9522
+            if not st_line.l10n_ve_rate:
+                st_line.l10n_ve_rate = rate
             is_bs = st_line.currency_id and st_line.currency_id.name in ['VES', 'VEF', 'VEB']
             if is_bs and rate:
                 st_line.l10n_ve_amount_usd = round(st_line.amount / rate, 2)

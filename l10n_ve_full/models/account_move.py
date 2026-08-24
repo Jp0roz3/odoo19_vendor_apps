@@ -658,11 +658,19 @@ class AccountMoveLine(models.Model):
     def _compute_ve_line_usd(self):
         for line in self:
             move = line.move_id
-            pay = getattr(line, 'payment_id', False) or getattr(move, 'payment_id', False)
-            if pay and hasattr(pay, 'l10n_ve_rate') and pay.l10n_ve_rate > 0:
-                rate = pay.l10n_ve_rate
+            rate = 0.0
+            if move.l10n_ve_rate_applied and move.l10n_ve_rate_applied > 0:
+                rate = move.l10n_ve_rate_applied
+            elif move.l10n_ve_rate and move.l10n_ve_rate > 0:
+                rate = move.l10n_ve_rate
             else:
-                rate = move.l10n_ve_rate_applied or move.l10n_ve_rate or move.company_id.get_current_bcv_rate() or 1.0
+                pay = getattr(move, 'origin_payment_id', False) or getattr(move, 'payment_id', False) or getattr(line, 'payment_id', False)
+                if not pay and move.id:
+                    pay = self.env['account.payment'].search([('move_id', '=', move.id)], limit=1)
+                if pay and hasattr(pay, 'l10n_ve_rate') and pay.l10n_ve_rate > 0:
+                    rate = pay.l10n_ve_rate
+            if not rate:
+                rate = move.company_id.get_current_bcv_rate() or 1.0
             line.l10n_ve_rate_display = rate
 
             bs_currency = line.company_id.l10n_ve_currency_bs_id
