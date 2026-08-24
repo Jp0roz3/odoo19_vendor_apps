@@ -20,11 +20,12 @@
             <!-- Insertar campos duales y selector de tasa ANTES de la etiqueta amount -->
             <xpath expr="//label[@for='amount']" position="before">
                 <field name="l10n_ve_is_foreign_currency" invisible="1"/>
+                <field name="l10n_ve_currency_usd_id" invisible="1"/>
                 <field name="l10n_ve_amount_residual_ref"
                        string="Adeudado Divisa Ref."
                        readonly="1"
                        widget="monetary"
-                       options="{'currency_field': 'custom_user_currency_id'}"/>
+                       options="{'currency_field': 'l10n_ve_currency_usd_id'}"/>
                 <field name="l10n_ve_invoice_rate"
                        string="Tasa Factura"
                        readonly="1"

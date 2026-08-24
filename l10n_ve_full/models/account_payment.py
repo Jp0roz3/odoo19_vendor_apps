@@ -95,9 +95,28 @@ class AccountPayment(models.Model):
             else:
                 pay.l10n_ve_igtf_amount = 0.0
 
+    def _prepare_move_line_default_vals(self, write_off_line_vals=None, force_balance=None):
+        line_vals_list = super()._prepare_move_line_default_vals(
+            write_off_line_vals=write_off_line_vals,
+            force_balance=force_balance
+        )
+        rate = self.l10n_ve_rate or self.company_id.get_current_bcv_rate() or 779.9522
+        bs_currency = self.company_id.l10n_ve_currency_bs_id
+        comp_currency = self.company_id.currency_id
+        is_pay_bs = (self.currency_id == bs_currency) or (self.currency_id.name in ['VES', 'VEF', 'VEB'])
+        comp_is_usd = bool(comp_currency and comp_currency.name in ['USD', '$'])
+
+        if is_pay_bs and comp_is_usd and rate > 0:
+            exact_usd = round(self.amount / rate, 2)
+            for vals in line_vals_list:
+                if vals.get('debit', 0.0) > 0:
+                    vals['debit'] = exact_usd
+                if vals.get('credit', 0.0) > 0:
+                    vals['credit'] = exact_usd
+        return line_vals_list
+
     def action_post(self):
         """Al publicar el pago, propaga la tasa al asiento contable generado y genera diferencial cambiario."""
-        res = super().action_post()
         for pay in self:
             rate = pay.l10n_ve_rate or pay.company_id.get_current_bcv_rate() or 779.9522
             if pay.move_id and rate > 0:
@@ -106,22 +125,12 @@ class AccountPayment(models.Model):
                     'l10n_ve_rate_applied': rate,
                     'l10n_ve_rate_type': pay.l10n_ve_rate_type or 'bcv',
                 })
-
-                bs_currency = pay.company_id.l10n_ve_currency_bs_id
-                comp_currency = pay.company_id.currency_id
-                is_pay_bs = (pay.currency_id == bs_currency) or (pay.currency_id.name in ['VES', 'VEF', 'VEB'])
-                comp_is_usd = (comp_currency.name in ['USD', '$'])
-
-                if is_pay_bs and comp_is_usd and rate > 0:
-                    exact_usd = round(pay.amount / rate, 2)
-                    for line in pay.move_id.line_ids:
-                        if line.debit > 0:
-                            line.debit = exact_usd
-                        if line.credit > 0:
-                            line.credit = exact_usd
-
-                # Generar asiento de diferencial cambiario automático si difiere la tasa
+        res = super().action_post()
+        for pay in self:
+            try:
                 pay._generate_exchange_difference_entry()
+            except Exception as e:
+                _logger.warning(f"Error generando diferencial cambiario para pago {pay.name}: {e}")
         return res
 
     def _synchronize_to_moves(self, changed_fields):
@@ -328,6 +337,11 @@ class AccountPaymentRegister(models.TransientModel):
     l10n_ve_is_foreign_currency = fields.Boolean(
         string='Es Moneda Extranjera',
         compute='_compute_ve_is_foreign_currency',
+    )
+    l10n_ve_currency_usd_id = fields.Many2one(
+        comodel_name='res.currency',
+        string='Moneda USD',
+        default=lambda self: self.env.ref('base.USD', raise_if_not_found=False) or self.env['res.currency'].search([('name', '=', 'USD')], limit=1),
     )
 
     @api.depends('currency_id')
