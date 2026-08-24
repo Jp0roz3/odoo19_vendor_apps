@@ -175,7 +175,7 @@ class AccountPayment(models.Model):
             if abs(pay_rate - inv_rate) < 0.0001:
                 continue
 
-            inv_usd_total = inv.l10n_ve_amount_total_ref or inv.amount_total or pay_amount_usd
+            inv_usd_total = getattr(inv, 'l10n_ve_total_ref', 0.0) or getattr(inv, 'l10n_ve_amount_total_usd', 0.0) or getattr(inv, 'amount_total', 0.0) or pay_amount_usd
             usd_covered = min(pay_amount_usd, inv_usd_total)
             if usd_covered <= 0:
                 continue
