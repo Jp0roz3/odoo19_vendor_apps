@@ -5,7 +5,9 @@ import calendar
 from datetime import datetime, timedelta
 
 class HrPayslip(models.Model):
-    _inherit = 'hr.payslip'
+    _name = 'hr.payslip'
+    _description = 'Recibo de Nómina Venezuela'
+    _inherit = ['mail.thread', 'mail.activity.mixin']
 
     name = fields.Char(string="Referencia", default=lambda self: _('Nuevo'))
     number = fields.Char(string="Número de Recibo", readonly=True)
