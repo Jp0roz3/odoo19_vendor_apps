@@ -160,15 +160,21 @@ class HrPayrollDashboardBI(models.Model):
             rec.total_empleados_activos = emp_count
 
             payslips = self.env['hr.payslip'].search([('state', '=', 'done')])
-            total_net_bs = sum(payslips.mapped('net_wage_bs'))
-            total_net_usd = sum(payslips.mapped('net_wage_usd'))
+            total_net_bs = 0.0
+            total_net_usd = 0.0
+            for p in payslips:
+                net_b = getattr(p, 'net_wage_bs', 0.0) or getattr(p, 'total_bs', 0.0) or (getattr(p, 'net_wage', 0.0) if hasattr(p, 'net_wage') else 0.0) or 0.0
+                net_u = getattr(p, 'net_wage_usd', 0.0) or getattr(p, 'total_usd', 0.0) or 0.0
+                total_net_bs += net_b
+                total_net_usd += net_u
 
             rec.total_costo_mes_bs = round(total_net_bs, 2)
             rec.total_costo_mes_usd = round(total_net_usd, 2)
             rec.promedio_salario_usd = round(total_net_usd / emp_count, 2) if emp_count > 0 else 0.0
 
             lines = self.env['hr.prestaciones.line'].search([])
-            rec.total_prestaciones_acumuladas_bs = round(sum(lines.mapped('monto_garantia_trimestre_bs')), 2)
+            fondo_bs = sum(getattr(l, 'monto_garantia_trimestre_bs', 0.0) or 0.0 for l in lines)
+            rec.total_prestaciones_acumuladas_bs = round(fondo_bs, 2)
             rec.total_ley_pensiones_seniat_bs = round(total_net_bs * 0.09, 2)
 
     @api.depends('company_id')
@@ -176,16 +182,24 @@ class HrPayrollDashboardBI(models.Model):
         for rec in self:
             emp_count = self.env['hr.employee'].search_count([('active', '=', True)])
             payslips = self.env['hr.payslip'].search([('state', '=', 'done')])
-            total_net_bs = round(sum(payslips.mapped('net_wage_bs')), 2)
-            total_net_usd = round(sum(payslips.mapped('net_wage_usd')), 2)
-            rate = rec.company_id.get_bcv_rate() or 757.74
+            total_net_bs = 0.0
+            total_net_usd = 0.0
+            for p in payslips:
+                net_b = getattr(p, 'net_wage_bs', 0.0) or getattr(p, 'total_bs', 0.0) or (getattr(p, 'net_wage', 0.0) if hasattr(p, 'net_wage') else 0.0) or 0.0
+                net_u = getattr(p, 'net_wage_usd', 0.0) or getattr(p, 'total_usd', 0.0) or 0.0
+                total_net_bs += net_b
+                total_net_usd += net_u
+
+            total_net_bs = round(total_net_bs, 2)
+            total_net_usd = round(total_net_usd, 2)
+            rate = rec.company_id.get_bcv_rate() or 779.9522
             avg_usd = round(total_net_usd / emp_count, 2) if emp_count > 0 else 0.0
 
             lines = self.env['hr.prestaciones.line'].search([])
-            fondo_bs = round(sum(lines.mapped('monto_garantia_trimestre_bs')), 2)
-            fondo_usd = round(fondo_bs / rate, 2)
+            fondo_bs = round(sum(getattr(l, 'monto_garantia_trimestre_bs', 0.0) or 0.0 for l in lines), 2)
+            fondo_usd = round(fondo_bs / rate, 2) if rate > 0 else 0.0
             seniat_9 = round(total_net_bs * 0.09, 2)
-            seniat_9_usd = round(seniat_9 / rate, 2)
+            seniat_9_usd = round(seniat_9 / rate, 2) if rate > 0 else 0.0
 
             html = f"""
             <div style="background: #0F172A; border-radius: 16px; padding: 24px; color: #F8FAFC; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.3); border: 1px solid #1E293B;">
@@ -591,8 +605,8 @@ class HrPayrollAIChat(models.TransientModel):
         elif 'pension' in q or 'seniat' in q or 'costo' in q or 'empresa' in q or 'total' in q:
             emp_count = self.env['hr.employee'].search_count([('active', '=', True)])
             payslips = self.env['hr.payslip'].search([('state', '=', 'done')])
-            total_bs = sum(payslips.mapped('net_wage_bs'))
-            total_usd = sum(payslips.mapped('net_wage_usd'))
+            total_bs = sum(getattr(p, 'net_wage_bs', 0.0) or getattr(p, 'total_bs', 0.0) or 0.0 for p in payslips)
+            total_usd = sum(getattr(p, 'net_wage_usd', 0.0) or getattr(p, 'total_usd', 0.0) or 0.0 for p in payslips)
             pensiones_9 = round(total_bs * 0.09, 2)
 
             html = f"""

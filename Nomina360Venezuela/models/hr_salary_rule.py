@@ -3,6 +3,7 @@ from odoo import models, fields, api
 
 class HrSalaryRuleCategory(models.Model):
     _name = 'hr.salary.rule.category'
+    _inherit = ['hr.salary.rule.category']
     _description = 'Categoría de Reglas Salariales'
 
     name = fields.Char(string="Nombre de Categoría", required=True)
@@ -11,6 +12,7 @@ class HrSalaryRuleCategory(models.Model):
 
 class HrPayrollStructure(models.Model):
     _name = 'hr.payroll.structure'
+    _inherit = ['hr.payroll.structure']
     _description = 'Estructura Salarial de Nómina'
 
     name = fields.Char(string="Nombre de la Estructura", required=True)
@@ -20,6 +22,7 @@ class HrPayrollStructure(models.Model):
 
 class HrSalaryRule(models.Model):
     _name = 'hr.salary.rule'
+    _inherit = ['hr.salary.rule']
     _description = 'Regla Salarial de Nómina Venezuela'
     _order = 'sequence, id'
 

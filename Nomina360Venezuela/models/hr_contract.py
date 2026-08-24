@@ -5,7 +5,7 @@ from dateutil.relativedelta import relativedelta
 class HrContract(models.Model):
     _name = 'hr.contract'
     _description = 'Contrato de Trabajo'
-    _inherit = ['mail.thread', 'mail.activity.mixin']
+    _inherit = ['hr.contract', 'mail.thread', 'mail.activity.mixin']
 
     name = fields.Char(string="Referencia del Contrato", required=True)
     employee_id = fields.Many2one('hr.employee', string="Empleado", required=True)

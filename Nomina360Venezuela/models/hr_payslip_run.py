@@ -3,8 +3,8 @@ from odoo import models, fields, api, _
 
 class HrPayslipRun(models.Model):
     _name = 'hr.payslip.run'
-    _description = 'Lote / Período de Nómina Venezuela'
-    _inherit = ['mail.thread', 'mail.activity.mixin']
+    _description = 'Lote de Recibos de Nómina'
+    _inherit = ['hr.payslip.run', 'mail.thread', 'mail.activity.mixin']
 
     name = fields.Char(string="Nombre del Período", required=True)
     date_start = fields.Date(string="Fecha Inicio", required=True, default=fields.Date.today)
