@@ -89,7 +89,17 @@ class ResCompany(models.Model):
         if is_cesta_ticket and self.cesta_ticket_special_rate > 1.0:
             return round(self.cesta_ticket_special_rate, 4)
 
-        # 1. Check active currency rate in Odoo res.currency
+        # 1. Consumir tasa oficial de l10n_ve_full si está disponible
+        try:
+            if 'l10n_ve.exchange.rate' in self.env:
+                today = fields.Date.context_today(self)
+                rate_rec = self.env['l10n_ve.exchange.rate'].get_rate_for_date(today, company_id=self.id)
+                if rate_rec and rate_rec.rate > 0:
+                    return round(rate_rec.rate, 4)
+        except Exception:
+            pass
+
+        # 2. Check active currency rate in Odoo res.currency
         try:
             usd = self.env.ref('base.USD', raise_if_not_found=False)
             if usd and usd.rate > 0:
@@ -116,12 +126,12 @@ class ResCompany(models.Model):
         except Exception:
             pass
 
-        # 2. Company setting rate
+        # 3. Company setting rate
         if self.current_bcv_rate > 1.0:
             return round(self.current_bcv_rate, 4)
 
-        # 3. Default fallback BCV rate
-        return 757.74
+        # 4. Default fallback BCV rate
+        return 779.9522
 
 
 class ResConfigSettings(models.TransientModel):
