@@ -1,25 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <!--
-        Nómina Venezuela 360 - Menú Principal de Aplicación
-        ====================================================
-        Crea la aplicación independiente "Nómina Venezuela 360" en la pantalla de inicio
-        y la barra de navegación superior idéntica a la referencia.
+        Nómina Venezuela 360 - Menú Integrado en Recursos Humanos
+        ===========================================================
+        Integra el menú 'Nómina Venezuela 360' en la barra superior de RRHH / Nómina
+        con el menú desplegable idéntico a la imagen de referencia del cliente.
     -->
 
-    <!-- 1. Aplicación Principal en la Pantalla de Inicio y Barra Superior -->
-    <menuitem id="menu_nomina_venezuela_app_root"
-              name="Nómina Venezuela 360"
-              web_icon="Nomina360Venezuela,static/description/icon.png"
-              sequence="40"/>
-
-    <!-- 2. Menú Desplegable Principal: Nómina Venezuela 360 -->
+    <!-- 1. Menú Desplegable Principal en la Barra Superior -->
     <menuitem id="menu_nomina_venezuela_root"
               name="Nómina Venezuela 360"
-              parent="menu_nomina_venezuela_app_root"
-              sequence="10"/>
+              parent="hr.menu_hr_root"
+              sequence="20"/>
 
-    <!-- Elementos del Menú Desplegable en el Orden Exacto de la Referencia -->
+    <!-- 2. Elementos del Menú Desplegable en el Orden Exacto de la Referencia -->
     <menuitem id="menu_hr_payroll_dashboard_bi"
               name="📊 Tablero BI Gerencial 360"
               parent="menu_nomina_venezuela_root"
@@ -128,36 +122,17 @@
               action="action_hr_payroll_migration_wizard"
               sequence="18"/>
 
-    <!-- 3. Menú de Configuración en la Barra Superior -->
-    <record id="action_nomina360_config_settings" model="ir.actions.act_window">
-        <field name="name">Configuración Nómina Venezuela 360</field>
-        <field name="res_model">res.config.settings</field>
-        <field name="view_mode">form</field>
-        <field name="target">inline</field>
-        <field name="context">{'module': 'Nomina360Venezuela'}</field>
-    </record>
-
-    <menuitem id="menu_nomina_venezuela_config_root"
-              name="Configuración"
-              parent="menu_nomina_venezuela_app_root"
-              sequence="90"/>
-
-    <menuitem id="menu_nomina_venezuela_settings"
-              name="⚙️ Ajustes Parámetros LOTTT / BCV"
-              parent="menu_nomina_venezuela_config_root"
-              action="action_nomina360_config_settings"
-              sequence="1"/>
-
+    <!-- 3. Elementos de Configuración en el Menú de Configuración de RRHH -->
     <menuitem id="menu_hr_payroll_ai_session"
               name="💬 Historial &amp; Sesiones de IA"
-              parent="menu_nomina_venezuela_config_root"
+              parent="hr.menu_human_resources_configuration"
               action="action_hr_payroll_ai_session"
-              sequence="10"/>
+              sequence="80"/>
 
     <menuitem id="menu_hr_payroll_ai_assistant"
               name="📋 Registro de Consultas IA Laboral"
-              parent="menu_nomina_venezuela_config_root"
+              parent="hr.menu_human_resources_configuration"
               action="action_hr_payroll_ai_assistant"
-              sequence="20"/>
+              sequence="85"/>
 
 </odoo>
