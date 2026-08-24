@@ -34,6 +34,7 @@
                         <group string="Configuración de Secuencia">
                             <field name="company_id" groups="base.group_multi_company"/>
                             <field name="document_type"/>
+                            <field name="journal_ids" widget="many2many_tags" options="{'no_create': True}"/>
                             <field name="emission_type"/>
                             <field name="active"/>
                         </group>

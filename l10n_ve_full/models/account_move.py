@@ -489,20 +489,128 @@ class AccountMove(models.Model):
                             'Venezuela360: No se encontró tasa BCV para fecha %s '
                             'en compañía %s.', doc_date, move.company_id.name
                         )
-            # Asignar número de control fiscal automático si no existe
+            # Asignar número de control fiscal automático desde talonario configurado
             if move.company_id.l10n_ve_active and not move.l10n_ve_control_number and move.l10n_ve_requires_control:
-                seq = self.env['ir.sequence'].search([
-                    ('code', '=', 'l10n_ve.control_number'),
-                    ('company_id', 'in', [move.company_id.id, False])
-                ], limit=1)
-                if seq:
-                    move.l10n_ve_control_number = seq.next_by_id()
+                doc_type = 'credit_note' if move.move_type in ('out_refund', 'in_refund') else ('debit_note' if move.l10n_ve_is_debit_note else 'invoice')
 
-        return super().action_post()
+                # 1. Talonario directo del diario
+                control_seq = getattr(move.journal_id, 'l10n_ve_control_sequence_id', False)
+                if not control_seq or not control_seq.active:
+                    # 2. Talonario que incluya este diario
+                    control_seq = self.env['l10n_ve.control.sequence'].search([
+                        ('company_id', '=', move.company_id.id),
+                        ('active', '=', True),
+                        ('journal_ids', 'in', move.journal_id.id),
+                        ('document_type', '=', doc_type),
+                    ], limit=1)
+                if not control_seq:
+                    # 3. Talonario por tipo de documento
+                    control_seq = self.env['l10n_ve.control.sequence'].search([
+                        ('company_id', '=', move.company_id.id),
+                        ('active', '=', True),
+                        ('document_type', '=', doc_type),
+                    ], limit=1)
+                if not control_seq:
+                    # 4. Cualquier talonario activo
+                    control_seq = self.env['l10n_ve.control.sequence'].search([
+                        ('company_id', '=', move.company_id.id),
+                        ('active', '=', True),
+                    ], limit=1)
+
+                if control_seq:
+                    try:
+                        move.l10n_ve_control_number = control_seq.next_control_number()
+                    except Exception as e:
+                        _logger.warning(f"Error asignando número de control desde talonario: {e}")
+
+                if not move.l10n_ve_control_number:
+                    seq = self.env['ir.sequence'].search([
+                        ('code', '=', 'l10n_ve.control_number'),
+                        ('company_id', 'in', [move.company_id.id, False])
+                    ], limit=1)
+                    if seq:
+                        move.l10n_ve_control_number = seq.next_by_id()
+
+        res = super().action_post()
+
+        # Generación automática de retención de IVA en compras si la empresa es Agente de Retención
+        for move in self:
+            if move.company_id.l10n_ve_active and move.is_purchase_document() and (move.company_id.l10n_ve_retention_agent or move.company_id.l10n_ve_contributor_type == 'special'):
+                if move.amount_tax > 0 and not move.l10n_ve_wh_iva_ids:
+                    try:
+                        rate_pct = move.partner_id.get_wh_iva_rate(company=move.company_id) if hasattr(move.partner_id, 'get_wh_iva_rate') else 75.0
+                        self.env['account.wh.iva'].create({
+                            'move_id': move.id,
+                            'date': move.invoice_date or fields.Date.context_today(move),
+                            'wh_type': 'supplier',
+                            'wh_rate': rate_pct,
+                        })
+                    except Exception as e:
+                        _logger.warning(f"No se pudo autogenerar retención IVA para {move.name}: {e}")
+
+        return res
 
     # ------------------------------------------------------------------
-    # Acciones de botones stat
+    # Acciones de generación directa y botones stat
     # ------------------------------------------------------------------
+    def action_generate_wh_iva(self):
+        """Genera o abre el comprobante de Retención de IVA para este documento."""
+        self.ensure_one()
+        wh = self.l10n_ve_wh_iva_ids[:1]
+        if not wh:
+            rate_pct = self.partner_id.get_wh_iva_rate(company=self.company_id) if hasattr(self.partner_id, 'get_wh_iva_rate') else 75.0
+            wh = self.env['account.wh.iva'].create({
+                'move_id': self.id,
+                'date': self.invoice_date or fields.Date.context_today(self),
+                'wh_type': 'supplier' if self.is_purchase_document() else 'customer',
+                'wh_rate': rate_pct,
+            })
+        return {
+            'type': 'ir.actions.act_window',
+            'name': _('Comprobante de Retención IVA'),
+            'res_model': 'account.wh.iva',
+            'view_mode': 'form',
+            'res_id': wh.id,
+        }
+
+    def action_generate_wh_islr(self):
+        """Genera o abre el comprobante de Retención de ISLR para este documento."""
+        self.ensure_one()
+        wh = self.l10n_ve_wh_islr_ids[:1]
+        if not wh:
+            concept = self.env['account.wh.islr.concept'].search([('active', '=', True)], limit=1)
+            wh = self.env['account.wh.islr'].create({
+                'move_id': self.id,
+                'date': self.invoice_date or fields.Date.context_today(self),
+                'concept_id': concept.id if concept else False,
+            })
+        return {
+            'type': 'ir.actions.act_window',
+            'name': _('Comprobante de Retención ISLR'),
+            'res_model': 'account.wh.islr',
+            'view_mode': 'form',
+            'res_id': wh.id,
+        }
+
+    def action_generate_wh_municipal(self):
+        """Genera o abre el comprobante de Retención Municipal para este documento."""
+        self.ensure_one()
+        wh = self.l10n_ve_wh_municipal_ids[:1]
+        if not wh:
+            municipality = self.company_id.l10n_ve_municipality_id or self.env['l10n_ve.municipality'].search([], limit=1)
+            wh = self.env['account.wh.municipal'].create({
+                'move_id': self.id,
+                'date': self.invoice_date or fields.Date.context_today(self),
+                'municipality_id': municipality.id if municipality else False,
+            })
+        return {
+            'type': 'ir.actions.act_window',
+            'name': _('Comprobante de Retención Municipal'),
+            'res_model': 'account.wh.municipal',
+            'view_mode': 'form',
+            'res_id': wh.id,
+        }
+
     def action_view_wh_iva(self):
         self.ensure_one()
         return {

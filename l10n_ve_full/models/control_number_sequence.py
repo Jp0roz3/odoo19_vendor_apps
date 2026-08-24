@@ -35,6 +35,16 @@ class ControlNumberSequence(models.Model):
         ('delivery_guide', 'Guías de Despacho'),
     ], string='Tipo de Documento', required=True, default='invoice')
 
+    journal_ids = fields.Many2many(
+        comodel_name='account.journal',
+        relation='l10n_ve_control_seq_journal_rel',
+        column1='sequence_id',
+        column2='journal_id',
+        string='Diarios Aplicables',
+        domain="[('company_id', '=', company_id)]",
+        help='Diarios contables que utilizan este talonario. Si se deja vacío, aplica a todos los diarios.',
+    )
+
     emission_type = fields.Selection([
         ('free_format', 'Forma Libre (Imprenta Autorizada)'),
         ('digital', 'Emisión Digital / Pre-Impreso'),

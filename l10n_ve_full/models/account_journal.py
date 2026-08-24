@@ -18,6 +18,13 @@ _logger = logging.getLogger(__name__)
 class AccountJournal(models.Model):
     _inherit = 'account.journal'
 
+    l10n_ve_control_sequence_id = fields.Many2one(
+        comodel_name='l10n_ve.control.sequence',
+        string='Talonario de Control Fiscal SENIAT',
+        domain="[('company_id', '=', company_id), ('active', '=', True)]",
+        help='Talonario de control fiscal predeterminado para este diario.',
+    )
+
     # ------------------------------------------------------------------ #
     #  Helpers de formato venezolano                                       #
     # ------------------------------------------------------------------ #
