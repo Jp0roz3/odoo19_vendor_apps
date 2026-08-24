@@ -686,17 +686,27 @@ class AccountMoveLine(models.Model):
                 line.l10n_ve_price_subtotal_usd = round(line.price_subtotal, 2)
 
             # Débito / Crédito en USD y Bs
-            if comp_currency == bs_currency or comp_currency.name in ['VES', 'VEF', 'VEB']:
+            is_bs_line = (line.currency_id == bs_currency) or (line.currency_id.name in ['VES', 'VEF', 'VEB'])
+            comp_is_bs = (comp_currency == bs_currency) or (comp_currency.name in ['VES', 'VEF', 'VEB'])
+
+            if comp_is_bs:
                 line.l10n_ve_debit_bs = line.debit
                 line.l10n_ve_credit_bs = line.credit
                 line.l10n_ve_debit_usd = round(line.debit / rate, 2) if rate else 0.0
                 line.l10n_ve_credit_usd = round(line.credit / rate, 2) if rate else 0.0
                 line.l10n_ve_amount_residual_bs = line.amount_residual
             else:
-                line.l10n_ve_debit_usd = line.debit
-                line.l10n_ve_credit_usd = line.credit
-                line.l10n_ve_debit_bs = round(line.debit * rate, 2)
-                line.l10n_ve_credit_bs = round(line.credit * rate, 2)
+                # Moneda de la compañía es USD
+                if is_bs_line and abs(line.amount_currency) > 0:
+                    line.l10n_ve_debit_bs = abs(line.amount_currency) if line.debit > 0 else 0.0
+                    line.l10n_ve_credit_bs = abs(line.amount_currency) if line.credit > 0 else 0.0
+                    line.l10n_ve_debit_usd = round(line.l10n_ve_debit_bs / rate, 2) if (rate and line.debit > 0) else 0.0
+                    line.l10n_ve_credit_usd = round(line.l10n_ve_credit_bs / rate, 2) if (rate and line.credit > 0) else 0.0
+                else:
+                    line.l10n_ve_debit_usd = line.debit
+                    line.l10n_ve_credit_usd = line.credit
+                    line.l10n_ve_debit_bs = round(line.debit * rate, 2)
+                    line.l10n_ve_credit_bs = round(line.credit * rate, 2)
                 line.l10n_ve_amount_residual_bs = round(line.amount_residual * rate, 2)
 
     def _get_computed_price_unit(self):

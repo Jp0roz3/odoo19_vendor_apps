@@ -68,6 +68,8 @@
                 <field name="l10n_ve_amount_usd" string="Monto en USD ($)"/>
                 <field name="l10n_ve_apply_igtf" string="IGTF Aplicado" readonly="state != 'draft'"/>
                 <field name="l10n_ve_igtf_amount" string="Monto IGTF (3%)" invisible="not l10n_ve_apply_igtf" readonly="state != 'draft'"/>
+                <field name="l10n_ve_exchange_diff_bs" string="Diferencial Cambiario (Bs)" invisible="not l10n_ve_exchange_move_id" readonly="1"/>
+                <field name="l10n_ve_exchange_move_id" string="Asiento Diferencial Cambiario" invisible="not l10n_ve_exchange_move_id" readonly="1"/>
                 <field name="l10n_ve_currency_bs_id" invisible="1"/>
             </xpath>
         </field>

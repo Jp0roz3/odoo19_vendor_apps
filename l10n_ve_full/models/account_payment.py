@@ -61,6 +61,18 @@ class AccountPayment(models.Model):
         string='Moneda Bs',
         related='company_id.l10n_ve_currency_bs_id',
     )
+    l10n_ve_exchange_move_id = fields.Many2one(
+        comodel_name='account.move',
+        string='Asiento Diferencial Cambiario',
+        readonly=True,
+        copy=False,
+    )
+    l10n_ve_exchange_diff_bs = fields.Monetary(
+        string='Diferencial Cambiario (Bs)',
+        currency_field='l10n_ve_currency_bs_id',
+        readonly=True,
+        copy=False,
+    )
 
     @api.depends('amount', 'currency_id', 'date', 'company_id', 'l10n_ve_rate', 'l10n_ve_apply_igtf')
     def _compute_ve_payment_amounts(self):
@@ -84,28 +96,185 @@ class AccountPayment(models.Model):
                 pay.l10n_ve_igtf_amount = 0.0
 
     def action_post(self):
-        """Al publicar el pago, propaga la tasa al asiento contable generado."""
+        """Al publicar el pago, propaga la tasa al asiento contable generado y genera diferencial cambiario."""
         res = super().action_post()
         for pay in self:
-            if pay.move_id and pay.l10n_ve_rate:
+            rate = pay.l10n_ve_rate or pay.company_id.get_current_bcv_rate() or 779.9522
+            if pay.move_id and rate > 0:
                 pay.move_id.write({
-                    'l10n_ve_rate': pay.l10n_ve_rate,
-                    'l10n_ve_rate_applied': pay.l10n_ve_rate,
+                    'l10n_ve_rate': rate,
+                    'l10n_ve_rate_applied': rate,
                     'l10n_ve_rate_type': pay.l10n_ve_rate_type or 'bcv',
                 })
+
+                bs_currency = pay.company_id.l10n_ve_currency_bs_id
+                comp_currency = pay.company_id.currency_id
+                is_pay_bs = (pay.currency_id == bs_currency) or (pay.currency_id.name in ['VES', 'VEF', 'VEB'])
+                comp_is_usd = (comp_currency.name in ['USD', '$'])
+
+                if is_pay_bs and comp_is_usd and rate > 0:
+                    exact_usd = round(pay.amount / rate, 2)
+                    for line in pay.move_id.line_ids:
+                        if line.debit > 0:
+                            line.debit = exact_usd
+                        if line.credit > 0:
+                            line.credit = exact_usd
+
+                # Generar asiento de diferencial cambiario automático si difiere la tasa
+                pay._generate_exchange_difference_entry()
         return res
 
     def _synchronize_to_moves(self, changed_fields):
         """Sincroniza la tasa del pago con el asiento contable."""
         res = super()._synchronize_to_moves(changed_fields)
         for pay in self:
-            if pay.move_id and pay.l10n_ve_rate:
+            rate = pay.l10n_ve_rate or pay.company_id.get_current_bcv_rate() or 779.9522
+            if pay.move_id and rate > 0:
                 pay.move_id.write({
-                    'l10n_ve_rate': pay.l10n_ve_rate,
-                    'l10n_ve_rate_applied': pay.l10n_ve_rate,
+                    'l10n_ve_rate': rate,
+                    'l10n_ve_rate_applied': rate,
                     'l10n_ve_rate_type': pay.l10n_ve_rate_type or 'bcv',
                 })
         return res
+
+    def _generate_exchange_difference_entry(self):
+        """Crea automáticamente el asiento contable de Ganancia o Pérdida por Diferencial Cambiario."""
+        self.ensure_one()
+        if self.l10n_ve_exchange_move_id:
+            return self.l10n_ve_exchange_move_id
+
+        # Identificar facturas vinculadas
+        invoices = self.reconciled_invoice_ids or self.reconciled_bill_ids
+        if not invoices and self.move_id:
+            for line in self.move_id.line_ids:
+                for matched in line.matched_debit_ids + line.matched_credit_ids:
+                    rec_move = matched.debit_move_id.move_id if matched.credit_move_id.move_id == self.move_id else matched.credit_move_id.move_id
+                    if rec_move and rec_move.is_invoice() and rec_move not in invoices:
+                        invoices |= rec_move
+
+        if not invoices and self._context.get('active_model') == 'account.move' and self._context.get('active_ids'):
+            invoices = self.env['account.move'].browse(self._context.get('active_ids')).filtered(lambda m: m.is_invoice())
+
+        if not invoices:
+            return False
+
+        pay_rate = self.l10n_ve_rate or self.company_id.get_current_bcv_rate() or 779.9522
+        pay_amount_usd = self.l10n_ve_amount_usd or (self.amount / pay_rate if pay_rate else 0.0)
+
+        for inv in invoices:
+            inv_rate = inv.l10n_ve_rate_applied or inv.l10n_ve_rate or pay_rate
+            if abs(pay_rate - inv_rate) < 0.0001:
+                continue
+
+            inv_usd_total = inv.l10n_ve_amount_total_ref or inv.amount_total or pay_amount_usd
+            usd_covered = min(pay_amount_usd, inv_usd_total)
+            if usd_covered <= 0:
+                continue
+
+            bs_at_inv_rate = round(usd_covered * inv_rate, 2)
+            bs_at_pay_rate = round(usd_covered * pay_rate, 2)
+            diff_bs = round(bs_at_pay_rate - bs_at_inv_rate, 2)
+
+            if abs(diff_bs) < 0.01:
+                continue
+
+            is_customer = inv.is_sale_document()
+            is_gain = (diff_bs > 0) if is_customer else (diff_bs < 0)
+            abs_diff_bs = abs(diff_bs)
+
+            company = self.company_id
+            journal = getattr(company, 'currency_exchange_journal_id', False) or self.env['account.journal'].search([
+                ('type', '=', 'general'),
+                ('company_id', '=', company.id)
+            ], limit=1) or self.env['account.journal'].search([('type', '=', 'general')], limit=1)
+
+            if is_gain:
+                diff_account = getattr(company, 'income_currency_exchange_account_id', False) or self.env['account.account'].search([
+                    ('account_type', 'in', ('income', 'income_other')),
+                    ('company_id', '=', company.id),
+                    ('name', 'ilike', 'Ganancia')
+                ], limit=1) or self.env['account.account'].search([
+                    ('account_type', 'in', ('income', 'income_other')),
+                    ('company_id', '=', company.id)
+                ], limit=1)
+            else:
+                diff_account = getattr(company, 'expense_currency_exchange_account_id', False) or self.env['account.account'].search([
+                    ('account_type', 'in', ('expense', 'expense_depreciation', 'expense_direct_cost')),
+                    ('company_id', '=', company.id),
+                    ('name', 'ilike', 'Pérdida')
+                ], limit=1) or self.env['account.account'].search([
+                    ('account_type', 'in', ('expense', 'expense_depreciation', 'expense_direct_cost')),
+                    ('company_id', '=', company.id)
+                ], limit=1)
+
+            partner_account = (inv.partner_id.property_account_receivable_id if is_customer else inv.partner_id.property_account_payable_id) or self.env['account.account'].search([
+                ('account_type', '=', 'asset_receivable' if is_customer else 'liability_payable'),
+                ('company_id', '=', company.id)
+            ], limit=1)
+
+            if not journal or not diff_account or not partner_account:
+                _logger.warning("No se pudo generar asiento de diferencial cambiario: faltan cuentas o diario.")
+                continue
+
+            partner = self.partner_id or inv.partner_id
+            desc = f"Diferencial Cambiario: {inv.name} (Tasa Factura {inv_rate:.2f} vs Tasa Pago {pay_rate:.2f})"
+
+            if is_gain:
+                lines = [
+                    (0, 0, {
+                        'name': desc,
+                        'partner_id': partner.id,
+                        'account_id': partner_account.id,
+                        'debit': abs_diff_bs,
+                        'credit': 0.0,
+                    }),
+                    (0, 0, {
+                        'name': desc,
+                        'partner_id': partner.id,
+                        'account_id': diff_account.id,
+                        'debit': 0.0,
+                        'credit': abs_diff_bs,
+                    }),
+                ]
+            else:
+                lines = [
+                    (0, 0, {
+                        'name': desc,
+                        'partner_id': partner.id,
+                        'account_id': diff_account.id,
+                        'debit': abs_diff_bs,
+                        'credit': 0.0,
+                    }),
+                    (0, 0, {
+                        'name': desc,
+                        'partner_id': partner.id,
+                        'account_id': partner_account.id,
+                        'debit': 0.0,
+                        'credit': abs_diff_bs,
+                    }),
+                ]
+
+            move_vals = {
+                'move_type': 'entry',
+                'journal_id': journal.id,
+                'date': self.date or fields.Date.context_today(self),
+                'ref': f"DIF-CAMBIARIO/{inv.name}/{self.name or ''}",
+                'l10n_ve_rate_applied': pay_rate,
+                'l10n_ve_rate': pay_rate,
+                'line_ids': lines,
+            }
+
+            try:
+                diff_move = self.env['account.move'].create(move_vals)
+                diff_move.action_post()
+                self.l10n_ve_exchange_move_id = diff_move.id
+                self.l10n_ve_exchange_diff_bs = diff_bs
+                _logger.info(f"Asiento de diferencial cambiario {diff_move.name} creado por Bs. {diff_bs:,.2f}")
+                return diff_move
+            except Exception as e:
+                _logger.error(f"Error al crear asiento de diferencial cambiario: {e}")
+
+        return False
 
 
 class AccountPaymentRegister(models.TransientModel):
@@ -212,6 +381,21 @@ class AccountPaymentRegister(models.TransientModel):
             elif not is_bs and residual_usd > 0:
                 wizard.amount = residual_usd
 
+    @api.depends('amount', 'payment_date', 'currency_id', 'payment_type', 'line_ids', 'l10n_ve_payment_rate')
+    def _compute_payment_difference(self):
+        """Evita advertencia de diferencia falsa cuando el pago en Bs cubre el 100% de la divisa de referencia."""
+        for wizard in self:
+            super(AccountPaymentRegister, wizard)._compute_payment_difference()
+            rate = wizard.l10n_ve_payment_rate or wizard.l10n_ve_current_rate or 779.9522
+            residual_usd = wizard.l10n_ve_amount_residual_ref or 0.0
+            is_bs = wizard.currency_id and wizard.currency_id.name in ['VES', 'VEF', 'VEB']
+
+            if residual_usd > 0 and rate > 0:
+                paid_usd = round(wizard.amount / rate, 2) if is_bs else round(wizard.amount, 2)
+                if abs(paid_usd - residual_usd) < 0.02:
+                    wizard.payment_difference = 0.0
+                    wizard.payment_difference_handling = 'open'
+
     def _create_payment_vals_from_wizard(self, batch_result):
         vals = super()._create_payment_vals_from_wizard(batch_result)
         rate = self.l10n_ve_payment_rate or self.l10n_ve_current_rate or 779.9522
@@ -219,3 +403,9 @@ class AccountPaymentRegister(models.TransientModel):
         vals['l10n_ve_rate'] = rate
         vals['l10n_ve_apply_igtf'] = self.l10n_ve_apply_igtf
         return vals
+
+    def _create_payments(self):
+        payments = super()._create_payments()
+        for pay in payments:
+            pay._generate_exchange_difference_entry()
+        return payments
