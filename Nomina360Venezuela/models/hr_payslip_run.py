@@ -19,6 +19,12 @@ class HrPayslipRun(models.Model):
         default=lambda self: self.env.company.get_bcv_rate(),
         help="Tasa de cambio BCV aplicada a todo el lote de recibos de nómina."
     )
+
+    @api.onchange('date_end', 'date_start')
+    def _onchange_dates_tasa_bcv(self):
+        target_date = self.date_end or self.date_start or fields.Date.context_today(self)
+        if self.company_id:
+            self.tasa_bcv = self.company_id.get_bcv_rate(date=target_date)
     total_bs = fields.Float(
         string="Total Neto en Bolívares (Bs)",
         compute='_compute_lote_totals',

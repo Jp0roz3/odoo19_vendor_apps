@@ -73,13 +73,14 @@ class HrPayslip(models.Model):
         help="Indica si el recibo corresponde a un pago especial o fuera del ciclo quincenal/mensual."
     )
 
-    @api.depends('payslip_run_id', 'payslip_run_id.tasa_bcv', 'company_id')
+    @api.depends('payslip_run_id', 'payslip_run_id.tasa_bcv', 'company_id', 'date_to', 'date_from')
     def _compute_tasa_bcv(self):
         for slip in self:
             if slip.payslip_run_id and slip.payslip_run_id.tasa_bcv > 0:
                 slip.tasa_bcv = slip.payslip_run_id.tasa_bcv
             elif not slip.tasa_bcv or slip.tasa_bcv <= 0:
-                slip.tasa_bcv = slip.company_id.get_bcv_rate()
+                target_date = slip.date_to or slip.date_from or fields.Date.context_today(slip)
+                slip.tasa_bcv = slip.company_id.get_bcv_rate(date=target_date)
 
     @api.depends('date_from', 'date_to')
     def _compute_lunes_del_mes(self):

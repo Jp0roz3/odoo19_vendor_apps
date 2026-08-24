@@ -84,22 +84,26 @@ class ResCompany(models.Model):
     ai_rag_enabled = fields.Boolean(string="Activar RAG Legal LOTTT", default=False, help="Indexación y citación de artículos de la LOTTT (solo lectura).")
     ai_tools_enabled = fields.Boolean(string="Activar Herramientas Odoo (Function Calling)", default=False, help="Permite a la IA consultar datos en el ORM (solo lectura).")
 
-    def get_bcv_rate(self, is_cesta_ticket=False):
+    def get_bcv_rate(self, is_cesta_ticket=False, date=None):
         self.ensure_one()
         if is_cesta_ticket and self.cesta_ticket_special_rate > 1.0:
             return round(self.cesta_ticket_special_rate, 4)
 
-        # 1. Consumir tasa oficial de l10n_ve_full si está disponible
+        query_date = date or fields.Date.context_today(self)
+
+        # 1. PRIORIDAD MÁXIMA: Consumir tasa oficial de la localización Venezuela 360 (l10n_ve_full)
         try:
             if 'l10n_ve.exchange.rate' in self.env:
-                today = fields.Date.context_today(self)
-                rate_rec = self.env['l10n_ve.exchange.rate'].get_rate_for_date(today, company_id=self.id)
+                rate_val = self.env['l10n_ve.exchange.rate'].get_rate_value_for_date(query_date, company_id=self.id)
+                if rate_val and rate_val > 1.0:
+                    return round(rate_val, 4)
+                rate_rec = self.env['l10n_ve.exchange.rate'].get_rate_for_date(query_date, company_id=self.id)
                 if rate_rec and rate_rec.rate > 0:
                     return round(rate_rec.rate, 4)
         except Exception:
             pass
 
-        # 2. Check active currency rate in Odoo res.currency
+        # 2. Consultar tasa activa de la moneda USD en res.currency de Odoo
         try:
             usd = self.env.ref('base.USD', raise_if_not_found=False)
             if usd and usd.rate > 0:
@@ -126,11 +130,11 @@ class ResCompany(models.Model):
         except Exception:
             pass
 
-        # 3. Company setting rate
+        # 3. Tasa configurada en la compañía
         if self.current_bcv_rate > 1.0:
             return round(self.current_bcv_rate, 4)
 
-        # 4. Default fallback BCV rate
+        # 4. Tasa fallback de seguridad
         return 779.9522
 
 
