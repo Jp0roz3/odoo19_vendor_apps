@@ -244,14 +244,9 @@ class AccountMove(models.Model):
     )
     l10n_ve_is_debit_note = fields.Boolean(
         string='Es Nota de Débito',
-        compute='_compute_ve_is_debit_note',
-        store=True,
+        default=False,
+        copy=False,
     )
-
-    @api.depends('debit_origin_id', 'move_type')
-    def _compute_ve_is_debit_note(self):
-        for move in self:
-            move.l10n_ve_is_debit_note = bool(getattr(move, 'debit_origin_id', False))
 
     # ------------------------------------------------------------------
     # Estado de retenciones

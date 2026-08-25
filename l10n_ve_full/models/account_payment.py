@@ -95,17 +95,6 @@ class AccountPayment(models.Model):
             else:
                 pay.l10n_ve_igtf_amount = 0.0
 
-    @api.depends('amount', 'currency_id', 'company_id', 'date', 'l10n_ve_rate')
-    def _compute_amount_company_currency_signed(self):
-        super()._compute_amount_company_currency_signed()
-        for pay in self:
-            bs_currency = pay.company_id.l10n_ve_currency_bs_id
-            is_bs = (pay.currency_id == bs_currency) or (pay.currency_id.name in ['VES', 'VEF', 'VEB'])
-            comp_is_usd = bool(pay.company_id.currency_id and pay.company_id.currency_id.name in ['USD', '$'])
-            if is_bs and comp_is_usd and pay.l10n_ve_rate > 0:
-                sign = -1 if pay.payment_type == 'outbound' else 1
-                pay.amount_company_currency_signed = sign * round(pay.amount / pay.l10n_ve_rate, 2)
-
     def _prepare_move_line_default_vals(self, write_off_line_vals=None, force_balance=None):
         line_vals_list = super()._prepare_move_line_default_vals(
             write_off_line_vals=write_off_line_vals,
