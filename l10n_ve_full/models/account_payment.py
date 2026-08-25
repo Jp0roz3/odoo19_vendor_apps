@@ -134,15 +134,13 @@ class AccountPayment(models.Model):
             if is_pay_bs and comp_is_usd and rate > 0:
                 exact_usd = round(pay.amount / rate, 2)
                 for line in pay.move_id.line_ids:
-                    vals = {
-                        'l10n_ve_rate': rate,
-                        'l10n_ve_rate_applied': rate,
-                    }
+                    line_vals = {}
                     if line.debit > 0 and abs(line.debit - exact_usd) > 0.001:
-                        vals['debit'] = exact_usd
+                        line_vals['debit'] = exact_usd
                     if line.credit > 0 and abs(line.credit - exact_usd) > 0.001:
-                        vals['credit'] = exact_usd
-                    line.write(vals)
+                        line_vals['credit'] = exact_usd
+                    if line_vals:
+                        line.write(line_vals)
 
     def action_post(self):
         """Al publicar el pago, propaga la tasa al asiento contable generado y genera diferencial cambiario."""

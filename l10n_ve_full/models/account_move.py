@@ -743,6 +743,16 @@ class AccountMoveLine(models.Model):
         digits=(18, 6),
         store=True,
     )
+    l10n_ve_rate = fields.Float(
+        string='Tasa Asiento',
+        related='move_id.l10n_ve_rate',
+        store=True,
+    )
+    l10n_ve_rate_applied = fields.Float(
+        string='Tasa Aplicada',
+        related='move_id.l10n_ve_rate_applied',
+        store=True,
+    )
     l10n_ve_debit_usd = fields.Float(
         string='Débito $',
         compute='_compute_ve_line_usd',

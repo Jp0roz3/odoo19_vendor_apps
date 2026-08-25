@@ -215,15 +215,13 @@ class AccountBankStatementLine(models.Model):
             if is_st_bs and comp_is_usd and rate > 0:
                 exact_usd = round(abs(st_line.amount) / rate, 2)
                 for line in move.line_ids:
-                    vals = {
-                        'l10n_ve_rate': rate,
-                        'l10n_ve_rate_applied': rate,
-                    }
+                    line_vals = {}
                     if line.debit > 0 and abs(line.debit - exact_usd) > 0.001:
-                        vals['debit'] = exact_usd
+                        line_vals['debit'] = exact_usd
                     if line.credit > 0 and abs(line.credit - exact_usd) > 0.001:
-                        vals['credit'] = exact_usd
-                    line.write(vals)
+                        line_vals['credit'] = exact_usd
+                    if line_vals:
+                        line.write(line_vals)
 
     @api.model_create_multi
     def create(self, vals_list):
