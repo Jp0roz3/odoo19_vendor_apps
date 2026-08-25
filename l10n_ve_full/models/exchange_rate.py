@@ -181,31 +181,32 @@ class L10nVeExchangeRate(models.Model):
             company_currency = rec.company_id.currency_id
             is_usd_base = bool(company_currency and company_currency.name == 'USD')
 
-            # Determinar qué moneda va en res.currency.rate y con qué valor
+            # Determinar qué monedas van en res.currency.rate y con qué valor
             if is_usd_base:
-                # Base = USD: guardamos la tasa de VES (currency_to) = rate_val
-                target_currency = rec.currency_to_id
-                odoo_rate = rec.rate          # ej: 779.9522 Bs/USD ✅
+                target_currencies = self.env['res.currency'].search([('name', 'in', ['VES', 'VEF', 'VEB'])])
+                if not target_currencies and rec.currency_to_id:
+                    target_currencies = rec.currency_to_id
+                odoo_rate = rec.rate          # ej: 784.6633 Bs/USD ✅
             else:
-                # Base = VES: guardamos la tasa de USD (currency_from) = 1/rate_val
-                target_currency = rec.currency_from_id
-                odoo_rate = 1.0 / rec.rate   # ej: 0.001282 USD/Bs ✅
+                target_currencies = rec.currency_from_id or self.env['res.currency'].search([('name', '=', 'USD')])
+                odoo_rate = (1.0 / rec.rate) if rec.rate else 0.0   # ej: 0.001274 USD/Bs ✅
 
-            existing = Rate.search([
-                ('currency_id', '=', target_currency.id),
-                ('name', '=', rec.date),
-                ('company_id', 'in', [rec.company_id.id, False]),
-            ], limit=1)
+            for target_currency in target_currencies:
+                existing = Rate.search([
+                    ('currency_id', '=', target_currency.id),
+                    ('name', '=', rec.date),
+                    ('company_id', 'in', [rec.company_id.id, False]),
+                ], limit=1)
 
-            if existing:
-                existing.write({'rate': odoo_rate})
-            else:
-                Rate.create({
-                    'currency_id': target_currency.id,
-                    'name': rec.date,
-                    'rate': odoo_rate,
-                    'company_id': rec.company_id.id,
-                })
+                if existing:
+                    existing.write({'rate': odoo_rate})
+                else:
+                    Rate.create({
+                        'currency_id': target_currency.id,
+                        'name': rec.date,
+                        'rate': odoo_rate,
+                        'company_id': rec.company_id.id,
+                    })
 
 
 

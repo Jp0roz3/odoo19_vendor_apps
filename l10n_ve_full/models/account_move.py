@@ -242,6 +242,16 @@ class AccountMove(models.Model):
         default=True,
         help='Indica si el documento fiscal requiere asignación de número de control SENIAT.',
     )
+    l10n_ve_is_debit_note = fields.Boolean(
+        string='Es Nota de Débito',
+        compute='_compute_ve_is_debit_note',
+        store=True,
+    )
+
+    @api.depends('debit_origin_id', 'move_type')
+    def _compute_ve_is_debit_note(self):
+        for move in self:
+            move.l10n_ve_is_debit_note = bool(getattr(move, 'debit_origin_id', False))
 
     # ------------------------------------------------------------------
     # Estado de retenciones
@@ -491,7 +501,8 @@ class AccountMove(models.Model):
                         )
             # Asignar número de control fiscal automático desde talonario configurado
             if move.company_id.l10n_ve_active and not move.l10n_ve_control_number and move.l10n_ve_requires_control:
-                doc_type = 'credit_note' if move.move_type in ('out_refund', 'in_refund') else ('debit_note' if move.l10n_ve_is_debit_note else 'invoice')
+                is_dn = bool(getattr(move, 'debit_origin_id', False) or getattr(move, 'l10n_ve_is_debit_note', False))
+                doc_type = 'credit_note' if move.move_type in ('out_refund', 'in_refund') else ('debit_note' if is_dn else 'invoice')
 
                 # 1. Talonario directo del diario
                 control_seq = getattr(move.journal_id, 'l10n_ve_control_sequence_id', False)
