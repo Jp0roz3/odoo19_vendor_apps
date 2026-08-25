@@ -60,7 +60,17 @@
         # Menus
         'views/menus.xml',
     ],
-    'assets': {},
+    'assets': {
+        'web.assets_backend': [
+            # other
+            'tk_security_master/static/src/xml/dashboard.xml',
+            'tk_security_master/static/src/scss/style.scss',
+            'tk_security_master/static/src/js/dashboard/dashboard.js',
+        ],
+        'web.assets_frontend': [
+            'tk_security_master/static/src/js/other/script.js',
+        ],
+    },
     'external_dependencies': {
         'python': ['httpagentparser']
     },
