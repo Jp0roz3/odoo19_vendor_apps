@@ -65,7 +65,6 @@
             # other
             'tk_security_master/static/src/xml/dashboard.xml',
             'tk_security_master/static/src/scss/style.scss',
-            'tk_security_master/static/src/js/route/service.js',
             'tk_security_master/static/src/js/dashboard/dashboard.js',
         ],
         'web.assets_frontend': [
