@@ -797,6 +797,10 @@ class AccountMoveLine(models.Model):
                     pay = self.env['account.payment'].search([('move_id', '=', move.id)], limit=1)
                 if pay and hasattr(pay, 'l10n_ve_rate') and pay.l10n_ve_rate > 0:
                     rate = pay.l10n_ve_rate
+                else:
+                    st_line = getattr(move, 'statement_line_id', False) or (self.env['account.bank.statement.line'].search([('move_id', '=', move.id)], limit=1) if move.id else False)
+                    if st_line and hasattr(st_line, 'l10n_ve_rate') and st_line.l10n_ve_rate > 0:
+                        rate = st_line.l10n_ve_rate
             if not rate:
                 rate = move.company_id.get_current_bcv_rate() or 1.0
             line.l10n_ve_rate_display = rate

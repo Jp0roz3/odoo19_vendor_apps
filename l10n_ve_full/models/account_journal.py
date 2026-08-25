@@ -196,10 +196,47 @@ class AccountBankStatementLine(models.Model):
             else:
                 st_line.l10n_ve_amount_usd = st_line.amount
 
+    def _sync_ve_move_lines(self):
+        """Sincroniza la tasa y montos USD del asiento generado por la transacción bancaria."""
+        for st_line in self:
+            move = getattr(st_line, 'move_id', False)
+            if not move:
+                continue
+            rate = st_line.l10n_ve_rate or (st_line.company_id.get_current_bcv_rate() if hasattr(st_line.company_id, 'get_current_bcv_rate') else 779.9522) or 779.9522
+            move.write({
+                'l10n_ve_rate': rate,
+                'l10n_ve_rate_applied': rate,
+            })
+            comp_currency = st_line.company_id.currency_id
+            bs_currency = getattr(st_line.company_id, 'l10n_ve_currency_bs_id', False)
+            is_st_bs = (st_line.currency_id == bs_currency) or (st_line.currency_id.name in ['VES', 'VEF', 'VEB'])
+            comp_is_usd = bool(comp_currency and comp_currency.name in ['USD', '$'])
+
+            if is_st_bs and comp_is_usd and rate > 0:
+                exact_usd = round(abs(st_line.amount) / rate, 2)
+                for line in move.line_ids:
+                    vals = {
+                        'l10n_ve_rate': rate,
+                        'l10n_ve_rate_applied': rate,
+                    }
+                    if line.debit > 0 and abs(line.debit - exact_usd) > 0.001:
+                        vals['debit'] = exact_usd
+                    if line.credit > 0 and abs(line.credit - exact_usd) > 0.001:
+                        vals['credit'] = exact_usd
+                    line.write(vals)
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        records = super().create(vals_list)
+        records._sync_ve_move_lines()
+        return records
+
     def write(self, vals):
         if 'l10n_ve_rate' in vals:
             for st_line in self:
                 if getattr(st_line, 'is_reconciled', False) and abs((st_line.l10n_ve_rate or 0.0) - (vals['l10n_ve_rate'] or 0.0)) > 0.000001:
                     raise UserError(_('No se puede modificar la tasa de cambio de una transacción bancaria que ya ha sido conciliada.'))
-        return super().write(vals)
+        res = super().write(vals)
+        self._sync_ve_move_lines()
+        return res
 

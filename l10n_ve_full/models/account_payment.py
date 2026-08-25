@@ -115,17 +115,39 @@ class AccountPayment(models.Model):
                     vals['credit'] = exact_usd
         return line_vals_list
 
+    def _sync_ve_move_lines(self):
+        """Sincroniza la tasa y los débitos/créditos en USD y Bs de los apuntes contables del pago."""
+        for pay in self:
+            if not pay.move_id:
+                continue
+            rate = pay.l10n_ve_rate or pay.company_id.get_current_bcv_rate() or 779.9522
+            pay.move_id.write({
+                'l10n_ve_rate': rate,
+                'l10n_ve_rate_applied': rate,
+                'l10n_ve_rate_type': pay.l10n_ve_rate_type or 'bcv',
+            })
+            comp_currency = pay.company_id.currency_id
+            bs_currency = pay.company_id.l10n_ve_currency_bs_id
+            is_pay_bs = (pay.currency_id == bs_currency) or (pay.currency_id.name in ['VES', 'VEF', 'VEB'])
+            comp_is_usd = bool(comp_currency and comp_currency.name in ['USD', '$'])
+
+            if is_pay_bs and comp_is_usd and rate > 0:
+                exact_usd = round(pay.amount / rate, 2)
+                for line in pay.move_id.line_ids:
+                    vals = {
+                        'l10n_ve_rate': rate,
+                        'l10n_ve_rate_applied': rate,
+                    }
+                    if line.debit > 0 and abs(line.debit - exact_usd) > 0.001:
+                        vals['debit'] = exact_usd
+                    if line.credit > 0 and abs(line.credit - exact_usd) > 0.001:
+                        vals['credit'] = exact_usd
+                    line.write(vals)
+
     def action_post(self):
         """Al publicar el pago, propaga la tasa al asiento contable generado y genera diferencial cambiario."""
-        for pay in self:
-            rate = pay.l10n_ve_rate or pay.company_id.get_current_bcv_rate() or 779.9522
-            if pay.move_id and rate > 0:
-                pay.move_id.write({
-                    'l10n_ve_rate': rate,
-                    'l10n_ve_rate_applied': rate,
-                    'l10n_ve_rate_type': pay.l10n_ve_rate_type or 'bcv',
-                })
         res = super().action_post()
+        self._sync_ve_move_lines()
         for pay in self:
             try:
                 pay._generate_exchange_difference_entry()
@@ -136,14 +158,7 @@ class AccountPayment(models.Model):
     def _synchronize_to_moves(self, changed_fields):
         """Sincroniza la tasa del pago con el asiento contable."""
         res = super()._synchronize_to_moves(changed_fields)
-        for pay in self:
-            rate = pay.l10n_ve_rate or pay.company_id.get_current_bcv_rate() or 779.9522
-            if pay.move_id and rate > 0:
-                pay.move_id.write({
-                    'l10n_ve_rate': rate,
-                    'l10n_ve_rate_applied': rate,
-                    'l10n_ve_rate_type': pay.l10n_ve_rate_type or 'bcv',
-                })
+        self._sync_ve_move_lines()
         return res
 
     def _generate_exchange_difference_entry(self):
