@@ -228,21 +228,40 @@ class AccountPayment(models.Model):
             partner = self.partner_id or inv.partner_id
             desc = f"Diferencial Cambiario: {inv.name} (Tasa Factura {inv_rate:.2f} vs Tasa Pago {pay_rate:.2f})"
 
+            comp_is_usd = bool(company.currency_id and company.currency_id.name in ['USD', '$'])
+            bs_currency = getattr(company, 'l10n_ve_currency_bs_id', False) or self.env['res.currency'].search([('name', 'in', ['VES', 'VEF', 'VEB'])], limit=1)
+
+            if comp_is_usd and pay_rate > 0:
+                # Moneda de compañía es USD: débito/crédito va en USD y amount_currency va en Bs
+                diff_amount_company = round(abs_diff_bs / pay_rate, 2)
+                diff_amount_foreign = abs_diff_bs
+                foreign_currency_id = bs_currency.id if bs_currency else False
+            else:
+                # Moneda de compañía es Bs: débito/crédito va en Bs y amount_currency va en USD
+                diff_amount_company = abs_diff_bs
+                diff_amount_foreign = round(abs_diff_bs / pay_rate, 2) if pay_rate else 0.0
+                usd_currency = self.env['res.currency'].search([('name', '=', 'USD')], limit=1)
+                foreign_currency_id = usd_currency.id if usd_currency else False
+
             if is_gain:
                 lines = [
                     (0, 0, {
                         'name': desc,
                         'partner_id': partner.id,
                         'account_id': partner_account.id,
-                        'debit': abs_diff_bs,
+                        'debit': diff_amount_company,
                         'credit': 0.0,
+                        'amount_currency': diff_amount_foreign if foreign_currency_id else 0.0,
+                        'currency_id': foreign_currency_id,
                     }),
                     (0, 0, {
                         'name': desc,
                         'partner_id': partner.id,
                         'account_id': diff_account.id,
                         'debit': 0.0,
-                        'credit': abs_diff_bs,
+                        'credit': diff_amount_company,
+                        'amount_currency': -diff_amount_foreign if foreign_currency_id else 0.0,
+                        'currency_id': foreign_currency_id,
                     }),
                 ]
             else:
@@ -251,15 +270,19 @@ class AccountPayment(models.Model):
                         'name': desc,
                         'partner_id': partner.id,
                         'account_id': diff_account.id,
-                        'debit': abs_diff_bs,
+                        'debit': diff_amount_company,
                         'credit': 0.0,
+                        'amount_currency': diff_amount_foreign if foreign_currency_id else 0.0,
+                        'currency_id': foreign_currency_id,
                     }),
                     (0, 0, {
                         'name': desc,
                         'partner_id': partner.id,
                         'account_id': partner_account.id,
                         'debit': 0.0,
-                        'credit': abs_diff_bs,
+                        'credit': diff_amount_company,
+                        'amount_currency': -diff_amount_foreign if foreign_currency_id else 0.0,
+                        'currency_id': foreign_currency_id,
                     }),
                 ]
 

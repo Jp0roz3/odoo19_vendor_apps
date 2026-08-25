@@ -196,3 +196,10 @@ class AccountBankStatementLine(models.Model):
             else:
                 st_line.l10n_ve_amount_usd = st_line.amount
 
+    def write(self, vals):
+        if 'l10n_ve_rate' in vals:
+            for st_line in self:
+                if getattr(st_line, 'is_reconciled', False) and abs((st_line.l10n_ve_rate or 0.0) - (vals['l10n_ve_rate'] or 0.0)) > 0.000001:
+                    raise UserError(_('No se puede modificar la tasa de cambio de una transacción bancaria que ya ha sido conciliada.'))
+        return super().write(vals)
+
