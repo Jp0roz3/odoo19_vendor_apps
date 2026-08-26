@@ -147,30 +147,20 @@ function transformReportTableCells(currency) {
 
 // Observador continuo para formatear nuevas filas que se expandan (Lazy Loading / Cuentas Hijas)
 function setupTableObserver() {
-    if (tableObserver) return;
-    const table = document.querySelector(".o_account_reports_table, .o_account_report_table, .o_account_reports_body, .o_account_reports_page, .o_content");
+    const table = document.querySelector(".o_account_reports_table, .o_account_report_table, .o_account_reports_body, .o_account_reports_page, .o_content, .o_action_manager");
     if (!table) return;
+
+    if (tableObserver) {
+        try { tableObserver.disconnect(); } catch (e) {}
+    }
 
     tableObserver = new MutationObserver((mutations) => {
         if (isTransforming) return;
-        let shouldTransform = false;
-        for (const mut of mutations) {
-            if (mut.addedNodes.length > 0) {
-                for (const node of mut.addedNodes) {
-                    if (node.nodeType === 1 && (node.tagName === "TR" || node.querySelector?.("td"))) {
-                        shouldTransform = true;
-                        break;
-                    }
-                }
-            }
-            if (shouldTransform) break;
-        }
-
-        if (shouldTransform && currentSelectedCurrency === "bs") {
+        if (currentSelectedCurrency === "bs") {
             clearTimeout(observerDebounce);
             observerDebounce = setTimeout(() => {
                 transformReportTableCells("bs");
-            }, 60);
+            }, 50);
         }
     });
 
@@ -354,10 +344,15 @@ function injectCurrencyWidgetToDOM() {
     }
 }
 
-// Cerrar menús abiertos al hacer clic fuera
+// Cerrar menús abiertos al hacer clic fuera y transformar sub-filas desplegadas
 if (typeof document !== "undefined") {
     document.addEventListener("click", () => {
         document.querySelectorAll(".l10n_ve_menu").forEach(m => m.style.display = "none");
+        if (currentSelectedCurrency === "bs") {
+            setTimeout(() => transformReportTableCells("bs"), 100);
+            setTimeout(() => transformReportTableCells("bs"), 300);
+            setTimeout(() => transformReportTableCells("bs"), 600);
+        }
     });
 }
 
