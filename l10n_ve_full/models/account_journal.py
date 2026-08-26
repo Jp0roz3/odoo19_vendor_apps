@@ -11,6 +11,7 @@ Autor: JeanPerozo / Nubelco
 import re
 import logging
 from odoo import models, fields, api, _
+from odoo.exceptions import UserError, ValidationError
 
 _logger = logging.getLogger(__name__)
 
@@ -232,8 +233,13 @@ class AccountBankStatementLine(models.Model):
     def write(self, vals):
         if 'l10n_ve_rate' in vals:
             for st_line in self:
-                if getattr(st_line, 'is_reconciled', False) and abs((st_line.l10n_ve_rate or 0.0) - (vals['l10n_ve_rate'] or 0.0)) > 0.000001:
-                    raise UserError(_('No se puede modificar la tasa de cambio de una transacción bancaria que ya ha sido conciliada.'))
+                is_rec = getattr(st_line, 'is_reconciled', False)
+                amount = abs(st_line.amount or 0.0)
+                if is_rec and amount > 0.001:
+                    old_rate = st_line.l10n_ve_rate or 0.0
+                    new_rate = vals.get('l10n_ve_rate') or 0.0
+                    if abs(old_rate - new_rate) > 0.000001:
+                        raise UserError(_('No se puede modificar la tasa de cambio de una transacción bancaria que ya ha sido conciliada y cuyo monto es mayor a 0.'))
         res = super().write(vals)
         self._sync_ve_move_lines()
         return res
