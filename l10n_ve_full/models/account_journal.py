@@ -203,26 +203,30 @@ class AccountBankStatementLine(models.Model):
             move = getattr(st_line, 'move_id', False)
             if not move:
                 continue
-            rate = st_line.l10n_ve_rate or (st_line.company_id.get_current_bcv_rate() if hasattr(st_line.company_id, 'get_current_bcv_rate') else 779.9522) or 779.9522
-            move.write({
-                'l10n_ve_rate': rate,
-                'l10n_ve_rate_applied': rate,
-            })
+            # Actualizar tasa en cabecera del asiento
+            self.env.cr.execute("""
+                UPDATE account_move 
+                SET l10n_ve_rate = %s, l10n_ve_rate_applied = %s 
+                WHERE id = %s
+            """, (rate, rate, move.id))
+            move.invalidate_recordset(['l10n_ve_rate', 'l10n_ve_rate_applied'])
+
             comp_currency = st_line.company_id.currency_id
             bs_currency = getattr(st_line.company_id, 'l10n_ve_currency_bs_id', False)
             is_st_bs = (st_line.currency_id == bs_currency) or (st_line.currency_id.name in ['VES', 'VEF', 'VEB'])
             comp_is_usd = bool(comp_currency and comp_currency.name in ['USD', '$'])
 
-            if is_st_bs and comp_is_usd and rate > 0:
+            if is_st_bs and comp_is_usd and rate > 0 and abs(st_line.amount) > 0.001:
                 exact_usd = round(abs(st_line.amount) / rate, 2)
-                line_commands = []
-                for line in move.line_ids:
-                    if line.debit > 0 and abs(line.debit - exact_usd) > 0.001:
-                        line_commands.append((1, line.id, {'debit': exact_usd, 'credit': 0.0}))
-                    elif line.credit > 0 and abs(line.credit - exact_usd) > 0.001:
-                        line_commands.append((1, line.id, {'debit': 0.0, 'credit': exact_usd}))
-                if line_commands:
-                    move.with_context(check_move_validity=False).write({'line_ids': line_commands})
+                self.env.cr.execute("""
+                    UPDATE account_move_line
+                    SET debit = CASE WHEN debit > 0 THEN %s ELSE 0.0 END,
+                        credit = CASE WHEN credit > 0 THEN %s ELSE 0.0 END,
+                        balance = CASE WHEN debit > 0 THEN %s ELSE -%s END
+                    WHERE move_id = %s AND (debit > 0 OR credit > 0)
+                """, (exact_usd, exact_usd, exact_usd, exact_usd, move.id))
+                move.line_ids.invalidate_recordset(['debit', 'credit', 'balance'])
+                move.invalidate_recordset()
 
     @api.model_create_multi
     def create(self, vals_list):

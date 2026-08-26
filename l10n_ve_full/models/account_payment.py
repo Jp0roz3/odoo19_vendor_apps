@@ -121,26 +121,29 @@ class AccountPayment(models.Model):
             if not pay.move_id:
                 continue
             rate = pay.l10n_ve_rate or pay.company_id.get_current_bcv_rate() or 779.9522
-            pay.move_id.write({
-                'l10n_ve_rate': rate,
-                'l10n_ve_rate_applied': rate,
-                'l10n_ve_rate_type': pay.l10n_ve_rate_type or 'bcv',
-            })
+            self.env.cr.execute("""
+                UPDATE account_move 
+                SET l10n_ve_rate = %s, l10n_ve_rate_applied = %s, l10n_ve_rate_type = %s
+                WHERE id = %s
+            """, (rate, rate, pay.l10n_ve_rate_type or 'bcv', pay.move_id.id))
+            pay.move_id.invalidate_recordset(['l10n_ve_rate', 'l10n_ve_rate_applied', 'l10n_ve_rate_type'])
+
             comp_currency = pay.company_id.currency_id
             bs_currency = pay.company_id.l10n_ve_currency_bs_id
             is_pay_bs = (pay.currency_id == bs_currency) or (pay.currency_id.name in ['VES', 'VEF', 'VEB'])
             comp_is_usd = bool(comp_currency and comp_currency.name in ['USD', '$'])
 
-            if is_pay_bs and comp_is_usd and rate > 0:
+            if is_pay_bs and comp_is_usd and rate > 0 and pay.amount > 0.001:
                 exact_usd = round(pay.amount / rate, 2)
-                line_commands = []
-                for line in pay.move_id.line_ids:
-                    if line.debit > 0 and abs(line.debit - exact_usd) > 0.001:
-                        line_commands.append((1, line.id, {'debit': exact_usd, 'credit': 0.0}))
-                    elif line.credit > 0 and abs(line.credit - exact_usd) > 0.001:
-                        line_commands.append((1, line.id, {'debit': 0.0, 'credit': exact_usd}))
-                if line_commands:
-                    pay.move_id.with_context(check_move_validity=False).write({'line_ids': line_commands})
+                self.env.cr.execute("""
+                    UPDATE account_move_line
+                    SET debit = CASE WHEN debit > 0 THEN %s ELSE 0.0 END,
+                        credit = CASE WHEN credit > 0 THEN %s ELSE 0.0 END,
+                        balance = CASE WHEN debit > 0 THEN %s ELSE -%s END
+                    WHERE move_id = %s AND (debit > 0 OR credit > 0)
+                """, (exact_usd, exact_usd, exact_usd, exact_usd, pay.move_id.id))
+                pay.move_id.line_ids.invalidate_recordset(['debit', 'credit', 'balance'])
+                pay.move_id.invalidate_recordset()
 
     def action_post(self):
         """Al publicar el pago, propaga la tasa al asiento contable generado de forma limpia y directa."""
