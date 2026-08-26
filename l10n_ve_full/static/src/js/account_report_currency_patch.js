@@ -1,20 +1,24 @@
 /** @odoo-module **/
+import { patch } from "@web/core/utils/patch";
+
 /**
  * Venezuela360: Selector Bimoneda [💵 Moneda: $ / Bs.F] en Reportes Financieros
  * ==============================================================================
- * Conecta el selector de moneda interactivo con los 5 Reportes Contables autorizados:
+ * Conecta el selector de moneda interactivo con los Reportes Contables de Odoo Enterprise:
  *   1. Balance General (Balance Sheet)
  *   2. Estado de Resultados / Ganancias y Pérdidas (Profit and Loss)
  *   3. Estado de Flujo de Efectivo (Cash Flow)
- *   4. Resumen Ejecutivo (Executive Summary)
- *   5. Declaración Fiscal / Reporte de Impuestos (Tax Report)
+ *   4. Balance de Comprobación (Trial Balance)
+ *   5. Libro Mayor (General Ledger)
+ *   6. Reporte de Impuestos / Fiscal (Tax Report)
  *
  * Moneda Principal por Defecto: Dólares ($ / USD)
  * Moneda Secundaria Bimoneda: Bolívares (Bs.F) a Tasa Oficial BCV
- *
+ */
+
 // Estado global de moneda y tasa
 let currentSelectedCurrency = "usd";
-let currentBcvRate = 779.9522;
+let currentBcvRate = 784.6633;
 let isTransforming = false;
 let observerDebounce = null;
 let tableObserver = null;
@@ -35,12 +39,12 @@ function cleanCorruptedSessionStorage() {
     } catch (e) {}
 }
 
-// Obtener la tasa BCV activa desde el systray o estado
+// Obtener la tasa BCV activa desde el systray o DOM
 function extractBcvRate() {
     try {
         const systrayEl = document.querySelector(".o_bcv_rate_systray, [class*='bcv'], .o_menu_systray");
         if (systrayEl) {
-            const match = (systrayEl.textContent || "").match(/BCV:\s*([\d\.,]+)/i);
+            const match = (systrayEl.textContent || "").match(/(?:USD|BCV):\s*([\d\.,]+)/i);
             if (match && match[1]) {
                 const clean = match[1].replace(/\./g, "").replace(/,/g, ".");
                 const val = parseFloat(clean);
@@ -56,7 +60,7 @@ function extractBcvRate() {
 
 // Formateador estándar con símbolo de moneda ($ para USD, Bs. para Bolívares)
 function formatNumberWithSymbol(value, currency) {
-    if (isNaN(value)) return currency === "bs" ? "Bs. 0,00" : "$ 0,00";
+    if (isNaN(value)) return currency === "bs" ? "0,00 Bs.F" : "$ 0,00";
     const isNeg = value < 0;
     const absVal = Math.abs(value);
     const parts = absVal.toFixed(2).split(".");
@@ -64,7 +68,7 @@ function formatNumberWithSymbol(value, currency) {
     const numFormatted = `${parts[0]},${parts[1]}`;
 
     if (currency === "bs") {
-        return isNeg ? `-Bs. ${numFormatted}` : `Bs. ${numFormatted}`;
+        return isNeg ? `-${numFormatted} Bs.F` : `${numFormatted} Bs.F`;
     } else {
         return isNeg ? `-$ ${numFormatted}` : `$ ${numFormatted}`;
     }
@@ -99,7 +103,7 @@ function transformReportTableCells(currency) {
             let origVal = cell.getAttribute("data-original-usd-val");
 
             if (origVal === null) {
-                // Parsear formato: ej: "2.152,00", "$ 2.152,00", "-2.342,29"
+                // Parsear formato de número
                 const cleanStr = rawText
                     .replace(/[^\d\.,\-]/g, "")
                     .replace(/\.(?=\d{3})/g, "")
@@ -109,7 +113,6 @@ function transformReportTableCells(currency) {
                 if (!isNaN(num)) {
                     origVal = String(num);
                     cell.setAttribute("data-original-usd-val", origVal);
-                    cell.setAttribute("data-original-usd-html", cell.innerHTML);
                 }
             }
 
@@ -181,17 +184,15 @@ function ensureAccountReportPatched() {
         const reportMod = odoo?.loader?.modules?.get("@account_reports/components/account_report/account_report");
         if (reportMod && reportMod.AccountReport && !reportMod.AccountReport._l10n_ve_patched) {
             reportMod.AccountReport._l10n_ve_patched = true;
-            patch(reportMod.AccountReport.prototype, {
-                setup() {
-                    super.setup(...arguments);
-                    cleanCorruptedSessionStorage();
-                    window.__activeAccountReport = this;
-                },
-                async setL10nVeCurrency(currency) {
-                    currentSelectedCurrency = currency;
-                    transformReportTableCells(currency);
-                },
-            });
+            try {
+                patch(reportMod.AccountReport.prototype, {
+                    setup() {
+                        super.setup(...arguments);
+                        cleanCorruptedSessionStorage();
+                        window.__activeAccountReport = this;
+                    },
+                });
+            } catch (pErr) {}
         }
     } catch (e) {}
 }
@@ -201,7 +202,7 @@ function injectCurrencyWidgetToDOM() {
     try {
         if (typeof document === "undefined" || !document.body) return;
 
-        // Guard: Nunca inyectar en vistas de formulario (ej: account.journal form, res.partner form)
+        // Guard: Nunca inyectar en vistas de formulario
         if (document.querySelector(".o_form_view:not(.o_account_reports_page)")) {
             const isTrueReport = document.querySelector(".o_account_reports_body, .o_account_report, .o_account_reports_table");
             if (!isTrueReport) return;
@@ -211,7 +212,6 @@ function injectCurrencyWidgetToDOM() {
         if (!cp) return;
 
         const cpText = (cp.textContent || "").toLowerCase();
-        const docText = (document.querySelector(".o_account_reports_page, .o_account_reports_body, .o_content")?.textContent || "").toLowerCase();
         const isFinancialReport = cpText.includes("pdf") 
             || cpText.includes("xlsx")
             || cpText.includes("balance")
@@ -289,15 +289,15 @@ function injectCurrencyWidgetToDOM() {
                 </button>
                 <ul class="dropdown-menu dropdown-menu-end shadow l10n_ve_menu" style="min-width: 140px; position: absolute; z-index: 1090; display: none; top: 100%; right: 0; background-color: #ffffff; border: 1px solid rgba(0,0,0,0.15); border-radius: 4px; box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.15);">
                     <li>
-                        <a class="dropdown-item d-flex align-items-center gap-2 py-2" href="#" data-curr="usd" style="cursor: pointer; color: #212529;">
-                            <i class="fa ${curr === "usd" ? "fa-check text-success" : "fa-fw"} me-1"></i>
-                            <span class="fw-bold">$</span>
+                        <a class="dropdown-item d-flex align-items-center gap-2 py-2" href="#" data-curr="bs" style="cursor: pointer; color: #212529;">
+                            <i class="fa ${curr === "bs" ? "fa-check text-success" : "fa-fw"} me-1"></i>
+                            <span class="fw-bold">Bs.F</span>
                         </a>
                     </li>
                     <li>
-                        <a class="dropdown-item d-flex align-items-center gap-2 py-2" href="#" data-curr="bs" style="cursor: pointer; color: #212529;">
-                            <i class="fa ${curr !== "usd" ? "fa-check text-success" : "fa-fw"} me-1"></i>
-                            <span class="fw-bold">Bs.F</span>
+                        <a class="dropdown-item d-flex align-items-center gap-2 py-2" href="#" data-curr="usd" style="cursor: pointer; color: #212529;">
+                            <i class="fa ${curr === "usd" ? "fa-check text-success" : "fa-fw"} me-1"></i>
+                            <span class="fw-bold">$</span>
                         </a>
                     </li>
                 </ul>

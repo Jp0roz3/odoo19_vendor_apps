@@ -116,7 +116,7 @@ class AccountPayment(models.Model):
         return line_vals_list
 
     def _sync_ve_move_lines(self):
-        """Sincroniza la tasa y los débitos/créditos en USD y Bs de los apuntes contables del pago."""
+        """Sincroniza la tasa y los débitos/créditos en USD y Bs de los apuntes contables del pago de forma atómica."""
         for pay in self:
             if not pay.move_id:
                 continue
@@ -133,24 +133,19 @@ class AccountPayment(models.Model):
 
             if is_pay_bs and comp_is_usd and rate > 0:
                 exact_usd = round(pay.amount / rate, 2)
+                line_commands = []
                 for line in pay.move_id.line_ids:
-                    line_vals = {}
                     if line.debit > 0 and abs(line.debit - exact_usd) > 0.001:
-                        line_vals['debit'] = exact_usd
-                    if line.credit > 0 and abs(line.credit - exact_usd) > 0.001:
-                        line_vals['credit'] = exact_usd
-                    if line_vals:
-                        line.write(line_vals)
+                        line_commands.append((1, line.id, {'debit': exact_usd, 'credit': 0.0}))
+                    elif line.credit > 0 and abs(line.credit - exact_usd) > 0.001:
+                        line_commands.append((1, line.id, {'debit': 0.0, 'credit': exact_usd}))
+                if line_commands:
+                    pay.move_id.with_context(check_move_validity=False).write({'line_ids': line_commands})
 
     def action_post(self):
-        """Al publicar el pago, propaga la tasa al asiento contable generado y genera diferencial cambiario."""
+        """Al publicar el pago, propaga la tasa al asiento contable generado de forma limpia y directa."""
         res = super().action_post()
         self._sync_ve_move_lines()
-        for pay in self:
-            try:
-                pay._generate_exchange_difference_entry()
-            except Exception as e:
-                _logger.warning(f"Error generando diferencial cambiario para pago {pay.name}: {e}")
         return res
 
     def _synchronize_to_moves(self, changed_fields):
