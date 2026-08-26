@@ -77,7 +77,7 @@ class AccountWhMunicipal(models.Model):
         help='Municipio donde se aplica la retención de IAE.',
     )
     state_ve_id = fields.Many2one(
-        comodel_name='l10n_ve.state',
+        comodel_name='res.country.state',
         string='Estado',
         related='municipality_id.state_id',
         store=True,
