@@ -539,17 +539,23 @@ class AccountMove(models.Model):
 
         res = super().action_post()
 
-        # Generación automática de retención de IVA en compras si la empresa es Agente de Retención
+        # Generación automática de retención de IVA e ISLR en borrador
         for move in self:
-            if move.company_id.l10n_ve_active and move.is_purchase_document() and (move.company_id.l10n_ve_retention_agent or move.company_id.l10n_ve_contributor_type == 'special'):
-                if move.amount_tax > 0 and not move.l10n_ve_wh_iva_ids:
+            if move.company_id.l10n_ve_active and move.amount_tax > 0 and not move.l10n_ve_wh_iva_ids:
+                is_purchase = move.is_purchase_document()
+                is_sale = move.is_sale_document()
+                is_company_agent = bool(move.company_id.l10n_ve_retention_agent or move.company_id.l10n_ve_contributor_type == 'special')
+                is_partner_agent = bool(getattr(move.partner_id, 'l10n_ve_wh_iva_agent', False) or getattr(move.partner_id, 'l10n_ve_contributor_type', False) == 'special')
+
+                if (is_purchase and is_company_agent) or (is_sale and is_partner_agent):
                     try:
                         rate_pct = move.partner_id.get_wh_iva_rate(company=move.company_id) if hasattr(move.partner_id, 'get_wh_iva_rate') else 75.0
                         self.env['account.wh.iva'].create({
                             'move_id': move.id,
                             'date': move.invoice_date or fields.Date.context_today(move),
-                            'wh_type': 'supplier',
+                            'wh_type': 'supplier' if is_purchase else 'customer',
                             'wh_rate': rate_pct,
+                            'state': 'draft',
                         })
                     except Exception as e:
                         _logger.warning(f"No se pudo autogenerar retención IVA para {move.name}: {e}")

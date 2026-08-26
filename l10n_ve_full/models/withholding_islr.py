@@ -271,13 +271,14 @@ class AccountWhIslr(models.Model):
     # Compute: monto de retención
     # ------------------------------------------------------------------
     @api.depends('taxable_amount_bs', 'wh_rate', 'subtract',
-                 'calculation_method', 'ut_value', 'rate')
+                 'calculation_method', 'ut_value', 'rate', 'move_id.l10n_ve_rate')
     def _compute_wh_amount(self):
         for rec in self:
+            doc_rate = rec.move_id.l10n_ve_rate or rec.move_id.l10n_ve_rate_applied or rec.rate or (rec.company_id.get_current_bcv_rate() if hasattr(rec.company_id, 'get_current_bcv_rate') else 779.9522) or 779.9522
+            rec.rate = doc_rate
             base = rec.taxable_amount_bs
             rate_pct = rec.wh_rate / 100.0
             subtract = rec.subtract
-            rate = rec.rate or 1.0
             ut_val = rec.ut_value or 0.0
 
             if rec.calculation_method == 'percentage':
@@ -292,7 +293,7 @@ class AccountWhIslr(models.Model):
                 amount_bs = 0.0
 
             rec.amount_bs = amount_bs
-            rec.amount_usd = round(amount_bs / rate, 4) if rate else 0.0
+            rec.amount_usd = round(amount_bs / doc_rate, 2) if doc_rate else 0.0
             rec.amount_ut = round(amount_bs / ut_val, 4) if ut_val else 0.0
 
     # ------------------------------------------------------------------
@@ -337,18 +338,32 @@ class AccountWhIslr(models.Model):
             ))
         payable_account = invoice_payable_lines[0].account_id
 
+        comp_currency = self.company_id.currency_id
+        comp_is_usd = bool(comp_currency and comp_currency.name in ['USD', '$'])
+        doc_rate = self.move_id.l10n_ve_rate or self.move_id.l10n_ve_rate_applied or self.rate or (self.company_id.get_current_bcv_rate() if hasattr(self.company_id, 'get_current_bcv_rate') else 779.9522) or 779.9522
+
+        if comp_is_usd:
+            debit_usd = round(self.amount_usd or (self.amount_bs / doc_rate if doc_rate else 0.0), 2)
+            credit_usd = debit_usd
+        else:
+            debit_usd = self.amount_bs
+            credit_usd = self.amount_bs
+
         move_vals = {
             'move_type': 'entry',
             'date': self.date,
             'journal_id': journal.id,
             'ref': f'Ret. ISLR {self.name} — {self.concept_id.name}',
             'company_id': self.company_id.id,
+            'l10n_ve_rate': doc_rate,
+            'l10n_ve_rate_applied': doc_rate,
+            'l10n_ve_rate_type': self.move_id.l10n_ve_rate_type or 'bcv',
             'line_ids': [
                 # DÉBITO: Reduce la cuenta por pagar al proveedor
                 (0, 0, {
                     'account_id': payable_account.id,
                     'name': f'ISLR Ret. — {self.name} — {self.partner_id.name}',
-                    'debit': self.amount_bs,
+                    'debit': debit_usd,
                     'credit': 0.0,
                     'partner_id': self.partner_id.id,
                 }),
@@ -357,7 +372,7 @@ class AccountWhIslr(models.Model):
                     'account_id': account_wh.id,
                     'name': f'ISLR Por Pagar SENIAT — {self.name}',
                     'debit': 0.0,
-                    'credit': self.amount_bs,
+                    'credit': credit_usd,
                     'partner_id': self.partner_id.id,
                 }),
             ],

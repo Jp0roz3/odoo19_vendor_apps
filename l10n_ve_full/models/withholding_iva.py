@@ -208,13 +208,22 @@ class AccountWhIva(models.Model):
             rec.invoice_amount_tax_bs = rec.move_id.l10n_ve_amount_tax_bs
             rec.invoice_amount_total_bs = rec.move_id.l10n_ve_amount_total_bs
 
-    @api.depends('invoice_amount_tax_bs', 'wh_rate', 'rate')
+    @api.depends('invoice_amount_tax_bs', 'wh_rate', 'rate', 'move_id.amount_tax', 'move_id.currency_id')
     def _compute_wh_amount(self):
         for rec in self:
-            tax_bs = rec.invoice_amount_tax_bs or 0.0
+            doc_rate = rec.move_id.l10n_ve_rate or rec.move_id.l10n_ve_rate_applied or rec.rate or (rec.company_id.get_current_bcv_rate() if hasattr(rec.company_id, 'get_current_bcv_rate') else 779.9522) or 779.9522
+            rec.rate = doc_rate
             rate_pct = rec.wh_rate or 0.0
-            rec.amount_bs = round(tax_bs * rate_pct / 100.0, 2)
-            rec.amount_usd = round(rec.amount_bs / rec.rate, 4) if rec.rate else 0.0
+
+            is_inv_bs = rec.move_id.currency_id and rec.move_id.currency_id.name in ['VES', 'VEF', 'VEB']
+            if is_inv_bs:
+                tax_bs = rec.invoice_amount_tax_bs or rec.move_id.amount_tax or 0.0
+                rec.amount_bs = round(tax_bs * rate_pct / 100.0, 2)
+                rec.amount_usd = round(rec.amount_bs / doc_rate, 2) if doc_rate else 0.0
+            else:
+                tax_usd = rec.move_id.amount_tax or 0.0
+                rec.amount_usd = round(tax_usd * rate_pct / 100.0, 2)
+                rec.amount_bs = round(rec.amount_usd * doc_rate, 2)
 
     # ------------------------------------------------------------------
     # Onchange: sugerir % retención según tipo de contribuyente
@@ -276,8 +285,8 @@ class AccountWhIva(models.Model):
     def _create_journal_entry(self):
         """
         Genera el asiento contable de la retención de IVA.
-        Débito: Cuenta IVA por Pagar (reducción de IVA a declarar)
-        Crédito: Cuenta IVA Retenido (pasivo frente al proveedor)
+        Débito: Cuenta IVA por Pagar / Débito Fiscal
+        Crédito: Cuenta IVA Retenido (pasivo frente al proveedor o activo si es cliente)
         """
         self.ensure_one()
         journal = self.company_id.l10n_ve_wh_iva_journal_id
@@ -289,18 +298,34 @@ class AccountWhIva(models.Model):
         )
         iva_account = tax_lines[:1].account_id if tax_lines else account_wh
 
+        comp_currency = self.company_id.currency_id
+        comp_is_usd = bool(comp_currency and comp_currency.name in ['USD', '$'])
+        doc_rate = self.move_id.l10n_ve_rate or self.move_id.l10n_ve_rate_applied or self.rate or (self.company_id.get_current_bcv_rate() if hasattr(self.company_id, 'get_current_bcv_rate') else 779.9522) or 779.9522
+
+        if comp_is_usd:
+            # En base USD: debit y credit son en USD
+            debit_usd = round(self.amount_usd or (self.amount_bs / doc_rate if doc_rate else 0.0), 2)
+            credit_usd = debit_usd
+        else:
+            # En base VES: debit y credit son en Bs
+            debit_usd = self.amount_bs
+            credit_usd = self.amount_bs
+
         move_vals = {
             'move_type': 'entry',
             'date': self.date,
             'journal_id': journal.id,
             'ref': f'Ret. IVA {self.name} — Factura {self.move_id.name}',
             'company_id': self.company_id.id,
+            'l10n_ve_rate': doc_rate,
+            'l10n_ve_rate_applied': doc_rate,
+            'l10n_ve_rate_type': self.move_id.l10n_ve_rate_type or 'bcv',
             'line_ids': [
                 # Débito: reduce el IVA a pagar en la cuenta de IVA de la factura
                 (0, 0, {
                     'account_id': iva_account.id,
                     'name': f'Ret. IVA {self.wh_rate:.0f}% — {self.partner_id.name}',
-                    'debit': self.amount_bs,
+                    'debit': debit_usd,
                     'credit': 0.0,
                     'partner_id': self.partner_id.id,
                 }),
@@ -309,7 +334,7 @@ class AccountWhIva(models.Model):
                     'account_id': account_wh.id,
                     'name': f'IVA Retenido — {self.name}',
                     'debit': 0.0,
-                    'credit': self.amount_bs,
+                    'credit': credit_usd,
                     'partner_id': self.partner_id.id,
                 }),
             ],

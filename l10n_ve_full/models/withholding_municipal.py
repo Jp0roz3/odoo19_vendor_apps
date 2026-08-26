@@ -139,13 +139,15 @@ class AccountWhMunicipal(models.Model):
     # ------------------------------------------------------------------
     # Compute
     # ------------------------------------------------------------------
-    @api.depends('move_id.l10n_ve_amount_untaxed_bs', 'rate_pct', 'rate')
+    @api.depends('move_id.l10n_ve_amount_untaxed_bs', 'rate_pct', 'rate', 'move_id.l10n_ve_rate')
     def _compute_amounts(self):
         for rec in self:
+            doc_rate = rec.move_id.l10n_ve_rate or rec.move_id.l10n_ve_rate_applied or rec.rate or (rec.company_id.get_current_bcv_rate() if hasattr(rec.company_id, 'get_current_bcv_rate') else 779.9522) or 779.9522
+            rec.rate = doc_rate
             base_bs = rec.move_id.l10n_ve_amount_untaxed_bs or 0.0
             rec.taxable_amount_bs = base_bs
             rec.amount_bs = round(base_bs * rec.rate_pct / 100.0, 2)
-            rec.amount_usd = round(rec.amount_bs / rec.rate, 4) if rec.rate else 0.0
+            rec.amount_usd = round(rec.amount_bs / doc_rate, 2) if doc_rate else 0.0
 
     @api.onchange('municipality_id')
     def _onchange_municipality(self):
@@ -200,18 +202,32 @@ class AccountWhMunicipal(models.Model):
             ))
         payable_account = invoice_payable_lines[0].account_id
 
+        comp_currency = self.company_id.currency_id
+        comp_is_usd = bool(comp_currency and comp_currency.name in ['USD', '$'])
+        doc_rate = self.move_id.l10n_ve_rate or self.move_id.l10n_ve_rate_applied or self.rate or (self.company_id.get_current_bcv_rate() if hasattr(self.company_id, 'get_current_bcv_rate') else 779.9522) or 779.9522
+
+        if comp_is_usd:
+            debit_usd = round(self.amount_usd or (self.amount_bs / doc_rate if doc_rate else 0.0), 2)
+            credit_usd = debit_usd
+        else:
+            debit_usd = self.amount_bs
+            credit_usd = self.amount_bs
+
         move_vals = {
             'move_type': 'entry',
             'date': self.date,
             'journal_id': journal.id,
             'ref': f'Ret. Municipal {self.name} — Municipio {self.municipality_id.name}',
             'company_id': self.company_id.id,
+            'l10n_ve_rate': doc_rate,
+            'l10n_ve_rate_applied': doc_rate,
+            'l10n_ve_rate_type': self.move_id.l10n_ve_rate_type or 'bcv',
             'line_ids': [
                 # DÉBITO: Reduce la CxP al proveedor
                 (0, 0, {
                     'account_id': payable_account.id,
                     'name': f'IAE Ret. — {self.name} — {self.partner_id.name}',
-                    'debit': self.amount_bs,
+                    'debit': debit_usd,
                     'credit': 0.0,
                     'partner_id': self.partner_id.id,
                 }),
@@ -220,7 +236,7 @@ class AccountWhMunicipal(models.Model):
                     'account_id': account_wh.id,
                     'name': f'IAE Por Pagar — {self.municipality_id.name}',
                     'debit': 0.0,
-                    'credit': self.amount_bs,
+                    'credit': credit_usd,
                     'partner_id': self.partner_id.id,
                 }),
             ],
