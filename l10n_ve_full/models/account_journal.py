@@ -203,6 +203,11 @@ class AccountBankStatementLine(models.Model):
             move = getattr(st_line, 'move_id', False)
             if not move:
                 continue
+            company = st_line.company_id or getattr(st_line.journal_id, 'company_id', False) or self.env.company
+            rate = st_line.l10n_ve_rate or (company.get_current_bcv_rate() if hasattr(company, 'get_current_bcv_rate') else 779.9522) or 779.9522
+            if not st_line.l10n_ve_rate:
+                st_line.l10n_ve_rate = rate
+
             # Actualizar tasa en cabecera del asiento
             self.env.cr.execute("""
                 UPDATE account_move 
