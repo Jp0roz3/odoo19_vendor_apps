@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'Venezuela360: Localización Completa',
-    'version': '19.0.2.1.0',
+    'version': '19.0.2.2.0',
     'category': 'Accounting/Localizations',
     'summary': (
         'Localización fiscal, contable y tributaria completa para Venezuela: '
@@ -127,4 +127,6 @@ Autor: JeanPerozo / Nubelco
     'installable': True,
     'application': True,
     'auto_install': False,
+    'post_init_hook': 'post_init_hook',
+    'post_migrate': 'l10n_ve_full.post_init_hook.post_migrate',
 }

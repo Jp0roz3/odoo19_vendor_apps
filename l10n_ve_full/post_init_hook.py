@@ -14,6 +14,38 @@ import logging
 _logger = logging.getLogger(__name__)
 
 
+def post_migrate(cr, registry):
+    """
+    Hook ejecutado en CADA actualización del módulo (odoo-bin -u l10n_ve_full).
+    A diferencia de post_init_hook, este se ejecuta tanto en instalación
+    inicial como en cada actualización posterior, incluyendo pushes a Odoo.sh.
+
+    Activa los idiomas 'es' y 'es_VE' para que el router de Odoo 19
+    resuelva sin error 500 peticiones con Accept-Language: es-419/es-ES/es.
+    """
+    import odoo.api as api
+    from odoo import SUPERUSER_ID
+    try:
+        env = api.Environment(cr, SUPERUSER_ID, {})
+        for lang_code in ('es', 'es_VE'):
+            try:
+                lang = env['res.lang'].with_context(active_test=False).search(
+                    [('code', '=', lang_code)], limit=1
+                )
+                if lang and not lang.active:
+                    lang.write({'active': True})
+                    _logger.info('Venezuela360 post_migrate: idioma %s activado.', lang_code)
+                elif lang:
+                    _logger.info('Venezuela360 post_migrate: idioma %s ya activo.', lang_code)
+                else:
+                    env['res.lang']._activate_lang(lang_code)
+                    _logger.info('Venezuela360 post_migrate: idioma %s instalado.', lang_code)
+            except Exception as e:
+                _logger.warning('Venezuela360 post_migrate: error activando %s: %s', lang_code, e)
+    except Exception as e:
+        _logger.warning('Venezuela360 post_migrate: error general: %s', e)
+
+
 def _ensure_spanish_langs(env):
     """
     Activa los idiomas 'es' (Español) y 'es_VE' (Español Venezuela) en la BD.
