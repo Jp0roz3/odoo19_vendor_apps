@@ -319,32 +319,15 @@ class AccountMove(models.Model):
     )
 
     # ------------------------------------------------------------------
-    # Computes: Conteos, Totales y Visibilidad de Retenciones
+    # Computes: Visibilidad de Retenciones (los conteos y totales
+    # están definidos más abajo con sus @api.depends completos)
     # ------------------------------------------------------------------
-    @api.depends('l10n_ve_wh_iva_ids', 'l10n_ve_wh_islr_ids', 'l10n_ve_wh_municipal_ids')
-    def _compute_wh_counts(self):
-        for move in self:
-            move.l10n_ve_wh_iva_count = len(move.l10n_ve_wh_iva_ids)
-            move.l10n_ve_wh_islr_count = len(move.l10n_ve_wh_islr_ids)
-            move.l10n_ve_wh_municipal_count = len(move.l10n_ve_wh_municipal_ids)
 
-    @api.depends('l10n_ve_wh_iva_ids.amount_bs', 'l10n_ve_wh_iva_ids.amount_usd',
-                 'l10n_ve_wh_islr_ids.amount_bs', 'l10n_ve_wh_municipal_ids.amount_bs')
-    def _compute_wh_totals(self):
-        for move in self:
-            move.l10n_ve_wh_iva_total_bs = sum(move.l10n_ve_wh_iva_ids.mapped('amount_bs'))
-            move.l10n_ve_wh_iva_total_usd = sum(move.l10n_ve_wh_iva_ids.mapped('amount_usd'))
-            move.l10n_ve_wh_islr_total_bs = sum(move.l10n_ve_wh_islr_ids.mapped('amount_bs'))
-            move.l10n_ve_wh_municipal_total_bs = sum(move.l10n_ve_wh_municipal_ids.mapped('amount_bs'))
-
-    @api.depends('invoice_line_ids.product_id.detailed_type', 'invoice_line_ids.product_id.type')
+    @api.depends('invoice_line_ids.product_id.type')
     def _compute_l10n_ve_has_service_lines(self):
         for move in self:
             move.l10n_ve_has_service_lines = any(
-                line.product_id and (
-                    getattr(line.product_id, 'detailed_type', False) == 'service' or
-                    getattr(line.product_id, 'type', False) == 'service'
-                )
+                line.product_id and line.product_id.type == 'service'
                 for line in move.invoice_line_ids
             )
 
@@ -536,6 +519,7 @@ class AccountMove(models.Model):
     # ------------------------------------------------------------------
     # Compute: conteos de retención
     # ------------------------------------------------------------------
+    @api.depends('l10n_ve_wh_iva_ids', 'l10n_ve_wh_islr_ids', 'l10n_ve_wh_municipal_ids')
     def _compute_wh_counts(self):
         for move in self:
             move.l10n_ve_wh_iva_count = len(move.l10n_ve_wh_iva_ids)
@@ -868,16 +852,21 @@ class AccountMoveLine(models.Model):
     l10n_ve_price_unit_usd = fields.Float(
         string='Precio $ Moneda Ref.',
         compute='_compute_ve_line_usd',
+        compute_sudo=False,
         digits=(18, 2),
+        store=True,
     )
     l10n_ve_price_subtotal_usd = fields.Float(
         string='Subtotal Ref.',
         compute='_compute_ve_line_usd',
+        compute_sudo=False,
         digits=(18, 2),
+        store=True,
     )
     l10n_ve_rate_display = fields.Float(
         string='Tasa',
         compute='_compute_ve_line_usd',
+        compute_sudo=False,
         digits=(18, 6),
         store=True,
     )
@@ -894,12 +883,14 @@ class AccountMoveLine(models.Model):
     l10n_ve_debit_usd = fields.Float(
         string='Débito $',
         compute='_compute_ve_line_usd',
+        compute_sudo=False,
         digits=(18, 2),
         store=True,
     )
     l10n_ve_credit_usd = fields.Float(
         string='Crédito $',
         compute='_compute_ve_line_usd',
+        compute_sudo=False,
         digits=(18, 2),
         store=True,
     )
@@ -907,18 +898,21 @@ class AccountMoveLine(models.Model):
         string='Débito (Bs)',
         currency_field='l10n_ve_currency_bs_id',
         compute='_compute_ve_line_usd',
+        compute_sudo=False,
         store=True,
     )
     l10n_ve_credit_bs = fields.Monetary(
         string='Crédito (Bs)',
         currency_field='l10n_ve_currency_bs_id',
         compute='_compute_ve_line_usd',
+        compute_sudo=False,
         store=True,
     )
     l10n_ve_amount_residual_bs = fields.Monetary(
         string='Importe residual (Bs)',
         currency_field='l10n_ve_currency_bs_id',
         compute='_compute_ve_line_usd',
+        compute_sudo=False,
         store=True,
     )
     l10n_ve_currency_bs_id = fields.Many2one(

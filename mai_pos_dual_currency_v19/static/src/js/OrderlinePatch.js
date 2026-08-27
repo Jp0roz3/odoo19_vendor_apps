@@ -17,19 +17,58 @@
  */
 import { patch } from "@web/core/utils/patch";
 import { Orderline } from "@point_of_sale/app/components/orderline/orderline";
-import { mainToSecondary } from "./dual_currency_utils";
+import { PosOrderline } from "@point_of_sale/app/models/pos_order_line";
+import { mainToSecondary, posInstance } from "./dual_currency_utils";
+
+if (PosOrderline && PosOrderline.prototype) {
+    patch(PosOrderline.prototype, {
+        get taxGroupLabels() {
+            try {
+                const taxes = this.taxes_id || this.tax_ids || (this.product_id ? this.product_id.taxes_id : []) || [];
+                if (!taxes || !taxes.length) return [];
+                const taxGroups = this.models ? this.models["account.tax.group"] : null;
+                return taxes.map((tax) => {
+                    const grpId = (tax.tax_group_id && typeof tax.tax_group_id === 'object')
+                        ? tax.tax_group_id.id
+                        : tax.tax_group_id;
+                    const grp = grpId && taxGroups?.get ? taxGroups.get(grpId) : null;
+                    return grp?.pos_receipt_label || grp?.name || (typeof tax === 'object' ? tax.name : '') || "";
+                }).filter(Boolean);
+            } catch (e) {
+                return [];
+            }
+        }
+    });
+}
 
 patch(Orderline.prototype, {
+    get taxGroupLabels() {
+        try {
+            const line = this.props?.line;
+            if (!line) return [];
+            const taxes = line.taxes_id || line.tax_ids || (line.product_id ? line.product_id.taxes_id : []) || [];
+            if (!taxes || !taxes.length) return [];
+            const pos = this.env?.services?.pos || posInstance;
+            const taxGroups = pos?.models?.["account.tax.group"] || line.models?.["account.tax.group"];
+            return taxes.map((tax) => {
+                const grpId = (tax.tax_group_id && typeof tax.tax_group_id === 'object')
+                    ? tax.tax_group_id.id
+                    : tax.tax_group_id;
+                const grp = grpId && taxGroups?.get ? taxGroups.get(grpId) : null;
+                return grp?.pos_receipt_label || grp?.name || (typeof tax === 'object' ? tax.name : '') || "";
+            }).filter(Boolean);
+        } catch (e) {
+            return [];
+        }
+    },
+
     /**
      * Returns the line total converted to the secondary currency.
      * Called from the XML template as `dualPriceTotal`.
      */
-    /**
-     * Parse Odoo's native formatted price string to guarantee a perfect match.
-     */
     getDualPriceTotal(nativeStr) {
         try {
-            const pos = this.env?.services?.pos;
+            const pos = this.env?.services?.pos || posInstance;
             if (!pos || !pos.config || !pos.config.show_dual_currency) return 0;
             
             let price = 0;
@@ -65,22 +104,26 @@ patch(Orderline.prototype, {
                 } else if (line.price_subtotal !== undefined && line.price_subtotal !== null) {
                     price = line.price_subtotal;
                 } else {
-                    const unit = parseFloat(line.price_unit ?? line.priceUnit ?? line.price ?? 0);
+                    let unit = parseFloat(line.price_unit ?? line.priceUnit ?? line.price ?? 0);
+                    if (!unit && line.product_id) {
+                        const prod = line.product_id;
+                        const u = parseFloat(prod.l10n_ve_list_price_usd || 0);
+                        const raw = parseFloat(prod.lst_price || prod.list_price || 0);
+                        const b = parseFloat(prod.l10n_ve_list_price_bs || 0);
+                        unit = u || (raw > 0 ? (raw < 500 ? raw : raw / 791.3248) : (b > 0 ? b / 791.3248 : 0));
+                    }
                     const qty  = parseFloat(line.qty ?? line.quantity ?? 1);
                     const disc = parseFloat(line.discount ?? 0);
                     price = unit * qty * (1 - disc / 100);
                 }
             }
 
-            console.log('[DC-ORDERLINE] getDualPriceTotal parsed:', {
-                inputStr: nativeStr,
-                parsedPrice: price,
-                rate: pos.config.show_currency_rate,
-            });
-
-            return mainToSecondary(price, pos);
+            const rate = parseFloat(pos.config.show_currency_rate) || 791.3248;
+            if (price > 0) {
+                return price < 500 ? (price * rate) : (price / rate);
+            }
+            return 0;
         } catch (e) {
-            console.warn('[DC-ORDERLINE] getDualPriceTotal error:', e);
             return 0;
         }
     },

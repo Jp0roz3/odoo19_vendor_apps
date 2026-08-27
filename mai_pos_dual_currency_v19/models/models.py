@@ -31,8 +31,8 @@ class ProductProduct(models.Model):
         fields = super()._load_pos_data_fields(config_id)
         if fields is None:
             fields = []
-        for f in ('type', 'is_storable', 'qty_available'):
-            if f not in fields:
+        for f in ('type', 'is_storable', 'qty_available', 'l10n_ve_list_price_usd', 'l10n_ve_list_price_bs'):
+            if f in self._fields and f not in fields:
                 fields.append(f)
         return fields
 
@@ -69,6 +69,18 @@ class ProductProduct(models.Model):
                 for p in prod_list:
                     if isinstance(p, dict) and 'id' in p:
                         p['qty_available'] = qty_map.get(p['id'], 0.0)
+
+        if prod_list:
+            for p in prod_list:
+                if isinstance(p, dict) and 'id' in p:
+                    usd = float(p.get('l10n_ve_list_price_usd') or 0.0)
+                    bs = float(p.get('l10n_ve_list_price_bs') or 0.0)
+                    lst = float(p.get('lst_price') or 0.0)
+                    if not lst:
+                        if usd > 0:
+                            p['lst_price'] = usd
+                        elif bs > 0:
+                            p['lst_price'] = round(bs / 791.3248, 2)
 
         return products
 
@@ -124,9 +136,11 @@ class ProductTemplate(models.Model):
     @api.model
     def _load_pos_data_fields(self, config_id):
         fields = super()._load_pos_data_fields(config_id)
-        # Agregar qty_available para mostrar stock en las fichas del POS
-        if 'qty_available' not in fields:
-            fields.append('qty_available')
+        if fields is None:
+            fields = []
+        for f in ('qty_available', 'l10n_ve_list_price_usd', 'l10n_ve_list_price_bs'):
+            if f in self._fields and f not in fields:
+                fields.append(f)
         return fields
 
     @api.model
@@ -217,8 +231,42 @@ class ProductTemplate(models.Model):
                         total_qty = sum(variant_qty_map.get(v_id, 0.0) for v_id in variant_ids)
                         t['qty_available'] = total_qty
 
+        if tmpl_list:
+            for t in tmpl_list:
+                if isinstance(t, dict) and 'id' in t:
+                    usd = float(t.get('l10n_ve_list_price_usd') or 0.0)
+                    bs = float(t.get('l10n_ve_list_price_bs') or 0.0)
+                    lst = float(t.get('list_price') or 0.0)
+                    if not lst:
+                        if usd > 0:
+                            t['list_price'] = usd
+                        elif bs > 0:
+                            t['list_price'] = round(bs / 791.3248, 2)
+
         return templates
 
+
+class AccountTaxGroup(models.Model):
+    _inherit = 'account.tax.group'
+
+    @api.model
+    def _load_pos_data_fields(self, config_id):
+        fields = super()._load_pos_data_fields(config_id) if hasattr(super(), '_load_pos_data_fields') else []
+        if fields is None:
+            fields = []
+        for f in ('name', 'pos_receipt_label', 'country_id'):
+            if f in self._fields and f not in fields:
+                fields.append(f)
+        return fields
+
+    @api.model
+    def _load_pos_data_search_read(self, data, config):
+        fields = ['name', 'pos_receipt_label']
+        tax_groups = self.env['account.tax.group'].search_read([], fields)
+        for tg in tax_groups:
+            if not tg.get('pos_receipt_label'):
+                tg['pos_receipt_label'] = tg.get('name') or 'IVA'
+        return tax_groups
 
 
 class PosPaymentMethod(models.Model):

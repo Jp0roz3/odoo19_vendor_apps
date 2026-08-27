@@ -2,30 +2,54 @@
 <odoo noupdate="1">
     <!-- ================================================================
          Venezuela360: Grupos de Impuestos (account.tax.group)
-         Grupos IVA venezolanos según normativa SENIAT
+         Grupos IVA venezolanos según normativa SENIAT con pos_receipt_label para POS
     ================================================================ -->
     <record id="tax_group_iva_general" model="account.tax.group">
         <field name="name">IVA General 16%</field>
+        <field name="pos_receipt_label">IVA 16%</field>
+        <field name="country_id" ref="base.ve"/>
         <field name="sequence">1</field>
     </record>
     <record id="tax_group_iva_reducida" model="account.tax.group">
         <field name="name">IVA Reducida 8%</field>
+        <field name="pos_receipt_label">IVA 8%</field>
+        <field name="country_id" ref="base.ve"/>
         <field name="sequence">2</field>
     </record>
     <record id="tax_group_iva_adicional" model="account.tax.group">
         <field name="name">IVA Adicional 15%</field>
+        <field name="pos_receipt_label">IVA 31%</field>
+        <field name="country_id" ref="base.ve"/>
         <field name="sequence">3</field>
     </record>
     <record id="tax_group_iva_exento" model="account.tax.group">
         <field name="name">IVA Exento (0%)</field>
+        <field name="pos_receipt_label">EXENTO</field>
+        <field name="country_id" ref="base.ve"/>
         <field name="sequence">4</field>
+    </record>
+    <record id="tax_group_no_sujeto" model="account.tax.group">
+        <field name="name">No Sujeto a IVA (0%)</field>
+        <field name="pos_receipt_label">NO SUJETO</field>
+        <field name="country_id" ref="base.ve"/>
+        <field name="sequence">5</field>
+    </record>
+    <record id="tax_group_igtf" model="account.tax.group">
+        <field name="name">IGTF (3%)</field>
+        <field name="pos_receipt_label">IGTF 3%</field>
+        <field name="country_id" ref="base.ve"/>
+        <field name="sequence">6</field>
     </record>
     <record id="tax_group_islr" model="account.tax.group">
         <field name="name">ISLR (Retención)</field>
+        <field name="pos_receipt_label">ISLR</field>
+        <field name="country_id" ref="base.ve"/>
         <field name="sequence">10</field>
     </record>
     <record id="tax_group_municipal" model="account.tax.group">
         <field name="name">Retención Municipal (IAE)</field>
+        <field name="pos_receipt_label">IAE</field>
+        <field name="country_id" ref="base.ve"/>
         <field name="sequence">11</field>
     </record>
 </odoo>

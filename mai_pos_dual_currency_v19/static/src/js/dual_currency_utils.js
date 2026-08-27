@@ -149,8 +149,56 @@ export function getBsCashMethod(pos) {
  * ProductCard reads via get qtyDisplay() — OWL tracks the read automatically.
  */
 import { reactive } from "@odoo/owl";
+import { registry } from "@web/core/registry";
+
 export const stockOverrides = reactive({});
 export const priceOverrides = reactive({});
+
+/**
+ * Global Format / Validation Helpers for Dual Currency & Templates
+ */
+export function formatCurrencySafe(amount, hasSymbol = true, options = {}) {
+    if (amount === undefined || amount === null || isNaN(amount)) {
+        return "0.00";
+    }
+    const num = parseFloat(amount) || 0;
+    return num.toLocaleString('es-VE', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+    });
+}
+
+export function isValidFloatSafe(val) {
+    if (val === undefined || val === null || val === '') return false;
+    const n = parseFloat(String(val).replace(',', '.'));
+    return !isNaN(n) && isFinite(n);
+}
+
+export function parseValidFloatSafe(val) {
+    if (val === undefined || val === null || val === '') return 0.0;
+    const n = parseFloat(String(val).replace(',', '.'));
+    return isNaN(n) ? 0.0 : n;
+}
+
+/**
+ * Service that ensures env.utils is available in all Owl components and QWeb templates
+ */
+export const utilsService = {
+    dependencies: [],
+    start(env) {
+        if (!env.utils) {
+            env.utils = {};
+        }
+        env.utils.formatCurrency = formatCurrencySafe;
+        env.utils.isValidFloat = isValidFloatSafe;
+        env.utils.parseValidFloat = parseValidFloatSafe;
+        return env.utils;
+    },
+};
+
+if (!registry.category("services").contains("utils")) {
+    registry.category("services").add("utils", utilsService);
+}
 
 /**
  * Module-level singleton to hold the POS service reference.
@@ -161,3 +209,21 @@ export let posInstance = null;
 export function setPosInstance(pos) {
     posInstance = pos;
 }
+
+/**
+ * Owl Error Interceptor — Exposes error.cause on screen and in console
+ */
+if (typeof window !== "undefined") {
+    window.addEventListener("error", (e) => {
+        if (e.error && e.error.cause) {
+            console.error("🚨 [OWL ERROR CAUSE]:", e.error.cause);
+        }
+    });
+    window.addEventListener("unhandledrejection", (e) => {
+        if (e.reason && e.reason.cause) {
+            console.error("🚨 [OWL UNHANDLED CAUSE]:", e.reason.cause);
+        }
+    });
+}
+
+

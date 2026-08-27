@@ -5,24 +5,25 @@
      1. PRODUCT CARD — Precio secundario sobre imagen
 ═══════════════════════════════════════════════════════════════════════ -->
 <t t-name="ProductCard" t-inherit="point_of_sale.ProductCard" t-inherit-mode="extension">
-    <!-- Custom Dual Currency Price Block - Injected into product-content -->
-    <xpath expr="//div[hasclass('product-content')]" position="inside">
-        <t t-if="env.services.pos.config.show_dual_currency">
+    <!-- Custom Dual Currency Price Block - Injected into product card -->
+    <xpath expr="//*[hasclass('product-information') or hasclass('product-content') or hasclass('product-card')][1]" position="inside">
+        <t t-if="env.services.pos and env.services.pos.config and env.services.pos.config.show_dual_currency">
             <div class="dc-custom-price-block">
                 <!-- USD Price (Primary) -->
                 <div class="dc-price-primary">
                     <t t-if="env.services.pos.config.show_currency_position == 'before'">
                         <t t-esc="env.services.pos.config.show_currency_symbol"/>
                     </t>
-                    <t t-esc="env.utils.formatCurrency(this.price_other_currency, false)"/>
+                    <t t-esc="(env.utils and env.utils.formatCurrency) ? env.utils.formatCurrency(this.price_other_currency, false) : (this.price_other_currency || 0).toFixed(2)"/>
                     <t t-if="env.services.pos.config.show_currency_position == 'after'">
                         <t t-esc="env.services.pos.config.show_currency_symbol"/>
                     </t>
                 </div>
-                <!-- Bs Price (Secondary) -->
+                <!-- USD Price (Secondary) -->
                 <div class="dc-price-secondary">
-                    <t t-esc="env.utils.formatCurrency(this.price_main_currency, false)"/>
-                    <span class="dc-currency-name" t-esc="env.services.pos.currency.name"/>
+                    <span>$ </span>
+                    <t t-esc="(env.utils and env.utils.formatCurrency) ? env.utils.formatCurrency(this.price_main_currency, false) : (this.price_main_currency || 0).toFixed(2)"/>
+                    <span class="dc-currency-name"> USD</span>
                 </div>
             </div>
         </t>
@@ -34,7 +35,7 @@
 ═══════════════════════════════════════════════════════════════════════ -->
 <t t-name="point_of_sale.Navbar" t-inherit="point_of_sale.Navbar" t-inherit-mode="extension">
     <xpath expr="//div[hasclass('status-buttons')]/Dropdown" position="before">
-        <div t-if="env.services.pos.config.show_dual_currency" class="dc-rate-bar d-flex align-items-center h-100" t-on-click="syncRate" style="cursor: pointer;" title="Clic para actualizar tasa del backend">
+        <div t-if="env.services.pos and env.services.pos.config and env.services.pos.config.show_dual_currency" class="dc-rate-bar d-flex align-items-center h-100" t-on-click="syncRate" style="cursor: pointer;" title="Clic para actualizar tasa del backend">
             <span class="dc-rate-text px-2" style="font-size: 0.95rem; font-weight: bold; color: #000;" t-esc="this.getRateLabel()"/>
         </div>
         
@@ -45,12 +46,12 @@
         </div>
 
         <!-- Botón de Opciones Fiscales -->
-        <div t-if="env.services.pos.config.fiscal_printer_active" class="btn btn-light rounded-0 d-flex align-items-center justify-content-center h-100 mx-2" t-on-click="onFiscalPrinterButtonClick" style="cursor: pointer;" title="Configurar Impresora">
+        <div t-if="env.services.pos and env.services.pos.config and (env.services.pos and env.services.pos.config and env.services.pos.config.fiscal_printer_active)" class="btn btn-light rounded-0 d-flex align-items-center justify-content-center h-100 mx-2" t-on-click="onFiscalPrinterButtonClick" style="cursor: pointer;" title="Configurar Impresora">
             <i class="fa fa-print fa-lg" t-att-style="(env.services.fiscal_printer and env.services.fiscal_printer.state and env.services.fiscal_printer.state.isConnected) ? 'color: #28a745;' : 'color: #dc2626;'"></i>
             <span class="d-none d-md-inline ms-2 fw-bolder">Fiscal</span>
         </div>
         <!-- Botón Desconectar -->
-        <div t-if="env.services.pos.config.fiscal_printer_active and env.services.fiscal_printer and env.services.fiscal_printer.state and env.services.fiscal_printer.state.isConnected" class="btn rounded-0 d-flex align-items-center justify-content-center h-100" t-on-click="() => env.services.fiscal_printer.disconnect()" style="cursor: pointer; background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb;" title="Desconectar Impresora">
+        <div t-if="env.services.pos and env.services.pos.config and (env.services.pos and env.services.pos.config and env.services.pos.config.fiscal_printer_active) and env.services.fiscal_printer and env.services.fiscal_printer.state and env.services.fiscal_printer.state.isConnected" class="btn rounded-0 d-flex align-items-center justify-content-center h-100" t-on-click="() => env.services.fiscal_printer.disconnect()" style="cursor: pointer; background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb;" title="Desconectar Impresora">
             <i class="fa fa-unlink fa-lg"></i>
         </div>
     </xpath>
@@ -81,10 +82,10 @@
                 </div>
 
                 <!-- Separador vertical -->
-                <div class="dc-separator" t-if="env.services.pos.config.show_dual_currency"/>
+                <div class="dc-separator" t-if="env.services.pos and env.services.pos.config and env.services.pos.config.show_dual_currency"/>
 
                 <!-- Columna moneda secundaria -->
-                <div class="dc-col dc-col-secondary" t-if="env.services.pos.config.show_dual_currency">
+                <div class="dc-col dc-col-secondary" t-if="env.services.pos and env.services.pos.config and env.services.pos.config.show_dual_currency">
                     <div class="dc-row dc-subtotal-row">
                         <span class="dc-label">SubTotal:</span>
                         <span class="dc-value dc-secondary" t-esc="getSubtotal_currency_text()"/>
@@ -105,11 +106,11 @@
             <div class="d-flex border-top mt-1 pt-1 text-center align-items-center" style="font-size: 0.8rem;">
                 <div class="flex-fill border-end border-2 py-1">
                     <div style="color: #888; font-size: 0.72rem;">Total Artículos</div>
-                    <div class="fw-bolder" t-esc="order.itemCount"/>
+                    <div class="fw-bolder" t-esc="order ? order.itemCount : 0"/>
                 </div>
                 <div class="flex-fill py-1">
                     <div style="color: #888; font-size: 0.72rem;">Cantidad Total</div>
-                    <div class="fw-bolder" t-esc="order.totalQuantity"/>
+                    <div class="fw-bolder" t-esc="order ? order.totalQuantity : 0"/>
                 </div>
             </div>
 
@@ -122,14 +123,14 @@
 ═══════════════════════════════════════════════════════════════════════ -->
 <t t-name="PaymentScreenPaymentLines" t-inherit="point_of_sale.PaymentScreenPaymentLines" t-inherit-mode="extension">
     <xpath expr="//div[hasclass('payment-amount')]" position="before">
-        <div t-if="env.services.pos.config.show_dual_currency" class="dc-payment-secondary me-3">
+        <div t-if="env.services.pos and env.services.pos.config and env.services.pos.config.show_dual_currency" class="dc-payment-secondary me-3">
             <t t-set="total_user_amount" t-value="line.get_dual_amount ? line.get_dual_amount(env.services.pos) : 0"/>
             <span class="dc-payment-sep" style="margin-right: 4px;">/</span>
             <span class="dc-payment-usd" style="font-size: 0.8em; color: #888;">
                 <t t-if="env.services.pos.config.show_currency_position == 'before'">
                     <t t-esc="env.services.pos.config.show_currency_symbol"/>
                 </t>
-                <t t-esc="env.utils.formatCurrency(total_user_amount, false)"/>
+                <t t-esc="(env.utils and env.utils.formatCurrency) ? env.utils.formatCurrency(total_user_amount, false) : (total_user_amount || 0).toFixed(2)"/>
                 <t t-if="env.services.pos.config.show_currency_position == 'after'">
                     <t t-esc="env.services.pos.config.show_currency_symbol"/>
                 </t>
@@ -143,13 +144,13 @@
 ═══════════════════════════════════════════════════════════════════════ -->
 <t t-name="PaymentScreenStatus" t-inherit="point_of_sale.PaymentScreenStatus" t-inherit-mode="extension">
     <xpath expr="//div[hasclass('payment-status-amount')]/span[hasclass('amount')]" position="after">
-        <t t-if="env.services.pos.config.show_dual_currency">
+        <t t-if="env.services.pos and env.services.pos.config and env.services.pos.config.show_dual_currency">
             <div class="dc-status-secondary fw-bolder" style="font-size: 0.65em; margin-left: 10px; align-self: flex-end; padding-bottom: 5px;">
                 <span class="dc-status-sep">/</span>
                 <t t-if="env.services.pos.config.show_currency_position == 'before'">
                     <t t-esc="env.services.pos.config.show_currency_symbol"/>
                 </t>
-                <t t-esc="env.utils.formatCurrency(isRemaining ? totaldue_other_currency : change_other_currency, false)"/>
+                <t t-esc="(env.utils and env.utils.formatCurrency) ? env.utils.formatCurrency(isRemaining ? totaldue_other_currency : change_other_currency, false) : ((isRemaining ? totaldue_other_currency : change_other_currency) || 0).toFixed(2)"/>
                 <t t-if="env.services.pos.config.show_currency_position == 'after'">
                     <t t-esc="env.services.pos.config.show_currency_symbol"/>
                 </t>
@@ -173,31 +174,31 @@
                 <div class="d-flex justify-content-between" style="border-bottom: 1px solid #c3e6cb; padding-bottom: 8px; margin-bottom: 8px;">
                     <span style="color: #155724; font-size: 1.1em; font-weight: bold;">Total Factura (con IGTF)</span>
                     <span style="color: #155724; font-weight: bold; font-size: 1.2em;">
-                        <t t-esc="env.utils.formatCurrency(totalWithIgtf, false)"/> <t t-esc="mainSymbol"/> / <t t-esc="env.utils.formatCurrency(totalWithIgtfSec, false)"/> <t t-esc="secSymbol"/>
+                        <t t-esc="(env.utils and env.utils.formatCurrency) ? env.utils.formatCurrency(totalWithIgtf, false) : (totalWithIgtf || 0).toFixed(2)"/> <t t-esc="mainSymbol"/> / <t t-esc="(env.utils and env.utils.formatCurrency) ? env.utils.formatCurrency(totalWithIgtfSec, false) : (totalWithIgtfSec || 0).toFixed(2)"/> <t t-esc="secSymbol"/>
                     </span>
                 </div>
                 <div class="d-flex justify-content-between" style="border-bottom: 1px dashed #c3e6cb; padding-bottom: 4px; margin-bottom: 8px;">
                     <span style="color: #155724; font-size: 0.95em;">Base Imponible IGTF</span>
                     <span style="color: #155724; font-size: 1em;">
-                        <t t-esc="env.utils.formatCurrency(igtfBaseReal, false)"/> <t t-esc="mainSymbol"/> / <t t-esc="env.utils.formatCurrency(igtfBaseRealSec, false)"/> <t t-esc="secSymbol"/>
+                        <t t-esc="(env.utils and env.utils.formatCurrency) ? env.utils.formatCurrency(igtfBaseReal, false) : (igtfBaseReal || 0).toFixed(2)"/> <t t-esc="mainSymbol"/> / <t t-esc="(env.utils and env.utils.formatCurrency) ? env.utils.formatCurrency(igtfBaseRealSec, false) : (igtfBaseRealSec || 0).toFixed(2)"/> <t t-esc="secSymbol"/>
                     </span>
                 </div>
                 <div class="d-flex justify-content-between align-items-center">
                     <div class="d-flex flex-column">
-                        <span style="color: #155724; font-size: 1.1em;">Cambio <span style="font-weight: bold;"><t t-esc="env.utils.formatCurrency(changeWithIgtfSec, false)"/> <t t-esc="secSymbol"/></span></span>
+                        <span style="color: #155724; font-size: 1.1em;">Cambio <span style="font-weight: bold;"><t t-esc="(env.utils and env.utils.formatCurrency) ? env.utils.formatCurrency(changeWithIgtfSec, false) : (changeWithIgtfSec || 0).toFixed(2)"/> <t t-esc="secSymbol"/></span></span>
                         <span style="color: #dc2626; font-weight: bold; font-size: 0.9em; margin-top: 4px; text-align: center;">
-                            <t t-esc="env.utils.formatCurrency(changeWithIgtfMain, false)"/> <t t-esc="mainSymbol"/>
+                            <t t-esc="(env.utils and env.utils.formatCurrency) ? env.utils.formatCurrency(changeWithIgtfMain, false) : (changeWithIgtfMain || 0).toFixed(2)"/> <t t-esc="mainSymbol"/>
                         </span>
                     </div>
                     <div class="d-flex flex-column">
                         <span style="color: #155724; font-size: 1.1em;">IGTF</span>
-                        <span style="color: #155724; font-size: 1.1em;">Impuesto <span style="font-weight: bold;"><t t-esc="env.utils.formatCurrency(igtfAmount, false)"/> <t t-esc="mainSymbol"/> / <t t-esc="env.utils.formatCurrency(igtfAmountSec, false)"/> <t t-esc="secSymbol"/></span></span>
+                        <span style="color: #155724; font-size: 1.1em;">Impuesto <span style="font-weight: bold;"><t t-esc="(env.utils and env.utils.formatCurrency) ? env.utils.formatCurrency(igtfAmount, false) : (igtfAmount || 0).toFixed(2)"/> <t t-esc="mainSymbol"/> / <t t-esc="(env.utils and env.utils.formatCurrency) ? env.utils.formatCurrency(igtfAmountSec, false) : (igtfAmountSec || 0).toFixed(2)"/> <t t-esc="secSymbol"/></span></span>
                     </div>
                 </div>
             </div>
         </t>
 
-        <t t-if="env.services.pos.config.show_dual_currency &amp;&amp; changePrimaryTotal > 0">
+        <t t-if="env.services.pos and env.services.pos.config and env.services.pos.config.show_dual_currency &amp;&amp; changePrimaryTotal > 0">
             <div style="margin-top: 15px; border-top: 1px dashed #ced4da; padding-top: 10px; font-family: sans-serif; font-size: 13px;">
                 <div style="font-weight: bold; color: #495057; margin-bottom: 8px;">
                     Calculador de Vuelto Mixto
@@ -252,11 +253,11 @@
 <t t-name="OpeningControlPopup" t-inherit="point_of_sale.OpeningControlPopup" t-inherit-mode="extension">
     <!-- Inject the Bs→USD equivalence hint right after the native USD field -->
     <xpath expr="//div[hasclass('opening-cash-section')]" position="after">
-        <t t-if="dualState.isDualEnabled">
+        <t t-if="dualState and dualState.isDualEnabled">
             <!-- Tasa del día -->
             <div class="dc-opening-rate-bar">
                 <span class="dc-rate-icon">💱</span>
-                <span t-esc="dualState.rateLabel"/>
+                <span t-esc="dualState.rateLabel || ''"/>
             </div>
 
             <!-- Hint for the native USD field: shows Bs equivalent -->
@@ -284,7 +285,7 @@
                         step="0.01"
                         class="dc-opening-input dc-bs-input"
                         placeholder="0.00"
-                        t-att-value="dualState.openingPmBs"
+                        t-att-value="dualState ? dualState.openingPmBs : 0"
                         t-on-input="onPmInput"
                     />
                 </div>
@@ -303,7 +304,7 @@
                         step="0.01"
                         class="dc-opening-input dc-bs-input"
                         placeholder="0.00"
-                        t-att-value="dualState.openingCashBs"
+                        t-att-value="dualState ? dualState.openingCashBs : 0"
                         t-on-input="onBsInput"
                     />
                 </div>
@@ -330,10 +331,10 @@
 ═══════════════════════════════════════════════════════════════════════ -->
 <t t-name="point_of_sale.Navbar.DualCurrency.CashMove" t-inherit="point_of_sale.Navbar" t-inherit-mode="extension">
     <xpath expr="//DropdownItem[contains(., 'Cash In/Out')]" position="replace">
-        <DropdownItem t-if="showCashMoveButton and this.pos.cashier._role != 'minimal'" onSelected="() => this.pos.cashMove()">
-            <t t-esc="'💲 Entrada/Salida (' + (env.services.pos.currency ? env.services.pos.currency.name : 'Principal') + ')'"/>
+        <DropdownItem t-if="showCashMoveButton and (!this.pos.cashier or this.pos.cashier._role != 'minimal')" onSelected="() => this.pos.cashMove()">
+            <t t-esc="'💲 Entrada/Salida (' + ((env.services.pos and env.services.pos.currency) ? env.services.pos.currency.name : 'Principal') + ')'"/>
         </DropdownItem>
-        <DropdownItem t-if="showCashMoveButton and env.services.pos.config.show_dual_currency" onSelected="() => this.onUsdCashMoveButtonClick()">
+        <DropdownItem t-if="showCashMoveButton and env.services.pos and env.services.pos.config and env.services.pos.config.show_dual_currency" onSelected="() => this.onUsdCashMoveButtonClick()">
             <t t-esc="'💵 Entrada/Salida (' + (env.services.pos.config.show_currency_symbol || 'Secundaria') + ')'"/>
         </DropdownItem>
     </xpath>
@@ -345,12 +346,12 @@
 <t t-name="Orderline" t-inherit="point_of_sale.Orderline" t-inherit-mode="extension">
     <xpath expr="//div[hasclass('product-price')]" position="replace">
         <div class="product-price d-inline-block text-end price fw-bolder">
-            <t t-if="env.services.pos.config.show_dual_currency">
+            <t t-if="env.services.pos and env.services.pos.config and env.services.pos.config.show_dual_currency">
                 <span class="dc-orderline-price me-1" style="font-size: 0.85em; color: #0d6efd;">
                     <t t-if="env.services.pos.config.show_currency_position == 'before'">
                         <t t-esc="env.services.pos.config.show_currency_symbol"/>
                     </t>
-                    <t t-esc="env.utils.formatCurrency(getDualPriceTotal(vals.price), false)"/>
+                    <t t-esc="(env.utils and env.utils.formatCurrency) ? env.utils.formatCurrency(getDualPriceTotal(vals.price), false) : (getDualPriceTotal(vals.price) || 0).toFixed(2)"/>
                     <t t-if="env.services.pos.config.show_currency_position == 'after'">
                         <t t-esc="env.services.pos.config.show_currency_symbol"/>
                     </t>
@@ -464,12 +465,12 @@
 <t t-name="mai_pos_dual_currency.ReceiptScreen" t-inherit="point_of_sale.ReceiptScreen" t-inherit-mode="extension">
     <!-- Ocultar la previsualización del ticket si la impresora fiscal está activa -->
     <xpath expr="//div[hasclass('pos-receipt-container')]" position="attributes">
-        <attribute name="t-att-style">env.services.pos.config.fiscal_printer_active ? 'display: none !important;' : ''</attribute>
+        <attribute name="t-att-style">(env.services.pos and env.services.pos.config and env.services.pos.config.fiscal_printer_active) ? 'display: none !important;' : ''</attribute>
     </xpath>
     
     <!-- Ocultar opciones de recibo (Imprimir, Email, etc) si la impresora fiscal está activa -->
     <xpath expr="//div[hasclass('receipt-options')]" position="attributes">
-        <attribute name="t-att-style">env.services.pos.config.fiscal_printer_active ? 'display: none !important;' : ''</attribute>
+        <attribute name="t-att-style">(env.services.pos and env.services.pos.config and env.services.pos.config.fiscal_printer_active) ? 'display: none !important;' : ''</attribute>
     </xpath>
 </t>
 

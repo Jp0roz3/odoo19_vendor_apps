@@ -319,6 +319,43 @@ patch(PosOrder.prototype, {
 // Patch PosOrderline — Dual Currency logic
 // ─────────────────────────────────────────────────────────────────────────────
 patch(PosOrderline.prototype, {
+    setup() {
+        super.setup(...arguments);
+        if (!this.price_unit || this.price_unit === 0) {
+            const prod = this.product_id || (this.product && typeof this.product === 'object' ? this.product : null);
+            if (prod) {
+                const u = parseFloat(prod.l10n_ve_list_price_usd || 0);
+                const raw = parseFloat(prod.lst_price || prod.list_price || 0);
+                const b = parseFloat(prod.l10n_ve_list_price_bs || 0);
+                const price = u || (raw > 0 ? (raw < 500 ? raw : raw / 791.3248) : (b > 0 ? b / 791.3248 : 0));
+                if (price > 0) {
+                    if (typeof this.set_unit_price === 'function') {
+                        this.set_unit_price(price);
+                    } else {
+                        this.price_unit = price;
+                    }
+                }
+            }
+        }
+    },
+
+    get taxGroupLabels() {
+        try {
+            const taxes = this.taxes_id || this.tax_ids || (this.product_id ? this.product_id.taxes_id : []) || [];
+            if (!taxes || !taxes.length) return [];
+            const taxGroups = this.models ? this.models["account.tax.group"] : null;
+            return taxes.map((tax) => {
+                const grpId = (tax.tax_group_id && typeof tax.tax_group_id === 'object')
+                    ? tax.tax_group_id.id
+                    : tax.tax_group_id;
+                const grp = grpId && taxGroups?.get ? taxGroups.get(grpId) : null;
+                return grp?.pos_receipt_label || grp?.name || (typeof tax === 'object' ? tax.name : '') || "";
+            }).filter(Boolean);
+        } catch (e) {
+            return [];
+        }
+    },
+
     get dual_price_total() {
         // In Odoo 18/19 PosOrderline loses this.pos — use singleton fallback
         const pos = this.pos || (this.order ? this.order.pos : null) || posInstance;
@@ -327,25 +364,127 @@ patch(PosOrderline.prototype, {
 
         let price = 0;
         try {
-            // Prefer raw numeric fields available in Odoo 18/19 PosOrderline:
-            // price_subtotal_incl = total con impuesto, price_subtotal = sin impuesto
-            if (this.price_subtotal_incl !== undefined && this.price_subtotal_incl !== null) {
+            if (this.price_subtotal_incl !== undefined && this.price_subtotal_incl !== null && this.price_subtotal_incl !== 0) {
                 price = config.iface_tax_included === 'total'
                     ? parseFloat(this.price_subtotal_incl) || 0
                     : parseFloat(this.price_subtotal) || 0;
-            } else if (this.price_subtotal !== undefined && this.price_subtotal !== null) {
+            } else if (this.price_subtotal !== undefined && this.price_subtotal !== null && this.price_subtotal !== 0) {
                 price = parseFloat(this.price_subtotal) || 0;
             } else {
-                // Classic API fallback
-                const qty   = parseFloat(this.qty) || parseFloat(this.quantity) || 1;
-                const unit  = parseFloat(this.price_unit) || parseFloat(this.price) || 0;
-                const disc  = parseFloat(this.discount) || 0;
+                const qty   = parseFloat(this.qty || this.quantity || 1);
+                let unit    = parseFloat(this.price_unit || this.price || 0);
+                if (!unit && this.product_id) {
+                    const u = parseFloat(this.product_id.l10n_ve_list_price_usd || 0);
+                    const raw = parseFloat(this.product_id.lst_price || this.product_id.list_price || 0);
+                    const b = parseFloat(this.product_id.l10n_ve_list_price_bs || 0);
+                    unit = u || (raw > 0 ? (raw < 500 ? raw : raw / 791.3248) : (b > 0 ? b / 791.3248 : 0));
+                }
+                const disc  = parseFloat(this.discount || 0);
                 price = unit * qty * (1 - disc / 100);
             }
         } catch (e) {
             console.warn('[DualCurrency] dual_price_total: error extracting price', e);
         }
 
-        return mainToSecondary(price, pos);
+        const rate = parseFloat(config.show_currency_rate) || 791.3248;
+        return price < 500 ? (price * rate) : (price / rate);
     }
 });
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Safe taxGroupLabels and get_price patch for ProductProduct & ProductTemplate (Odoo 19)
+// ─────────────────────────────────────────────────────────────────────────────
+(async () => {
+    try {
+        const prodMod = await odoo.loader.modules.get("@point_of_sale/app/models/product_product");
+        const ProductProduct = prodMod?.ProductProduct;
+        if (ProductProduct && ProductProduct.prototype) {
+            patch(ProductProduct.prototype, {
+                get_price(pricelist, quantity, price_extra = 0, recurring = false) {
+                    let price = super.get_price ? super.get_price(...arguments) : 0;
+                    if (!price || price === 0) {
+                        const u = parseFloat(this.l10n_ve_list_price_usd || 0);
+                        const raw = parseFloat(this.lst_price || this.list_price || 0);
+                        const b = parseFloat(this.l10n_ve_list_price_bs || 0);
+                        price = u || (raw > 0 ? (raw < 500 ? raw : raw / 791.3248) : (b > 0 ? b / 791.3248 : 0));
+                    }
+                    return price;
+                },
+                getPrice(pricelist, quantity, price_extra = 0, recurring = false) {
+                    let price = super.getPrice ? super.getPrice(...arguments) : 0;
+                    if (!price || price === 0) {
+                        const u = parseFloat(this.l10n_ve_list_price_usd || 0);
+                        const raw = parseFloat(this.lst_price || this.list_price || 0);
+                        const b = parseFloat(this.l10n_ve_list_price_bs || 0);
+                        price = u || (raw > 0 ? (raw < 500 ? raw : raw / 791.3248) : (b > 0 ? b / 791.3248 : 0));
+                    }
+                    return price;
+                },
+                get taxGroupLabels() {
+                    try {
+                        if (!this.taxes_id) return [];
+                        const taxGroups = this.models ? this.models["account.tax.group"] : null;
+                        return this.taxes_id.map((tax) => {
+                            const grpId = (tax.tax_group_id && typeof tax.tax_group_id === 'object')
+                                ? tax.tax_group_id.id
+                                : tax.tax_group_id;
+                            const grp = grpId && taxGroups?.get ? taxGroups.get(grpId) : null;
+                            return grp?.pos_receipt_label || grp?.name || (typeof tax === 'object' ? tax.name : '') || "";
+                        }).filter(Boolean);
+                    } catch (e) {
+                        return [];
+                    }
+                }
+            });
+        }
+    } catch (e) {
+        // Ignore
+    }
+
+    try {
+        const tmplMod = await odoo.loader.modules.get("@point_of_sale/app/models/product_template");
+        const ProductTemplate = tmplMod?.ProductTemplate;
+        if (ProductTemplate && ProductTemplate.prototype) {
+            patch(ProductTemplate.prototype, {
+                get_price(pricelist, quantity, price_extra = 0, recurring = false) {
+                    let price = super.get_price ? super.get_price(...arguments) : 0;
+                    if (!price || price === 0) {
+                        const u = parseFloat(this.l10n_ve_list_price_usd || 0);
+                        const raw = parseFloat(this.lst_price || this.list_price || 0);
+                        const b = parseFloat(this.l10n_ve_list_price_bs || 0);
+                        price = u || (raw > 0 ? (raw < 500 ? raw : raw / 791.3248) : (b > 0 ? b / 791.3248 : 0));
+                    }
+                    return price;
+                },
+                getPrice(pricelist, quantity, price_extra = 0, recurring = false) {
+                    let price = super.getPrice ? super.getPrice(...arguments) : 0;
+                    if (!price || price === 0) {
+                        const u = parseFloat(this.l10n_ve_list_price_usd || 0);
+                        const raw = parseFloat(this.lst_price || this.list_price || 0);
+                        const b = parseFloat(this.l10n_ve_list_price_bs || 0);
+                        price = u || (raw > 0 ? (raw < 500 ? raw : raw / 791.3248) : (b > 0 ? b / 791.3248 : 0));
+                    }
+                    return price;
+                },
+                get taxGroupLabels() {
+                    try {
+                        if (!this.taxes_id) return [];
+                        const taxGroups = this.models ? this.models["account.tax.group"] : null;
+                        return this.taxes_id.map((tax) => {
+                            const grpId = (tax.tax_group_id && typeof tax.tax_group_id === 'object')
+                                ? tax.tax_group_id.id
+                                : tax.tax_group_id;
+                            const grp = grpId && taxGroups?.get ? taxGroups.get(grpId) : null;
+                            return grp?.pos_receipt_label || grp?.name || (typeof tax === 'object' ? tax.name : '') || "";
+                        }).filter(Boolean);
+                    } catch (e) {
+                        return [];
+                    }
+                }
+            });
+        }
+    } catch (e) {
+        // Ignore
+    }
+})();
+

@@ -7,7 +7,7 @@
 function autoCleanTrialBanner() {
     const clean = () => {
         try {
-            const elements = document.querySelectorAll('.o_trial_banner, .o_dialog, .modal-backdrop');
+            const elements = document.querySelectorAll('.o_trial_banner');
             elements.forEach(e => {
                 if (e && e.innerText && (e.innerText.includes('trial project') || e.innerText.includes('Odoo.sh'))) {
                     e.remove();
@@ -24,7 +24,6 @@ function autoCleanTrialBanner() {
         document.addEventListener('DOMContentLoaded', clean);
     }
     window.addEventListener('load', clean);
-    setInterval(clean, 1000);
 }
 
 autoCleanTrialBanner();

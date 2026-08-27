@@ -11,11 +11,67 @@
  */
 import { ProductCard } from "@point_of_sale/app/components/product_card/product_card";
 import { patch } from "@web/core/utils/patch";
-import { stockOverrides, priceOverrides } from "./dual_currency_utils";
+import { stockOverrides, priceOverrides, posInstance } from "./dual_currency_utils";
+
+function computeCardPrices(product, pos, propsPrice) {
+    const rate = (pos?.config && parseFloat(pos.config.show_currency_rate)) || 791.3248;
+    let usd = 0;
+    let bs = 0;
+
+    if (product) {
+        const u = parseFloat(product.l10n_ve_list_price_usd || 0);
+        const b = parseFloat(product.l10n_ve_list_price_bs || 0);
+        if (u > 0) usd = u;
+        if (b > 0) bs = b;
+
+        if (!usd && !bs) {
+            const raw = parseFloat(product.lst_price || product.list_price || 0);
+            if (raw > 0) {
+                if (raw < 500) {
+                    usd = raw;
+                    bs = raw * rate;
+                } else {
+                    bs = raw;
+                    usd = raw / rate;
+                }
+            }
+        } else if (!bs && usd) {
+            bs = usd * rate;
+        } else if (!usd && bs) {
+            usd = bs / rate;
+        }
+    }
+
+    if (!usd && !bs && propsPrice) {
+        let p = 0;
+        const cleanStr = String(propsPrice).replace(/[^\d,\.-]/g, '');
+        if (cleanStr.includes(',') && cleanStr.includes('.')) {
+            p = parseFloat(cleanStr.replace(/\./g, '').replace(',', '.'));
+        } else if (cleanStr.includes(',')) {
+            p = parseFloat(cleanStr.replace(',', '.'));
+        } else {
+            p = parseFloat(cleanStr);
+        }
+        if (p > 0) {
+            if (p < 500) {
+                usd = p;
+                bs = p * rate;
+            } else {
+                bs = p;
+                usd = p / rate;
+            }
+        }
+    }
+
+    return {
+        usd: Math.round((usd + Number.EPSILON) * 100) / 100,
+        bs: Math.round((bs + Number.EPSILON) * 100) / 100,
+    };
+}
 
 patch(ProductCard.prototype, {
     get pos() {
-        return this.env.services.pos;
+        return this.env?.services?.pos || posInstance;
     },
 
     /**
@@ -23,98 +79,33 @@ patch(ProductCard.prototype, {
      * OWL tracks the read of stockOverrides[tmplId] here → re-renders on write.
      */
     get qtyDisplay() {
-        const tmplId = this.props.product?.id;
+        const product = this.props?.product || this.props?.record;
+        const tmplId = product?.id || this.props?.productId || this.props?.id;
         if (tmplId !== undefined && stockOverrides[tmplId] !== undefined) {
             return stockOverrides[tmplId];
         }
-        return this.props.product?.qty_available ?? 0;
+        return product?.qty_available ?? 0;
     },
 
     get price_other_currency() {
         try {
-            if (!this.pos || !this.pos.config || !this.pos.config.show_dual_currency) return 0;
+            const pos = this.pos || posInstance;
+            if (!pos || !pos.config || !pos.config.show_dual_currency) return 0;
 
-            let product = this.props.product;
+            let product = this.props?.product || this.props?.record;
+            const pId = this.props?.productId || this.props?.id;
 
-            if (!product) {
-                if (this.pos.db && typeof this.pos.db.get_product_by_id === 'function') {
-                    product = this.pos.db.get_product_by_id(this.props.productId);
-                } else if (this.pos.models && this.pos.models['product.product']) {
-                    product = this.pos.models['product.product'].get(this.props.productId);
+            if (!product && pId && pos) {
+                if (pos.db && typeof pos.db.get_product_by_id === 'function') {
+                    product = pos.db.get_product_by_id(pId);
+                } else if (pos.models && pos.models['product.product']) {
+                    product = pos.models['product.product'].get(pId);
                 }
             }
 
-            if (!product) return 0;
-
-            let price = 0;
-            try {
-                // To be 100% reactive, we MUST read directly from the reactive `product` object.
-                // If we parse `this.props.price`, we lose reactivity because `props.price` is a static string
-                // passed by ProductList which doesn't re-render when product updates.
-                
-                // NEW: Read from priceOverrides first to guarantee OWL reactivity!
-                const override = priceOverrides[product.id];
-                const allPrices = override ? override : product.allPrices;
-                
-                if (allPrices) {
-                    const useTax = this.pos.config.iface_tax_included === 'total' || this.pos.config.iface_tax_included === true;
-                    price = useTax ? (allPrices.priceWithTax || 0) : (allPrices.priceWithoutTax || 0);
-                }
-
-                if (!price) {
-                    const pricelist = this.pos.pricelists
-                        ? this.pos.pricelists.find(pl => pl.id === this.pos.session?.pricelist_id?.id) || null
-                        : null;
-                        
-                    const tmpl = product.product_tmpl_id;
-                    if (tmpl && typeof tmpl.getPrice === "function") {
-                        price = tmpl.getPrice(pricelist, 1, 0, false, product);
-                    } else if (typeof product.getPrice === "function") {
-                        price = product.getPrice(pricelist, 1, 0, false, product);
-                    } else {
-                        price = product.lst_price || product.list_price || 0;
-                    }
-                }
-            } catch (e) {
-                price = product.lst_price || product.list_price || 0;
-            }
-
-            if (!price || price === 0) {
-                if (typeof product.getTaxDetails === "function") {
-                    try {
-                        const taxDetails = product.getTaxDetails();
-                        price = this.pos.config.iface_tax_included === "total"
-                            ? taxDetails.total_included
-                            : taxDetails.total_excluded;
-                    } catch (e) {
-                        // Ignore
-                    }
-                }
-            }
-
-            if (!price || price === 0) return 0;
-
-            const mainName = this.pos.currency ? this.pos.currency.name : '';
-            const rate = parseFloat(this.pos.config.show_currency_rate) || 1;
-            
-            if (mainName.includes('USD') || mainName.includes('$')) {
-                price = rate > 1 ? price * rate : (rate > 0 ? price / rate : 0);
-            } else {
-                price = rate > 1 ? price / rate : price * rate;
-            }
-
-            console.log('[DC-PRODUCTCARD] Dual price computed for', product.display_name, {
-                final_dual_price: price,
-                props_price: this.props.price,
-                product_lst_price: product.lst_price,
-                product_list_price: product.list_price,
-                rate: rate
-            });
-
-            return price;
-
+            const { bs } = computeCardPrices(product, pos, this.props?.price);
+            return bs;
         } catch (e) {
-            console.warn('[DualCurrency] ProductCard price_other_currency error:', e);
             return 0;
         }
     },
@@ -125,61 +116,20 @@ patch(ProductCard.prototype, {
      */
     get price_main_currency() {
         try {
-            let product = this.props.product;
+            const pos = this.pos || posInstance;
+            let product = this.props?.product || this.props?.record;
+            const pId = this.props?.productId || this.props?.id;
 
-            if (!product) {
-                if (this.pos.db && typeof this.pos.db.get_product_by_id === 'function') {
-                    product = this.pos.db.get_product_by_id(this.props.productId);
-                } else if (this.pos.models && this.pos.models['product.product']) {
-                    product = this.pos.models['product.product'].get(this.props.productId);
+            if (!product && pId && pos) {
+                if (pos.db && typeof pos.db.get_product_by_id === 'function') {
+                    product = pos.db.get_product_by_id(pId);
+                } else if (pos.models && pos.models['product.product']) {
+                    product = pos.models['product.product'].get(pId);
                 }
             }
 
-            if (!product) return 0;
-
-            let price = 0;
-            try {
-                // NEW: Read from priceOverrides first to guarantee OWL reactivity!
-                const override = priceOverrides[product.id];
-                const allPrices = override ? override : product.allPrices;
-                
-                if (allPrices) {
-                    const useTax = this.pos.config.iface_tax_included === 'total' || this.pos.config.iface_tax_included === true;
-                    price = useTax ? (allPrices.priceWithTax || 0) : (allPrices.priceWithoutTax || 0);
-                }
-
-                if (!price) {
-                    const pricelist = this.pos.pricelists
-                        ? this.pos.pricelists.find(pl => pl.id === this.pos.session?.pricelist_id?.id) || null
-                        : null;
-                        
-                    const tmpl = product.product_tmpl_id;
-                    if (tmpl && typeof tmpl.getPrice === "function") {
-                        price = tmpl.getPrice(pricelist, 1, 0, false, product);
-                    } else if (typeof product.getPrice === "function") {
-                        price = product.getPrice(pricelist, 1, 0, false, product);
-                    } else {
-                        price = product.lst_price || product.list_price || 0;
-                    }
-                }
-            } catch (e) {
-                price = product.lst_price || product.list_price || 0;
-            }
-
-            if (!price || price === 0) {
-                if (typeof product.getTaxDetails === "function") {
-                    try {
-                        const taxDetails = product.getTaxDetails();
-                        price = this.pos.config.iface_tax_included === "total"
-                            ? taxDetails.total_included
-                            : taxDetails.total_excluded;
-                    } catch (e) {
-                        // Ignore
-                    }
-                }
-            }
-            
-            return price;
+            const { usd } = computeCardPrices(product, pos, this.props?.price);
+            return usd;
         } catch (e) {
             return 0;
         }

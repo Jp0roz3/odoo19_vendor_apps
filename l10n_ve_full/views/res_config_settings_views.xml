@@ -31,6 +31,18 @@
                             <field name="l10n_ve_dual_currency"/>
                         </setting>
 
+                        <setting string="Impuestos y Cuentas Fiscales"
+                                 help="Garantiza la creación y vinculación de los 14 impuestos oficiales del SENIAT y cuentas contables auxiliares."
+                                 invisible="not l10n_ve_active">
+                            <div class="mt8">
+                                <button name="action_init_l10n_ve_taxes"
+                                        type="object"
+                                        string="Sincronizar Catálogo de Impuestos SENIAT"
+                                        class="btn btn-secondary btn-sm"
+                                        icon="fa-refresh"/>
+                            </div>
+                        </setting>
+
                     </block>
 
                     <!-- ── IDENTIFICACIÓN FISCAL ─────────────────────── -->

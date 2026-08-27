@@ -1,28 +1,10 @@
 # -*- coding: utf-8 -*-
-"""
-Venezuela360: Extensión de ir.http
-Fallback seguro para Accept-Language: es-419, es-ES, es → es_VE.
-Autor: JeanPerozo / Nubelco
-"""
-import logging
-from odoo import models
-
-_logger = logging.getLogger(__name__)
-
-
-class IrHttp(models.AbstractModel):
-    _inherit = 'ir.http'
-
-    @classmethod
-    def _get_nearest_lang(cls, lang_code):
-        """
-        Captura excepciones de babel para es-419 (código región UN M.49)
-        y retorna es_VE como fallback para cualquier variante de español.
-        """
-        try:
-            res = super()._get_nearest_lang(lang_code)
-        except Exception:
-            res = None
-        if not res and lang_code and str(lang_code).lower().startswith('es'):
-            return 'es_VE'
-        return res
+# ir_http.py - DESACTIVADO INTENCIONALMENTE
+#
+# Venezuela360: El override de ir.http causaba AttributeError en Odoo 19
+# porque _get_nearest_lang no existe en la clase base ir.http de esta versión.
+# Los idiomas es/es_VE se manejan exclusivamente via res_lang_data.xml
+# y el post_init_hook, que es el método correcto y seguro en Odoo 19.
+#
+# NO BORRAR ESTE ARCHIVO - está importado en __init__.py
+# Autor: JeanPerozo / Nubelco

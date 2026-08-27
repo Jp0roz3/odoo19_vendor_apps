@@ -124,3 +124,25 @@ class ResConfigSettings(models.TransientModel):
         related='company_id.l10n_ve_wh_municipal_account_id',
         readonly=False,
     )
+
+    def set_values(self):
+        super().set_values()
+        for record in self:
+            if record.company_id and record.l10n_ve_active:
+                record.company_id._ensure_l10n_ve_chart_and_taxes()
+
+    def action_init_l10n_ve_taxes(self):
+        """Acción de botón en Ajustes para sincronizar / crear los 14 impuestos y cuentas SENIAT."""
+        self.ensure_one()
+        self.company_id._ensure_l10n_ve_chart_and_taxes()
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'title': 'Venezuela360',
+                'message': 'Catálogo de 14 impuestos y cuentas fiscales SENIAT sincronizado correctamente.',
+                'type': 'success',
+                'sticky': False,
+            }
+        }
+

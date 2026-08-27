@@ -12,7 +12,8 @@ from . import exchange_rate      # tasa de cambio histórica BCV (sin deps)
 from . import ut_history         # Unidad Tributaria histórica (depende de company)
 from . import res_company        # extiende res.company (depende de territory, exchange_rate)
 from . import res_partner        # extiende res.partner (depende de territory)
-from . import ir_http            # extensión de ir.http para resolución segura de idioma
+# ir_http DESACTIVADO: override de _get_nearest_lang causa AttributeError en Odoo 19
+# Los idiomas se manejan via res_lang_data.xml y post_init_hook
 from . import account_tax        # extiende account.tax (localización venezolana)
 from . import account_move       # extiende account.move (campos BS/USD, retenciones)
 from . import account_payment    # extiende account.payment (dual currency)

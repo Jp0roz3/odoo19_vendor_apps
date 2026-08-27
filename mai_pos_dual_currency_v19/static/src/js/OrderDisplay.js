@@ -15,28 +15,21 @@
 import { patch } from "@web/core/utils/patch";
 import { OrderDisplay } from "@point_of_sale/app/components/order_display/order_display";
 import { usePos } from "@point_of_sale/app/hooks/pos_hook";
-import { mainToSecondary } from "./dual_currency_utils";
+import { mainToSecondary, formatCurrencySafe, posInstance } from "./dual_currency_utils";
 
 patch(OrderDisplay.prototype, {
 
     setup() {
         if (super.setup) { super.setup(); }
-        this.pos = usePos();
-        this._dc_subtotal     = '';
-        this._dc_tax          = '';
-        this._dc_total        = '';
-        this._dc_subtotal_sec = '';
-        this._dc_taxes_sec    = '';
-        this._dc_total_sec    = '';
+        try {
+            this.pos = usePos();
+        } catch (e) {
+            this.pos = posInstance;
+        }
     },
 
-    _updateSummary() {
-        if (!this.env || !this.env.utils) return;
+    _getRawTotals() {
         try {
-            let total    = 0;
-            let tax      = 0;
-            let subtotal = 0;
-
             const parseFormatted = (str) => {
                 if (typeof str === 'number') return str;
                 if (!str) return 0;
@@ -51,73 +44,78 @@ patch(OrderDisplay.prototype, {
                 return parseFloat(cleaned) || 0;
             };
 
+            let total = 0;
+            let tax = 0;
+            let subtotal = 0;
+
             if (this.props && this.props.total !== undefined) {
-                // Ticket / receipt screen — totals passed via props as formatted strings
-                total    = parseFormatted(this.props.total);
-                tax      = parseFormatted(this.props.tax);
+                total = parseFormatted(this.props.total);
+                tax = parseFormatted(this.props.tax);
                 subtotal = total - tax;
             } else {
-                // V19 API: pos.getOrder() and order.priceIncl / priceExcl / amountTaxes
-                const order = this.props.order || (this.pos.get_order ? this.pos.get_order() : (this.pos.getOrder ? this.pos.getOrder() : null));
-                if (!order) return;
-                total    = parseFloat(order.priceIncl)    || 0;
-                subtotal = parseFloat(order.priceExcl)    || 0;
-                tax      = parseFloat(order.amountTaxes)  || (total - subtotal);
+                const pos = this.pos || posInstance;
+                const order = this.props?.order || (pos?.get_order ? pos.get_order() : (pos?.getOrder ? pos.getOrder() : null));
+                if (order) {
+                    total = parseFloat(order.priceIncl ?? (order.get_total_with_tax ? order.get_total_with_tax() : 0)) || 0;
+                    subtotal = parseFloat(order.priceExcl ?? (order.get_total_without_tax ? order.get_total_without_tax() : 0)) || 0;
+                    tax = parseFloat(order.amountTaxes ?? (order.get_total_tax ? order.get_total_tax() : 0)) || (total - subtotal);
+
+                    // Fallback to sum of orderlines
+                    if (!total && order.getOrderlines) {
+                        for (const l of order.getOrderlines()) {
+                            const p = parseFloat(l.priceIncl ?? l.price_subtotal_incl ?? l.price_subtotal ?? ((l.price_unit || l.price || 0) * (l.qty || 1)) ?? 0);
+                            total += p;
+                            subtotal += parseFloat(l.priceExcl ?? l.price_subtotal ?? p ?? 0);
+                        }
+                        tax = total - subtotal;
+                    }
+                }
             }
-
-            this._dc_subtotal = this.env.utils.formatCurrency(subtotal);
-            this._dc_tax      = this.env.utils.formatCurrency(tax);
-            this._dc_total    = this.env.utils.formatCurrency(total);
-
-            if (this.pos.config.show_dual_currency) {
-                const sym = this.pos.config.show_currency_symbol || 'Bs.F';
-                const pos = this.pos.config.show_currency_position;
-
-                const fmt = (n) => n.toLocaleString('es-VE', {
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2,
-                });
-
-                const build = (n) => pos === 'before'
-                    ? `${sym} ${fmt(n)}`
-                    : `${fmt(n)} ${sym}`;
-
-                // Conversión correcta usando la utilidad compartida
-                this._dc_subtotal_sec = build(mainToSecondary(subtotal, this.pos));
-                this._dc_taxes_sec    = build(mainToSecondary(tax, this.pos));
-                this._dc_total_sec    = build(mainToSecondary(total, this.pos));
-            } else {
-                this._dc_subtotal_sec = '';
-                this._dc_taxes_sec    = '';
-                this._dc_total_sec    = '';
-            }
+            return { total, tax, subtotal };
         } catch (e) {
-            console.warn('[DualCurrency] OrderDisplay._updateSummary:', e);
+            return { total: 0, tax: 0, subtotal: 0 };
         }
     },
 
-    getSubtotal_currency_text() {
-        this._updateSummary();
-        return this._dc_subtotal_sec || '';
-    },
-    getTaxes_currency_text() {
-        this._updateSummary();
-        return this._dc_taxes_sec || '';
-    },
-    getTotal_currency_text() {
-        this._updateSummary();
-        return this._dc_total_sec || '';
-    },
     getSubtotal() {
-        this._updateSummary();
-        return this._dc_subtotal || this.props.total || '';
+        const { subtotal } = this._getRawTotals();
+        return formatCurrencySafe(subtotal);
     },
+
     getTax() {
-        this._updateSummary();
-        return this._dc_tax || '';
+        const { tax } = this._getRawTotals();
+        return formatCurrencySafe(tax);
     },
+
     getTotal() {
-        this._updateSummary();
-        return this._dc_total || '';
+        const { total } = this._getRawTotals();
+        return formatCurrencySafe(total);
+    },
+
+    _buildSecondary(amount) {
+        const pos = this.pos || posInstance;
+        if (!pos || !pos.config || !pos.config.show_dual_currency) return '';
+        const sym = pos.config.show_currency_symbol || 'Bs.F';
+        const position = pos.config.show_currency_position;
+        const rate = parseFloat(pos.config.show_currency_rate) || 791.3248;
+        const converted = amount < 500 ? (amount * rate) : (amount / rate);
+        const formatted = formatCurrencySafe(converted);
+        return position === 'before' ? `${sym} ${formatted}` : `${formatted} ${sym}`;
+    },
+
+    getSubtotal_currency_text() {
+        const { subtotal } = this._getRawTotals();
+        return this._buildSecondary(subtotal);
+    },
+
+    getTaxes_currency_text() {
+        const { tax } = this._getRawTotals();
+        return this._buildSecondary(tax);
+    },
+
+    getTotal_currency_text() {
+        const { total } = this._getRawTotals();
+        return this._buildSecondary(total);
     },
 });
+

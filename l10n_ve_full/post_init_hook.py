@@ -93,7 +93,10 @@ def post_init_hook(env):
             if seq_mun:
                 company.l10n_ve_wh_municipal_sequence_id = seq_mun
 
-        _logger.info('Venezuela360: Secuencias asignadas correctamente a %s.', company.name)
+        # Garantizar grupos de impuestos, cuentas fiscales VEN-NIF y catálogo oficial SENIAT
+        company._ensure_l10n_ve_chart_and_taxes()
+
+        _logger.info('Venezuela360: Impuestos y cuentas fiscales configurados para %s.', company.name)
 
         # Generar Registros E2E para Pruebas del Usuario
         _create_e2e_demo_data(env, company)

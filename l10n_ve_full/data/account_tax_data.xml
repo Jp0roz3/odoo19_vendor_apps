@@ -124,4 +124,52 @@
         <field name="sequence">11</field>
         <field name="active">True</field>
     </record>
+
+    <!-- No Sujeto a IVA (0%) Venta -->
+    <record id="tax_no_sujeto_ven" model="account.tax">
+        <field name="name">No Sujeto a IVA (Venta)</field>
+        <field name="type_tax_use">sale</field>
+        <field name="amount_type">percent</field>
+        <field name="amount">0.0</field>
+        <field name="description">NO SUJETO</field>
+        <field name="tax_group_id" ref="tax_group_no_sujeto"/>
+        <field name="sequence">5</field>
+        <field name="active">True</field>
+    </record>
+
+    <!-- No Sujeto a IVA (0%) Compra -->
+    <record id="tax_no_sujeto_com" model="account.tax">
+        <field name="name">No Sujeto a IVA (Compra)</field>
+        <field name="type_tax_use">purchase</field>
+        <field name="amount_type">percent</field>
+        <field name="amount">0.0</field>
+        <field name="description">NO SUJETO</field>
+        <field name="tax_group_id" ref="tax_group_no_sujeto"/>
+        <field name="sequence">5</field>
+        <field name="active">True</field>
+    </record>
+
+    <!-- IGTF 3% Venta -->
+    <record id="tax_igtf_ven_3" model="account.tax">
+        <field name="name">IGTF 3% (Venta)</field>
+        <field name="type_tax_use">sale</field>
+        <field name="amount_type">percent</field>
+        <field name="amount">3.0</field>
+        <field name="description">IGTF 3%</field>
+        <field name="tax_group_id" ref="tax_group_igtf"/>
+        <field name="sequence">6</field>
+        <field name="active">True</field>
+    </record>
+
+    <!-- IGTF 3% Compra -->
+    <record id="tax_igtf_com_3" model="account.tax">
+        <field name="name">IGTF 3% (Compra)</field>
+        <field name="type_tax_use">purchase</field>
+        <field name="amount_type">percent</field>
+        <field name="amount">3.0</field>
+        <field name="description">IGTF 3%</field>
+        <field name="tax_group_id" ref="tax_group_igtf"/>
+        <field name="sequence">6</field>
+        <field name="active">True</field>
+    </record>
 </odoo>
