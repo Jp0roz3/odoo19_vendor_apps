@@ -14,13 +14,65 @@ import logging
 _logger = logging.getLogger(__name__)
 
 
+def _ensure_spanish_langs(env):
+    """
+    Activa los idiomas 'es' (Español) y 'es_VE' (Español Venezuela) en la BD.
+    Esto garantiza que el router de Odoo 19 resuelva sin 500 cualquier request
+    de navegador con Accept-Language: es-419, es-ES o es.
+
+    Estrategia:
+      1. Activar el registro base.lang_es (Spanish) via res.lang
+      2. Activar el registro base.lang_es_VE (Spanish (Venezuela)) via res.lang
+      3. Como fallback, insertar/actualizar directamente via SQL si el ORM falla.
+    """
+    for lang_code in ('es', 'es_VE'):
+        try:
+            lang = env['res.lang'].with_context(active_test=False).search(
+                [('code', '=', lang_code)], limit=1
+            )
+            if lang and not lang.active:
+                lang.write({'active': True})
+                _logger.info('Venezuela360: Idioma %s activado.', lang_code)
+            elif not lang:
+                # Try loading the language pack
+                try:
+                    env['res.lang']._activate_lang(lang_code)
+                    _logger.info('Venezuela360: Idioma %s cargado e instalado.', lang_code)
+                except Exception as ex:
+                    _logger.warning('Venezuela360: No se pudo cargar %s: %s', lang_code, ex)
+            else:
+                _logger.info('Venezuela360: Idioma %s ya estaba activo.', lang_code)
+        except Exception as e:
+            _logger.warning('Venezuela360: Error al activar idioma %s: %s', lang_code, e)
+
+    # Fallback SQL - asegurar que url_code='es' para es_VE (routing directo sin prefijo)
+    try:
+        env.cr.execute("""
+            UPDATE res_lang 
+            SET url_code = 'es_VE'
+            WHERE code = 'es_VE' AND (url_code IS NULL OR url_code != 'es_VE');
+        """)
+    except Exception as e:
+        _logger.warning('Venezuela360: Error actualizando url_code para es_VE: %s', e)
+
+
 def post_init_hook(env):
     """
     Hook de post-instalación de Venezuela360.
+    - Activa idiomas es y es_VE en la base de datos para resolver todos los
+      navegadores en español sin excepción 500.
     - Asigna las secuencias de retención a la compañía activa si aún no las tiene.
     - Genera automáticamente datos de demostración E2E.
     """
     company = env.company
+
+    try:
+        # ─── PASO 1: Activar idiomas es y es_VE en res_lang ─────────────────
+        # Sin esto, cualquier petición con Accept-Language: es-419 o es-ES
+        # arroja Internal Server Error 500 en la ruta raíz /odoo de Odoo 19.
+        _ensure_spanish_langs(env)
+    except Exception as e:
+        _logger.warning('Venezuela360 post_init_hook: Error al activar idiomas: %s', str(e))
 
     try:
         # Asignar secuencia de retención IVA
