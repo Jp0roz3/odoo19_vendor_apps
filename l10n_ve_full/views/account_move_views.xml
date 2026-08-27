@@ -26,17 +26,17 @@
                         string="Retención IVA"
                         type="object"
                         class="btn-secondary"
-                        invisible="state != 'posted' or not l10n_ve_localization or l10n_ve_wh_iva_count > 0 or amount_tax == 0"/>
+                        invisible="not l10n_ve_show_wh_iva_button"/>
                 <button name="action_generate_wh_islr"
                         string="Retención ISLR"
                         type="object"
                         class="btn-secondary"
-                        invisible="state != 'posted' or not l10n_ve_localization or l10n_ve_wh_islr_count > 0"/>
+                        invisible="not l10n_ve_show_wh_islr_button"/>
                 <button name="action_generate_wh_municipal"
                         string="Retención Municipal"
                         type="object"
                         class="btn-secondary"
-                        invisible="state != 'posted' or not l10n_ve_localization or l10n_ve_wh_municipal_count > 0"/>
+                        invisible="not l10n_ve_show_wh_municipal_button"/>
             </xpath>
 
             <!-- Stat Buttons en la barra de estado -->

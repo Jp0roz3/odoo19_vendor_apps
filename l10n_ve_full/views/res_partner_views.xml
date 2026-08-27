@@ -27,6 +27,7 @@
                             <field name="l10n_ve_contributor_type" string="Tipo de Contribuyente"/>
                             <field name="l10n_ve_retention_agent_iva" string="¿Es Agente de Retención IVA?"/>
                             <field name="l10n_ve_retention_agent_islr" string="¿Es Agente de Retención ISLR?"/>
+                            <field name="l10n_ve_retention_agent_municipal" string="¿Es Agente de Retención Municipal?"/>
                             <field name="l10n_ve_seniat_registry" string="N° Registro SENIAT"/>
                         </group>
                         <group string="Retenciones ISLR y Municipal">

@@ -65,6 +65,11 @@ class ResPartner(models.Model):
         string='Agente de Retención ISLR',
         default=False,
     )
+    l10n_ve_retention_agent_municipal = fields.Boolean(
+        string='Agente de Retención Municipal',
+        default=False,
+        help='Indica que este contacto es Agente de Retención Municipal (IAE).',
+    )
     l10n_ve_seniat_registry = fields.Char(
         string='N° Registro SENIAT',
         help='Número de registro formal ante el SENIAT (distinto al RIF en algunos trámites).',

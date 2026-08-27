@@ -301,12 +301,134 @@ class AccountMove(models.Model):
         compute='_compute_wh_totals',
         store=True,
     )
-    l10n_ve_wh_municipal_total_bs = fields.Monetary(
-        string='Total Ret. Municipal (Bs)',
-        currency_field='l10n_ve_currency_bs_id',
-        compute='_compute_wh_totals',
-        store=True,
+    l10n_ve_has_service_lines = fields.Boolean(
+        string='Tiene Líneas de Servicio',
+        compute='_compute_l10n_ve_has_service_lines',
     )
+    l10n_ve_show_wh_iva_button = fields.Boolean(
+        string='Mostrar Botón Ret. IVA',
+        compute='_compute_l10n_ve_wh_buttons_visibility',
+    )
+    l10n_ve_show_wh_islr_button = fields.Boolean(
+        string='Mostrar Botón Ret. ISLR',
+        compute='_compute_l10n_ve_wh_buttons_visibility',
+    )
+    l10n_ve_show_wh_municipal_button = fields.Boolean(
+        string='Mostrar Botón Ret. Municipal',
+        compute='_compute_l10n_ve_wh_buttons_visibility',
+    )
+
+    # ------------------------------------------------------------------
+    # Computes: Conteos, Totales y Visibilidad de Retenciones
+    # ------------------------------------------------------------------
+    @api.depends('l10n_ve_wh_iva_ids', 'l10n_ve_wh_islr_ids', 'l10n_ve_wh_municipal_ids')
+    def _compute_wh_counts(self):
+        for move in self:
+            move.l10n_ve_wh_iva_count = len(move.l10n_ve_wh_iva_ids)
+            move.l10n_ve_wh_islr_count = len(move.l10n_ve_wh_islr_ids)
+            move.l10n_ve_wh_municipal_count = len(move.l10n_ve_wh_municipal_ids)
+
+    @api.depends('l10n_ve_wh_iva_ids.amount_bs', 'l10n_ve_wh_iva_ids.amount_usd',
+                 'l10n_ve_wh_islr_ids.amount_bs', 'l10n_ve_wh_municipal_ids.amount_bs')
+    def _compute_wh_totals(self):
+        for move in self:
+            move.l10n_ve_wh_iva_total_bs = sum(move.l10n_ve_wh_iva_ids.mapped('amount_bs'))
+            move.l10n_ve_wh_iva_total_usd = sum(move.l10n_ve_wh_iva_ids.mapped('amount_usd'))
+            move.l10n_ve_wh_islr_total_bs = sum(move.l10n_ve_wh_islr_ids.mapped('amount_bs'))
+            move.l10n_ve_wh_municipal_total_bs = sum(move.l10n_ve_wh_municipal_ids.mapped('amount_bs'))
+
+    @api.depends('invoice_line_ids.product_id.detailed_type', 'invoice_line_ids.product_id.type')
+    def _compute_l10n_ve_has_service_lines(self):
+        for move in self:
+            move.l10n_ve_has_service_lines = any(
+                line.product_id and (
+                    getattr(line.product_id, 'detailed_type', False) == 'service' or
+                    getattr(line.product_id, 'type', False) == 'service'
+                )
+                for line in move.invoice_line_ids
+            )
+
+    @api.depends(
+        'state', 'move_type', 'l10n_ve_localization', 'amount_tax',
+        'partner_id.l10n_ve_retention_agent_iva', 'partner_id.l10n_ve_retention_agent_islr',
+        'partner_id.l10n_ve_retention_agent_municipal', 'partner_id.l10n_ve_contributor_type',
+        'company_id.l10n_ve_retention_agent', 'company_id.l10n_ve_retention_islr_agent',
+        'company_id.l10n_ve_retention_municipal_agent',
+        'l10n_ve_wh_iva_count', 'l10n_ve_wh_islr_count', 'l10n_ve_wh_municipal_count',
+        'l10n_ve_has_service_lines'
+    )
+    def _compute_l10n_ve_wh_buttons_visibility(self):
+        for move in self:
+            if move.state != 'posted' or not move.l10n_ve_localization:
+                move.l10n_ve_show_wh_iva_button = False
+                move.l10n_ve_show_wh_islr_button = False
+                move.l10n_ve_show_wh_municipal_button = False
+                continue
+
+            is_out = move.move_type in ('out_invoice', 'out_refund')
+            is_in = move.move_type in ('in_invoice', 'in_refund')
+
+            # 1. Botón Retención IVA
+            if is_out:
+                partner_is_iva_agent = bool(
+                    move.partner_id.l10n_ve_retention_agent_iva or
+                    move.partner_id.l10n_ve_contributor_type == 'special'
+                )
+                move.l10n_ve_show_wh_iva_button = bool(
+                    partner_is_iva_agent and
+                    move.amount_tax != 0 and
+                    move.l10n_ve_wh_iva_count == 0
+                )
+            elif is_in:
+                company_is_iva_agent = bool(
+                    move.company_id.l10n_ve_retention_agent or
+                    move.company_id.l10n_ve_contributor_type == 'special'
+                )
+                move.l10n_ve_show_wh_iva_button = bool(
+                    company_is_iva_agent and
+                    move.amount_tax != 0 and
+                    move.l10n_ve_wh_iva_count == 0
+                )
+            else:
+                move.l10n_ve_show_wh_iva_button = False
+
+            # 2. Botón Retención ISLR
+            if is_out:
+                partner_is_islr_agent = bool(
+                    move.partner_id.l10n_ve_retention_agent_islr or
+                    move.l10n_ve_has_service_lines
+                )
+                move.l10n_ve_show_wh_islr_button = bool(
+                    partner_is_islr_agent and
+                    move.l10n_ve_wh_islr_count == 0
+                )
+            elif is_in:
+                company_is_islr_agent = bool(
+                    move.company_id.l10n_ve_retention_islr_agent or
+                    move.l10n_ve_has_service_lines
+                )
+                move.l10n_ve_show_wh_islr_button = bool(
+                    company_is_islr_agent and
+                    move.l10n_ve_wh_islr_count == 0
+                )
+            else:
+                move.l10n_ve_show_wh_islr_button = False
+
+            # 3. Botón Retención Municipal
+            if is_out:
+                partner_is_muni_agent = bool(move.partner_id.l10n_ve_retention_agent_municipal)
+                move.l10n_ve_show_wh_municipal_button = bool(
+                    partner_is_muni_agent and
+                    move.l10n_ve_wh_municipal_count == 0
+                )
+            elif is_in:
+                company_is_muni_agent = bool(move.company_id.l10n_ve_retention_municipal_agent)
+                move.l10n_ve_show_wh_municipal_button = bool(
+                    company_is_muni_agent and
+                    move.l10n_ve_wh_municipal_count == 0
+                )
+            else:
+                move.l10n_ve_show_wh_municipal_button = False
 
     # ------------------------------------------------------------------
     # Compute: Tasa Aplicada (BCV vs Personalizada vs Comercial)
@@ -609,12 +731,22 @@ class AccountMove(models.Model):
         self.ensure_one()
         wh = self.l10n_ve_wh_municipal_ids[:1]
         if not wh:
-            municipality = self.company_id.l10n_ve_municipality_id or self.env['l10n_ve.municipality'].search([], limit=1)
-            wh = self.env['account.wh.municipal'].create({
+            partner = self.partner_id
+            municipality = (
+                partner.l10n_ve_municipality_id or
+                self.company_id.l10n_ve_municipality_id or
+                self.env['l10n_ve.municipality'].search([], limit=1)
+            )
+            vals = {
                 'move_id': self.id,
                 'date': self.invoice_date or fields.Date.context_today(self),
                 'municipality_id': municipality.id if municipality else False,
-            })
+            }
+            if partner.l10n_ve_municipal_activity:
+                vals['economic_activity'] = partner.l10n_ve_municipal_activity
+            if partner.l10n_ve_municipal_rate:
+                vals['rate_pct'] = partner.l10n_ve_municipal_rate
+            wh = self.env['account.wh.municipal'].create(vals)
         return {
             'type': 'ir.actions.act_window',
             'name': _('Comprobante de Retención Municipal'),

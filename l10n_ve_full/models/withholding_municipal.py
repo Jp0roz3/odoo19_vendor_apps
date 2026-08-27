@@ -149,6 +149,20 @@ class AccountWhMunicipal(models.Model):
             rec.amount_bs = round(base_bs * rec.rate_pct / 100.0, 2)
             rec.amount_usd = round(rec.amount_bs / doc_rate, 2) if doc_rate else 0.0
 
+    @api.onchange('move_id')
+    def _onchange_move_id(self):
+        if self.move_id:
+            partner = self.move_id.partner_id
+            if partner:
+                if partner.l10n_ve_municipality_id:
+                    self.municipality_id = partner.l10n_ve_municipality_id
+                elif self.move_id.company_id.l10n_ve_municipality_id:
+                    self.municipality_id = self.move_id.company_id.l10n_ve_municipality_id
+                if partner.l10n_ve_municipal_activity:
+                    self.economic_activity = partner.l10n_ve_municipal_activity
+                if partner.l10n_ve_municipal_rate:
+                    self.rate_pct = partner.l10n_ve_municipal_rate
+
     @api.onchange('municipality_id')
     def _onchange_municipality(self):
         """Sugerir la tasa de retención del municipio seleccionado."""
@@ -180,7 +194,25 @@ class AccountWhMunicipal(models.Model):
             entry = rec._create_journal_entry()
             rec.journal_entry_id = entry.id
             rec.state = 'posted'
+            rec._reconcile_withholding_with_invoice()
         return True
+
+    def _reconcile_withholding_with_invoice(self):
+        self.ensure_one()
+        if not self.journal_entry_id or not self.move_id:
+            return
+        inv_lines = self.move_id.line_ids.filtered(
+            lambda l: l.account_id.account_type in ('liability_payable', 'asset_receivable') and not l.reconciled
+        )
+        wh_lines = self.journal_entry_id.line_ids.filtered(
+            lambda l: l.account_id in inv_lines.mapped('account_id') and not l.reconciled
+        )
+        if inv_lines and wh_lines:
+            try:
+                (inv_lines + wh_lines).reconcile()
+                _logger.info("Auto-conciliación exitosa de retención municipal %s con factura %s.", self.name, self.move_id.name)
+            except Exception as e:
+                _logger.warning("No se pudo auto-conciliar retención municipal %s: %s", self.name, e)
 
     def _create_journal_entry(self):
         self.ensure_one()

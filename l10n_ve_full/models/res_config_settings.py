@@ -51,6 +51,11 @@ class ResConfigSettings(models.TransientModel):
         related='company_id.l10n_ve_retention_islr_agent',
         readonly=False,
     )
+    l10n_ve_retention_municipal_agent = fields.Boolean(
+        string='Agente de Retención Municipal',
+        related='company_id.l10n_ve_retention_municipal_agent',
+        readonly=False,
+    )
 
     # ── Tasa de cambio ──────────────────────────────────────────────
     l10n_ve_rate_source = fields.Selection(

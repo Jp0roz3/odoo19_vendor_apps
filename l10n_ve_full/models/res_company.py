@@ -75,6 +75,11 @@ class ResCompany(models.Model):
         default=False,
         help='Indica que esta empresa es Agente de Retención del ISLR.',
     )
+    l10n_ve_retention_municipal_agent = fields.Boolean(
+        string='Agente de Retención Municipal',
+        default=False,
+        help='Indica que esta empresa es Agente de Retención Municipal.',
+    )
 
     # ------------------------------------------------------------------
     # Monedas: configuración dual BS / USD

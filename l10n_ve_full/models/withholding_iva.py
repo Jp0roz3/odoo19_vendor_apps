@@ -279,24 +279,46 @@ class AccountWhIva(models.Model):
             entry = rec._create_journal_entry()
             rec.journal_entry_id = entry.id
             rec.state = 'posted'
+            rec._reconcile_withholding_with_invoice()
             _logger.info('Venezuela360 IVA: Retención %s contabilizada → Asiento %s', rec.name, entry.name)
         return True
+
+    def _reconcile_withholding_with_invoice(self):
+        self.ensure_one()
+        if not self.journal_entry_id or not self.move_id:
+            return
+        inv_lines = self.move_id.line_ids.filtered(
+            lambda l: l.account_id.account_type in ('liability_payable', 'asset_receivable') and not l.reconciled
+        )
+        wh_lines = self.journal_entry_id.line_ids.filtered(
+            lambda l: l.account_id in inv_lines.mapped('account_id') and not l.reconciled
+        )
+        if inv_lines and wh_lines:
+            try:
+                (inv_lines + wh_lines).reconcile()
+                _logger.info("Auto-conciliación exitosa de retención IVA %s con factura %s.", self.name, self.move_id.name)
+            except Exception as e:
+                _logger.warning("No se pudo auto-conciliar retención IVA %s: %s", self.name, e)
 
     def _create_journal_entry(self):
         """
         Genera el asiento contable de la retención de IVA.
-        Débito: Cuenta IVA por Pagar / Débito Fiscal
-        Crédito: Cuenta IVA Retenido (pasivo frente al proveedor o activo si es cliente)
+        Proveedor: Débito Cuenta por Pagar / Crédito IVA Retenido por Enterar.
+        Cliente: Débito IVA Retenido Recibido / Crédito Cuenta por Cobrar.
         """
         self.ensure_one()
         journal = self.company_id.l10n_ve_wh_iva_journal_id
-        account_wh = self.company_id.l10n_ve_wh_iva_account_id
-
-        # Buscar la cuenta de IVA de la factura
-        tax_lines = self.move_id.line_ids.filtered(
-            lambda l: l.tax_line_id and not l.reconciled
+        account_wh = (
+            self.company_id.l10n_ve_wh_iva_received_account_id
+            if self.wh_type == 'customer' and self.company_id.l10n_ve_wh_iva_received_account_id
+            else self.company_id.l10n_ve_wh_iva_account_id
         )
-        iva_account = tax_lines[:1].account_id if tax_lines else account_wh
+
+        # Buscar la cuenta por pagar / cobrar de la factura origen
+        inv_partner_lines = self.move_id.line_ids.filtered(
+            lambda l: l.account_id.account_type in ('liability_payable', 'asset_receivable')
+        )
+        partner_account = inv_partner_lines[:1].account_id if inv_partner_lines else account_wh
 
         comp_currency = self.company_id.currency_id
         comp_is_usd = bool(comp_currency and comp_currency.name in ['USD', '$'])
@@ -311,6 +333,43 @@ class AccountWhIva(models.Model):
             debit_usd = self.amount_bs
             credit_usd = self.amount_bs
 
+        if self.wh_type == 'customer':
+            # Factura de cliente: Débito Retención IVA por Cobrar / Crédito Cuenta por Cobrar (rebaja la deuda)
+            line_ids = [
+                (0, 0, {
+                    'account_id': account_wh.id,
+                    'name': f'Ret. IVA Recibida {self.wh_rate:.0f}% — {self.name}',
+                    'debit': debit_usd,
+                    'credit': 0.0,
+                    'partner_id': self.partner_id.id,
+                }),
+                (0, 0, {
+                    'account_id': partner_account.id,
+                    'name': f'CxC Rebaja por Ret. IVA {self.wh_rate:.0f}% — {self.partner_id.name}',
+                    'debit': 0.0,
+                    'credit': credit_usd,
+                    'partner_id': self.partner_id.id,
+                }),
+            ]
+        else:
+            # Factura de proveedor: Débito Cuenta por Pagar (rebaja la deuda) / Crédito IVA Retenido por Enterar
+            line_ids = [
+                (0, 0, {
+                    'account_id': partner_account.id,
+                    'name': f'CxP Rebaja por Ret. IVA {self.wh_rate:.0f}% — {self.partner_id.name}',
+                    'debit': debit_usd,
+                    'credit': 0.0,
+                    'partner_id': self.partner_id.id,
+                }),
+                (0, 0, {
+                    'account_id': account_wh.id,
+                    'name': f'IVA Retenido por Enterar — {self.name}',
+                    'debit': 0.0,
+                    'credit': credit_usd,
+                    'partner_id': self.partner_id.id,
+                }),
+            ]
+
         move_vals = {
             'move_type': 'entry',
             'date': self.date,
@@ -320,24 +379,7 @@ class AccountWhIva(models.Model):
             'l10n_ve_rate': doc_rate,
             'l10n_ve_rate_applied': doc_rate,
             'l10n_ve_rate_type': self.move_id.l10n_ve_rate_type or 'bcv',
-            'line_ids': [
-                # Débito: reduce el IVA a pagar en la cuenta de IVA de la factura
-                (0, 0, {
-                    'account_id': iva_account.id,
-                    'name': f'Ret. IVA {self.wh_rate:.0f}% — {self.partner_id.name}',
-                    'debit': debit_usd,
-                    'credit': 0.0,
-                    'partner_id': self.partner_id.id,
-                }),
-                # Crédito: cuenta de IVA retenido (pasivo frente al contribuyente)
-                (0, 0, {
-                    'account_id': account_wh.id,
-                    'name': f'IVA Retenido — {self.name}',
-                    'debit': 0.0,
-                    'credit': credit_usd,
-                    'partner_id': self.partner_id.id,
-                }),
-            ],
+            'line_ids': line_ids,
         }
         entry = self.env['account.move'].create(move_vals)
         entry.action_post()
