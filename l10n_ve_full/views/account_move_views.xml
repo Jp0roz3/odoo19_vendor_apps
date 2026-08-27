@@ -16,6 +16,11 @@
         <field name="arch" type="xml">
 
             <!-- Botón Nota de Débito y Generación de Retenciones al lado de Nota de Crédito -->
+            <xpath expr="//button[@name='action_reverse']" position="before">
+                <field name="l10n_ve_show_wh_iva_button" invisible="1"/>
+                <field name="l10n_ve_show_wh_islr_button" invisible="1"/>
+                <field name="l10n_ve_show_wh_municipal_button" invisible="1"/>
+            </xpath>
             <xpath expr="//button[@name='action_reverse']" position="after">
                 <button name="action_create_debit_note"
                         string="Nota de Débito"
