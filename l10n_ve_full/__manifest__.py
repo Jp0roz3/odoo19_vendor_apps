@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'Venezuela360: Localización Completa',
-    'version': '19.0.1.3.0',
+    'version': '19.0.2.0.0',
     'category': 'Accounting/Localizations',
     'summary': (
         'Localización fiscal, contable y tributaria completa para Venezuela: '
@@ -44,6 +44,12 @@ Autor: JeanPerozo / Nubelco
         'stock',
     ],
     'data': [
+        # ──────────────────────────────────────────────────────────────────────
+        # IDIOMAS: activar es y es_VE PRIMERO (antes que cualquier otro dato)
+        # Sin esto, Odoo 19 lanza 500 con Accept-Language: es-419/es-ES/es
+        # ──────────────────────────────────────────────────────────────────────
+        'data/res_lang_data.xml',
+
         # Seguridad
         'security/ir_groups.xml',
         'security/ir.model.access.csv',

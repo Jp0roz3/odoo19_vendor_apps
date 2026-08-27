@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Venezuela360: Activación de Idiomas Español
+    =============================================
+    Este archivo se ejecuta en CADA actualización del módulo (odoo-bin -u l10n_ve_full),
+    a diferencia del post_init_hook que solo corre en la instalación inicial.
+
+    Propósito:
+    - Activar base.lang_es (Español / es) para que los navegadores con
+      Accept-Language: es-419, es-ES o es no obtengan error 500 en /odoo.
+    - Garantizar que base.lang_es_VE (Español Venezuela / es_VE) esté activo.
+
+    Sin este archivo, Odoo 19 lanza Internal Server Error al no encontrar un
+    idioma activo que mapee a los códigos BCP-47 usados por navegadores modernos.
+
+    Autor: JeanPerozo / Nubelco
+-->
+<odoo>
+    <data>
+        <!-- ═══════════════════════════════════════════════════════════════
+             ACTIVAR ESPAÑOL GENÉRICO (es)
+             Cubre: Accept-Language: es, es-419, es-MX, es-AR, etc.
+             El router de Odoo 19 mapea es-419 → es (primer idioma base 'es')
+             ═══════════════════════════════════════════════════════════════ -->
+        <function model="res.lang" name="_activate_lang">
+            <value eval="'es'"/>
+        </function>
+
+        <!-- ═══════════════════════════════════════════════════════════════
+             ACTIVAR ESPAÑOL VENEZUELA (es_VE)
+             Cubre: Accept-Language: es-VE (y URL prefijada /es_VE/)
+             ═══════════════════════════════════════════════════════════════ -->
+        <function model="res.lang" name="_activate_lang">
+            <value eval="'es_VE'"/>
+        </function>
+    </data>
+</odoo>
