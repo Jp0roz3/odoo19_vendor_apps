@@ -12,8 +12,6 @@ from . import exchange_rate      # tasa de cambio histórica BCV (sin deps)
 from . import ut_history         # Unidad Tributaria histórica (depende de company)
 from . import res_company        # extiende res.company (depende de territory, exchange_rate)
 from . import res_partner        # extiende res.partner (depende de territory)
-from . import res_lang           # soporte inteligente de variantes de español
-from . import ir_http            # resolución segura de idioma español en ir.http
 from . import account_tax        # extiende account.tax (localización venezolana)
 from . import account_move       # extiende account.move (campos BS/USD, retenciones)
 from . import account_payment    # extiende account.payment (dual currency)

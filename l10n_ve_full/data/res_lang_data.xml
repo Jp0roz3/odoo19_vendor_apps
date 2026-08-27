@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<odoo>
-    <data noupdate="0">
-        <!-- Activar idioma Español en res.lang para soportar todos los navegadores sin error 500 -->
-        <record id="base.lang_es" model="res.lang">
-            <field name="active" eval="True"/>
-        </record>
-    </data>
-</odoo>
