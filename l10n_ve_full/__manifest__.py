@@ -50,6 +50,7 @@ Autor: JeanPerozo / Nubelco
         'security/ir_rules.xml',
 
         # Datos iniciales
+        'data/res_lang_data.xml',
         'data/sequence_data.xml',
         'data/territory_state_data.xml',
         'data/account_tax_group_data.xml',
