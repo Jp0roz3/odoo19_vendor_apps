@@ -27,11 +27,11 @@
     <record id="view_pos_order_tree_fiscal_printer" model="ir.ui.view">
         <field name="name">pos.order.tree.fiscal.printer</field>
         <field name="model">pos.order</field>
-        <field name="inherit_id" ref="point_of_sale.view_pos_order_tree_inherit"/>
+        <field name="inherit_id" ref="point_of_sale.view_pos_order_tree"/>
         <field name="arch" type="xml">
             <field name="state" position="after">
-                <field name="fiscal_invoice_number" optional="show"/>
-                <field name="is_fiscal_printed" optional="hide"/>
+                <field name="fiscal_control_number" optional="hide"/>
+                <field name="fiscal_printer_serial" optional="hide"/>
             </field>
         </field>
     </record>
