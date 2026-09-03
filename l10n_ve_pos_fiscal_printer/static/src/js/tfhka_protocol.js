@@ -123,19 +123,29 @@ export class TfhkaProtocol {
     }
 
     /**
-     * Determina la tasa fiscal HKA aplicable a una línea de producto
+     * Determina la tasa fiscal HKA aplicable a una línea de producto (Odoo 19)
      */
     static getTaxFlag(line) {
-        let taxes = line.tax_ids || (line.get_taxes ? line.get_taxes() : []);
+        let taxes = line.taxes_id || line.tax_ids || (line.product_id ? line.product_id.taxes_id : []) || (line.product ? line.product.taxes_id : []) || (line.get_taxes ? line.get_taxes() : []);
         if (!taxes || taxes.length === 0) return TFHKA_TAX_FLAGS.EXEMPT;
 
         let taxAmount = 0;
-        let t = taxes[0];
-        taxAmount = typeof t === 'object' ? (t.amount || 0) : t;
+        let t = Array.isArray(taxes) ? taxes[0] : taxes;
+        if (typeof t === 'object' && t !== null) {
+            taxAmount = t.amount !== undefined ? t.amount : 0;
+        } else if (typeof t === 'number') {
+            taxAmount = t;
+        }
 
-        if (taxAmount === 16) return TFHKA_TAX_FLAGS.GENERAL_16;
-        if (taxAmount === 8)  return TFHKA_TAX_FLAGS.REDUCED_8;
-        if (taxAmount === 31) return TFHKA_TAX_FLAGS.ADDITIONAL_31;
+        // Búsqueda en el modelo reactivo de account.tax si solo llegó el ID
+        if (taxAmount === 0 && typeof t === 'number' && line.models && line.models['account.tax']) {
+            const taxObj = line.models['account.tax'].get(t);
+            if (taxObj && taxObj.amount) taxAmount = taxObj.amount;
+        }
+
+        if (Math.abs(taxAmount - 16) < 0.05) return TFHKA_TAX_FLAGS.GENERAL_16;
+        if (Math.abs(taxAmount - 8) < 0.05)  return TFHKA_TAX_FLAGS.REDUCED_8;
+        if (Math.abs(taxAmount - 31) < 0.05) return TFHKA_TAX_FLAGS.ADDITIONAL_31;
         return TFHKA_TAX_FLAGS.EXEMPT;
     }
 
@@ -155,9 +165,9 @@ export class TfhkaProtocol {
      */
     static buildInvoiceCommands(order, options = {}) {
         const cmds = [];
-        const partner = order.getPartner ? order.getPartner() : order.partner;
-        const clientName = partner ? partner.name : "CLIENTE DE CONTADO";
-        const clientRif = partner && partner.vat ? partner.vat : "V000000000";
+        const partner = order.getPartner ? order.getPartner() : (order.partner || order.partner_id);
+        const clientName = partner ? (partner.name || partner.display_name) : "CLIENTE DE CONTADO";
+        const clientRif = partner ? (partner.vat || partner.rif || "") : "V000000000";
 
         // 1. Datos del Cliente
         cmds.push(`i01${this.sanitizeText(clientName, 38)}`);
@@ -165,17 +175,25 @@ export class TfhkaProtocol {
         if (partner && partner.street) {
             cmds.push(`i03${this.sanitizeText(partner.street, 38)}`);
         }
-        if (partner && partner.phone) {
-            cmds.push(`i04${this.sanitizeText(partner.phone, 38)}`);
+        if (partner && (partner.phone || partner.mobile)) {
+            cmds.push(`i04${this.sanitizeText(partner.phone || partner.mobile, 38)}`);
         }
 
         // 2. Líneas de Producto
-        const lines = order.getOrderlines ? order.getOrderlines() : (order.lines || []);
+        const lines = order.lines || (order.getOrderlines ? order.getOrderlines() : (order.get_orderlines ? order.get_orderlines() : []));
         for (const line of lines) {
-            const prod = line.getProduct ? line.getProduct() : line.product;
-            const name = this.sanitizeText(prod ? prod.display_name : "PRODUCTO", 36);
-            const price = this.formatPrice(line.price_unit, 10);
-            const qty = this.formatQuantity(line.getQuantity ? line.getQuantity() : (line.qty || 1), 8);
+            const prod = line.product_id || (line.getProduct ? line.getProduct() : line.product);
+            const name = this.sanitizeText(prod ? (prod.display_name || prod.name) : "PRODUCTO", 36);
+
+            let unitPrice = line.priceUnit ?? line.price_unit ?? (line.get_unit_price ? line.get_unit_price() : (line.price || 0));
+            const discount = line.discount || 0;
+            if (discount > 0) {
+                unitPrice = unitPrice * (1 - (discount / 100));
+            }
+
+            const price = this.formatPrice(unitPrice, 10);
+            const qtyVal = line.qty ?? (line.getQuantity ? line.getQuantity() : (line.get_quantity ? line.get_quantity() : 1));
+            const qty = this.formatQuantity(qtyVal, 8);
             const taxFlag = this.getTaxFlag(line);
 
             cmds.push(`${taxFlag}${price}${qty}${name}`);
@@ -185,14 +203,14 @@ export class TfhkaProtocol {
         cmds.push("3");
 
         // 4. Pagos
-        const payments = order.get_paymentlines ? order.get_paymentlines() : (order.paymentlines || []);
+        const payments = order.payment_ids || (order.get_paymentlines ? order.get_paymentlines() : (order.paymentlines || []));
         if (!payments || payments.length === 0) {
             cmds.push("101"); // Cierre en efectivo total
         } else {
             for (let i = 0; i < payments.length; i++) {
                 const p = payments[i];
                 const pm = p.payment_method_id || p.payment_method || {};
-                const pmName = (pm.name || '').toLowerCase();
+                const pmName = (pm.name || (typeof pm === 'string' ? pm : '') || '').toLowerCase();
                 const isLast = (i === payments.length - 1);
                 const prefix = isLast ? "1" : "2";
 
@@ -203,11 +221,11 @@ export class TfhkaProtocol {
                     code = TFHKA_PAYMENT_CODES.CARD_DEBIT;
                 } else if (pmName.includes("credit") || pmName.includes("credito")) {
                     code = TFHKA_PAYMENT_CODES.CARD_CREDIT;
-                } else if (pmName.includes("transfer") || pmName.includes("movil")) {
+                } else if (pmName.includes("transfer") || pmName.includes("movil") || pmName.includes("pago movil")) {
                     code = TFHKA_PAYMENT_CODES.TRANSFER;
                 }
 
-                const amtFormatted = this.formatTotal(p.amount, 12);
+                const amtFormatted = this.formatTotal(p.amount || 0, 12);
                 cmds.push(`${prefix}${code}${amtFormatted}`);
             }
         }
@@ -220,9 +238,9 @@ export class TfhkaProtocol {
      */
     static buildCreditNoteCommands(order, origInvoice, origSerial) {
         const cmds = [];
-        const partner = order.getPartner ? order.getPartner() : order.partner;
-        const clientName = partner ? partner.name : "CLIENTE DE CONTADO";
-        const clientRif = partner && partner.vat ? partner.vat : "V000000000";
+        const partner = order.getPartner ? order.getPartner() : (order.partner || order.partner_id);
+        const clientName = partner ? (partner.name || partner.display_name) : "CLIENTE DE CONTADO";
+        const clientRif = partner ? (partner.vat || partner.rif || "") : "V000000000";
 
         cmds.push(`i01${this.sanitizeText(clientName, 38)}`);
         cmds.push(`i02${this.formatRif(clientRif)}`);
@@ -233,12 +251,20 @@ export class TfhkaProtocol {
             cmds.push(`i06Serial Impresora: ${this.sanitizeText(origSerial, 20)}`);
         }
 
-        const lines = order.getOrderlines ? order.getOrderlines() : (order.lines || []);
+        const lines = order.lines || (order.getOrderlines ? order.getOrderlines() : (order.get_orderlines ? order.get_orderlines() : []));
         for (const line of lines) {
-            const prod = line.getProduct ? line.getProduct() : line.product;
-            const name = this.sanitizeText(prod ? prod.display_name : "DEVOLUCION", 36);
-            const price = this.formatPrice(Math.abs(line.price_unit), 10);
-            const qty = this.formatQuantity(Math.abs(line.getQuantity ? line.getQuantity() : (line.qty || 1)), 8);
+            const prod = line.product_id || (line.getProduct ? line.getProduct() : line.product);
+            const name = this.sanitizeText(prod ? (prod.display_name || prod.name) : "DEVOLUCION", 36);
+
+            let unitPrice = Math.abs(line.priceUnit ?? line.price_unit ?? (line.get_unit_price ? line.get_unit_price() : (line.price || 0)));
+            const discount = line.discount || 0;
+            if (discount > 0) {
+                unitPrice = unitPrice * (1 - (discount / 100));
+            }
+
+            const price = this.formatPrice(unitPrice, 10);
+            const qtyVal = Math.abs(line.qty ?? (line.getQuantity ? line.getQuantity() : (line.get_quantity ? line.get_quantity() : 1)));
+            const qty = this.formatQuantity(qtyVal, 8);
             const taxFlag = this.getReturnTaxFlag(line);
 
             cmds.push(`${taxFlag}${price}${qty}${name}`);

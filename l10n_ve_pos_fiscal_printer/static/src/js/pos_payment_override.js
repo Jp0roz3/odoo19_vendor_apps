@@ -8,14 +8,13 @@ import { AlertDialog } from "@web/core/confirmation_dialog/confirmation_dialog";
 patch(PaymentScreen.prototype, {
     setup() {
         super.setup(...arguments);
-        // Interceptar validateOrder de forma segura para Odoo 19
-        const originalValidate = this.validateOrder ? this.validateOrder.bind(this) : null;
+        const originalValidate = this.validateOrder.bind(this);
 
         this.validateOrder = async (isForceValidate) => {
-            const order = this.currentOrder;
+            const order = this.currentOrder || (this.pos ? this.pos.get_order() : null);
             const config = this.pos.config;
 
-            if (config && config.fiscal_printer_active && config.fiscal_auto_print && !order.is_fiscal_printed) {
+            if (config && config.fiscal_printer_active && config.fiscal_auto_print && order && !order.is_fiscal_printed) {
                 const fiscalPrinter = this.env.services.fiscal_printer;
 
                 if (fiscalPrinter) {
@@ -52,11 +51,7 @@ patch(PaymentScreen.prototype, {
                 }
             }
 
-            if (originalValidate) {
-                return await originalValidate(isForceValidate);
-            } else if (super.validateOrder) {
-                return await super.validateOrder(...arguments);
-            }
+            return await originalValidate(isForceValidate);
         };
     }
 });
