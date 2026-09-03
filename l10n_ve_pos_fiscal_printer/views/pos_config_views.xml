@@ -64,25 +64,4 @@
             </xpath>
         </field>
     </record>
-
-    <!-- Enlace a Operaciones Fiscales en el Kanban de Punto de Venta -->
-    <record id="view_pos_config_kanban_fiscal_printer" model="ir.ui.view">
-        <field name="name">pos.config.kanban.fiscal.printer</field>
-        <field name="model">pos.config</field>
-        <field name="inherit_id" ref="point_of_sale.view_pos_config_kanban"/>
-        <field name="arch" type="xml">
-            <xpath expr="//field[@name='current_session_id']" position="after">
-                <field name="fiscal_printer_active"/>
-            </xpath>
-            <xpath expr="//div[hasclass('o_kanban_card_manage_pane')]" position="inside">
-                <div class="row mt-2" invisible="not fiscal_printer_active">
-                    <div class="col-12">
-                        <a name="%(action_pos_fiscal_reports_wizard)d" type="action" class="text-primary fw-bold" context="{'default_pos_config_id': id}">
-                            <i class="fa fa-print me-1"></i> Operaciones Fiscales (X / Z)
-                        </a>
-                    </div>
-                </div>
-            </xpath>
-        </field>
-    </record>
 </odoo>
