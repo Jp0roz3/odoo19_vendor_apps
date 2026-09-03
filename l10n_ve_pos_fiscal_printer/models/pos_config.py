@@ -1,6 +1,7 @@
-# -*- coding: utf-8 -*-
-
+import logging
 from odoo import models, fields, api, _
+
+_logger = logging.getLogger(__name__)
 
 class PosConfig(models.Model):
     _inherit = 'pos.config'
@@ -79,25 +80,33 @@ class PosConfig(models.Model):
         help="Envía comando de corte total/parcial al finalizar la impresión fiscal."
     )
 
-    def _load_pos_data_read(self, pos_data):
-        read_records = super()._load_pos_data_read(pos_data)
+    @api.model
+    def _load_pos_data_read(self, records, config):
+        read_records = super()._load_pos_data_read(records, config)
         if not read_records:
             return read_records
 
-        rec_list = read_records if isinstance(read_records, list) else [read_records]
-        config_rec = self.env['pos.config'].browse(rec_list[0]['id']) if 'id' in rec_list[0] else self
+        rec_list = read_records.get('data', []) if isinstance(read_records, dict) else read_records
+        if not rec_list:
+            return read_records
 
-        for record in rec_list:
-            record['fiscal_printer_active']    = bool(getattr(config_rec, 'fiscal_printer_active', False))
-            record['fiscal_printer_model']     = getattr(config_rec, 'fiscal_printer_model', 'srp812') or 'srp812'
-            record['fiscal_printer_conn_type'] = getattr(config_rec, 'fiscal_printer_conn_type', 'local_agent') or 'local_agent'
-            record['fiscal_printer_agent_url'] = getattr(config_rec, 'fiscal_printer_agent_url', 'http://localhost:9069') or 'http://localhost:9069'
-            record['fiscal_printer_port']      = getattr(config_rec, 'fiscal_printer_port', 'COM1') or 'COM1'
-            record['fiscal_printer_baudrate']  = getattr(config_rec, 'fiscal_printer_baudrate', '9600') or '9600'
-            record['fiscal_printer_tcp_ip']    = getattr(config_rec, 'fiscal_printer_tcp_ip', '192.168.1.200') or '192.168.1.200'
-            record['fiscal_printer_tcp_port']  = getattr(config_rec, 'fiscal_printer_tcp_port', 9100) or 9100
-            record['fiscal_printer_serial']    = getattr(config_rec, 'fiscal_printer_serial', '') or ''
-            record['fiscal_auto_print']        = bool(getattr(config_rec, 'fiscal_auto_print', True))
-            record['fiscal_cut_paper']         = bool(getattr(config_rec, 'fiscal_cut_paper', True))
+        try:
+            config_rec = self.env['pos.config'].browse(config) if isinstance(config, int) else (config or self)
+
+            for record in (rec_list if isinstance(rec_list, list) else [rec_list]):
+                if isinstance(record, dict) and config_rec and config_rec.exists():
+                    record['fiscal_printer_active']    = bool(getattr(config_rec, 'fiscal_printer_active', False))
+                    record['fiscal_printer_model']     = getattr(config_rec, 'fiscal_printer_model', 'srp812') or 'srp812'
+                    record['fiscal_printer_conn_type'] = getattr(config_rec, 'fiscal_printer_conn_type', 'local_agent') or 'local_agent'
+                    record['fiscal_printer_agent_url'] = getattr(config_rec, 'fiscal_printer_agent_url', 'http://localhost:9069') or 'http://localhost:9069'
+                    record['fiscal_printer_port']      = getattr(config_rec, 'fiscal_printer_port', 'COM1') or 'COM1'
+                    record['fiscal_printer_baudrate']  = getattr(config_rec, 'fiscal_printer_baudrate', '9600') or '9600'
+                    record['fiscal_printer_tcp_ip']    = getattr(config_rec, 'fiscal_printer_tcp_ip', '192.168.1.200') or '192.168.1.200'
+                    record['fiscal_printer_tcp_port']  = getattr(config_rec, 'fiscal_printer_tcp_port', 9100) or 9100
+                    record['fiscal_printer_serial']    = getattr(config_rec, 'fiscal_printer_serial', '') or ''
+                    record['fiscal_auto_print']        = bool(getattr(config_rec, 'fiscal_auto_print', True))
+                    record['fiscal_cut_paper']         = bool(getattr(config_rec, 'fiscal_cut_paper', True))
+        except Exception as e:
+            _logger.error("Error cargando datos fiscales en PosConfig._load_pos_data_read: %s", e)
 
         return read_records
