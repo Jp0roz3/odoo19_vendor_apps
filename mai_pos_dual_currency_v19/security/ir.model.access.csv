@@ -1,5 +1,4 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
 access_pos_fiscal_z_report,pos.fiscal.z.report,model_pos_fiscal_z_report,point_of_sale.group_pos_user,1,1,1,0
 access_pos_fiscal_z_report_manager,pos.fiscal.z.report,model_pos_fiscal_z_report,point_of_sale.group_pos_manager,1,1,1,0
-access_pos_printer_options,pos.printer.options,model_pos_printer_options,point_of_sale.group_pos_user,1,1,1,1
 access_pos_z_report_wizard,pos.z.report.wizard,model_pos_z_report_wizard,point_of_sale.group_pos_user,1,1,1,1
