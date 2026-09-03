@@ -184,14 +184,6 @@ patch(PaymentScreen.prototype, {
 
 
 
-        // --- IMPRESIÓN FISCAL: manejada por afterOrderValidation en models.js ---
-        // CRÍTICO: Si el patch set_to_invoice no funciona (arrow fn en Odoo 19),
-        // forzamos to_invoice=false aquí directamente para evitar que superValidate
-        // intente crear un account.move (que falla con error de fecha UTC vs UTC-4).
-        if (this.pos.config.fiscal_printer_active) {
-            order.to_invoice = false;
-        }
-
         // ── STOCK DEDUCTION ────────────────────────────────────────────────────
         // Mecanismo: escribir en stockOverrides[tmplId] (reactive() de OWL).
         // ProductCard.qtyDisplay lee stockOverrides[tmplId] → OWL re-renderiza

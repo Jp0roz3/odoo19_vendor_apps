@@ -839,23 +839,6 @@ class PosConfig(models.Model):
 
     mai_license_key      = fields.Char("Clave de Activación", default="", help="Clave de activación para proteger el módulo contra uso no autorizado.")
     
-    # ── Impresión Fiscal Directa (Web Serial API) ──
-    fiscal_printer_active = fields.Boolean(string="Activar Impresión Fiscal Directa", default=False)
-    fiscal_printer_proxy_host = fields.Char(string="Host Servidor Fiscal (Proxy)", default="http://localhost:5000", help="Dirección IP o URL del servidor local de impresión fiscal (ej: http://192.168.1.100:5000)")
-    fiscal_printer_com_port = fields.Char(string="Puerto Serial (COM)", default="COM4", help="Puerto COM asignado a la impresora fiscal en la PC servidor (ej: COM4)")
-    fiscal_printer_driver = fields.Selection([
-        ('hka', 'The Factory HKA (Bixolon, Aclas, Pantum, Dascom, Okidata)'),
-        ('pnp', 'PNP'),
-        ('bematech', 'Bematech'),
-        ('vmax', 'Vmax'),
-        ('epson', 'Epson'),
-        ('custom', 'Custom'),
-        ('aclas', 'Aclas (Protocolo Nativo)'),
-        ('rigazsa', 'Rigazsa'),
-        ('mock', 'Simulador Virtual (Modo Pruebas)'),
-    ], string='Driver de Impresora', default='hka')
-    igtf_machine_native_calc = fields.Boolean("La impresora calcula IGTF nativamente (Firmware V8+)", default=False)
-
     show_dual_currency   = fields.Boolean("Mostrar doble moneda", default=False)
     show_currency         = fields.Many2one(
         'res.currency', string='Moneda secundaria',
@@ -914,11 +897,6 @@ class PosConfig(models.Model):
                 record['show_currency_symbol']      = show_curr_sym
                 record['show_currency_position']    = show_curr_pos
                 record['show_currency']             = show_curr_id
-                record['fiscal_printer_active']     = bool(getattr(config_rec, 'fiscal_printer_active', False))
-                record['fiscal_printer_proxy_host'] = getattr(config_rec, 'fiscal_printer_proxy_host', 'http://localhost:5000') or 'http://localhost:5000'
-                record['fiscal_printer_com_port']   = getattr(config_rec, 'fiscal_printer_com_port', 'COM4') or 'COM4'
-                record['fiscal_printer_driver']     = getattr(config_rec, 'fiscal_printer_driver', 'hka') or 'hka'
-                record['igtf_machine_native_calc']  = bool(getattr(config_rec, 'igtf_machine_native_calc', False))
                 record['mai_license_key']           = getattr(config_rec, 'mai_license_key', '') or ''
         except Exception as e:
             _logger.error("Error en PosConfig._load_pos_data_read: %s", e)
@@ -1038,12 +1016,7 @@ class ResConfigSettings(models.TransientModel):
         }
 
     # ── Licencia y configuración POS ──────────────────────────────────────────
-    igtf_machine_native_calc = fields.Boolean(related='pos_config_id.igtf_machine_native_calc', readonly=False)
     mai_license_key       = fields.Char(related='pos_config_id.mai_license_key', readonly=False)
-    fiscal_printer_active = fields.Boolean(related='pos_config_id.fiscal_printer_active', readonly=False)
-    fiscal_printer_proxy_host = fields.Char(related='pos_config_id.fiscal_printer_proxy_host', readonly=False)
-    fiscal_printer_com_port = fields.Char(related='pos_config_id.fiscal_printer_com_port', readonly=False)
-    fiscal_printer_driver = fields.Selection(related='pos_config_id.fiscal_printer_driver', readonly=False)
     show_dual_currency    = fields.Boolean(related='pos_config_id.show_dual_currency', readonly=False)
     rate_company          = fields.Float(related='pos_config_id.rate_company', readonly=False)
     show_currency         = fields.Many2one(related='pos_config_id.show_currency', readonly=False)
@@ -1057,10 +1030,6 @@ class ResConfigSettings(models.TransientModel):
 
 class AccountMove(models.Model):
     _inherit = "account.move"
-
-    fiscal_invoice_number = fields.Char(string="Factura Fiscal (HKA)", copy=False, readonly=True, help="Número de factura emitido por la máquina fiscal")
-    fiscal_machine_serial = fields.Char(string="Serial Impresora", copy=False, readonly=True, help="Serial de la impresora fiscal")
-    credit_note_number = fields.Char(string="Nota de Crédito (HKA)", copy=False, readonly=True, help="Número de nota de crédito emitido por la máquina fiscal")
 
     currency_rate    = fields.Monetary(
         string='Tasa', compute='_compute_currency_amount', currency_field='vef_currency_id'

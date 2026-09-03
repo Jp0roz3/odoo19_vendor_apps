@@ -233,51 +233,6 @@ patch(PosOrderline.prototype, {
     }
 });
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Patch OrderPaymentValidation — Disable auto PDF invoice download
-// ─────────────────────────────────────────────────────────────────────────────
-import OrderPaymentValidation from "@point_of_sale/app/utils/order_payment_validation";
-patch(OrderPaymentValidation.prototype, {
-    shouldDownloadInvoice() {
-        if (this.pos.config.fiscal_printer_active) {
-            return false;
-        }
-        return super.shouldDownloadInvoice(...arguments);
-    },
-    async afterOrderValidation() {
-        // Enviar a la maquina fiscal directamente si esta activa
-        if (this.pos.config.fiscal_printer_active && this.pos.env.services.fiscal_printer) {
-            try {
-                const result = await this.pos.env.services.fiscal_printer.printInvoice(this.order);
-
-                if (result && result.success) {
-                    // CRÍTICO: Marcar la orden como impresa fiscalmente en el objeto de frontend.
-                    // Odoo 19 sincroniza este objeto con el backend via _order_fields() en models.py,
-                    // por lo que escribir aquí es suficiente — sin necesidad de un write() RPC separado.
-                    this.order.is_fiscal_printed = true;
-                    this.order.fiscal_invoice_number = result.invoice_number || '';
-                    this.order.fiscal_machine_serial  = result.machine_serial  || '';
-                    console.log(`✅ [Fiscal] Orden marcada: is_fiscal_printed=true, factura=${result.invoice_number}`);
-                } else {
-                    const errMsg = (result && result.error) ? result.error : 'Error desconocido';
-                    console.error(`❌ [Fiscal] Fallo en impresión fiscal: ${errMsg}`);
-                }
-            } catch (e) {
-                console.error("[DualCurrency] Error al imprimir en maquina fiscal:", e);
-            }
-            // Skip the standard printReceipt which would download the PDF or browser print
-            // We still need to handle restaurant prep orders
-            if (!this.pos.config.module_pos_restaurant) {
-                this.pos.checkPreparationStateAndSentOrderInPreparation(this.order, {
-                    orderDone: true,
-                });
-            }
-            return;
-        }
-        return super.afterOrderValidation(...arguments);
-    }
-});
-
 patch(PosOrder.prototype, {
     // ── Contadores de orden (cst_pos_order_lines_count integrado) ─────────────
     // this.lines es reactivo → OWL re-renderiza al agregar/quitar productos
@@ -288,12 +243,6 @@ patch(PosOrder.prototype, {
         return this.lines?.reduce((sum, line) => sum + (line.getQuantity?.() ?? line.qty ?? 0), 0) ?? 0;
     },
 
-    set_to_invoice(to_invoice) {
-        if (this.pos.config.fiscal_printer_active) {
-            return super.set_to_invoice(false);
-        }
-        return super.set_to_invoice(to_invoice);
-    },
     pay() {
         const has100PercentDiscount = this.get_orderlines().some(line => line.discount >= 100);
         if (has100PercentDiscount) {

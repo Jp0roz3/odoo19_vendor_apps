@@ -5,49 +5,12 @@ import { useService } from "@web/core/utils/hooks";
 import { onMounted } from "@odoo/owl";
 import { UsdCashMovePopup } from "./UsdCashMovePopup";
 import { ClosePosPopup } from "@point_of_sale/app/components/popups/closing_popup/closing_popup";
-import { FiscalPrinterPopup } from "./FiscalPrinterPopup";
 import { _t } from "@web/core/l10n/translation";
 import { getRateLabel, priceOverrides } from "./dual_currency_utils";
 
 patch(Navbar.prototype, {
-    setup() {
-        if (super.setup) { super.setup(...arguments); }
-        onMounted(async () => {
-            if (this.pos && this.pos.config && this.env.services && this.env.services.fiscal_printer && typeof this.env.services.fiscal_printer.initFromConfig === 'function') {
-                this.env.services.fiscal_printer.initFromConfig(this.pos.config);
-            }
-
-            const wantsAutoConnect = localStorage.getItem('pos_fiscal_printer_auto_connect') !== 'false';
-            
-            if (wantsAutoConnect && this.pos.config.fiscal_printer_active && this.env.services.fiscal_printer && this.env.services.fiscal_printer.state && !this.env.services.fiscal_printer.state.isConnected) {
-                try {
-                    const driver = this.env.services.fiscal_printer.state.driver;
-                    let shouldConnect = false;
-                    
-                    if (driver === 'mock') {
-                        shouldConnect = true;
-                    } else if ("serial" in navigator) {
-                        const ports = await navigator.serial.getPorts();
-                        if (ports.length > 0) {
-                            shouldConnect = true;
-                        }
-                    }
-                    
-                    if (shouldConnect) {
-                        console.log("Intentando auto-conectar a impresora...");
-                        await this.env.services.fiscal_printer.connect();
-                    }
-                } catch (e) {
-                    console.log("Auto-connect failed or blocked:", e);
-                }
-            }
-        });
-    },
     async onUsdCashMoveButtonClick() {
         this.dialog.add(UsdCashMovePopup);
-    },
-    async onFiscalPrinterButtonClick() {
-        this.dialog.add(FiscalPrinterPopup);
     },
     async syncRate() {
         try {

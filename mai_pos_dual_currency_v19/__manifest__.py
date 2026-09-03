@@ -19,7 +19,6 @@
     "data": [
         "security/ir.model.access.csv",
         "data/cron.xml",
-        "wizard/printer_options_views.xml",
         "wizard/pos_z_report_wizard_view.xml",
         "views/views.xml",
         "views/pos_config_view.xml",
@@ -29,18 +28,13 @@
     ],
     "assets": {
         "web.assets_backend": [
-            "mai_pos_dual_currency_v19/static/src/js/FiscalPrinterService.js",
-            "mai_pos_dual_currency_v19/static/src/js/FiscalPrinterAction.js",
             "mai_pos_dual_currency_v19/static/src/js/remove_trial_banner.js",
         ],
         "point_of_sale._assets_pos": [
             # Utilities (must load first)
             "mai_pos_dual_currency_v19/static/src/js/dual_currency_utils.js",
             "mai_pos_dual_currency_v19/static/src/js/remove_trial_banner.js",
-            # FiscalPrinterService MUST be in POS bundle — FiscalPrinterPopup uses useService('fiscal_printer')
-            "mai_pos_dual_currency_v19/static/src/js/FiscalPrinterService.js",
             # Component patches
-            "mai_pos_dual_currency_v19/static/src/js/FiscalPrinterPopup.js",
             "mai_pos_dual_currency_v19/static/src/js/models.js",
             "mai_pos_dual_currency_v19/static/src/js/OrderlinePatch.js",
             "mai_pos_dual_currency_v19/static/src/js/OrderDisplay.js",
@@ -65,7 +59,6 @@
             "mai_pos_dual_currency_v19/static/src/xml/UsdCashMovePopup.xml",
             "mai_pos_dual_currency_v19/static/src/xml/ClosePosPopup_table.xml",
             "mai_pos_dual_currency_v19/static/src/xml/CashMoveListPopup_table.xml",
-            "mai_pos_dual_currency_v19/static/src/xml/FiscalPrinterPopup.xml",
             "mai_pos_dual_currency_v19/static/src/xml/sales_detail_report.xml",
             "mai_pos_dual_currency_v19/static/src/xml/PaymentReportReceipt.xml",
         ],

@@ -170,8 +170,6 @@
                         <button t-if="pos.showCashMoveButton" class="button btn btn-secondary flex-grow-1" t-on-click="() => this.openCashMoveDetails()">Detalles entrada y salida de efectivo</button>
                         <button class="button icon btn btn-secondary flex-grow-1" t-on-click="downloadSalesReport" title="Venta Diaria">Venta Diaria 📥</button>
                         <button class="button icon btn btn-secondary flex-grow-1" t-on-click="printPaymentReport" title="Informe de Pagos">Informe Pagos 🖨️</button>
-                        <button class="button icon btn btn-secondary flex-grow-1" t-on-click="printReportX" title="Reporte X">Reporte X 🖨️</button>
-                        <button class="button icon btn btn-secondary flex-grow-1" t-on-click="printReportZ" title="Reporte Z">Reporte Z 🖨️</button>
                     </div>
                 </div>
             </t>

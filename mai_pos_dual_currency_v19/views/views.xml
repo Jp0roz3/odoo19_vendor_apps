@@ -85,26 +85,6 @@
                         	<field name="show_currency_rate" digits="[12,12]"/>
                         </div>
                     </setting>
-                    <setting>
-                        <field name="fiscal_printer_active"/>
-                        <div class="content-group mt16" invisible="not fiscal_printer_active">
-                            <div class="text-muted">
-                                Comunicación con impresora fiscal (Motor Dual: Servidor Proxy HTTP Remoto/Local o WebSerial API).
-                            </div>
-                            <div class="mt8">
-                                <label for="fiscal_printer_driver" string="Driver de Impresora"/>
-                                <field name="fiscal_printer_driver"/>
-                            </div>
-                            <div class="mt8">
-                                <label for="fiscal_printer_proxy_host" string="Host Servidor Fiscal (Proxy)"/>
-                                <field name="fiscal_printer_proxy_host" placeholder="http://localhost:5000 o https://fiscal.tu-empresa.com"/>
-                            </div>
-                            <div class="mt8">
-                                <label for="fiscal_printer_com_port" string="Puerto COM Impresora"/>
-                                <field name="fiscal_printer_com_port" placeholder="COM4"/>
-                            </div>
-                        </div>
-                    </setting>
                     <setting string="Impuestos Venezuela">
                         <div class="content-group mt16">
                             <div class="mt8">
@@ -117,10 +97,6 @@
                                     <field name="igtf_product_id"/>
                                     <button name="action_create_igtf_product" type="object" string="Autoconfigurar" class="btn btn-secondary ms-2" icon="fa-magic" help="Crea y configura el producto IGTF sorteando las validaciones de las localizaciones contables automáticamente."/>
                                 </div>
-                            </div>
-                            <div class="mt8" invisible="not fiscal_printer_active">
-                                <field name="igtf_machine_native_calc"/>
-                                <label for="igtf_machine_native_calc" string="La impresora calcula IGTF nativamente (Firmware V8+)"/>
                             </div>
                         </div>
                     </setting>

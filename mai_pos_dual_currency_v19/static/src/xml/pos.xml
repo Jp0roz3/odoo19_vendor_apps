@@ -44,16 +44,6 @@
             <i class="fa fa-refresh fa-lg" style="color: #0d6efd;"></i>
             <span class="d-none d-md-inline ms-2 fw-bolder">Sync Productos</span>
         </div>
-
-        <!-- Botón de Opciones Fiscales -->
-        <div t-if="env.services.pos and env.services.pos.config and (env.services.pos and env.services.pos.config and env.services.pos.config.fiscal_printer_active)" class="btn btn-light rounded-0 d-flex align-items-center justify-content-center h-100 mx-2" t-on-click="onFiscalPrinterButtonClick" style="cursor: pointer;" title="Configurar Impresora">
-            <i class="fa fa-print fa-lg" t-att-style="(env.services.fiscal_printer and env.services.fiscal_printer.state and env.services.fiscal_printer.state.isConnected) ? 'color: #28a745;' : 'color: #dc2626;'"></i>
-            <span class="d-none d-md-inline ms-2 fw-bolder">Fiscal</span>
-        </div>
-        <!-- Botón Desconectar -->
-        <div t-if="env.services.pos and env.services.pos.config and (env.services.pos and env.services.pos.config and env.services.pos.config.fiscal_printer_active) and env.services.fiscal_printer and env.services.fiscal_printer.state and env.services.fiscal_printer.state.isConnected" class="btn rounded-0 d-flex align-items-center justify-content-center h-100" t-on-click="() => env.services.fiscal_printer.disconnect()" style="cursor: pointer; background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb;" title="Desconectar Impresora">
-            <i class="fa fa-unlink fa-lg"></i>
-        </div>
     </xpath>
 </t>
 
@@ -456,21 +446,6 @@
                 </span>
             </div>
         </t>
-    </xpath>
-</t>
-
-<!-- ═══════════════════════════════════════════════════════════════════════
-     10. RECEIPT SCREEN — Ocultar ticket y forzar maquina fiscal
-═══════════════════════════════════════════════════════════════════════ -->
-<t t-name="mai_pos_dual_currency.ReceiptScreen" t-inherit="point_of_sale.ReceiptScreen" t-inherit-mode="extension">
-    <!-- Ocultar la previsualización del ticket si la impresora fiscal está activa -->
-    <xpath expr="//div[hasclass('pos-receipt-container')]" position="attributes">
-        <attribute name="t-att-style">(env.services.pos and env.services.pos.config and env.services.pos.config.fiscal_printer_active) ? 'display: none !important;' : ''</attribute>
-    </xpath>
-    
-    <!-- Ocultar opciones de recibo (Imprimir, Email, etc) si la impresora fiscal está activa -->
-    <xpath expr="//div[hasclass('receipt-options')]" position="attributes">
-        <attribute name="t-att-style">(env.services.pos and env.services.pos.config and env.services.pos.config.fiscal_printer_active) ? 'display: none !important;' : ''</attribute>
     </xpath>
 </t>
 
