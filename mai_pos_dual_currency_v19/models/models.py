@@ -1031,6 +1031,10 @@ class ResConfigSettings(models.TransientModel):
 class AccountMove(models.Model):
     _inherit = "account.move"
 
+    fiscal_invoice_number = fields.Char(string="Factura Fiscal (HKA)", copy=False, readonly=True, help="Número de factura emitido por la máquina fiscal")
+    fiscal_machine_serial = fields.Char(string="Serial Impresora", copy=False, readonly=True, help="Serial de la impresora fiscal")
+    credit_note_number = fields.Char(string="Nota de Crédito (HKA)", copy=False, readonly=True, help="Número de nota de crédito emitido por la máquina fiscal")
+
     currency_rate    = fields.Monetary(
         string='Tasa', compute='_compute_currency_amount', currency_field='vef_currency_id'
     )
