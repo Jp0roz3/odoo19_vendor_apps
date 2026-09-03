@@ -24,7 +24,12 @@ export class FiscalPrinterService {
     initFromConfig(posConfig) {
         if (!posConfig) return;
         this.state.connType = posConfig.fiscal_printer_conn_type || 'local_agent';
-        this.state.agentUrl = (posConfig.fiscal_printer_agent_url || 'http://localhost:9069').replace(/\/+$/, '');
+        let rawUrl = (posConfig.fiscal_printer_agent_url || 'http://127.0.0.1:9069').replace(/\/+$/, '');
+        // Usar 127.0.0.1 para evitar conflictos con resolución IPv6 (::1) en Windows
+        if (rawUrl.includes('localhost')) {
+            rawUrl = rawUrl.replace('localhost', '127.0.0.1');
+        }
+        this.state.agentUrl = rawUrl;
         this.state.port = posConfig.fiscal_printer_port || 'COM1';
         this.state.baudrate = parseInt(posConfig.fiscal_printer_baudrate || 9600);
         this.state.model = posConfig.fiscal_printer_model || 'srp812';
@@ -63,13 +68,14 @@ export class FiscalPrinterService {
         try {
             const res = await fetch(`${this.state.agentUrl}/status`, {
                 method: 'POST',
+                mode: 'cors',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     port: this.state.port,
                     baudrate: this.state.baudrate,
                     model: this.state.model,
                 }),
-                signal: AbortSignal.timeout(4000)
+                signal: AbortSignal.timeout(5000)
             });
 
             if (res.ok) {
@@ -129,6 +135,7 @@ export class FiscalPrinterService {
             try {
                 const res = await fetch(`${this.state.agentUrl}/print_invoice`, {
                     method: 'POST',
+                    mode: 'cors',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         port: this.state.port,
@@ -240,6 +247,7 @@ export class FiscalPrinterService {
             try {
                 const res = await fetch(`${this.state.agentUrl}/raw_cmd`, {
                     method: 'POST',
+                    mode: 'cors',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         port: this.state.port,
