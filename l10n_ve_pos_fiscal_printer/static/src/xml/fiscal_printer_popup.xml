@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<templates id="template" xml:space="preserve">
+    <t t-name="l10n_ve_pos_fiscal_printer.FiscalPrinterPopup">
+        <Dialog title="'Control de Impresora Fiscal (SENIAT)'">
+            <div class="p-3">
+                <div class="d-flex align-items-center justify-content-between mb-3 p-2 bg-light rounded border">
+                    <div>
+                        <strong>Estado: </strong>
+                        <span t-if="fiscalPrinter.state.isConnected" class="badge bg-success">Conectada</span>
+                        <span t-else="" class="badge bg-danger">Desconectada</span>
+                        <span class="ms-2 text-muted" t-esc="fiscalPrinter.state.connType"/>
+                    </div>
+                    <div>
+                        <span t-if="fiscalPrinter.state.serialNumber" class="text-primary fw-bold" t-esc="fiscalPrinter.state.serialNumber"/>
+                    </div>
+                </div>
+
+                <div t-if="state.message" class="alert alert-success py-2 mb-3" t-esc="state.message"/>
+                <div t-if="state.error" class="alert alert-danger py-2 mb-3" t-esc="state.error"/>
+
+                <div class="row g-2 mb-3">
+                    <div class="col-6">
+                        <button class="btn btn-outline-primary w-100 py-2" t-on-click="testConnection" t-att-disabled="state.loading">
+                            <i class="fa fa-refresh me-1"/> Probar Conexión
+                        </button>
+                    </div>
+                    <div class="col-6">
+                        <button class="btn btn-outline-secondary w-100 py-2" t-on-click="openDrawer" t-att-disabled="state.loading">
+                            <i class="fa fa-money me-1"/> Abrir Gaveta
+                        </button>
+                    </div>
+                </div>
+
+                <hr/>
+                <h6 class="fw-bold mb-2 text-secondary">Reportes y Cierres Fiscales</h6>
+                <div class="row g-2 mb-3">
+                    <div class="col-6">
+                        <button class="btn btn-primary w-100 py-2" t-on-click="printReportX" t-att-disabled="state.loading">
+                            <i class="fa fa-file-text-o me-1"/> Reporte X
+                        </button>
+                    </div>
+                    <div class="col-6">
+                        <button class="btn btn-danger w-100 py-2" t-on-click="printReportZ" t-att-disabled="state.loading">
+                            <i class="fa fa-lock me-1"/> Reporte Z (Cierre)
+                        </button>
+                    </div>
+                </div>
+
+                <div class="text-center mt-3">
+                    <button class="btn btn-sm btn-outline-danger" t-on-click="cancelDocument" t-att-disabled="state.loading">
+                        <i class="fa fa-ban me-1"/> Cancelar Documento en Curso
+                    </button>
+                </div>
+            </div>
+
+            <t t-set-slot="footer">
+                <button class="btn btn-secondary" t-on-click="props.close">Cerrar</button>
+            </t>
+        </Dialog>
+    </t>
+</templates>

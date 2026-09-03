@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<templates id="template" xml:space="preserve">
+    <t t-name="l10n_ve_pos_fiscal_printer.Navbar" t-inherit="point_of_sale.Navbar" t-inherit-mode="extension">
+        <xpath expr="//div[hasclass('pos-rightheader')]" position="inside">
+            <div t-if="pos and pos.config and pos.config.fiscal_printer_active"
+                 class="btn btn-light rounded-0 d-flex align-items-center justify-content-center h-100 mx-1"
+                 t-on-click="openFiscalPopup"
+                 style="cursor: pointer;"
+                 title="Control Fiscal SENIAT">
+                <i class="fa fa-print fa-lg"
+                   t-att-style="(env.services.fiscal_printer and env.services.fiscal_printer.state and env.services.fiscal_printer.state.isConnected) ? 'color: #28a745;' : 'color: #dc3545;'"/>
+                <span class="d-none d-md-inline ms-2 fw-bold">Fiscal</span>
+            </div>
+        </xpath>
+    </t>
+</templates>

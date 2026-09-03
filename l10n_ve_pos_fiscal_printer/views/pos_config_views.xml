@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Configuración del POS: Pestaña o Bloque Fiscal -->
+    <record id="view_pos_config_form_fiscal_printer" model="ir.ui.view">
+        <field name="name">pos.config.form.fiscal.printer</field>
+        <field name="model">pos.config</field>
+        <field name="inherit_id" ref="point_of_sale.pos_config_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//sheet" position="inside">
+                <h2>Impresión Fiscal Venezuela (SENIAT)</h2>
+                <div class="row mt16 o_settings_container">
+                    <div class="col-12 col-lg-6 o_setting_box">
+                        <div class="o_setting_left_pane">
+                            <field name="fiscal_printer_active"/>
+                        </div>
+                        <div class="o_setting_right_pane">
+                            <label for="fiscal_printer_active" string="Activar Impresora Fiscal"/>
+                            <div class="text-muted">
+                                Habilita la emisión legal de facturas fiscales y cierres Z según normativa SENIAT.
+                            </div>
+                            <div class="content-group mt16" invisible="not fiscal_printer_active">
+                                <div class="mt8">
+                                    <label for="fiscal_printer_model" string="Modelo de Impresora"/>
+                                    <field name="fiscal_printer_model"/>
+                                </div>
+                                <div class="mt8">
+                                    <label for="fiscal_printer_conn_type" string="Método de Conexión"/>
+                                    <field name="fiscal_printer_conn_type"/>
+                                </div>
+                                <div class="mt8" invisible="fiscal_printer_conn_type != 'local_agent'">
+                                    <label for="fiscal_printer_agent_url" string="URL Agente Local"/>
+                                    <field name="fiscal_printer_agent_url" placeholder="http://localhost:8069"/>
+                                </div>
+                                <div class="mt8" invisible="fiscal_printer_conn_type not in ['local_agent', 'web_serial']">
+                                    <label for="fiscal_printer_port" string="Puerto COM / USB"/>
+                                    <field name="fiscal_printer_port" placeholder="COM1"/>
+                                </div>
+                                <div class="mt8" invisible="fiscal_printer_conn_type not in ['local_agent', 'web_serial']">
+                                    <label for="fiscal_printer_baudrate" string="Velocidad (Baudrate)"/>
+                                    <field name="fiscal_printer_baudrate"/>
+                                </div>
+                                <div class="mt8" invisible="fiscal_printer_conn_type != 'tcp'">
+                                    <label for="fiscal_printer_tcp_ip" string="IP de Impresora"/>
+                                    <field name="fiscal_printer_tcp_ip"/>
+                                    <label for="fiscal_printer_tcp_port" string="Puerto TCP"/>
+                                    <field name="fiscal_printer_tcp_port"/>
+                                </div>
+                                <div class="mt8">
+                                    <field name="fiscal_auto_print"/>
+                                    <label for="fiscal_auto_print" string="Imprimir automáticamente al validar pago"/>
+                                </div>
+                                <div class="mt8">
+                                    <field name="fiscal_cut_paper"/>
+                                    <label for="fiscal_cut_paper" string="Corte automático de papel"/>
+                                </div>
+                                <div class="mt8" invisible="not fiscal_printer_serial">
+                                    <label for="fiscal_printer_serial" string="Serial Fiscal Detectado:"/>
+                                    <field name="fiscal_printer_serial" class="fw-bold text-primary"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Enlace a Operaciones Fiscales en el Kanban de Punto de Venta -->
+    <record id="view_pos_config_kanban_fiscal_printer" model="ir.ui.view">
+        <field name="name">pos.config.kanban.fiscal.printer</field>
+        <field name="model">pos.config</field>
+        <field name="inherit_id" ref="point_of_sale.view_pos_config_kanban"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='current_session_id']" position="after">
+                <field name="fiscal_printer_active"/>
+            </xpath>
+            <xpath expr="//div[hasclass('o_kanban_card_manage_pane')]" position="inside">
+                <div class="row mt-2" invisible="not fiscal_printer_active">
+                    <div class="col-12">
+                        <a name="%(action_pos_fiscal_reports_wizard)d" type="action" class="text-primary fw-bold" context="{'default_pos_config_id': id}">
+                            <i class="fa fa-print me-1"></i> Operaciones Fiscales (X / Z)
+                        </a>
+                    </div>
+                </div>
+            </xpath>
+        </field>
+    </record>
+</odoo>

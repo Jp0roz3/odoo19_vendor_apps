@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_pos_fiscal_reports_wizard_form" model="ir.ui.view">
+        <field name="name">pos.fiscal.reports.wizard.form</field>
+        <field name="model">pos.fiscal.reports.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Operaciones y Reportes Fiscales">
+                <sheet>
+                    <div class="alert alert-info" role="alert">
+                        <strong>Control Fiscal SENIAT (The Factory HKA / Bixolon SRP-812)</strong><br/>
+                        Seleccione la operación que desea ejecutar directamente en la memoria fiscal de la impresora.
+                    </div>
+                    <group>
+                        <group>
+                            <field name="pos_config_id" options="{'no_create': True}"/>
+                            <field name="operation_type"/>
+                        </group>
+                        <group invisible="operation_type != 'z_by_number'">
+                            <field name="z_start"/>
+                            <field name="z_end"/>
+                        </group>
+                        <group invisible="operation_type != 'audit_by_date'">
+                            <field name="date_start"/>
+                            <field name="date_end"/>
+                        </group>
+                    </group>
+                </sheet>
+                <footer>
+                    <button name="action_execute" string="Ejecutar en Impresora" type="object" class="btn-primary" icon="fa-print"/>
+                    <button string="Cerrar" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_pos_fiscal_reports_wizard" model="ir.actions.act_window">
+        <field name="name">Operaciones Fiscales SENIAT</field>
+        <field name="res_model">pos.fiscal.reports.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+</odoo>
