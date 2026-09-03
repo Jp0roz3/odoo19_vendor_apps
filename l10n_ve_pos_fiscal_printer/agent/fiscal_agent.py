@@ -9,11 +9,27 @@ Maneja comunicación directa serial (COM/USB), control de flujo DTR/RTS,
 cálculo de LRC y reintentos, inmune a caídas del navegador o restricciones de red.
 """
 
+import os
 import sys
 import json
 import time
 import argparse
 from http.server import HTTPServer, BaseHTTPRequestHandler
+
+# Redireccionar stdout y stderr para permitir ejecución silenciosa con pythonw.exe sin ventanas
+if sys.stdout is None:
+    try:
+        log_dir = os.path.dirname(os.path.abspath(__file__))
+        sys.stdout = open(os.path.join(log_dir, 'agent.log'), 'a', encoding='utf-8', buffering=1)
+    except Exception:
+        sys.stdout = open(os.devnull, 'w')
+
+if sys.stderr is None:
+    try:
+        log_dir = os.path.dirname(os.path.abspath(__file__))
+        sys.stderr = open(os.path.join(log_dir, 'agent.log'), 'a', encoding='utf-8', buffering=1)
+    except Exception:
+        sys.stderr = open(os.devnull, 'w')
 
 try:
     import serial
